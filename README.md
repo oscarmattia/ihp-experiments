@@ -2,6 +2,10 @@
 
 Analog IC design experiments using the IHP SG13G2 open PDK.
 
+## Agent workflow
+
+See [AGENTS.md](AGENTS.md): Grok coordinates; Composer 2.5 sub-agents implement. Keep nested `AGENTS.md` files updated before every PR.
+
 ## Quick start (EDA tools)
 
 ```bash
