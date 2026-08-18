@@ -1,0 +1,43 @@
+{
+  "format": "ihp-bjt-lut-v1",
+  "device": "npn13G2",
+  "model": "npn13G2",
+  "polarity": "npn",
+  "kind": "hbt",
+  "geo_mode": "nx",
+  "corner": "hbt_typ",
+  "pdk": "ihp-sg13g2",
+  "geometries": [
+    {
+      "Nx": 1.0
+    },
+    {
+      "Nx": 2.0
+    },
+    {
+      "Nx": 4.0
+    },
+    {
+      "Nx": 8.0
+    }
+  ],
+  "axes": {
+    "VBE": "base-emitter |V| (V)",
+    "VCE": "collector-emitter |V| (V)",
+    "geometry_axis0": "stacked geometries in file order"
+  },
+  "signals": {
+    "ID": "alias of IC",
+    "IC": "collector |Ic| (A)",
+    "IB": "base |Ib| (A)",
+    "BETA": "Ic/Ib",
+    "GM": "\u2202Ic/\u2202VBE (S), numerical",
+    "GO": "\u2202Ic/\u2202VCE (S), numerical",
+    "CBE": "Cbe (F); NaN if model does not expose it in DC",
+    "CBC": "Cbc (F); NaN if model does not expose it in DC",
+    "VA": "Early approx Ic/go (V)",
+    "GM_IC": "gm/Ic (1/V)"
+  },
+  "shape": "signal arrays are (n_geo, n_vce, n_vbe); axes are 1-D",
+  "notes": "gm/go/beta recomputed from Ic,Ib after DC; VBIC @q[gm] etc. often freeze under nested dc wrdata. Caps from @q may be stale."
+}

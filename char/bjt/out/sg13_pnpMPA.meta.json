@@ -1,0 +1,47 @@
+{
+  "format": "ihp-bjt-lut-v1",
+  "device": "pnpMPA",
+  "model": "pnpMPA",
+  "polarity": "pnp",
+  "kind": "lateral_pnp",
+  "geo_mode": "area_peri",
+  "corner": "hbt_typ",
+  "pdk": "ihp-sg13g2",
+  "geometries": [
+    {
+      "a": 8.1e-13,
+      "p": 3.6e-06
+    },
+    {
+      "a": 1e-12,
+      "p": 5.2e-06
+    },
+    {
+      "a": 2e-12,
+      "p": 7e-06
+    },
+    {
+      "a": 4e-12,
+      "p": 1e-05
+    }
+  ],
+  "axes": {
+    "VBE": "base-emitter |V| (V)",
+    "VCE": "collector-emitter |V| (V)",
+    "geometry_axis0": "stacked geometries in file order"
+  },
+  "signals": {
+    "ID": "alias of IC",
+    "IC": "collector |Ic| (A)",
+    "IB": "base |Ib| (A)",
+    "BETA": "Ic/Ib",
+    "GM": "\u2202Ic/\u2202VBE (S), numerical",
+    "GO": "\u2202Ic/\u2202VCE (S), numerical",
+    "CBE": "Cbe (F); NaN if model does not expose it in DC",
+    "CBC": "Cbc (F); NaN if model does not expose it in DC",
+    "VA": "Early approx Ic/go (V)",
+    "GM_IC": "gm/Ic (1/V)"
+  },
+  "shape": "signal arrays are (n_geo, n_vce, n_vbe); axes are 1-D",
+  "notes": "gm/go/beta recomputed from Ic,Ib after DC; VBIC @q[gm] etc. often freeze under nested dc wrdata. Caps from @q may be stale."
+}

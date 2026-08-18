@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import pickle
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -13,14 +14,33 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+_REPO = Path(__file__).resolve().parents[2]
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+
+from char.common.lut import load_lut as load_npz  # noqa: E402
 
 FAMILIES = ("lv_core", "lv_rf", "hv_core", "hv_rf")
 POLARITIES = ("n", "p")
 
 
-def load_lut(path: Path) -> dict:
+def load_device_lut(path: Path) -> dict:
+    """Load `.npz` (preferred) or pygmid `.pkl`."""
+    if path.suffix == ".npz":
+        arrays, _meta = load_npz(path)
+        return arrays
     with path.open("rb") as f:
         return pickle.load(f)
+
+
+def resolve_lut(out_dir: Path, family: str, pol: str) -> Path | None:
+    npz = out_dir / f"{family}_{pol}.npz"
+    pkl = out_dir / f"{family}_{pol}.pkl"
+    if npz.exists():
+        return npz
+    if pkl.exists():
+        return pkl
+    return None
 
 
 def nearest_index(axis: np.ndarray, value: float) -> int:
@@ -82,10 +102,10 @@ def summarize_device(name: str, lut: dict) -> list[dict]:
 def plot_family(out_dir: Path, family: str) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
     for pol, ax in zip(POLARITIES, axes):
-        path = out_dir / f"{family}_{pol}.pkl"
-        if not path.exists():
+        path = resolve_lut(out_dir, family, pol)
+        if path is None:
             continue
-        lut = load_lut(path)
+        lut = load_device_lut(path)
         lengths = np.asarray(lut["L"], dtype=float)
         vgs = np.asarray(lut["VGS"], dtype=float)
         vds = np.asarray(lut["VDS"], dtype=float)
@@ -118,10 +138,10 @@ def plot_family(out_dir: Path, family: str) -> None:
     # Id-Vg lin/log at VDS=VDD, VSB=0, shortest L
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), constrained_layout=True)
     for pol, ax in zip(POLARITIES, axes):
-        path = out_dir / f"{family}_{pol}.pkl"
-        if not path.exists():
+        path = resolve_lut(out_dir, family, pol)
+        if path is None:
             continue
-        lut = load_lut(path)
+        lut = load_device_lut(path)
         vgs = np.asarray(lut["VGS"], dtype=float)
         vds = np.asarray(lut["VDS"], dtype=float)
         vsb = np.asarray(lut["VSB"], dtype=float)
@@ -161,7 +181,11 @@ def plot_vth_comparison(rows: list[dict], out_dir: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out-dir", type=Path, default=Path("char/out"))
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        default=Path(__file__).resolve().parent / "out",
+    )
     args = parser.parse_args()
     out_dir = args.out_dir
     if not out_dir.exists():
@@ -170,11 +194,11 @@ def main() -> int:
     all_rows: list[dict] = []
     for family in FAMILIES:
         for pol in POLARITIES:
-            path = out_dir / f"{family}_{pol}.pkl"
-            if not path.exists():
-                print(f"skip missing {path.name}")
+            path = resolve_lut(out_dir, family, pol)
+            if path is None:
+                print(f"skip missing {family}_{pol}.npz/.pkl")
                 continue
-            lut = load_lut(path)
+            lut = load_device_lut(path)
             all_rows.extend(summarize_device(f"{family}_{pol}", lut))
         plot_family(out_dir, family)
 

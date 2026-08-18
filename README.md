@@ -12,13 +12,17 @@ source ~/.local/share/ihp-eda/env.sh
 
 Environment details: [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
 
-## MOSFET characterization
+## Device characterization LUTs
+
+Precomputed MOS + BJT tables for fast design-space browsing (no SPICE on every look-up). Passives (R/L/C) come later.
 
 ```bash
 source ~/.local/share/ihp-eda/env.sh
-./char/run_all.sh
+./char/run_all.sh          # MOS + BJT
+./char/mos/run_all.sh      # MOSFET gm/ID only
+./char/bjt/run_all.sh      # HBT / PNP only
 ```
 
-Covers LV/HV × core/RF × NMOS/PMOS. See [char/README.md](char/README.md).
+See [char/README.md](char/README.md).
 
 Upstream PDK docs: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/installation.html

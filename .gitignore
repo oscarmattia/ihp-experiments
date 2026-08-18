@@ -1,2 +1,5 @@
 scripts/env-ihp.local.sh
 pdk
+
+__pycache__/
+*.py[cod]

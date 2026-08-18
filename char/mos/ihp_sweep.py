@@ -11,12 +11,18 @@ import argparse
 import pickle
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
+
+_REPO = Path(__file__).resolve().parents[2]
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+from char.common.lut import matrange, parse_wrdata as _parse_wrdata, save_lut
 
 OUTVARS = [
     "ID",
@@ -116,28 +122,8 @@ class DeviceFamily:
     width_um: float = 1.0
 
 
-def matrange(start: float, step: float, stop: float) -> np.ndarray:
-    n = int(round((stop - start) / step + 1))
-    return np.linspace(start, stop, n)
-
-
 def parse_wrdata(path: Path) -> dict[str, np.ndarray]:
-    """Parse ngspice wrdata file into named parameter arrays."""
-    rows = []
-    with path.open() as f:
-        for line in f:
-            parts = line.split()
-            if not parts:
-                continue
-            rows.append([float(x) for x in parts])
-    data = np.asarray(rows, dtype=float)
-    # Drop interleaved sweep axes: keep y columns only
-    values = np.delete(data, list(range(0, data.shape[1], 2)), axis=1).T
-    if values.shape[0] != len(DEVICE_PARAMS):
-        raise RuntimeError(
-            f"{path}: expected {len(DEVICE_PARAMS)} vectors, got {values.shape[0]}"
-        )
-    return {name: values[i] for i, name in enumerate(DEVICE_PARAMS)}
+    return _parse_wrdata(path, DEVICE_PARAMS)
 
 
 def probe_exprs(inst: str, probe: str) -> list[str]:
@@ -293,13 +279,36 @@ def characterize_family(
     finally:
         shutil.rmtree(work_root, ignore_errors=True)
 
-    n_path = out_dir / f"{family.name}_n.pkl"
-    p_path = out_dir / f"{family.name}_p.pkl"
-    with n_path.open("wb") as f:
-        pickle.dump(nch, f)
-    with p_path.open("wb") as f:
-        pickle.dump(pch, f)
-    print(f"[{family.name}] wrote {n_path.name}, {p_path.name}", flush=True)
+    def _export(pol: str, lut: dict) -> Path:
+        pkl_path = out_dir / f"{family.name}_{pol}.pkl"
+        with pkl_path.open("wb") as f:
+            pickle.dump(lut, f)
+        arrays = {
+            k: np.asarray(v)
+            for k, v in lut.items()
+            if isinstance(v, np.ndarray)
+        }
+        meta = {
+            "device_class": "mos",
+            "family": family.name,
+            "polarity": pol,
+            "label": family.label,
+            "corner": lut.get("CORNER"),
+            "temp_K": lut.get("TEMP"),
+            "width_um": float(lut.get("W", family.width_um)),
+            "nfing": int(lut.get("NFING", 1)),
+            "rfmode": family.rfmode,
+            "format": "pygmid_compatible",
+        }
+        save_lut(out_dir / f"{family.name}_{pol}.npz", arrays, meta)
+        return pkl_path
+
+    n_path = _export("n", nch)
+    p_path = _export("p", pch)
+    print(
+        f"[{family.name}] wrote {n_path.name}/{p_path.name} (+ .npz)",
+        flush=True,
+    )
     return n_path, p_path
 
 
@@ -385,7 +394,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=Path("char/out"),
+        default=Path(__file__).resolve().parent / "out",
     )
     parser.add_argument(
         "--only",
