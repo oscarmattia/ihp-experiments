@@ -31,3 +31,9 @@ source ~/.local/share/ihp-eda/env.sh
 - `{family}_n.pkl` / `{family}_p.pkl` — LUTs
 - `summary.csv` — Vth, Ion, peak gm/ID per L
 - `{family}_gm_id.png`, `{family}_idvg.png`, `vth_comparison.png`
+
+## Notes
+
+- **Core vs RF (DC):** Id / Vth / gm match to numerical noise. RF (`rfmode=1`) mainly changes high-frequency parasitics; CGG/CGS/CGD differ at the ~fF level in these LUTs.
+- **pygmid Lookup:** load a pickle with `from pygmid import Lookup` (API varies by version) after installing pygmid into the EDA venv.
+- Sweep grids are intentionally coarse for a first pass; edit `default_families()` in `ihp_sweep.py` to densify.
