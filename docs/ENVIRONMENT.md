@@ -10,7 +10,7 @@ Official guide: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/insta
 | --- | --- | --- |
 | PDK | `IHP-Open-PDK` **`dev`** branch + submodules | Docs require `dev` for current ngspice examples |
 | Verilog-A → OSDI | **OpenVAF-Reloaded** (`openvaf-r`) | Needs **LLVM 21** runtime (`apt.llvm.org`); GitHub releases |
-| Circuit sim | **ngspice** ≥43 with `--enable-osdi` | Built from GitHub SourceForge mirror |
+| Circuit sim | **ngspice** ≥44 (`ngspice-45.2` default) with `--enable-osdi` | Needs OSDI ≥0.4 for OpenVAF-R; built from GitHub SF mirror |
 | Schematic | **xschem** 3.4.x from source | Then `python3 libs.tech/xschem/install.py` |
 | Layout | **KLayout** (~0.30.x .deb, else Ubuntu apt) | Needs `KLAYOUT_PATH` / `KLAYOUT_HOME` |
 | Python | **uv** venv + PDK `requirements.txt` | Does not replace system Python for Tcl/Tk tools |

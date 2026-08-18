@@ -22,8 +22,9 @@ PDK_ROOT="${PDK_ROOT:-$IHP_EDA_ROOT/IHP-Open-PDK}"
 PDK="${PDK:-ihp-sg13g2}"
 PDK_BRANCH="${PDK_BRANCH:-dev}"
 
-# Versions aligned with IHP-Open-PDK versions.txt where practical
-NGSPICE_TAG="${NGSPICE_TAG:-ngspice-43}"
+# Prefer a release with OSDI >= 0.4 (required by OpenVAF-Reloaded).
+# IHP versions.txt lists ngspice 43 (OSDI 0.3 / legacy openvaf); we pin newer.
+NGSPICE_TAG="${NGSPICE_TAG:-ngspice-45.2}"
 XSCHEM_TAG="${XSCHEM_TAG:-3.4.6}"
 OPENVAF_R_VERSION="${OPENVAF_R_VERSION:-v24.0.1mob}"
 UV_VERSION="${UV_VERSION:-0.12.5}"
@@ -244,7 +245,7 @@ build_xschem() {
 install_klayout() {
   [[ "$SKIP_KLAYOUT" -eq 1 ]] && { log "Skipping klayout"; return; }
   if have_cmd klayout && [[ "$FORCE_REBUILD" -eq 0 ]]; then
-    log "klayout already present: $(klayout -b -r /dev/null 2>&1 | head -n1 || command -v klayout)"
+    log "klayout already present: $(command -v klayout) ($(klayout -v 2>/dev/null | head -n1 || echo unknown))"
     return
   fi
 
@@ -356,7 +357,11 @@ install_python() {
   local req="$PDK_ROOT/requirements.txt"
   [[ -f "$req" ]] || die "Missing $req — clone PDK first"
 
-  uv venv "$IHP_EDA_ROOT/venv" --python python3
+  if [[ ! -x "$IHP_EDA_ROOT/venv/bin/python" || "$FORCE_REBUILD" -eq 1 ]]; then
+    uv venv "$IHP_EDA_ROOT/venv" --python python3 ${FORCE_REBUILD:+--clear}
+  else
+    log "uv venv already present at $IHP_EDA_ROOT/venv"
+  fi
   # Use uv pip for compatibility with the PDK requirements.txt (no pyproject yet).
   uv pip install --python "$IHP_EDA_ROOT/venv/bin/python" -r "$req"
 }

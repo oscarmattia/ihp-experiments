@@ -28,17 +28,19 @@ check() {
 }
 
 check "PDK_ROOT exists" test -d "${PDK_ROOT:?}/$PDK"
-check "openvaf-r on PATH" command -v openvaf-r >/dev/null
-check "ngspice on PATH" command -v ngspice >/dev/null
-check "xschem on PATH" command -v xschem >/dev/null
-check "klayout on PATH" command -v klayout >/dev/null
+check "openvaf-r on PATH" bash -c 'command -v openvaf-r >/dev/null'
+check "ngspice on PATH" bash -c 'command -v ngspice >/dev/null'
+check "xschem on PATH" bash -c 'command -v xschem >/dev/null'
+check "klayout on PATH" bash -c 'command -v klayout >/dev/null'
 check "OSDI models present" bash -c 'compgen -G "$PDK_ROOT/$PDK/libs.tech/ngspice/osdi/*.osdi" >/dev/null'
 check "~/.spiceinit symlink" test -L "$HOME/.spiceinit" -o -f "$HOME/.spiceinit"
 
-# Minimal MOSFET operating-point test from IHP docs (ngspice.rst)
+# Minimal MOSFET operating-point test adapted from IHP docs (ngspice.rst).
+# Keep real $HOME so ngspice picks up ~/.spiceinit (loads OSDI + sourcepath).
 TMP="$(mktemp -d)"
+MODEL_LIB="$PDK_ROOT/$PDK/libs.tech/ngspice/models/cornerMOSlv.lib"
 cat > "$TMP/mostest.spice" <<EOF
-.lib '$PDK_ROOT/$PDK/libs.tech/ngspice/models/cornerMOSlv.lib' mos_tt
+.lib '$MODEL_LIB' mos_tt
 Vgs net1 GND 0.4
 Vds net3 GND 1.0
 Vd net3 net2 0
@@ -54,31 +56,20 @@ print Id
 .end
 EOF
 
-# Preload OSDI if .spiceinit is not picked up in batch mode
-OSDI_DIR="$PDK_ROOT/$PDK/libs.tech/ngspice/osdi"
-if [[ -d "$OSDI_DIR" ]]; then
-  {
-    echo "* auto-generated for verify-ihp-eda.sh"
-    for f in "$OSDI_DIR"/*.osdi; do
-      echo "pre_osdi $f"
-    done
-  } > "$TMP/.spiceinit"
-fi
-
 set +e
 (
   cd "$TMP"
-  HOME="$TMP" ngspice -b mostest.spice >"$TMP/out.txt" 2>&1
+  ngspice -b mostest.spice >"$TMP/out.txt" 2>&1
 )
 rc=$?
 set -e
 
-if [[ $rc -eq 0 ]] && grep -Eq 'id[[:space:]]*=' "$TMP/out.txt"; then
+if [[ $rc -eq 0 ]] && grep -Eqi 'id[[:space:]]*=' "$TMP/out.txt"; then
   printf 'PASS  ngspice MOSFET op-point (docs example)\n'
-  grep -E 'id[[:space:]]*=' "$TMP/out.txt" | head -n1
+  grep -Ei 'id[[:space:]]*=' "$TMP/out.txt" | head -n1
 else
   printf 'FAIL  ngspice MOSFET op-point (docs example)\n'
-  tail -n 40 "$TMP/out.txt" || true
+  tail -n 60 "$TMP/out.txt" || true
   fail=1
 fi
 
