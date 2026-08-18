@@ -305,17 +305,15 @@ EOF
 
   # Ensure interactive shells pick this up without conflicting with other RC logic.
   local marker="# >>> ihp-eda >>>"
+  local env_line="[[ -f \"$IHP_EDA_ROOT/env.sh\" ]] && source \"$IHP_EDA_ROOT/env.sh\""
   if [[ -f "$HOME/.bashrc" ]] && ! grep -qF "$marker" "$HOME/.bashrc"; then
     cat >> "$HOME/.bashrc" <<EOF
 
 $marker
-[[ -f "\$HOME/.local/share/ihp-eda/env.sh" ]] && source "\$HOME/.local/share/ihp-eda/env.sh"
+$env_line
 # <<< ihp-eda <<<
 EOF
   fi
-
-  # Repo-local convenience wrapper always points at the install.
-  ln -sfn "$IHP_EDA_ROOT/env.sh" "$REPO_ROOT/scripts/env-ihp.local.sh" 2>/dev/null || true
 }
 
 compile_models() {

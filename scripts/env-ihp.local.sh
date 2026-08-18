@@ -1,1 +1,0 @@
-/home/ubuntu/.local/share/ihp-eda/env.sh
