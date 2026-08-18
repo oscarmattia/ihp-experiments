@@ -21,3 +21,5 @@ Precomputed tables for fast design-space browsing without re-running SPICE.
 source ~/.local/share/ihp-eda/env.sh
 ./char/run_all.sh
 ```
+
+MOSFET family details and pygmid notes: [`mos/README.md`](mos/README.md). Agent contracts: [`AGENTS.md`](AGENTS.md).
