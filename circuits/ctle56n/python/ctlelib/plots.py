@@ -322,32 +322,26 @@ def plot_ac(
         f3_label += " (no crossing to 300 GHz)"
     ax1.axvline(f_3db_hz, color="orange", ls="--", alpha=0.8, label=f3_label)
     ax1.plot(f_peak_hz, peak_gain_db, "go", ms=6, zorder=5)
-    ax1.annotate(
-        f"G_peak={peak_gain_db:.2f} dB @ f_peak",
-        xy=(f_peak_hz, peak_gain_db),
-        xytext=(f_peak_hz * 1.5, peak_gain_db - 2.0),
-        fontsize=8,
-        arrowprops=dict(arrowstyle="->", color="green", lw=0.8),
-    )
     info = (
-        f"DC={dc_gain_db:.2f} dB  G_peak={peak_gain_db:.2f} dB  "
-        f"f_peak={_ghz(f_peak_hz)} GHz  f_{{-3dB}}={_ghz(f_3db_hz)} GHz  "
+        f"DC={dc_gain_db:.2f} dB  G_peak={peak_gain_db:.2f} dB\n"
+        f"f_peak={_ghz(f_peak_hz)} GHz  f_{{-3dB}}={_ghz(f_3db_hz)} GHz\n"
         f"peak@28G={peaking_db:.2f} dB"
     )
     ax1.text(
-        0.02,
-        0.02,
+        0.5,
+        0.5,
         info,
         transform=ax1.transAxes,
         fontsize=7,
-        va="bottom",
+        ha="center",
+        va="center",
         bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
     )
     ax1.set_ylabel("Gain (dB)")
     ax1.set_title("Differential AC — |vod/vid|")
     ax1.set_xlim(freq[0], AC_FMAX_HZ)
     ax1.grid(True, which="both", alpha=0.3)
-    ax1.legend(fontsize=7, loc="upper right")
+    ax1.legend(fontsize=7, loc="lower left")
 
     gd_ps = gd_s * 1e12
     ax2.semilogx(freq, gd_ps, "g-", lw=1.5)
@@ -373,7 +367,7 @@ def plot_cmrr(freq: np.ndarray, cmrr_db: np.ndarray, path: Path) -> None:
     ax.set_title("CMRR = Adm − Acm (dB)")
     ax.set_xlim(freq[0], AC_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend()
+    ax.legend(loc="lower left")
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
@@ -391,7 +385,7 @@ def plot_psrr(freq: np.ndarray, psrr_db: np.ndarray, path: Path) -> None:
     ax.set_title("PSRR = |vdd / vod| (VDD noise → differential out)")
     ax.set_xlim(freq[0], AC_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend()
+    ax.legend(loc="lower left")
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
