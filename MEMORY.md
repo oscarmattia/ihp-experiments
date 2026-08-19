@@ -336,6 +336,36 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   decides the power ring's width.
 - **An EM-derived width is a computed number and lands off-grid.** Snap widths and the offsets derived
   from them, or a rail reports `metal2_drw_Offgrid`.
+- **Extract with Magic *flat*, or capacitance comes out negative.** A hierarchical extraction of the
+  CTLE stage gave 98 capacitors totalling 135 fF with **nine negative terms**, worst −85 fF; flat gives
+  34 totalling 700 fF with none, and the substrate terms flip to plausible positives (`mgate` −85.23 →
+  +146.54 fF, `e1` −41.07 → +65.97 fF) `[sim]`. So hierarchy was not mislabelling capacitance, it was
+  losing most of it. The negatives name the mechanism: the same value repeats once per array instance
+  on the drain and source rail nodes, so Magic computes a rail's substrate capacitance in the parent
+  and subtracts coupling attributed to the child unit cells until the residual goes negative.
+  Debugged by bisection, and it is **neither** of the plausible causes — a bare strapped array is
+  clean at 1, 5 and 25 units, and `cthresh` 0, 0.01 and 1 give byte-identical negatives. Only the
+  stage was affected: the device flow already flattens its GDS through `write_for_magic`.
+  `PexResult.physical` is now false when any capacitor is negative, because ngspice accepts one
+  without complaint and it silently moves the AC result.
+- **Flat extraction emits no `.subckt` at all**, just a bare deck, so anything that needs an
+  includable subcircuit has to supply the header and the port list itself.
+- **Magic's MOS `as`/`ad`/`ps`/`pd` are unusable for a strapped array.** The 25 units share drain and
+  source nets, so it dumps the merged node's whole diffusion onto one arbitrary instance
+  (`as=53.3p ps=0.51m`) and gives the other 24 `as=0` — and the model file says
+  `* if as = 0, calculate value, else take it`, so that is 24 *estimated* junctions on top of one
+  measurement of the whole array. Take devices from the KLayout LVS extraction, which merges the array
+  into the single device it is (`W=243u AS=82.62p PS=503u`), and take only the capacitance network
+  from Magic. Restricting it to nets both views share keeps 493 fF and discards 3 fF (0.6%), all on
+  resistor body nodes whose parasitics the compact model already covers `[sim]`.
+- **`pre_layout` is a real model switch, and post-layout must set it to 0.** The MOS models default to
+  `pre_layout=1`, which bakes in a layout allowance: `dlq = '-1.3721e-08 -((1-pre_layout)*2e-08)'` and
+  `lov = '2.9423e-08 -((1-pre_layout)*9e-09)'`. A post-layout netlist that supplies extracted
+  `AS`/`AD`/`PS`/`PD` and leaves `pre_layout` at 1 double-counts 20 nm of channel length and 9 nm of
+  overlap. Only the MOS and moscap models have it; the HBT and passives do not.
+- **The extracted netlist carries parameters the models reject.** Extraction emits `A` and `P` on
+  `cap_cmomi`, which declares neither, so a post-layout netlist has to be filtered against each
+  model's own accepted parameter list rather than fed to ngspice raw.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
   continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction.
 - **Magic does not recognise the metal-finger cap as a device**: it extracts the fingers with an

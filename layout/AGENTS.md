@@ -46,6 +46,8 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
 | `rules.py` | DRC rule values read from the PDK's own JSON — **never transcribe a limit** |
 | `em.py` | electromigration limits parsed from `sg13g2_tech.lef`, the only place they exist |
 | `parity.py` | schematic netlist against layout CDL, device for device |
+| `simview.py` | black-boxed device kinds, promoted pins, reduced CDL, post-layout wrapper |
+| `postlayout.py` | ngspice comparison, model parameter filtering, extracted-netlist assembly |
 | `layers.py` | layer map parsed from `layers_def.drc`; `validate_routing_layers()` guards the one hand-written table |
 | `pdk.py` | headless PCell bootstrap (reproduces the KLayout autorun macro) |
 | `spec.py` | `DeviceSpec`, the single source of truth for a device instance |
@@ -80,6 +82,20 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
   whatever instantiates it — the testbench for a standalone stage, the chain when
   cascaded — and `vss` is a pin rather than the global node `0`, so the port list
   matches. The CTLE is converted; the VGA, driver and termination netlists are not.
+- **Two device kinds are black-boxed for simulation**, per kind, in
+  `simview.BLACK_BOX_KINDS`: `inductor` (the PDK has no ngspice model) and `cmomi`
+  (the extractor's finger geometry is not the calibrated compact model). Their nets
+  are promoted to pins and a wrapper reconnects the compact models, so a
+  post-layout DUT has the schematic's own seven pins and the existing testbenches
+  need no changes.
+- **A simulation view is not a tape-out view and must not be gated as one.**
+  `build_ctle_stage(black_box=...)` is deliberately not exposed as a CLI flag on
+  `ctle_stage.py`, because that entry point writes the tape-out artifacts and judges
+  them against the full schematic and full CDL. Go through
+  `layout/blocks/run_postlayout.py`, which writes elsewhere and gates the reduced
+  view against the reduced CDL.
+- **Magic extracts flat.** See `pex._magic_script`: hierarchical extraction produced
+  negative capacitance. `PexResult.physical` is the gate for that.
 - **Every gate returns JSON.** `drc.py`, `lvs.py` and `pex.py` reduce tool output
   to a verdict plus counts, so an agent never scrapes a log.
 - **Judge LVS on the report, not the exit code.** `run_lvs.py` exits 0 even when

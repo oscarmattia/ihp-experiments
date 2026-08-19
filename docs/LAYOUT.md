@@ -361,6 +361,62 @@ lands on `nlp` — the node between coil and load — where the coil's port capa
 already sits and which stays out of `C_L`. The drawn length is reported in the stage
 summary against the `CL_INTERCONNECT` budget in `params.inc`.
 
+## Post-layout simulation
+
+The extracted layout is simulated through the *same* testbenches as the schematic,
+because the CTLE was made a device-only cell with pins
+`outp outn inp inn vdd vss mgate`: a post-layout netlist is just another `dut_cir`
+for `prepare_tb`, and `circuits/ctle56n/python/stage_postlayout.py` takes it by
+path so `circuits/` never imports from `layout/`.
+
+Two device kinds cannot come from extraction and are black-boxed per kind in
+`simview.BLACK_BOX_KINDS`:
+
+- `inductor` — the PDK has no ngspice inductor model, and Magic sees the spiral as
+  one continuous piece of TopMetal2, so it treats the two ports as a DC short and
+  collapses `nlp1`/`nlp2` into `vdd`. The shunt-peaking network disappears
+  entirely. The authority is the EM-fitted `ind_shunt`.
+- `cmomi` — has a calibrated compact model, which the extractor's finger geometry
+  is not.
+
+Removing them means the nets they touched must become pins of the extracted
+subcircuit, so `simview.promoted_nets()` derives `e1`, `e2`, `nlp1`, `nlp2` from the
+instances and a wrapper reconnects the compact models on those internal nodes while
+presenting the schematic's own seven pins.
+
+The simulation view is a build option, `build_ctle_stage(black_box=...)`, not a
+hand-maintained second view — which is the point of a generated layout, since the
+two cannot drift. It is gated on LVS against a *reduced* CDL derived from the same
+instance list, so every remaining device and all its connectivity is still verified.
+
+### Two flows
+
+| | source of devices | source of parasitics |
+| --- | --- | --- |
+| KLayout | LVS extraction | resistance only |
+| Magic | LVS extraction | Magic's capacitance network |
+
+Both take **devices from the LVS extraction**, and that is not a preference. Magic
+cannot describe a strapped array: the 25 units share drain and source nets, so it
+puts the merged node's whole diffusion on one arbitrary instance and gives the other
+24 `as=0`, which the model file explicitly treats as "calculate it" rather than
+"none here". The LVS deck merges the array into the single device it is, with
+`W=243u AS=82.62p PS=503u`.
+
+Restricting Magic's capacitors to nets both views share keeps 493 fF and discards
+3 fF (0.6%), all of it on resistor body nodes whose parasitics the compact model
+already accounts for.
+
+Two things a post-layout netlist must do before ngspice will accept it, both handled
+by `postlayout.normalise_element()`:
+
+- **Filter parameters against each model.** Extraction emits `A` and `P` on
+  `cap_cmomi`, which declares neither.
+- **Set `pre_layout=0` on every MOS.** The default of 1 bakes in a layout
+  allowance — `dlq = '-1.3721e-08 -((1-pre_layout)*2e-08)'` — so a netlist that also
+  supplies extracted `AS`/`AD`/`PS`/`PD` double-counts 20 nm of channel length and
+  9 nm of overlap.
+
 ### Getting signals out of a ringed cell
 
 The stage cascades, so `outp`/`outn` leave at the top edge and `inp`/`inn` at the

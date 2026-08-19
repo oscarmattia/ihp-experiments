@@ -871,21 +871,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=OUT_DIR)
     parser.add_argument("--no-render", action="store_true")
     parser.add_argument("--no-pex", action="store_true")
-    parser.add_argument(
-        "--black-box",
-        action="append",
-        default=[],
-        metavar="KIND",
-        help="device kind to omit as geometry (repeatable or comma-separated)",
-    )
     args = parser.parse_args(argv)
 
-    bb_kinds: list[str] = []
-    for item in args.black_box:
-        bb_kinds.extend(part.strip() for part in item.split(",") if part.strip())
-
     args.out.mkdir(parents=True, exist_ok=True)
-    block = build_ctle_stage(black_box=tuple(bb_kinds))
+    # No --black-box flag here on purpose. This entry point writes the tape-out
+    # artifacts and gates them on parity against the full schematic and LVS against
+    # the full CDL, none of which a deliberately reduced view can satisfy. Exposing
+    # it as a flag would let a simulation view overwrite the tape-out GDS under the
+    # same cell name and then be judged against the wrong netlist. The
+    # `black_box` argument to build_ctle_stage() is the API; layout/blocks/
+    # run_postlayout.py is the caller that gates it correctly.
+    block = build_ctle_stage()
     entry = block.summary()
 
     gds = block.write(args.out)
