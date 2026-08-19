@@ -292,10 +292,12 @@ def parse_tran_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
             if parts:
                 rows.append([float(x) for x in parts])
     arr = np.asarray(rows)
-    # wr_singlescale: time, outp, outn, inp, inn
-    # without it: time, outp, time, outn, time, inp, time, inn
+    # ngspice wrdata (real): often "time, time, v(outp), v(outn), v(inp), v(inn)"
+    # even with wr_singlescale. Without singlescale it interleaves time per vector.
     if arr.shape[1] >= 8:
         return arr[:, 0], arr[:, 1], arr[:, 3], arr[:, 5], arr[:, 7]
+    if arr.shape[1] >= 6:
+        return arr[:, 0], arr[:, 2], arr[:, 3], arr[:, 4], arr[:, 5]
     if arr.shape[1] >= 5:
         return arr[:, 0], arr[:, 1], arr[:, 2], arr[:, 3], arr[:, 4]
     raise RuntimeError(f"{raw}: expected ≥5 columns, got {arr.shape[1]}")
@@ -445,6 +447,10 @@ def _plot_tran_se(
     ax.plot(t_ns, v_outn, "r-", lw=1.0, label="v(outn)")
     ax.plot(t_ns, v_inp, color="b", alpha=0.35, lw=0.8, label="v(inp)")
     ax.plot(t_ns, v_inn, color="r", alpha=0.35, lw=0.8, label="v(inn)")
+    stacked = np.concatenate([v_outp, v_outn, v_inp, v_inn])
+    lo, hi = float(np.min(stacked)), float(np.max(stacked))
+    pad = max(0.02, 0.15 * (hi - lo))
+    ax.set_ylim(lo - pad, hi + pad)
     ax.set_xlabel("Time (ns)")
     ax.set_ylabel("Voltage (V)")
     ax.set_title("56G NRZ PRBS — single-ended (100 mVpp,diff stimulus)")
@@ -471,6 +477,10 @@ def _plot_tran_diff(
     fig, ax = plt.subplots(figsize=(10, 4))
     ax.plot(t_ns, vod, "b-", lw=1.0, label="vod = outp−outn")
     ax.plot(t_ns, vid, color="orange", alpha=0.7, lw=0.8, label="vid = inp−inn")
+    stacked = np.concatenate([vod, vid])
+    lo, hi = float(np.min(stacked)), float(np.max(stacked))
+    pad = max(10.0, 0.15 * (hi - lo))
+    ax.set_ylim(lo - pad, hi + pad)
     ax.set_xlabel("Time (ns)")
     ax.set_ylabel("Differential (mV)")
     ax.set_title("56G NRZ PRBS — differential waveforms")
@@ -529,6 +539,10 @@ def _plot_eye_se(
         ax.plot(t_ps, tr * 1e3, color="r", alpha=0.08, lw=0.6)
     ui_ps = UI_S * 1e12
     ax.axvline(ui_ps, color="k", ls="--", alpha=0.5, label="1 UI")
+    stacked = np.concatenate(traces_p + traces_n) * 1e3 if traces_p or traces_n else np.array([0.0])
+    lo, hi = float(np.min(stacked)), float(np.max(stacked))
+    pad = max(5.0, 0.15 * (hi - lo))
+    ax.set_ylim(lo - pad, hi + pad)
     ax.set_xlabel("Time (ps)")
     ax.set_ylabel("Voltage (mV)")
     ax.set_title("2-UI eye — single-ended (outp blue, outn red)")
@@ -555,6 +569,10 @@ def _plot_eye_diff(
         ax.plot(t_ps, tr * 1e3, color="b", alpha=0.08, lw=0.6)
     ui_ps = UI_S * 1e12
     ax.axvline(ui_ps, color="k", ls="--", alpha=0.5, label="1 UI")
+    stacked = np.concatenate(traces) * 1e3 if traces else np.array([0.0])
+    lo, hi = float(np.min(stacked)), float(np.max(stacked))
+    pad = max(5.0, 0.15 * (hi - lo))
+    ax.set_ylim(lo - pad, hi + pad)
     ax.set_xlabel("Time (ps)")
     ax.set_ylabel("vod (mV)")
     ax.set_title("2-UI eye — differential (vod)")

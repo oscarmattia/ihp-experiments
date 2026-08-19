@@ -21,7 +21,6 @@ v(xu1.em) = 2.239854e-01
 v(xu1.mgate) = 4.396285e-01
 @q.xu1.xq1.qnpn13g2[ic] = 2.611005e-03
 @q.xu1.xq2.qnpn13g2[ic] = 2.611005e-03
-Error: no such parameter id.
-Error: no such parameter id.
-Warning from checkvalid: vector @n.xu1.xtail.nsg13_lv_nmos[id] is not available or has zero length.
+@n.xu1.xtail.nsg13_lv_nmos[ids] = 5.235259e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 5.756239e-03
 Note: Simulation executed from .control section 

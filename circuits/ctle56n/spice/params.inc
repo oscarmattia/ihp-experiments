@@ -16,7 +16,7 @@
 .param MOS_L_m=1e-06
 .param MOS_M=1
 .param MOS_VGS=0.584615
-.param RPPD_W=2.97655e-06
-.param RPPD_L=1e-06
-.param RPPD_W_m=2.97655066196e-06
-.param RPPD_L_m=1e-06
+.param RPPD_W=2e-06
+.param RPPD_L=5e-07
+.param RPPD_W_m=2e-06
+.param RPPD_L_m=5e-07

@@ -22,9 +22,8 @@ v(xu1.em) = 2.239854e-01
 v(xu1.mgate) = 4.396285e-01
 @q.xu1.xq1.qnpn13g2[ic] = 2.611005e-03
 @q.xu1.xq2.qnpn13g2[ic] = 2.611005e-03
-Error: no such parameter id.
-Error: no such parameter id.
-Warning from checkvalid: vector @n.xu1.xtail.nsg13_lv_nmos[id] is not available or has zero length.
+@n.xu1.xtail.nsg13_lv_nmos[ids] = 5.235259e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 5.756239e-03
 Note: Simulation executed from .control section 
 
 === pdk ===
@@ -40,18 +39,17 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.362697e+00
-v(outn) = 1.362697e+00
+v(outp) = 1.390942e+00
+v(outn) = 1.390942e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
 v(vdd) = 1.651400e+00
-v(xu1.e1) = 3.550284e-01
-v(xu1.e2) = 3.550284e-01
-v(xu1.em) = 2.229534e-01
+v(xu1.e1) = 3.555797e-01
+v(xu1.e2) = 3.555797e-01
+v(xu1.em) = 2.234331e-01
 v(xu1.mgate) = 4.396285e-01
-@q.xu1.xq1.qnpn13g2[ic] = 2.608059e-03
-@q.xu1.xq2.qnpn13g2[ic] = 2.608059e-03
-Error: no such parameter id.
-Error: no such parameter id.
-Warning from checkvalid: vector @n.xu1.xtail.nsg13_lv_nmos[id] is not available or has zero length.
+@q.xu1.xq1.qnpn13g2[ic] = 2.609435e-03
+@q.xu1.xq2.qnpn13g2[ic] = 2.609435e-03
+@n.xu1.xtail.nsg13_lv_nmos[ids] = 5.232024e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 5.756239e-03
 Note: Simulation executed from .control section 
