@@ -52,7 +52,15 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 | HBT VCE | V_CE | 1.067 V | 1.035 V |  |
 | MOS tail VDS | V_DS,tail | 0.224 V | 0.223 V |  |
 
+Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
+Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
+Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk/metrics.csv`.
+
 ## Single-bit response
+
+### Ideal
+
+Waveforms: `out/ideal/sbr.png`, `out/ideal/sbr.csv`, `out/ideal/sbr_taps.csv`.
 
 Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **32 UI** settle at logic 0.
 Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
@@ -78,4 +86,34 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 - Main cursor h_0 = **-155.56 mV** at t = **0.392 UI** after pulse start
 - Normalized total ISI = Σ h_k / h_0 = **-0.4065** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.4065** (same taps)
+- Taps with |h| < 2.5% of |cursor| are omitted from the ISI sums.
+
+### PDK
+
+Waveforms: `out/pdk/sbr.png`, `out/pdk/sbr.csv`, `out/pdk/sbr_taps.csv`.
+
+Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **32 UI** settle at logic 0.
+Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
+|h| < **2.5%** of |cursor| (h_0 always kept).
+
+| Tap | k | h (mV) | h / h_0 | Kept |
+| --- | --- | --- | --- | --- |
+| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
+| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
+| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
+| **h_0 cursor** | 0 | -173.728 | 1.000 | yes |
+| h_1 post | 1 | 62.206 | -0.3581 | yes |
+| h_2 post | 2 | 6.067 | -0.0349 | yes |
+| h_3 post | 3 | 0.488 | -0.0028 | no |
+| h_4 post | 4 | 0.031 | -0.0002 | no |
+| h_5 post | 5 | -0.006 | 0.0000 | no |
+| h_6 post | 6 | -0.009 | 0.0001 | no |
+| h_7 post | 7 | -0.010 | 0.0001 | no |
+| h_8 post | 8 | -0.010 | 0.0001 | no |
+| h_9 post | 9 | -0.010 | 0.0001 | no |
+| h_10 post | 10 | -0.010 | 0.0001 | no |
+
+- Main cursor h_0 = **-173.73 mV** at t = **0.448 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.3930** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.3930** (same taps)
 - Taps with |h| < 2.5% of |cursor| are omitted from the ISI sums.
