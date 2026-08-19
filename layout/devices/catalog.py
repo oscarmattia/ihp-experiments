@@ -42,6 +42,11 @@ def plan_fingers(
 ) -> tuple[int, float]:
     """Pick a finger count and an achievable total width.
 
+    Kept for the finger-limit arithmetic it documents, but no longer used to
+    build the tail: a multi-finger PCell instance draws no straps and extracts as
+    a chain of transistors, so wide devices go through
+    ``layout.blocks.mos_array`` instead.
+
     Returns ``(ng, drawable_total_w)``. The total is adjusted onto the PCell's
     finger-width grid so the device the PCell draws is exactly the device asked
     for, rather than a silently rounded-down one.
@@ -57,7 +62,9 @@ def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
 
     target_w = metres(p, "MOS_W")
     tail_l = metres(p, "MOS_L")
-    ng, tail_w = plan_fingers(target_w)
+    from layout.blocks.mos_array import plan_units
+
+    units, unit_w = plan_units(target_w)
 
     return [
         DeviceSpec(
@@ -95,15 +102,20 @@ def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
             params={"Nx": int(p["Nx"])},
             note=f"CTLE differential pair HBT, Nx={int(p['Nx'])}",
         ),
+        # The tail *unit*, not the whole tail. The foundry nmos PCell draws no
+        # source/drain straps and caps a single finger near 10 um, so the sized
+        # 243 um device cannot exist as one PCell instance: it is an array of
+        # these units with drawn straps, built by layout/blocks/mos_array.py and
+        # verified there. Keeping the unit here is what makes the catalog a list
+        # of devices the deck can actually match one-to-one.
         DeviceSpec(
-            name="nmos_tail",
+            name="nmos_tail_unit",
             kind="nmos_lv",
-            params={"w": tail_w, "l": tail_l, "ng": ng},
+            params={"w": unit_w, "l": tail_l, "ng": 1},
             note=(
-                f"CTLE tail/mirror device, W={tail_w * 1e6:.3f} um total in {ng} "
-                f"fingers of {tail_w / ng * 1e6:.3f} um, L={tail_l * 1e6:.2f} um; "
-                f"sizing asked for {target_w * 1e6:.3f} um "
-                f"({(tail_w / target_w - 1) * 100:+.3f}% on the finger-width grid)"
+                f"CTLE tail unit, W={unit_w * 1e6:.3f} um x L={tail_l * 1e6:.2f} um; "
+                f"{units} of these make the {units * unit_w * 1e6:.1f} um tail "
+                f"(sizing asked for {target_w * 1e6:.3f} um)"
             ),
         ),
         DeviceSpec(

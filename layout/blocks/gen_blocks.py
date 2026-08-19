@@ -32,6 +32,7 @@ from layout.blocks.generators import (
     shunt_coil,
     tail_pair,
 )
+from layout.common.sizing import metres, read_params
 from layout.devices.catalog import ctle_devices
 
 OUT_DIR = Path(__file__).resolve().parent / "out"
@@ -45,14 +46,19 @@ CONTEXT_ALLOWED: dict[str, tuple[str, ...]] = {
 
 
 def build_blocks(only: set[str] | None = None):
-    devices = {spec.name: spec for spec in ctle_devices()}
+    params = read_params()
+    devices = {spec.name: spec for spec in ctle_devices(params)}
+    # The tail is a wide device with no single-PCell form, so the block takes the
+    # sized width and builds a strapped array from it.
+    tail_w = metres(params, "MOS_W")
+    tail_l = metres(params, "MOS_L")
     builders = {
         "hbt_diff_pair": lambda: hbt_differential_pair(devices["npn13G2_pair_device"]),
         "rppd_load_pair": lambda: resistor_load_pair(devices["rppd_load"]),
         "degeneration_network": lambda: degeneration_network(
             devices["rsil_degen"], devices["cmomi_cs"]
         ),
-        "nmos_tail_pair": lambda: tail_pair(devices["nmos_tail"]),
+        "nmos_tail_pair": lambda: tail_pair(tail_w, tail_l),
         "shunt_coil": lambda: shunt_coil(devices["inductor_turn1_d40"]),
     }
     for name, builder in builders.items():

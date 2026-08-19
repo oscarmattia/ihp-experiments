@@ -5,7 +5,7 @@
   "clean": true,
   "params_ok": true,
   "devices_matched": 0,
-  "summary": "2026-08-19 15:15:41 +0000: Memory Usage (141684K) : INFO : Congratulations! Netlists match.",
+  "summary": "2026-08-19 15:52:51 +0000: Memory Usage (141904K) : INFO : Congratulations! Netlists match.",
   "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/nmos_char_l0p5_extracted.cir",
   "param_checks": [
     {

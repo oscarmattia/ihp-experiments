@@ -12,14 +12,12 @@ from __future__ import annotations
 from functools import lru_cache, partial
 
 from layout.common.layers import ROUTING_METALS, VIA_STACK
+from layout.common.rules import route_widths
 
-#: Minimum drawn width per routing metal, in um. These are the widths used for
-#: routing rather than absolute DRC minima: signal nets on thin metals use a
-#: comfortable multiple of the minimum, and the two top metals are thick power
-#: and RF metals whose minimum width is already large.
-ROUTE_WIDTHS: dict[str, float] = {
-    metal: float(spec["width"]) for metal, spec in ROUTING_METALS.items()
-}
+#: Width to draw a route on each metal, derived from the PDK's own DRC rule
+#: values rather than transcribed. A hand-written table had TopMetal1 at 1.50 um
+#: against a 1.64 um minimum, which the deck caught only once a route used it.
+ROUTE_WIDTHS: dict[str, float] = route_widths()
 
 
 @lru_cache(maxsize=1)

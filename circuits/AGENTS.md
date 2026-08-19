@@ -7,6 +7,8 @@
 - **Update this AGENTS.md before any PR** that touches `circuits/` or adds experiments.
 - Read [`../MEMORY.md`](../MEMORY.md) and [`../docs/PDK.md`](../docs/PDK.md) before sizing anything —
   they hold verified device facts and prior corrections.
+- Layout for these circuits lives in [`../layout/`](../layout/AGENTS.md); it reads
+  `ctle56n/spice/params.inc`, so a resize propagates rather than invalidating the layout.
 
 ## Purpose
 

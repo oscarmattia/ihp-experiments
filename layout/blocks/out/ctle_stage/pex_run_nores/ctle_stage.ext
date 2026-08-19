@@ -1,0 +1,1178 @@
+timestamp 1615756651
+version 8.3
+tech ihp-sg13g2
+style ngspice()
+scale 1000 1 0.5
+resistclasses 3000000 67000 110 88 88 88 88 18 11 7000 260000 1360000
+use ptap1 ptap1_166 1 0 -11286 0 1 -1898
+use ptap1 ptap1_151 1 0 -10885 0 1 -1898
+use ptap1 ptap1_124 1 0 -11286 0 1 -1487
+use ptap1 ptap1_162 1 0 -10082 0 1 -1898
+use ptap1 ptap1_161 1 0 -10483 0 1 -1898
+use ptap1 ptap1_163 1 0 -9680 0 1 -1898
+use ptap1 ptap1_135 1 0 -9279 0 1 -1898
+use ptap1 ptap1_157 1 0 -8877 0 1 -1898
+use ptap1 ptap1_139 1 0 -8476 0 1 -1898
+use ptap1 ptap1_150 1 0 -7673 0 1 -1898
+use ptap1 ptap1_145 1 0 -8074 0 1 -1898
+use ptap1 ptap1_155 1 0 -6870 0 1 -1898
+use ptap1 ptap1_153 1 0 -7271 0 1 -1898
+use ptap1 ptap1_143 1 0 -6067 0 1 -1898
+use ptap1 ptap1_140 1 0 -6468 0 1 -1898
+use ptap1 ptap1_149 1 0 -5264 0 1 -1898
+use ptap1 ptap1_147 1 0 -5665 0 1 -1898
+use ptap1 ptap1_160 1 0 -4863 0 1 -1898
+use ptap1 ptap1_152 1 0 -4461 0 1 -1898
+use ptap1 ptap1_156 1 0 -3658 0 1 -1898
+use ptap1 ptap1_154 1 0 -4060 0 1 -1898
+use ptap1 ptap1_159 1 0 -2855 0 1 -1898
+use ptap1 ptap1_158 1 0 -3257 0 1 -1898
+use ptap1 ptap1_134 1 0 -2052 0 1 -1898
+use ptap1 ptap1_132 1 0 -2454 0 1 -1898
+use ptap1 ptap1_138 1 0 -1249 0 1 -1898
+use ptap1 ptap1_136 1 0 -1651 0 1 -1898
+use ptap1 ptap1_148 1 0 -848 0 1 -1898
+use ptap1 ptap1_141 1 0 -446 0 1 -1898
+use ptap1 ptap1_144 1 0 357 0 1 -1898
+use ptap1 ptap1_142 1 0 -45 0 1 -1898
+use ptap1 ptap1_183 1 0 758 0 1 -1898
+use ptap1 ptap1_116 1 0 1159 0 1 -1898
+use ptap1 ptap1_92 1 0 1561 0 1 -1898
+use ptap1 ptap1_96 1 0 2364 0 1 -1898
+use ptap1 ptap1_94 1 0 1962 0 1 -1898
+use ptap1 ptap1_100 1 0 3167 0 1 -1898
+use ptap1 ptap1_98 1 0 2765 0 1 -1898
+use ptap1 ptap1_103 1 0 3970 0 1 -1898
+use ptap1 ptap1_101 1 0 3568 0 1 -1898
+use ptap1 ptap1_107 1 0 4773 0 1 -1898
+use ptap1 ptap1_105 1 0 4371 0 1 -1898
+use ptap1 ptap1_120 1 0 5174 0 1 -1898
+use ptap1 ptap1_93 1 0 5576 0 1 -1898
+use ptap1 ptap1_108 1 0 6379 0 1 -1898
+use ptap1 ptap1_97 1 0 5977 0 1 -1898
+use ptap1 ptap1_114 1 0 7181 0 1 -1898
+use ptap1 ptap1_111 1 0 6780 0 1 -1898
+use ptap1 ptap1_118 1 0 7583 0 1 -1898
+use ptap1 ptap1_95 1 0 7984 0 1 -1898
+use ptap1 ptap1_110 1 0 8386 0 1 -1898
+use ptap1 ptap1_104 1 0 8787 0 1 -1898
+use ptap1 ptap1_102 1 0 9590 0 1 -1898
+use ptap1 ptap1_99 1 0 9189 0 1 -1898
+use ptap1 ptap1_109 1 0 10393 0 1 -1898
+use ptap1 ptap1_106 1 0 9992 0 1 -1898
+use ptap1 ptap1_146 1 0 -11286 0 1 -666
+use ptap1 ptap1_133 1 0 -11286 0 1 -1076
+use ptap1 ptap1_121 1 0 -11286 0 1 567
+use ptap1 ptap1_122 1 0 -11286 0 1 977
+use ptap1 ptap1_164 1 0 -11286 0 1 -255
+use ptap1 ptap1_165 1 0 -11286 0 1 156
+use tail1_cell tail1_cell_0 1 0 0 0 1 0
+use ptap1 ptap1_137 1 0 -11286 0 1 1799
+use ptap1 ptap1_130 1 0 -11286 0 1 4263
+use ptap1 ptap1_129 1 0 -11286 0 1 3853
+use ptap1 ptap1_128 1 0 -11286 0 1 3442
+use ptap1 ptap1_127 1 0 -11286 0 1 3031
+use ptap1 ptap1_126 1 0 -11286 0 1 2620
+use ptap1 ptap1_125 1 0 -11286 0 1 2210
+use ptap1 ptap1_123 1 0 -11286 0 1 1388
+use via_metal2_metal3_28.2_14.4 via_metal2_metal3_28.2_14.4_0 1 0 5640 0 1 2880
+use ptap1 ptap1_176 1 0 -11286 0 1 7549
+use ptap1 ptap1_175 1 0 -11286 0 1 7139
+use ptap1 ptap1_174 1 0 -11286 0 1 6728
+use ptap1 ptap1_173 1 0 -11286 0 1 6317
+use ptap1 ptap1_169 1 0 -11286 0 1 5496
+use ptap1 ptap1_168 1 0 -11286 0 1 5085
+use ptap1 ptap1_167 1 0 -11286 0 1 5906
+use ptap1 ptap1_131 1 0 -11286 0 1 4674
+use q1_R0 q1_R0_0 1 0 10610 0 1 9336
+use ptap1 ptap1_182 1 0 -11286 0 1 10425
+use ptap1 ptap1_181 1 0 -11286 0 1 10014
+use ptap1 ptap1_180 1 0 -11286 0 1 9192
+use ptap1 ptap1_179 1 0 -11286 0 1 8782
+use ptap1 ptap1_178 1 0 -11286 0 1 8371
+use ptap1 ptap1_177 1 0 -11286 0 1 7960
+use ptap1 ptap1_172 1 0 -11286 0 1 9603
+use ptap1 ptap1_170 1 0 -11286 0 1 10835
+use ptap1 ptap1_171 1 0 -11286 0 1 11246
+use ptap1 ptap1_223 1 0 -11286 0 1 11657
+use ptap1 ptap1_224 1 0 -11286 0 1 12068
+use ptap1 ptap1_225 1 0 -11286 0 1 12478
+use ptap1 ptap1_226 1 0 -11286 0 1 12889
+use ptap1 ptap1_227 1 0 -11286 0 1 13300
+use ptap1 ptap1_238 1 0 -10885 0 1 13300
+use ptap1 ptap1_239 1 0 -10483 0 1 13300
+use ptap1 ptap1_240 1 0 -10082 0 1 13300
+use ptap1 ptap1_241 1 0 -9680 0 1 13300
+use ptap1 ptap1_242 1 0 -9279 0 1 13300
+use ptap1 ptap1_247 1 0 -7271 0 1 13300
+use ptap1 ptap1_246 1 0 -7673 0 1 13300
+use ptap1 ptap1_245 1 0 -8074 0 1 13300
+use ptap1 ptap1_244 1 0 -8476 0 1 13300
+use ptap1 ptap1_243 1 0 -8877 0 1 13300
+use ptap1 ptap1_228 1 0 -6870 0 1 13300
+use ptap1 ptap1_233 1 0 -4863 0 1 13300
+use ptap1 ptap1_232 1 0 -5264 0 1 13300
+use ptap1 ptap1_231 1 0 -5665 0 1 13300
+use ptap1 ptap1_230 1 0 -6067 0 1 13300
+use ptap1 ptap1_229 1 0 -6468 0 1 13300
+use ptap1 ptap1_237 1 0 -3257 0 1 13300
+use ptap1 ptap1_236 1 0 -3658 0 1 13300
+use ptap1 ptap1_235 1 0 -4060 0 1 13300
+use ptap1 ptap1_234 1 0 -4461 0 1 13300
+use ptap1 ptap1_194 1 0 -2454 0 1 13300
+use ptap1 ptap1_193 1 0 -2855 0 1 13300
+use ptap1 ptap1_199 1 0 -446 0 1 13300
+use ptap1 ptap1_198 1 0 -848 0 1 13300
+use ptap1 ptap1_197 1 0 -1249 0 1 13300
+use ptap1 ptap1_196 1 0 -1651 0 1 13300
+use ptap1 ptap1_195 1 0 -2052 0 1 13300
+use ptap1 ptap1_202 1 0 758 0 1 13300
+use ptap1 ptap1_201 1 0 357 0 1 13300
+use ptap1 ptap1_200 1 0 -45 0 1 13300
+use ptap1 ptap1_186 1 0 1962 0 1 13300
+use ptap1 ptap1_185 1 0 1561 0 1 13300
+use ptap1 ptap1_184 1 0 1159 0 1 13300
+use ptap1 ptap1_192 1 0 2765 0 1 13300
+use ptap1 ptap1_190 1 0 3970 0 1 13300
+use ptap1 ptap1_189 1 0 3568 0 1 13300
+use ptap1 ptap1_188 1 0 3167 0 1 13300
+use ptap1 ptap1_187 1 0 2364 0 1 13300
+use ptap1 ptap1_216 1 0 6379 0 1 13300
+use ptap1 ptap1_215 1 0 5977 0 1 13300
+use ptap1 ptap1_214 1 0 5576 0 1 13300
+use ptap1 ptap1_213 1 0 5174 0 1 13300
+use ptap1 ptap1_207 1 0 4773 0 1 13300
+use ptap1 ptap1_191 1 0 4371 0 1 13300
+use ptap1 ptap1_222 1 0 6780 0 1 13300
+use ptap1 ptap1_221 1 0 8386 0 1 13300
+use ptap1 ptap1_220 1 0 7984 0 1 13300
+use ptap1 ptap1_219 1 0 7583 0 1 13300
+use ptap1 ptap1_218 1 0 7181 0 1 13300
+use ptap1 ptap1_217 1 0 8787 0 1 13300
+use ptap1 ptap1_206 1 0 10393 0 1 13300
+use ptap1 ptap1_205 1 0 9992 0 1 13300
+use ptap1 ptap1_204 1 0 9590 0 1 13300
+use ptap1 ptap1_203 1 0 9189 0 1 13300
+use l1_M135 l1_M135_0 0 -1 11280 -1 0 14304
+use ptap1 ptap1_119 1 0 10795 0 1 -1898
+use ptap1 ptap1_112 1 0 11196 0 1 -1898
+use ptap1 ptap1_113 1 0 11598 0 1 -1898
+use ptap1 ptap1_115 1 0 11999 0 1 -1898
+use ptap1 ptap1_117 1 0 12401 0 1 -1898
+use ptap1 ptap1_312 1 0 12802 0 1 -1898
+use ptap1 ptap1_52 1 0 13203 0 1 -1898
+use ptap1 ptap1_56 1 0 13605 0 1 -1898
+use ptap1 ptap1_59 1 0 14006 0 1 -1898
+use ptap1 ptap1_61 1 0 14408 0 1 -1898
+use ptap1 ptap1_85 1 0 14809 0 1 -1898
+use ptap1 ptap1_69 1 0 15211 0 1 -1898
+use ptap1 ptap1_74 1 0 15612 0 1 -1898
+use ptap1 ptap1_78 1 0 16014 0 1 -1898
+use ptap1 ptap1_82 1 0 16415 0 1 -1898
+use ptap1 ptap1_65 1 0 16817 0 1 -1898
+use ptap1 ptap1_36 1 0 17218 0 1 -1898
+use ptap1 ptap1_38 1 0 17620 0 1 -1898
+use ptap1 ptap1_39 1 0 18021 0 1 -1898
+use ptap1 ptap1_41 1 0 18423 0 1 -1898
+use ptap1 ptap1_43 1 0 18824 0 1 -1898
+use ptap1 ptap1_45 1 0 19225 0 1 -1898
+use ptap1 ptap1_46 1 0 19627 0 1 -1898
+use ptap1 ptap1_48 1 0 20028 0 1 -1898
+use ptap1 ptap1_50 1 0 20430 0 1 -1898
+use ptap1 ptap1_60 1 0 20831 0 1 -1898
+use ptap1 ptap1_72 1 0 21233 0 1 -1898
+use ptap1 ptap1_80 1 0 21634 0 1 -1898
+use ptap1 ptap1_89 1 0 22036 0 1 -1898
+use ptap1 ptap1_76 1 0 22437 0 1 -1898
+use ptap1 ptap1_35 1 0 22839 0 1 -1898
+use ptap1 ptap1_42 1 0 23240 0 1 -1898
+use ptap1 ptap1_49 1 0 23642 0 1 -1898
+use ptap1 ptap1_54 1 0 24043 0 1 -1898
+use ptap1 ptap1_67 1 0 24445 0 1 -1898
+use ptap1 ptap1_87 1 0 24846 0 1 -1898
+use ptap1 ptap1_12 1 0 25247 0 1 -1898
+use ptap1 ptap1_13 1 0 25649 0 1 -1898
+use ptap1 ptap1_15 1 0 26050 0 1 -1898
+use ptap1 ptap1_37 1 0 26452 0 1 -1898
+use ptap1 ptap1_40 1 0 26853 0 1 -1898
+use ptap1 ptap1_44 1 0 27255 0 1 -1898
+use ptap1 ptap1_47 1 0 27656 0 1 -1898
+use ptap1 ptap1_51 1 0 28058 0 1 -1898
+use ptap1 ptap1_63 1 0 28459 0 1 -1898
+use ptap1 ptap1_71 1 0 28861 0 1 -1898
+use ptap1 ptap1_73 1 0 29262 0 1 -1898
+use ptap1 ptap1_75 1 0 29664 0 1 -1898
+use ptap1 ptap1_77 1 0 30065 0 1 -1898
+use ptap1 ptap1_79 1 0 30467 0 1 -1898
+use ptap1 ptap1_81 1 0 30868 0 1 -1898
+use ptap1 ptap1_83 1 0 31269 0 1 -1898
+use ptap1 ptap1_84 1 0 31671 0 1 -1898
+use ptap1 ptap1_86 1 0 32072 0 1 -1898
+use tail2_cell tail2_cell_0 1 0 14080 0 1 0
+use via_m1_metal5_MINUS via_m1_metal5_MINUS_0 1 0 11234 0 1 4230
+use rdeg_R90 rdeg_R90_0 0 -1 12274 1 0 4180
+use via_m1_metal4_PLUS via_m1_metal4_PLUS_0 1 0 12314 0 1 4230
+use via_metal1_metal3_61.57_19.15 via_metal1_metal3_61.57_19.15_0 1 0 12314 0 1 3830
+use via_metal2_metal3_98.6_14.4 via_metal2_metal3_98.6_14.4_0 1 0 19720 0 1 2880
+use via_metal1_metal3_56.17_23.15 via_metal1_metal3_56.17_23.15_0 1 0 11234 0 1 4630
+use cdeg_R0 cdeg_R0_0 1 0 15680 0 1 5380
+use via_metal2_metal3_53.05_44.67 via_metal2_metal3_53.05_44.67_0 1 0 10610 0 1 8934
+use via_metal1_metal3_53.05_49.81 via_metal1_metal3_53.05_49.81_0 1 0 10610 0 1 9962
+use via_metal2_metal3_75.75_44.67 via_metal2_metal3_75.75_44.67_0 1 0 15150 0 1 8934
+use q2_M90 q2_M90_0 -1 0 15150 0 1 9336
+use via_metal1_metal3_75.75_49.81 via_metal1_metal3_75.75_49.81_0 1 0 15150 0 1 9962
+use via_metal1_metal3_56.4_56.18 via_metal1_metal3_56.4_56.18_0 1 0 11280 0 1 11236
+use via_metal1_metal3_72.4_56.18 via_metal1_metal3_72.4_56.18_0 1 0 14480 0 1 11236
+use rd1_R0 rd1_R0_0 1 0 10780 0 1 11692
+use ptap1 ptap1_212 1 0 12401 0 1 13300
+use ptap1 ptap1_211 1 0 11999 0 1 13300
+use ptap1 ptap1_210 1 0 11598 0 1 13300
+use ptap1 ptap1_209 1 0 11196 0 1 13300
+use ptap1 ptap1_208 1 0 10795 0 1 13300
+use via_metal1_topmetal2_56.4_62.14 via_metal1_topmetal2_56.4_62.14_0 1 0 11280 0 1 12428
+use rd2_M90 rd2_M90_0 -1 0 14980 0 1 11692
+use ptap1 ptap1_313 1 0 12802 0 1 13300
+use via_metal1_topmetal2_72.4_62.14 via_metal1_topmetal2_72.4_62.14_0 1 0 14480 0 1 12428
+use ptap1 ptap1_289 1 0 14809 0 1 13300
+use ptap1 ptap1_288 1 0 14408 0 1 13300
+use ptap1 ptap1_287 1 0 14006 0 1 13300
+use ptap1 ptap1_286 1 0 13605 0 1 13300
+use ptap1 ptap1_285 1 0 13203 0 1 13300
+use ptap1 ptap1_293 1 0 16415 0 1 13300
+use ptap1 ptap1_292 1 0 16014 0 1 13300
+use ptap1 ptap1_291 1 0 15612 0 1 13300
+use ptap1 ptap1_290 1 0 15211 0 1 13300
+use ptap1 ptap1_275 1 0 17218 0 1 13300
+use ptap1 ptap1_274 1 0 16817 0 1 13300
+use ptap1 ptap1_283 1 0 18423 0 1 13300
+use ptap1 ptap1_280 1 0 19225 0 1 13300
+use ptap1 ptap1_279 1 0 18824 0 1 13300
+use ptap1 ptap1_277 1 0 18021 0 1 13300
+use ptap1 ptap1_276 1 0 17620 0 1 13300
+use ptap1 ptap1_306 1 0 21634 0 1 13300
+use ptap1 ptap1_305 1 0 21233 0 1 13300
+use ptap1 ptap1_304 1 0 20831 0 1 13300
+use ptap1 ptap1_282 1 0 20028 0 1 13300
+use ptap1 ptap1_281 1 0 19627 0 1 13300
+use ptap1 ptap1_278 1 0 20430 0 1 13300
+use ptap1 ptap1_311 1 0 23642 0 1 13300
+use ptap1 ptap1_310 1 0 23240 0 1 13300
+use ptap1 ptap1_309 1 0 22839 0 1 13300
+use ptap1 ptap1_308 1 0 22437 0 1 13300
+use ptap1 ptap1_307 1 0 22036 0 1 13300
+use ptap1 ptap1_298 1 0 24445 0 1 13300
+use ptap1 ptap1_297 1 0 26050 0 1 13300
+use ptap1 ptap1_296 1 0 25649 0 1 13300
+use ptap1 ptap1_295 1 0 25247 0 1 13300
+use ptap1 ptap1_294 1 0 24846 0 1 13300
+use ptap1 ptap1_248 1 0 24043 0 1 13300
+use ptap1 ptap1_303 1 0 26452 0 1 13300
+use ptap1 ptap1_302 1 0 28058 0 1 13300
+use ptap1 ptap1_301 1 0 27656 0 1 13300
+use ptap1 ptap1_300 1 0 27255 0 1 13300
+use ptap1 ptap1_299 1 0 26853 0 1 13300
+use ptap1 ptap1_253 1 0 28459 0 1 13300
+use ptap1 ptap1_268 1 0 30467 0 1 13300
+use ptap1 ptap1_262 1 0 30065 0 1 13300
+use ptap1 ptap1_261 1 0 29664 0 1 13300
+use ptap1 ptap1_260 1 0 29262 0 1 13300
+use ptap1 ptap1_259 1 0 28861 0 1 13300
+use ptap1 ptap1_267 1 0 32072 0 1 13300
+use ptap1 ptap1_266 1 0 31671 0 1 13300
+use ptap1 ptap1_265 1 0 31269 0 1 13300
+use ptap1 ptap1_264 1 0 30868 0 1 13300
+use l2_R270 l2_R270_0 0 1 14480 -1 0 14304
+use ptap1 ptap1_53 1 0 32875 0 1 -1898
+use ptap1 ptap1_55 1 0 33277 0 1 -1898
+use ptap1 ptap1_57 1 0 33678 0 1 -1898
+use ptap1 ptap1_58 1 0 34080 0 1 -1898
+use ptap1 ptap1_62 1 0 34883 0 1 -1898
+use ptap1 ptap1_64 1 0 35284 0 1 -1898
+use ptap1 ptap1_70 1 0 34481 0 1 -1898
+use ptap1 ptap1_88 1 0 32474 0 1 -1898
+use ptap1 ptap1_68 1 0 36087 0 1 -1898
+use ptap1 ptap1_66 1 0 35686 0 1 -1898
+use ptap1 ptap1_18 1 0 36890 0 1 -1076
+use ptap1 ptap1_17 1 0 36890 0 1 -1487
+use ptap1 ptap1_16 1 0 36890 0 1 -1898
+use ptap1 ptap1_6 1 0 36489 0 1 -1898
+use ptap1 ptap1_20 1 0 36890 0 1 -255
+use ptap1 ptap1_19 1 0 36890 0 1 -666
+use ptap1 ptap1_22 1 0 36890 0 1 567
+use ptap1 ptap1_21 1 0 36890 0 1 156
+use ptap1 ptap1_23 1 0 36890 0 1 977
+use ptap1 ptap1_25 1 0 36890 0 1 1799
+use ptap1 ptap1_26 1 0 36890 0 1 2210
+use ptap1 ptap1_27 1 0 36890 0 1 2620
+use ptap1 ptap1_28 1 0 36890 0 1 3031
+use ptap1 ptap1_29 1 0 36890 0 1 3442
+use ptap1 ptap1_30 1 0 36890 0 1 3853
+use ptap1 ptap1_31 1 0 36890 0 1 4263
+use ptap1 ptap1_34 1 0 36890 0 1 1388
+use ptap1 ptap1_0 1 0 36890 0 1 6728
+use ptap1 ptap1_1 1 0 36890 0 1 7139
+use ptap1 ptap1_24 1 0 36890 0 1 5496
+use ptap1 ptap1_32 1 0 36890 0 1 4674
+use ptap1 ptap1_33 1 0 36890 0 1 5085
+use ptap1 ptap1_90 1 0 36890 0 1 5906
+use ptap1 ptap1_91 1 0 36890 0 1 6317
+use ptap1 ptap1_2 1 0 36890 0 1 7549
+use ptap1 ptap1_3 1 0 36890 0 1 7960
+use ptap1 ptap1_4 1 0 36890 0 1 8371
+use ptap1 ptap1_5 1 0 36890 0 1 8782
+use ptap1 ptap1_7 1 0 36890 0 1 9603
+use ptap1 ptap1_8 1 0 36890 0 1 10014
+use ptap1 ptap1_9 1 0 36890 0 1 10425
+use ptap1 ptap1_14 1 0 36890 0 1 9192
+use ptap1 ptap1_249 1 0 32875 0 1 13300
+use ptap1 ptap1_250 1 0 33277 0 1 13300
+use ptap1 ptap1_251 1 0 33678 0 1 13300
+use ptap1 ptap1_252 1 0 34080 0 1 13300
+use ptap1 ptap1_254 1 0 34481 0 1 13300
+use ptap1 ptap1_255 1 0 34883 0 1 13300
+use ptap1 ptap1_256 1 0 35284 0 1 13300
+use ptap1 ptap1_263 1 0 32474 0 1 13300
+use ptap1 ptap1_11 1 0 36890 0 1 11246
+use ptap1 ptap1_10 1 0 36890 0 1 10835
+use ptap1 ptap1_271 1 0 36890 0 1 12478
+use ptap1 ptap1_270 1 0 36890 0 1 12068
+use ptap1 ptap1_269 1 0 36890 0 1 11657
+use ptap1 ptap1_258 1 0 36087 0 1 13300
+use ptap1 ptap1_257 1 0 35686 0 1 13300
+use ptap1 ptap1_284 1 0 36890 0 1 13300
+use ptap1 ptap1_273 1 0 36489 0 1 13300
+use ptap1 ptap1_272 1 0 36890 0 1 12889
+node "inn" 0 0 15150 9108 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "inp" 0 0 10610 9108 m1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m7_14180_12428#" 0 667.613 14180 12428 m7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 939600 4332 0 0 0 0 0 0
+node "m7_10980_12428#" 0 667.613 10980 12428 m7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 939600 4332 0 0 0 0 0 0
+node "vdd" 0 1392.49 10980 14614 m7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2280000 8800 0 0 0 0 0 0
+node "m5_11204_4200#" 10 1868.41 11204 4200 m5 0 0 0 0 0 0 0 0 0 0 0 0 399780 13446 0 0 0 0 0 0 0 0 0 0
+node "m4_12284_4200#" 8 1702.74 12284 4200 m4 0 0 0 0 0 0 0 0 0 0 334980 11286 0 0 0 0 0 0 0 0 0 0 0 0
+node "m3_11234_4600#" 27 5903.29 11234 4600 m3 0 0 0 0 0 0 0 0 1083000 36280 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m3_5640_2850#" 24 5299.71 5640 2850 m3 0 0 0 0 0 0 0 0 974280 32656 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m3_14480_11206#" 3 654.558 14480 11206 m3 0 0 0 0 0 0 0 0 115740 4008 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m3_10580_9962#" 3 654.558 10580 9962 m3 0 0 0 0 0 0 0 0 115740 4008 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "vss" 12 11550.7 -200 -636 m2 0 0 0 0 0 0 5232000 52720 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m2_19690_2450#" 1 192.593 19690 2450 m2 0 0 0 0 0 0 27600 1040 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m2_5610_2450#" 1 192.593 5610 2450 m2 0 0 0 0 0 0 27600 1040 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "e2" 1 190.621 15120 8904 m2 0 0 0 0 0 0 27600 1040 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "e1" 1 190.621 10580 8904 m2 0 0 0 0 0 0 27600 1040 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m1_12290_3806#" 1 213.533 12290 3806 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m1_11210_4206#" 1 213.533 11210 4206 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "outn" 1 215.166 15126 9538 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "outp" 1 215.166 10586 9538 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m1_14456_11212#" 1 210.975 14456 11212 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "m1_11256_11212#" 1 210.975 11256 11212 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "nlp2" 1 210.975 14456 12004 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "nlp1" 1 210.975 11256 12004 m1 0 0 0 0 21504 992 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+node "a_n200_1960#" 0 18566.1 -200 1960 p 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+substrate "sub!" 0 0 -1073741817 -1073741817 space 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+cap "outp" "m3_5640_2850#" 0.669446
+cap "a_n200_1960#" "m2_19690_2450#" 1.77144
+cap "m3_10580_9962#" "m3_5640_2850#" 1.14179
+cap "outp" "e1" 5.84118
+cap "m1_11256_11212#" "nlp1" 4.12958
+cap "vdd" "m7_14180_12428#" 136.667
+cap "m7_10980_12428#" "m3_10580_9962#" 2.00337
+cap "m1_14456_11212#" "m3_14480_11206#" 6.16151
+cap "m3_5640_2850#" "m3_11234_4600#" 55.592
+cap "m3_10580_9962#" "e1" 2.0109
+cap "outn" "e2" 5.84118
+cap "m1_12290_3806#" "m3_11234_4600#" 2.37073
+cap "m3_11234_4600#" "m3_14480_11206#" 1.14179
+cap "m3_5640_2850#" "m1_12290_3806#" 7.10594
+cap "m1_11256_11212#" "m3_10580_9962#" 6.16151
+cap "e1" "m3_5640_2850#" 21.0723
+cap "m5_11204_4200#" "m3_11234_4600#" 15.3124
+cap "m1_14456_11212#" "m7_14180_12428#" 0.681454
+cap "m5_11204_4200#" "m3_5640_2850#" 2.97106
+cap "a_n200_1960#" "m3_11234_4600#" 8.81382
+cap "m1_14456_11212#" "nlp2" 4.12958
+cap "m1_11210_4206#" "m3_11234_4600#" 7.10594
+cap "a_n200_1960#" "m3_5640_2850#" 12.1063
+cap "m3_5640_2850#" "m2_5610_2450#" 20.9715
+cap "m1_11210_4206#" "m3_5640_2850#" 2.37073
+cap "m5_11204_4200#" "m1_12290_3806#" 0.00959946
+cap "m4_12284_4200#" "m3_11234_4600#" 54.1441
+cap "m4_12284_4200#" "m3_5640_2850#" 1.08467
+cap "m1_11210_4206#" "m1_12290_3806#" 1.34959
+cap "m1_11256_11212#" "m7_10980_12428#" 0.681454
+cap "m3_14480_11206#" "m7_14180_12428#" 2.00337
+cap "m4_12284_4200#" "m1_12290_3806#" 5.31879
+cap "m5_11204_4200#" "m1_11210_4206#" 6.71679
+cap "m3_14480_11206#" "nlp2" 0.510043
+cap "e2" "m3_11234_4600#" 21.0723
+cap "m3_10580_9962#" "nlp1" 0.510043
+cap "a_n200_1960#" "m2_5610_2450#" 1.77144
+cap "m5_11204_4200#" "m4_12284_4200#" 361.146
+cap "outn" "m3_11234_4600#" 0.669446
+cap "e2" "m3_14480_11206#" 2.0109
+cap "m2_19690_2450#" "m3_11234_4600#" 20.669
+cap "outp" "m3_10580_9962#" 8.37791
+cap "m1_11210_4206#" "m4_12284_4200#" 1.28214
+cap "nlp2" "m7_14180_12428#" 1.29182
+cap "outn" "m3_14480_11206#" 8.37791
+cap "m7_10980_12428#" "vdd" 136.667
+cap "m7_10980_12428#" "nlp1" 1.29182
+cap "ptap1_98/sub!" "tail1_cell_0/m2_n200_n636#" 3.66532
+cap "ptap1_101/sub!" "tail1_cell_0/m2_n200_n636#" 3.06414
+cap "ptap1_93/sub!" "tail1_cell_0/m2_n200_n636#" 3.34267
+cap "ptap1_111/sub!" "tail1_cell_0/m2_n200_n636#" 3.33937
+cap "ptap1_110/sub!" "tail1_cell_0/tail1_unitcell_5/a_268_0#" 3.22893
+cap "tail1_cell_0/tail1_unitcell_8/a_268_0#" "ptap1_99/sub!" 3.29378
+cap "tail1_cell_0/tail1_unitcell_19/a_268_0#" "ptap1_112/sub!" 3.4016
+cap "ptap1_117/sub!" "tail1_cell_0/tail1_unitcell_24/a_268_0#" 3.08128
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_59/sub!" 3.25788
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_69/sub!" 2.97271
+cap "ptap1_82/sub!" "tail2_cell_0/m2_n200_n636#" 3.39262
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_39/sub!" 3.34632
+cap "ptap1_45/sub!" "tail2_cell_0/m2_n200_n636#" 3.09298
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_60/sub!" 3.64217
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_89/sub!" 2.92992
+cap "tail2_cell_0/m2_n200_n636#" "ptap1_49/sub!" 3.63452
+cap "tail2_cell_0/tail2_unitcell_19/a_268_0#" "ptap1_87/sub!" 3.01762
+cap "tail2_cell_0/tail2_unitcell_0/a_268_0#" "ptap1_37/sub!" 3.46526
+cap "tail2_cell_0/tail2_unitcell_4/a_268_0#" "ptap1_47/sub!" 1.91566
+cap "tail1_cell_0/tail1_unitcell_5/a_268_0#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 0.129479
+cap "tail1_cell_0/tail1_unitcell_5/a_68_n36#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" -0.146284
+cap "a_n200_1960#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 1.95399e-14
+cap "tail1_cell_0/tail1_unitcell_24/a_0_0#" "a_n200_1960#" 10.0811
+cap "tail2_cell_0/tail2_unitcell_1/a_0_0#" "tail2_cell_0/a_n200_1960#" 21.124
+cap "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" "tail2_cell_0/m2_n200_n636#" 0.0863191
+cap "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" "tail2_cell_0/tail2_unitcell_12/a_68_n36#" 9.50351e-14
+cap "tail2_cell_0/tail2_unitcell_5/a_68_n36#" "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" -0.146284
+cap "tail2_cell_0/tail2_unitcell_24/a_0_0#" "tail2_cell_0/tail2_unitcell_0/a_68_n36#" 1.6082
+cap "tail2_cell_0/tail2_unitcell_10/a_0_0#" "a_n200_1960#" 4.52693
+cap "tail1_cell_0/tail1_unitcell_19/a_268_0#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 1.60324
+cap "tail1_cell_0/tail1_unitcell_5/a_68_n36#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 10.4058
+cap "tail1_cell_0/tail1_unitcell_2/a_268_0#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 1.60324
+cap "tail1_cell_0/tail1_unitcell_13/a_268_0#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 1.60324
+cap "a_n200_1960#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" 3.39721
+cap "m3_5640_2850#" "tail1_cell_0/tail1_unitcell_23/a_0_0#" 0.926848
+cap "tail1_cell_0/tail1_unitcell_24/a_0_0#" "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" 0.926848
+cap "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#" "tail1_cell_0/tail1_unitcell_10/a_0_0#" 1.81346
+cap "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" "tail1_cell_0/tail1_unitcell_10/a_0_0#" 0.259518
+cap "tail2_cell_0/tail2_unitcell_8/a_268_0#" "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" 1.60324
+cap "tail2_cell_0/tail2_unitcell_9/a_268_0#" "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" 1.60324
+cap "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" "tail2_cell_0/tail2_unitcell_12/a_68_n36#" 7.96314
+cap "tail2_cell_0/tail2_unitcell_5/a_68_n36#" "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" 2.86964
+cap "tail1_cell_0/m2_n200_2380#" "m3_5640_2850#" 4.90578
+cap "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" "tail1_cell_0/m2_n200_2380#" 4.88002
+cap "tail1_cell_0/m2_n200_2380#" "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" 1.04797
+cap "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#" "tail1_cell_0/m2_n200_2380#" 1.88694
+cap "rdeg_R90_0/a_0_0#" "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" 53.9327
+cap "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#" "rdeg_R90_0/a_0_0#" 59.7892
+cap "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#" "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" 43.7096
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 2.90357
+cap "cdeg_R0_0/m2_n10_n21#" "m3_11234_4600#" 27.9418
+cap "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" "cdeg_R0_0/m2_n10_n21#" 36.9156
+cap "cdeg_R0_0/m2_n10_n21#" "m3_11234_4600#" 37.6201
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_157#" 0.568152
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_157#" 19.0366
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 69.5972
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 3.96541
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 4.81513
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 4.81513
+cap "cdeg_R0_0/m2_n10_n21#" "m3_11234_4600#" 4.81513
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_157#" 4.81513
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 2.25601
+cap "cdeg_R0_0/m2_n10_n21#" "m3_11234_4600#" 4.81513
+cap "cdeg_R0_0/m2_n10_n21#" "q2_M90_0/a_n630_n626#" 0.934425
+cap "q2_M90_0/m1_n70_n157#" "cdeg_R0_0/m2_n10_157#" 19.9776
+cap "cdeg_R0_0/m2_n10_n21#" "cdeg_R0_0/m2_n10_157#" -5.61931
+cap "cdeg_R0_0/m2_n10_157#" "q2_M90_0/a_n630_n626#" 8.02851
+cap "q2_M90_0/m1_n70_n157#" "cdeg_R0_0/m2_n10_n21#" 0.410405
+cap "cdeg_R0_0/m2_n10_157#" "q2_M90_0/m1_n70_n157#" 50.3385
+cap "cdeg_R0_0/m2_n10_n21#" "q2_M90_0/m1_n70_n157#" 20.1379
+cap "cdeg_R0_0/m2_n10_n21#" "m3_11234_4600#" 4.81513
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 4.81513
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_157#" 4.81513
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 4.81513
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 0.84972
+cap "m3_11234_4600#" "cdeg_R0_0/m2_n10_n21#" 4.81513
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 3.79547
+cap "cdeg_R0_0/m2_n10_157#" "m3_11234_4600#" 4.81513
+cap "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" "via_metal1_metal3_53.05_49.81_0/m1_n70_n62#" 4.72578
+cap "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" "q1_R0_0/w_n203_n494#" 32.4532
+cap "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" "q1_R0_0/a_n630_n626#" 31.3436
+cap "q2_M90_0/m1_n70_n157#" "via_metal1_metal3_75.75_49.81_0/m1_n70_n62#" 4.467
+cap "q2_M90_0/m1_n70_n157#" "q2_M90_0/a_n630_n626#" 12.2021
+cap "q2_M90_0/m1_n70_n157#" "q2_M90_0/w_n203_n494#" 31.3932
+cap "q2_M90_0/m1_n70_n157#" "cdeg_R0_0/m2_n10_n21#" 0.0339062
+cap "q2_M90_0/a_n630_n626#" "q2_M90_0/m1_n70_n157#" 19.1415
+cap "q2_M90_0/w_n203_n494#" "q2_M90_0/m1_n70_n157#" 1.05995
+cap "cdeg_R0_0/m2_n10_157#" "q2_M90_0/m1_n70_n157#" 17.0611
+cap "q2_M90_0/m1_n70_n157#" "via_metal1_metal3_75.75_49.81_0/m1_n70_n62#" 0.258789
+cap "cdeg_R0_0/m2_n10_157#" "q2_M90_0/m1_n70_n157#" 21.5992
+cap "rd1_R0_0/a_0_n86#" "q1_R0_0/a_n630_n626#" 58.8938
+cap "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" "q1_R0_0/a_n630_n626#" -1.60587
+cap "rd1_R0_0/a_0_n86#" "q1_R0_0/w_n203_n494#" 0.419823
+cap "rd1_R0_0/a_0_n86#" "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" 21.0016
+cap "q2_M90_0/a_n630_n626#" "q2_M90_0/m1_n70_n157#" -1.60587
+cap "q2_M90_0/w_n203_n494#" "rd2_M90_0/a_0_n86#" 0.419823
+cap "q2_M90_0/a_n630_n626#" "rd2_M90_0/a_0_n86#" 58.8938
+cap "q2_M90_0/m1_n70_n157#" "rd2_M90_0/a_0_n86#" 21.0016
+cap "rd1_R0_0/a_0_0#" "rd1_R0_0/a_0_n86#" 7.87179
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "rd1_R0_0/a_0_n86#" 1.82597
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "ptap1_208/sub!" 1.45359
+cap "q1_R0_0/a_n630_n626#" "rd1_R0_0/a_0_n86#" 1.89835
+cap "rd1_R0_0/a_0_n86#" "q1_R0_0/a_n630_n626#" 2.57793
+cap "rd1_R0_0/a_0_n86#" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 6.67219
+cap "rd1_R0_0/a_0_n86#" "rd1_R0_0/a_0_0#" 11.1388
+cap "ptap1_285/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.57371
+cap "ptap1_285/sub!" "via_metal1_topmetal2_72.4_62.14_0/m1_n70_n62#" 1.57371
+cap "rd2_M90_0/a_0_n86#" "q2_M90_0/a_n630_n626#" 4.47628
+cap "ptap1_289/sub!" "via_metal1_topmetal2_72.4_62.14_0/m1_n70_n62#" 1.45359
+cap "rd2_M90_0/a_0_n86#" "via_metal1_topmetal2_72.4_62.14_0/m1_n70_n62#" 8.49815
+cap "rd2_M90_0/a_0_n86#" "rd2_M90_0/a_0_0#" 19.0106
+cap "ptap1_240/sub!" "ptap1_239/sub!" 13.5177
+cap "ptap1_240/sub!" "ptap1_241/sub!" 6.73564
+cap "ptap1_244/sub!" "ptap1_243/sub!" 6.75884
+cap "ptap1_242/sub!" "ptap1_243/sub!" 13.4713
+cap "ptap1_241/sub!" "ptap1_240/sub!" 6.73564
+cap "ptap1_242/sub!" "ptap1_241/sub!" 13.5177
+cap "ptap1_246/sub!" "ptap1_245/sub!" 13.5177
+cap "ptap1_247/sub!" "ptap1_246/sub!" 13.4713
+cap "ptap1_244/sub!" "ptap1_245/sub!" 13.4713
+cap "ptap1_244/sub!" "ptap1_243/sub!" 6.75884
+cap "ptap1_247/sub!" "ptap1_228/sub!" 6.75884
+cap "ptap1_228/sub!" "ptap1_229/sub!" 13.4713
+cap "ptap1_230/sub!" "ptap1_229/sub!" 13.5177
+cap "ptap1_231/sub!" "ptap1_230/sub!" 6.73564
+cap "ptap1_228/sub!" "ptap1_247/sub!" 6.75884
+cap "ptap1_231/sub!" "ptap1_232/sub!" 13.5177
+cap "ptap1_234/sub!" "l1_M135_0/m7_n4800_8266r#" 0.958773
+cap "ptap1_235/sub!" "ptap1_234/sub!" 6.75884
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_231/sub!" 0.717676
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_230/sub!" 0.0359285
+cap "ptap1_231/sub!" "ptap1_230/sub!" 6.73564
+cap "ptap1_233/sub!" "ptap1_232/sub!" 13.5177
+cap "ptap1_233/sub!" "l1_M135_0/m7_n4800_8266r#" 0.836092
+cap "ptap1_233/sub!" "ptap1_234/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_232/sub!" 0.786178
+cap "ptap1_194/sub!" "l1_M135_0/m7_n4800_8266r#" 0.740013
+cap "ptap1_236/sub!" "ptap1_235/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_193/sub!" 0.803964
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_237/sub!" 1.25656
+cap "ptap1_236/sub!" "ptap1_237/sub!" 13.5177
+cap "ptap1_235/sub!" "ptap1_234/sub!" 6.75884
+cap "ptap1_236/sub!" "l1_M135_0/m7_n4800_8266r#" 2.88075
+cap "ptap1_193/sub!" "ptap1_237/sub!" 6.73564
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_195/sub!" 0.569259
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_235/sub!" 2.96051
+cap "ptap1_194/sub!" "ptap1_195/sub!" 13.4713
+cap "ptap1_197/sub!" "ptap1_196/sub!" 6.73564
+cap "ptap1_194/sub!" "ptap1_193/sub!" 13.5177
+cap "ptap1_196/sub!" "ptap1_195/sub!" 13.5177
+cap "ptap1_193/sub!" "l1_M135_0/m7_n4800_8266r#" 0.404299
+cap "ptap1_237/sub!" "ptap1_193/sub!" 6.73564
+cap "ptap1_199/sub!" "ptap1_200/sub!" 6.75884
+cap "ptap1_199/sub!" "ptap1_198/sub!" 13.4713
+cap "ptap1_197/sub!" "ptap1_198/sub!" 13.5177
+cap "ptap1_197/sub!" "ptap1_196/sub!" 6.73564
+cap "ptap1_184/sub!" "ptap1_202/sub!" 13.5177
+cap "ptap1_200/sub!" "ptap1_201/sub!" 13.4713
+cap "ptap1_200/sub!" "ptap1_199/sub!" 6.75884
+cap "ptap1_184/sub!" "ptap1_185/sub!" 6.73564
+cap "ptap1_202/sub!" "ptap1_201/sub!" 13.5177
+cap "ptap1_185/sub!" "ptap1_186/sub!" 13.5177
+cap "ptap1_187/sub!" "ptap1_186/sub!" 13.4713
+cap "ptap1_187/sub!" "ptap1_192/sub!" 6.75884
+cap "ptap1_185/sub!" "ptap1_184/sub!" 6.73564
+cap "ptap1_190/sub!" "ptap1_189/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_189/sub!" 0.404299
+cap "ptap1_187/sub!" "ptap1_192/sub!" 6.75884
+cap "ptap1_190/sub!" "l1_M135_0/m7_n4800_8266r#" 0.363869
+cap "ptap1_189/sub!" "ptap1_188/sub!" 13.5177
+cap "ptap1_192/sub!" "ptap1_188/sub!" 13.4713
+cap "ptap1_213/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_207/sub!" 2.55735
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_189/sub!" 0.790987
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_213/sub!" 2.39689
+cap "ptap1_207/sub!" "ptap1_191/sub!" 13.4713
+cap "ptap1_213/sub!" "ptap1_214/sub!" 6.73564
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_190/sub!" 0.87948
+cap "ptap1_213/sub!" "ptap1_207/sub!" 13.5177
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_188/sub!" 0.723571
+cap "ptap1_191/sub!" "l1_M135_0/m7_n4800_8266r#" 0.0409936
+cap "ptap1_191/sub!" "ptap1_190/sub!" 13.5177
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_192/sub!" 0.168573
+cap "ptap1_207/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_191/sub!" 1.53574
+cap "ptap1_222/sub!" "ptap1_216/sub!" 13.5177
+cap "ptap1_215/sub!" "ptap1_216/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_216/sub!" 1.82799
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_216/sub!" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_215/sub!" 1.82799
+cap "ptap1_222/sub!" "l1_M135_0/m7_n4800_8266r#" 1.35101
+cap "ptap1_222/sub!" "l1_M135_0/m7_n4800_8266r#" 0.172605
+cap "ptap1_215/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_214/sub!" "ptap1_215/sub!" 13.5177
+cap "ptap1_213/sub!" "ptap1_214/sub!" 6.73564
+cap "ptap1_214/sub!" "l1_M135_0/m7_n4800_8266r#" 1.82799
+cap "ptap1_214/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_220/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_222/sub!" 0.476368
+cap "ptap1_218/sub!" "ptap1_222/sub!" 13.5177
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_220/sub!" 1.82799
+cap "ptap1_220/sub!" "ptap1_219/sub!" 13.5177
+cap "ptap1_220/sub!" "ptap1_221/sub!" 6.73564
+cap "ptap1_218/sub!" "l1_M135_0/m7_n4800_8266r#" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_219/sub!" 0.215756
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_218/sub!" 1.82799
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_219/sub!" 1.82799
+cap "ptap1_218/sub!" "ptap1_219/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_222/sub!" 0.0431512
+cap "ptap1_217/sub!" "ptap1_221/sub!" 13.5177
+cap "ptap1_221/sub!" "vdd" 0.215756
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "ptap1_221/sub!" 1.82799
+cap "ptap1_203/sub!" "ptap1_217/sub!" 13.4713
+cap "ptap1_203/sub!" "ptap1_204/sub!" 13.5177
+cap "ptap1_203/sub!" "vdd" 0.215756
+cap "ptap1_203/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.82799
+cap "ptap1_217/sub!" "vdd" 0.215756
+cap "ptap1_204/sub!" "vdd" 0.151029
+cap "ptap1_217/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.82799
+cap "ptap1_220/sub!" "ptap1_221/sub!" 6.73564
+cap "ptap1_204/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.20524
+cap "ptap1_206/sub!" "ptap1_208/sub!" 13.4713
+cap "ptap1_206/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.82799
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_205/sub!" 0.215756
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "rd1_R0_0/a_0_n86#" 0.318819
+cap "ptap1_209/sub!" "ptap1_208/sub!" 6.75884
+cap "ptap1_206/sub!" "ptap1_205/sub!" 13.5177
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "rd1_R0_0/a_0_0#" 2.47341
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_204/sub!" 0.0647268
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "ptap1_208/sub!" 2.97739
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_206/sub!" 0.215756
+cap "ptap1_205/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 1.82799
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "ptap1_204/sub!" 0.622751
+cap "ptap1_205/sub!" "ptap1_204/sub!" 13.4713
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_208/sub!" 0.215756
+cap "ptap1_285/sub!" "l1_M135_0/m7_n4800_8266r#" 0.661319
+cap "rd1_R0_0/a_0_0#" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 25.5018
+cap "rd1_R0_0/a_0_n86#" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 26.9906
+cap "ptap1_285/sub!" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" 19.9422
+cap "ptap1_285/sub!" "ptap1_208/sub!" 6.75884
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_285/sub!" 0.586629
+cap "ptap1_289/sub!" "l2_R270_0/m7_n4800_8266r#" 2.97739
+cap "ptap1_289/sub!" "ptap1_285/sub!" 13.5177
+cap "l2_R270_0/m7_n4800_8266r#" "rd2_M90_0/a_0_n86#" 27.3094
+cap "l2_R270_0/m7_n4800_8266r#" "rd2_M90_0/a_0_0#" 27.9752
+cap "vdd" "ptap1_290/sub!" 0.10572
+cap "ptap1_289/sub!" "ptap1_290/sub!" 13.4713
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_285/sub!" 19.9422
+cap "vdd" "ptap1_289/sub!" 0.215756
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_290/sub!" 0.899722
+cap "vdd" "ptap1_285/sub!" 0.387788
+cap "ptap1_291/sub!" "l2_R270_0/m7_n4800_8266r#" 1.82799
+cap "ptap1_290/sub!" "l2_R270_0/m7_n4800_8266r#" 0.928268
+cap "ptap1_291/sub!" "ptap1_292/sub!" 13.4713
+cap "vdd" "ptap1_292/sub!" 0.215756
+cap "vdd" "ptap1_293/sub!" 0.215756
+cap "ptap1_274/sub!" "ptap1_293/sub!" 6.73564
+cap "ptap1_290/sub!" "ptap1_291/sub!" 13.5177
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_292/sub!" 1.82799
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_293/sub!" 1.82799
+cap "vdd" "ptap1_291/sub!" 0.215756
+cap "vdd" "ptap1_290/sub!" 0.110035
+cap "ptap1_292/sub!" "ptap1_293/sub!" 13.5177
+cap "ptap1_293/sub!" "ptap1_274/sub!" 6.73564
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_275/sub!" 0.215756
+cap "ptap1_275/sub!" "l2_R270_0/m7_n4800_8266r#" 1.82799
+cap "ptap1_275/sub!" "ptap1_276/sub!" 13.4713
+cap "ptap1_275/sub!" "ptap1_274/sub!" 13.5177
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_276/sub!" 0.215756
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_276/sub!" 1.82799
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_277/sub!" 0.0841448
+cap "ptap1_277/sub!" "l2_R270_0/m7_n4800_8266r#" 0.753339
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_274/sub!" 0.215756
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_274/sub!" 1.82799
+cap "ptap1_277/sub!" "ptap1_276/sub!" 13.5177
+cap "ptap1_279/sub!" "ptap1_283/sub!" 13.5177
+cap "ptap1_281/sub!" "ptap1_280/sub!" 6.73564
+cap "ptap1_279/sub!" "l2_R270_0/m7_n4800_8266r#" 1.82738
+cap "ptap1_280/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_283/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_277/sub!" "l2_R270_0/m7_n4800_8266r#" 0.131611
+cap "ptap1_279/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_280/sub!" 1.82799
+cap "ptap1_279/sub!" "ptap1_280/sub!" 13.5177
+cap "ptap1_277/sub!" "ptap1_283/sub!" 13.4713
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_283/sub!" 1.82799
+cap "ptap1_277/sub!" "l2_R270_0/m7_n4800_8266r#" 1.07465
+cap "ptap1_278/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_281/sub!" "ptap1_282/sub!" 13.5177
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_278/sub!" 2.39689
+cap "ptap1_304/sub!" "l2_R270_0/m7_n4800_8266r#" 0.0625692
+cap "ptap1_282/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "ptap1_281/sub!" "l2_R270_0/m7_n4800_8266r#" 0.215756
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_304/sub!" 0.819079
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_282/sub!" 1.82799
+cap "ptap1_304/sub!" "ptap1_278/sub!" 13.5177
+cap "ptap1_278/sub!" "ptap1_282/sub!" 13.4713
+cap "ptap1_281/sub!" "ptap1_280/sub!" 6.73564
+cap "ptap1_281/sub!" "l2_R270_0/m7_n4800_8266r#" 1.82799
+cap "ptap1_304/sub!" "l2_R270_0/m7_n4800_8266r#" 0.153187
+cap "ptap1_307/sub!" "ptap1_306/sub!" 13.4713
+cap "ptap1_308/sub!" "ptap1_307/sub!" 6.75884
+cap "ptap1_305/sub!" "l2_R270_0/m7_n4800_8266r#" 0.0409936
+cap "ptap1_304/sub!" "ptap1_305/sub!" 13.4713
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_306/sub!" 1.24335
+cap "ptap1_308/sub!" "l2_R270_0/m7_n4800_8266r#" 0.723571
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_304/sub!" 1.73827
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_305/sub!" 1.53574
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_307/sub!" 1.19529
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_309/sub!" 0.168573
+cap "ptap1_305/sub!" "ptap1_306/sub!" 13.5177
+cap "ptap1_308/sub!" "ptap1_307/sub!" 6.75884
+cap "ptap1_310/sub!" "ptap1_311/sub!" 13.4713
+cap "ptap1_308/sub!" "ptap1_309/sub!" 13.4713
+cap "ptap1_310/sub!" "ptap1_309/sub!" 13.5177
+cap "ptap1_298/sub!" "ptap1_248/sub!" 13.4713
+cap "ptap1_298/sub!" "ptap1_294/sub!" 13.5177
+cap "ptap1_311/sub!" "ptap1_248/sub!" 13.5177
+cap "ptap1_295/sub!" "ptap1_294/sub!" 6.75884
+cap "ptap1_294/sub!" "ptap1_295/sub!" 6.75884
+cap "ptap1_296/sub!" "ptap1_297/sub!" 13.5177
+cap "ptap1_303/sub!" "ptap1_297/sub!" 13.4713
+cap "ptap1_296/sub!" "ptap1_295/sub!" 13.4713
+cap "ptap1_301/sub!" "ptap1_302/sub!" 6.73564
+cap "ptap1_299/sub!" "ptap1_303/sub!" 13.5177
+cap "ptap1_300/sub!" "ptap1_299/sub!" 13.4713
+cap "ptap1_300/sub!" "ptap1_301/sub!" 13.5177
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_259/sub!" 1.25656
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_253/sub!" 1.20826
+cap "ptap1_301/sub!" "ptap1_302/sub!" 6.73564
+cap "ptap1_259/sub!" "ptap1_260/sub!" 6.75884
+cap "ptap1_253/sub!" "ptap1_302/sub!" 13.5177
+cap "ptap1_259/sub!" "ptap1_253/sub!" 13.4713
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_301/sub!" 0.569259
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_260/sub!" 0.0909755
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_302/sub!" 0.740013
+cap "ptap1_260/sub!" "l2_R270_0/m7_n4800_8266r#" 2.78978
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_264/sub!" 0.786178
+cap "ptap1_260/sub!" "ptap1_259/sub!" 6.75884
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_268/sub!" 0.836092
+cap "ptap1_262/sub!" "ptap1_268/sub!" 13.4713
+cap "ptap1_261/sub!" "l2_R270_0/m7_n4800_8266r#" 2.96051
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_266/sub!" 0.0359285
+cap "ptap1_264/sub!" "ptap1_268/sub!" 6.75884
+cap "l2_R270_0/m7_n4800_8266r#" "ptap1_265/sub!" 0.717676
+cap "ptap1_262/sub!" "ptap1_261/sub!" 13.5177
+cap "ptap1_262/sub!" "l2_R270_0/m7_n4800_8266r#" 0.958773
+cap "ptap1_260/sub!" "ptap1_261/sub!" 13.4713
+cap "ptap1_266/sub!" "ptap1_267/sub!" 6.75884
+cap "ptap1_266/sub!" "ptap1_265/sub!" 13.4713
+cap "ptap1_265/sub!" "ptap1_264/sub!" 13.5177
+cap "ptap1_268/sub!" "ptap1_264/sub!" 6.75884
+cap "ptap1_249/sub!" "ptap1_250/sub!" 13.4713
+cap "ptap1_266/sub!" "ptap1_267/sub!" 6.75884
+cap "ptap1_249/sub!" "ptap1_263/sub!" 13.5177
+cap "ptap1_263/sub!" "ptap1_267/sub!" 13.4713
+cap "ptap1_251/sub!" "ptap1_250/sub!" 6.75884
+cap "ptap1_254/sub!" "ptap1_252/sub!" 13.5177
+cap "ptap1_255/sub!" "ptap1_254/sub!" 6.73564
+cap "ptap1_251/sub!" "ptap1_252/sub!" 13.4713
+cap "ptap1_251/sub!" "ptap1_250/sub!" 6.75884
+cap "ptap1_272/sub!" "ptap1_257/sub!" 13.5177
+cap "ptap1_256/sub!" "ptap1_257/sub!" 13.4713
+cap "ptap1_256/sub!" "ptap1_255/sub!" 13.5177
+cap "ptap1_255/sub!" "ptap1_254/sub!" 6.73564
+cap "l1_M135_0/m7_n4800_8266r#" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" -24.6001
+cap "l1_M135_0/m7_n4800_8266r#" "ptap1_285/sub!" 1.85161
+cap "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "l1_M135_0/m7_n4800_8266r#" -89.2892
+cap "ptap1_285/sub!" "l2_R270_0/m7_n4800_8266r#" 2.48872
+cap "l2_R270_0/m7_n4800_8266r#" "l2_R270_0/m7_n4800_8266r#" -113.889
+cap "ptap1_285/sub!" "l2_R270_0/m7_n4800_8266r#" 0.723387
+merge "ptap1_272/sub!" "ptap1_284/sub!" -7384.96 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "ptap1_284/sub!" "ptap1_271/sub!"
+merge "ptap1_271/sub!" "ptap1_273/sub!"
+merge "ptap1_273/sub!" "ptap1_257/sub!"
+merge "ptap1_257/sub!" "ptap1_258/sub!"
+merge "ptap1_258/sub!" "ptap1_256/sub!"
+merge "ptap1_256/sub!" "ptap1_255/sub!"
+merge "ptap1_255/sub!" "ptap1_254/sub!"
+merge "ptap1_254/sub!" "ptap1_252/sub!"
+merge "ptap1_252/sub!" "ptap1_263/sub!"
+merge "ptap1_263/sub!" "ptap1_251/sub!"
+merge "ptap1_251/sub!" "ptap1_250/sub!"
+merge "ptap1_250/sub!" "ptap1_249/sub!"
+merge "ptap1_249/sub!" "ptap1_265/sub!"
+merge "ptap1_265/sub!" "ptap1_266/sub!"
+merge "ptap1_266/sub!" "ptap1_267/sub!"
+merge "ptap1_267/sub!" "ptap1_264/sub!"
+merge "ptap1_264/sub!" "ptap1_261/sub!"
+merge "ptap1_261/sub!" "ptap1_262/sub!"
+merge "ptap1_262/sub!" "ptap1_268/sub!"
+merge "ptap1_268/sub!" "ptap1_259/sub!"
+merge "ptap1_259/sub!" "ptap1_260/sub!"
+merge "ptap1_260/sub!" "ptap1_253/sub!"
+merge "ptap1_253/sub!" "ptap1_299/sub!"
+merge "ptap1_299/sub!" "ptap1_300/sub!"
+merge "ptap1_300/sub!" "ptap1_301/sub!"
+merge "ptap1_301/sub!" "ptap1_302/sub!"
+merge "ptap1_302/sub!" "ptap1_303/sub!"
+merge "ptap1_303/sub!" "ptap1_296/sub!"
+merge "ptap1_296/sub!" "ptap1_297/sub!"
+merge "ptap1_297/sub!" "ptap1_248/sub!"
+merge "ptap1_248/sub!" "ptap1_294/sub!"
+merge "ptap1_294/sub!" "ptap1_295/sub!"
+merge "ptap1_295/sub!" "ptap1_298/sub!"
+merge "ptap1_298/sub!" "ptap1_309/sub!"
+merge "ptap1_309/sub!" "ptap1_310/sub!"
+merge "ptap1_310/sub!" "ptap1_311/sub!"
+merge "ptap1_311/sub!" "ptap1_307/sub!"
+merge "ptap1_307/sub!" "ptap1_308/sub!"
+merge "ptap1_308/sub!" "ptap1_305/sub!"
+merge "ptap1_305/sub!" "ptap1_306/sub!"
+merge "ptap1_306/sub!" "ptap1_278/sub!"
+merge "ptap1_278/sub!" "ptap1_282/sub!"
+merge "ptap1_282/sub!" "ptap1_304/sub!"
+merge "ptap1_304/sub!" "ptap1_281/sub!"
+merge "ptap1_281/sub!" "ptap1_279/sub!"
+merge "ptap1_279/sub!" "ptap1_280/sub!"
+merge "ptap1_280/sub!" "ptap1_283/sub!"
+merge "ptap1_283/sub!" "ptap1_276/sub!"
+merge "ptap1_276/sub!" "ptap1_277/sub!"
+merge "ptap1_277/sub!" "ptap1_275/sub!"
+merge "ptap1_275/sub!" "ptap1_274/sub!"
+merge "ptap1_274/sub!" "ptap1_291/sub!"
+merge "ptap1_291/sub!" "ptap1_292/sub!"
+merge "ptap1_292/sub!" "ptap1_293/sub!"
+merge "ptap1_293/sub!" "ptap1_290/sub!"
+merge "ptap1_290/sub!" "ptap1_288/sub!"
+merge "ptap1_288/sub!" "ptap1_289/sub!"
+merge "ptap1_289/sub!" "ptap1_285/sub!"
+merge "ptap1_285/sub!" "ptap1_286/sub!"
+merge "ptap1_286/sub!" "ptap1_287/sub!"
+merge "ptap1_287/sub!" "ptap1_313/sub!"
+merge "ptap1_313/sub!" "ptap1_210/sub!"
+merge "ptap1_210/sub!" "ptap1_211/sub!"
+merge "ptap1_211/sub!" "ptap1_212/sub!"
+merge "ptap1_212/sub!" "ptap1_208/sub!"
+merge "ptap1_208/sub!" "ptap1_209/sub!"
+merge "ptap1_209/sub!" "ptap1_205/sub!"
+merge "ptap1_205/sub!" "ptap1_206/sub!"
+merge "ptap1_206/sub!" "ptap1_203/sub!"
+merge "ptap1_203/sub!" "ptap1_204/sub!"
+merge "ptap1_204/sub!" "ptap1_217/sub!"
+merge "ptap1_217/sub!" "ptap1_218/sub!"
+merge "ptap1_218/sub!" "ptap1_219/sub!"
+merge "ptap1_219/sub!" "ptap1_220/sub!"
+merge "ptap1_220/sub!" "ptap1_221/sub!"
+merge "ptap1_221/sub!" "ptap1_222/sub!"
+merge "ptap1_222/sub!" "ptap1_215/sub!"
+merge "ptap1_215/sub!" "ptap1_216/sub!"
+merge "ptap1_216/sub!" "ptap1_191/sub!"
+merge "ptap1_191/sub!" "ptap1_207/sub!"
+merge "ptap1_207/sub!" "ptap1_213/sub!"
+merge "ptap1_213/sub!" "ptap1_214/sub!"
+merge "ptap1_214/sub!" "ptap1_188/sub!"
+merge "ptap1_188/sub!" "ptap1_189/sub!"
+merge "ptap1_189/sub!" "ptap1_190/sub!"
+merge "ptap1_190/sub!" "ptap1_187/sub!"
+merge "ptap1_187/sub!" "ptap1_192/sub!"
+merge "ptap1_192/sub!" "ptap1_185/sub!"
+merge "ptap1_185/sub!" "ptap1_186/sub!"
+merge "ptap1_186/sub!" "ptap1_184/sub!"
+merge "ptap1_184/sub!" "ptap1_201/sub!"
+merge "ptap1_201/sub!" "ptap1_202/sub!"
+merge "ptap1_202/sub!" "ptap1_200/sub!"
+merge "ptap1_200/sub!" "ptap1_197/sub!"
+merge "ptap1_197/sub!" "ptap1_198/sub!"
+merge "ptap1_198/sub!" "ptap1_199/sub!"
+merge "ptap1_199/sub!" "ptap1_195/sub!"
+merge "ptap1_195/sub!" "ptap1_196/sub!"
+merge "ptap1_196/sub!" "ptap1_194/sub!"
+merge "ptap1_194/sub!" "ptap1_193/sub!"
+merge "ptap1_193/sub!" "ptap1_235/sub!"
+merge "ptap1_235/sub!" "ptap1_236/sub!"
+merge "ptap1_236/sub!" "ptap1_237/sub!"
+merge "ptap1_237/sub!" "ptap1_234/sub!"
+merge "ptap1_234/sub!" "ptap1_232/sub!"
+merge "ptap1_232/sub!" "ptap1_233/sub!"
+merge "ptap1_233/sub!" "ptap1_229/sub!"
+merge "ptap1_229/sub!" "ptap1_230/sub!"
+merge "ptap1_230/sub!" "ptap1_231/sub!"
+merge "ptap1_231/sub!" "ptap1_228/sub!"
+merge "ptap1_228/sub!" "ptap1_245/sub!"
+merge "ptap1_245/sub!" "ptap1_246/sub!"
+merge "ptap1_246/sub!" "ptap1_247/sub!"
+merge "ptap1_247/sub!" "ptap1_243/sub!"
+merge "ptap1_243/sub!" "ptap1_244/sub!"
+merge "ptap1_244/sub!" "ptap1_242/sub!"
+merge "ptap1_242/sub!" "ptap1_241/sub!"
+merge "ptap1_241/sub!" "ptap1_240/sub!"
+merge "ptap1_240/sub!" "ptap1_239/sub!"
+merge "ptap1_239/sub!" "ptap1_238/sub!"
+merge "ptap1_238/sub!" "ptap1_227/sub!"
+merge "ptap1_227/sub!" "ptap1_226/sub!"
+merge "ptap1_226/sub!" "ptap1_225/sub!"
+merge "ptap1_225/sub!" "ptap1_269/sub!"
+merge "ptap1_269/sub!" "ptap1_270/sub!"
+merge "ptap1_270/sub!" "ptap1_11/sub!"
+merge "ptap1_11/sub!" "via_metal1_topmetal2_72.4_62.14_0/sub!"
+merge "via_metal1_topmetal2_72.4_62.14_0/sub!" "via_metal1_metal3_72.4_56.18_0/sub!"
+merge "via_metal1_metal3_72.4_56.18_0/sub!" "rd2_M90_0/sub!"
+merge "rd2_M90_0/sub!" "via_metal1_topmetal2_56.4_62.14_0/sub!"
+merge "via_metal1_topmetal2_56.4_62.14_0/sub!" "rd1_R0_0/sub!"
+merge "rd1_R0_0/sub!" "via_metal1_metal3_56.4_56.18_0/sub!"
+merge "via_metal1_metal3_56.4_56.18_0/sub!" "ptap1_224/sub!"
+merge "ptap1_224/sub!" "ptap1_223/sub!"
+merge "ptap1_223/sub!" "ptap1_171/sub!"
+merge "ptap1_171/sub!" "ptap1_10/sub!"
+merge "ptap1_10/sub!" "ptap1_9/sub!"
+merge "ptap1_9/sub!" "ptap1_8/sub!"
+merge "ptap1_8/sub!" "ptap1_7/sub!"
+merge "ptap1_7/sub!" "via_metal1_metal3_75.75_49.81_0/sub!"
+merge "via_metal1_metal3_75.75_49.81_0/sub!" "via_metal1_metal3_53.05_49.81_0/sub!"
+merge "via_metal1_metal3_53.05_49.81_0/sub!" "ptap1_170/sub!"
+merge "ptap1_170/sub!" "ptap1_172/sub!"
+merge "ptap1_172/sub!" "ptap1_181/sub!"
+merge "ptap1_181/sub!" "ptap1_182/sub!"
+merge "ptap1_182/sub!" "ptap1_14/sub!"
+merge "ptap1_14/sub!" "ptap1_5/sub!"
+merge "ptap1_5/sub!" "ptap1_4/sub!"
+merge "ptap1_4/sub!" "q2_M90_0/a_n630_n626#"
+merge "q2_M90_0/a_n630_n626#" "via_metal2_metal3_75.75_44.67_0/sub!"
+merge "via_metal2_metal3_75.75_44.67_0/sub!" "via_metal2_metal3_53.05_44.67_0/sub!"
+merge "via_metal2_metal3_53.05_44.67_0/sub!" "q1_R0_0/a_n630_n626#"
+merge "q1_R0_0/a_n630_n626#" "ptap1_178/sub!"
+merge "ptap1_178/sub!" "ptap1_179/sub!"
+merge "ptap1_179/sub!" "ptap1_180/sub!"
+merge "ptap1_180/sub!" "ptap1_3/sub!"
+merge "ptap1_3/sub!" "ptap1_2/sub!"
+merge "ptap1_2/sub!" "ptap1_1/sub!"
+merge "ptap1_1/sub!" "ptap1_0/sub!"
+merge "ptap1_0/sub!" "ptap1_177/sub!"
+merge "ptap1_177/sub!" "ptap1_174/sub!"
+merge "ptap1_174/sub!" "ptap1_175/sub!"
+merge "ptap1_175/sub!" "ptap1_176/sub!"
+merge "ptap1_176/sub!" "ptap1_91/sub!"
+merge "ptap1_91/sub!" "ptap1_90/sub!"
+merge "ptap1_90/sub!" "ptap1_24/sub!"
+merge "ptap1_24/sub!" "ptap1_167/sub!"
+merge "ptap1_167/sub!" "ptap1_169/sub!"
+merge "ptap1_169/sub!" "ptap1_173/sub!"
+merge "ptap1_173/sub!" "ptap1_33/sub!"
+merge "ptap1_33/sub!" "ptap1_32/sub!"
+merge "ptap1_32/sub!" "ptap1_31/sub!"
+merge "ptap1_31/sub!" "cdeg_R0_0/sub!"
+merge "cdeg_R0_0/sub!" "via_m1_metal4_PLUS_0/sub!"
+merge "via_m1_metal4_PLUS_0/sub!" "via_metal1_metal3_56.17_23.15_0/sub!"
+merge "via_metal1_metal3_56.17_23.15_0/sub!" "rdeg_R90_0/sub!"
+merge "rdeg_R90_0/sub!" "via_m1_metal5_MINUS_0/sub!"
+merge "via_m1_metal5_MINUS_0/sub!" "ptap1_131/sub!"
+merge "ptap1_131/sub!" "ptap1_168/sub!"
+merge "ptap1_168/sub!" "ptap1_130/sub!"
+merge "ptap1_130/sub!" "ptap1_30/sub!"
+merge "ptap1_30/sub!" "ptap1_29/sub!"
+merge "ptap1_29/sub!" "ptap1_28/sub!"
+merge "ptap1_28/sub!" "ptap1_27/sub!"
+merge "ptap1_27/sub!" "via_metal2_metal3_98.6_14.4_0/sub!"
+merge "via_metal2_metal3_98.6_14.4_0/sub!" "l2_R270_0/sub!"
+merge "l2_R270_0/sub!" "via_metal1_metal3_61.57_19.15_0/sub!"
+merge "via_metal1_metal3_61.57_19.15_0/sub!" "via_metal2_metal3_28.2_14.4_0/sub!"
+merge "via_metal2_metal3_28.2_14.4_0/sub!" "l1_M135_0/sub!"
+merge "l1_M135_0/sub!" "ptap1_126/sub!"
+merge "ptap1_126/sub!" "ptap1_127/sub!"
+merge "ptap1_127/sub!" "ptap1_128/sub!"
+merge "ptap1_128/sub!" "ptap1_129/sub!"
+merge "ptap1_129/sub!" "ptap1_34/sub!"
+merge "ptap1_34/sub!" "ptap1_26/sub!"
+merge "ptap1_26/sub!" "ptap1_25/sub!"
+merge "ptap1_25/sub!" "ptap1_123/sub!"
+merge "ptap1_123/sub!" "ptap1_125/sub!"
+merge "ptap1_125/sub!" "ptap1_137/sub!"
+merge "ptap1_137/sub!" "ptap1_23/sub!"
+merge "ptap1_23/sub!" "ptap1_21/sub!"
+merge "ptap1_21/sub!" "ptap1_22/sub!"
+merge "ptap1_22/sub!" "ptap1_19/sub!"
+merge "ptap1_19/sub!" "ptap1_20/sub!"
+merge "ptap1_20/sub!" "ptap1_16/sub!"
+merge "ptap1_16/sub!" "ptap1_17/sub!"
+merge "ptap1_17/sub!" "ptap1_18/sub!"
+merge "ptap1_18/sub!" "ptap1_6/sub!"
+merge "ptap1_6/sub!" "ptap1_66/sub!"
+merge "ptap1_66/sub!" "ptap1_68/sub!"
+merge "ptap1_68/sub!" "ptap1_64/sub!"
+merge "ptap1_64/sub!" "ptap1_70/sub!"
+merge "ptap1_70/sub!" "ptap1_62/sub!"
+merge "ptap1_62/sub!" "ptap1_58/sub!"
+merge "ptap1_58/sub!" "ptap1_88/sub!"
+merge "ptap1_88/sub!" "ptap1_57/sub!"
+merge "ptap1_57/sub!" "ptap1_55/sub!"
+merge "ptap1_55/sub!" "ptap1_53/sub!"
+merge "ptap1_53/sub!" "ptap1_86/sub!"
+merge "ptap1_86/sub!" "ptap1_84/sub!"
+merge "ptap1_84/sub!" "ptap1_83/sub!"
+merge "ptap1_83/sub!" "ptap1_81/sub!"
+merge "ptap1_81/sub!" "ptap1_79/sub!"
+merge "ptap1_79/sub!" "ptap1_77/sub!"
+merge "ptap1_77/sub!" "ptap1_75/sub!"
+merge "ptap1_75/sub!" "ptap1_73/sub!"
+merge "ptap1_73/sub!" "ptap1_71/sub!"
+merge "ptap1_71/sub!" "ptap1_63/sub!"
+merge "ptap1_63/sub!" "ptap1_51/sub!"
+merge "ptap1_51/sub!" "ptap1_47/sub!"
+merge "ptap1_47/sub!" "ptap1_44/sub!"
+merge "ptap1_44/sub!" "ptap1_40/sub!"
+merge "ptap1_40/sub!" "ptap1_37/sub!"
+merge "ptap1_37/sub!" "ptap1_15/sub!"
+merge "ptap1_15/sub!" "ptap1_13/sub!"
+merge "ptap1_13/sub!" "ptap1_12/sub!"
+merge "ptap1_12/sub!" "ptap1_87/sub!"
+merge "ptap1_87/sub!" "ptap1_67/sub!"
+merge "ptap1_67/sub!" "ptap1_54/sub!"
+merge "ptap1_54/sub!" "ptap1_49/sub!"
+merge "ptap1_49/sub!" "ptap1_42/sub!"
+merge "ptap1_42/sub!" "ptap1_35/sub!"
+merge "ptap1_35/sub!" "ptap1_76/sub!"
+merge "ptap1_76/sub!" "ptap1_89/sub!"
+merge "ptap1_89/sub!" "ptap1_80/sub!"
+merge "ptap1_80/sub!" "ptap1_72/sub!"
+merge "ptap1_72/sub!" "ptap1_60/sub!"
+merge "ptap1_60/sub!" "ptap1_50/sub!"
+merge "ptap1_50/sub!" "ptap1_48/sub!"
+merge "ptap1_48/sub!" "ptap1_46/sub!"
+merge "ptap1_46/sub!" "ptap1_45/sub!"
+merge "ptap1_45/sub!" "ptap1_43/sub!"
+merge "ptap1_43/sub!" "ptap1_41/sub!"
+merge "ptap1_41/sub!" "ptap1_39/sub!"
+merge "ptap1_39/sub!" "ptap1_38/sub!"
+merge "ptap1_38/sub!" "ptap1_36/sub!"
+merge "ptap1_36/sub!" "ptap1_65/sub!"
+merge "ptap1_65/sub!" "ptap1_82/sub!"
+merge "ptap1_82/sub!" "ptap1_78/sub!"
+merge "ptap1_78/sub!" "ptap1_74/sub!"
+merge "ptap1_74/sub!" "ptap1_69/sub!"
+merge "ptap1_69/sub!" "ptap1_85/sub!"
+merge "ptap1_85/sub!" "ptap1_61/sub!"
+merge "ptap1_61/sub!" "tail2_cell_0/sub!"
+merge "tail2_cell_0/sub!" "ptap1_59/sub!"
+merge "ptap1_59/sub!" "ptap1_56/sub!"
+merge "ptap1_56/sub!" "ptap1_52/sub!"
+merge "ptap1_52/sub!" "ptap1_312/sub!"
+merge "ptap1_312/sub!" "ptap1_117/sub!"
+merge "ptap1_117/sub!" "ptap1_115/sub!"
+merge "ptap1_115/sub!" "ptap1_113/sub!"
+merge "ptap1_113/sub!" "ptap1_112/sub!"
+merge "ptap1_112/sub!" "ptap1_119/sub!"
+merge "ptap1_119/sub!" "ptap1_106/sub!"
+merge "ptap1_106/sub!" "ptap1_109/sub!"
+merge "ptap1_109/sub!" "ptap1_99/sub!"
+merge "ptap1_99/sub!" "ptap1_102/sub!"
+merge "ptap1_102/sub!" "ptap1_104/sub!"
+merge "ptap1_104/sub!" "ptap1_110/sub!"
+merge "ptap1_110/sub!" "ptap1_95/sub!"
+merge "ptap1_95/sub!" "ptap1_118/sub!"
+merge "ptap1_118/sub!" "ptap1_114/sub!"
+merge "ptap1_114/sub!" "ptap1_111/sub!"
+merge "ptap1_111/sub!" "ptap1_97/sub!"
+merge "ptap1_97/sub!" "ptap1_108/sub!"
+merge "ptap1_108/sub!" "ptap1_93/sub!"
+merge "ptap1_93/sub!" "ptap1_120/sub!"
+merge "ptap1_120/sub!" "ptap1_105/sub!"
+merge "ptap1_105/sub!" "ptap1_107/sub!"
+merge "ptap1_107/sub!" "ptap1_101/sub!"
+merge "ptap1_101/sub!" "ptap1_103/sub!"
+merge "ptap1_103/sub!" "ptap1_100/sub!"
+merge "ptap1_100/sub!" "ptap1_98/sub!"
+merge "ptap1_98/sub!" "ptap1_94/sub!"
+merge "ptap1_94/sub!" "ptap1_96/sub!"
+merge "ptap1_96/sub!" "ptap1_92/sub!"
+merge "ptap1_92/sub!" "ptap1_116/sub!"
+merge "ptap1_116/sub!" "ptap1_183/sub!"
+merge "ptap1_183/sub!" "ptap1_144/sub!"
+merge "ptap1_144/sub!" "tail1_cell_0/sub!"
+merge "tail1_cell_0/sub!" "ptap1_142/sub!"
+merge "ptap1_142/sub!" "ptap1_141/sub!"
+merge "ptap1_141/sub!" "ptap1_148/sub!"
+merge "ptap1_148/sub!" "ptap1_138/sub!"
+merge "ptap1_138/sub!" "ptap1_136/sub!"
+merge "ptap1_136/sub!" "ptap1_132/sub!"
+merge "ptap1_132/sub!" "ptap1_134/sub!"
+merge "ptap1_134/sub!" "ptap1_158/sub!"
+merge "ptap1_158/sub!" "ptap1_159/sub!"
+merge "ptap1_159/sub!" "ptap1_154/sub!"
+merge "ptap1_154/sub!" "ptap1_156/sub!"
+merge "ptap1_156/sub!" "ptap1_152/sub!"
+merge "ptap1_152/sub!" "ptap1_160/sub!"
+merge "ptap1_160/sub!" "ptap1_149/sub!"
+merge "ptap1_149/sub!" "ptap1_147/sub!"
+merge "ptap1_147/sub!" "ptap1_140/sub!"
+merge "ptap1_140/sub!" "ptap1_143/sub!"
+merge "ptap1_143/sub!" "ptap1_155/sub!"
+merge "ptap1_155/sub!" "ptap1_153/sub!"
+merge "ptap1_153/sub!" "ptap1_145/sub!"
+merge "ptap1_145/sub!" "ptap1_150/sub!"
+merge "ptap1_150/sub!" "ptap1_165/sub!"
+merge "ptap1_165/sub!" "ptap1_164/sub!"
+merge "ptap1_164/sub!" "ptap1_122/sub!"
+merge "ptap1_122/sub!" "ptap1_121/sub!"
+merge "ptap1_121/sub!" "ptap1_133/sub!"
+merge "ptap1_133/sub!" "ptap1_146/sub!"
+merge "ptap1_146/sub!" "ptap1_139/sub!"
+merge "ptap1_139/sub!" "ptap1_157/sub!"
+merge "ptap1_157/sub!" "ptap1_135/sub!"
+merge "ptap1_135/sub!" "ptap1_163/sub!"
+merge "ptap1_163/sub!" "ptap1_161/sub!"
+merge "ptap1_161/sub!" "ptap1_162/sub!"
+merge "ptap1_162/sub!" "ptap1_124/sub!"
+merge "ptap1_124/sub!" "ptap1_151/sub!"
+merge "ptap1_151/sub!" "ptap1_166/sub!"
+merge "ptap1_166/sub!" "sub!"
+merge "rd1_R0_0/a_0_n86#" "via_metal1_metal3_56.4_56.18_0/m1_n70_n62#" -464.72 0 0 0 0 -13152 -932 0 0 -7860 -502 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "via_metal1_metal3_56.4_56.18_0/m1_n70_n62#" "m1_11256_11212#"
+merge "m1_11256_11212#" "via_metal1_metal3_53.05_49.81_0/m1_n70_n62#"
+merge "via_metal1_metal3_53.05_49.81_0/m1_n70_n62#" "m3_10580_9962#"
+merge "m3_10580_9962#" "q1_R0_0/a_n185_196#"
+merge "q1_R0_0/a_n185_196#" "outp"
+merge "via_metal2_metal3_53.05_44.67_0/m2_n70_n61#" "q1_R0_0/m1_n70_n157#" -3548.47 0 0 0 0 -13040 -824 -29820 -1474 -402060 -13792 -26760 -1132 0 0 0 0 0 0 0 0 0 0 0 0
+merge "q1_R0_0/m1_n70_n157#" "e1"
+merge "e1" "cdeg_R0_0/m2_n10_157#"
+merge "cdeg_R0_0/m2_n10_157#" "via_m1_metal4_PLUS_0/m1_n70_n62#"
+merge "via_m1_metal4_PLUS_0/m1_n70_n62#" "m4_12284_4200#"
+merge "m4_12284_4200#" "rdeg_R90_0/a_0_n70#"
+merge "rdeg_R90_0/a_0_n70#" "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#"
+merge "via_metal1_metal3_61.57_19.15_0/m1_n70_n62#" "m1_12290_3806#"
+merge "m1_12290_3806#" "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#"
+merge "via_metal2_metal3_28.2_14.4_0/m2_n70_n61#" "m3_5640_2850#"
+merge "m3_5640_2850#" "tail1_cell_0/m2_n200_2380#"
+merge "tail1_cell_0/m2_n200_2380#" "m2_5610_2450#"
+merge "q2_M90_0/m1_n70_n157#" "via_metal2_metal3_75.75_44.67_0/m2_n70_n61#" -4388.46 0 0 0 0 -13040 -824 -29820 -1474 -449100 -15360 0 0 -91560 -3292 0 0 0 0 0 0 0 0 0 0
+merge "via_metal2_metal3_75.75_44.67_0/m2_n70_n61#" "e2"
+merge "e2" "cdeg_R0_0/m2_n10_n21#"
+merge "cdeg_R0_0/m2_n10_n21#" "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#"
+merge "via_metal1_metal3_56.17_23.15_0/m1_n70_n62#" "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#"
+merge "via_metal2_metal3_98.6_14.4_0/m2_n70_n61#" "m3_11234_4600#"
+merge "m3_11234_4600#" "tail2_cell_0/m2_n200_2380#"
+merge "tail2_cell_0/m2_n200_2380#" "m2_19690_2450#"
+merge "m2_19690_2450#" "rdeg_R90_0/a_0_1000#"
+merge "rdeg_R90_0/a_0_1000#" "via_m1_metal5_MINUS_0/m1_n70_n62#"
+merge "via_m1_metal5_MINUS_0/m1_n70_n62#" "m5_11204_4200#"
+merge "m5_11204_4200#" "m1_11210_4206#"
+merge "l2_R270_0/m7_n4800_8266r#" "via_metal1_topmetal2_72.4_62.14_0/m1_n70_n62#" -2374.97 0 0 0 0 -10848 -740 0 0 0 0 0 0 0 0 0 0 -2580000 -14400 0 0 0 0 0 0
+merge "via_metal1_topmetal2_72.4_62.14_0/m1_n70_n62#" "m7_14180_12428#"
+merge "m7_14180_12428#" "rd2_M90_0/a_0_280#"
+merge "rd2_M90_0/a_0_280#" "nlp2"
+merge "nlp2" "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#"
+merge "via_metal1_topmetal2_56.4_62.14_0/m1_n70_n62#" "vdd"
+merge "vdd" "l1_M135_0/m7_n4800_8266r#"
+merge "l1_M135_0/m7_n4800_8266r#" "m7_10980_12428#"
+merge "m7_10980_12428#" "rd1_R0_0/a_0_280#"
+merge "rd1_R0_0/a_0_280#" "nlp1"
+merge "tail2_cell_0/m2_n200_n636#" "tail1_cell_0/m2_n200_n636#" -10603.6 0 0 0 0 0 0 -4752000 -48320 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "tail1_cell_0/m2_n200_n636#" "vss"
+merge "rd2_M90_0/a_0_n86#" "via_metal1_metal3_72.4_56.18_0/m1_n70_n62#" -464.72 0 0 0 0 -13152 -932 0 0 -7860 -502 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "via_metal1_metal3_72.4_56.18_0/m1_n70_n62#" "m1_14456_11212#"
+merge "m1_14456_11212#" "via_metal1_metal3_75.75_49.81_0/m1_n70_n62#"
+merge "via_metal1_metal3_75.75_49.81_0/m1_n70_n62#" "m3_14480_11206#"
+merge "m3_14480_11206#" "q2_M90_0/a_n185_196#"
+merge "q2_M90_0/a_n185_196#" "outn"
+merge "q2_M90_0/w_n203_n494#" "inn" 2.39503 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "tail2_cell_0/a_n200_1960#" "tail1_cell_0/a_n200_1960#" -29492.7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+merge "tail1_cell_0/a_n200_1960#" "a_n200_1960#"
+merge "q1_R0_0/w_n203_n494#" "inp" 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

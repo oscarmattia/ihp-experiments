@@ -211,6 +211,75 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
   `[sim]`. That dominates a 28 GHz input and is why the 50 Ω shunt termination matters.
 - SBR: cursor = max `|vod_ac|` in the first 3 UI after an isolated 1-bit pulse; sample taps every UI.
 
+## Layout / physical verification
+
+Flow and full detail: [docs/LAYOUT.md](docs/LAYOUT.md), [layout/AGENTS.md](layout/AGENTS.md).
+Devices are foundry PCells; gdsfactory does composition and routing only.
+
+- **Never transcribe a DRC limit.** `layout/common/rules.py` reads the PDK's own
+  `rule_decks/sg13g2_tech_default.json`. A hand-written table had TopMetal1 at 1.50 µm against the
+  1.64 µm minimum (`TM1_a`), and the deck only caught it once a route used that metal `[model]`.
+- **`run_lvs.py` exits 0 even when netlists do not match.** Judge the compare on "Netlists match" in
+  the report, never on the return code. Trusting the exit status reported four mismatched blocks and
+  one mismatched device as clean.
+- **Do not pass `-rd tables=...` to the DRC deck.** Its connectivity section runs unconditionally and
+  references layers only the full table set defines, so it dies with `'-': Argument needs to be a DRC
+  layer`. That error is *not* a version problem. Go through `run_drc.py`, which does enforce the
+  KLayout pin and refuses to run below it.
+- **The Magic tech file requires more than `versions.txt` pins.** `ihp-sg13g2.tech` carries
+  `requires magic-8.3.617` while `versions.txt` says 8.3.589. Below the tech file's floor its version
+  and cifinput sections fail to load and Magic cannot read a GDS at all `[sim]`.
+- **`klayout` pip and gdsfactory conflict.** gdsfactory 9.44 needs kfactory ≥ 2.5, which declares
+  `klayout >= 0.30.8`, while the PDK pins 0.30.5. Keep the PDK version: it is what IHP tested and it
+  keeps PCell generation and the DRC binary on one KLayout.
+- **PCell traps** `[sim]`, all measured against the deck:
+  - `pya.Library.library_by_name("SG13_dev")` returns `None`; the technology name is a required
+    second argument.
+  - `rppd` and `cmim` ignore `w`/`l` unless `Calculate` is changed — `rppd` defaults to solving for
+    `l` from `R`, `cmim` for `w&l` from `C`. Passing a geometry without it silently gives the default.
+  - `nmos` with `ng > 1` draws **no source/drain straps**: a 4-finger device extracts as four
+    transistors in series. `m > 1` is netlist-only and changes nothing in the layout. A single finger
+    is silently capped near 10 µm, above which the PCell reverts to minimum width. A wide device must
+    be an array of single-finger units with drawn straps — see `layout/blocks/mos_array.py`.
+  - `ng` is clamped at 100 and finger width snaps to 5 nm, so a total that does not divide onto that
+    grid comes out narrower than asked.
+- **Extraction semantics differ from the CDL.** The deck reports MOS width **per finger** and taps as
+  area and perimeter rather than `w`/`l`. Compare capacitors on **area**, which is what sets `C`; the
+  metal-finger cap snaps `w` and `l` onto its finger pitch and neither matches the request.
+- **A gate strap must clear active.** Poly over active is a transistor: a strap flush against the
+  active edge merged 25 array units into one 241 µm device with gate, drain and source shorted. Keep
+  `Gat_d` = 0.07 µm of clearance and strap inside the gate's overhang band.
+- **Guard-ring taps are layout-only.** Run LVS with `--disable_tap_extraction` for any cell with a
+  ring, or the deck extracts hundreds of tap devices no netlist declares.
+- **Route the vertical leg first.** When a device brings both terminals out at the same y — a rotated
+  resistor does — a horizontal-first run leaves one via and passes over the other terminal's via pad,
+  shorting the nets through an intermediate metal of the stack.
+- **Put via stacks on a stub outside the device.** A stack's landing pads are wider than a pin, so
+  dropping one on a pin pushes contact and via spacing rules against the device's own geometry.
+- **Snap everything to the 5 nm grid**, including guard-ring tap positions. Distributing taps evenly
+  produced offgrid violations on activ, cont, metal1, psd and substrate at once.
+- **Context rules** an isolated cell cannot satisfy: `LU.a`/`LU.b` (a substrate tie within 20 µm),
+  `LBE.a`/`LBE.c` (100 µm chip-area back-end markers), density and antenna. This is not an assumption
+  — the same deck on the PDK's own `sg13_lv_nmos` testcase layout trips `LU.b` 35 times `[sim]`. Guard
+  rings make them pass at block level.
+- **No substrate ring around an inductor.** Wrapping the coils tripped p-well block and contact-bar
+  rules against their markers; the coil sits over blocked p-well and wants no ties near it.
+- **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
+  continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction.
+- **Magic does not recognise the metal-finger cap as a device**: it extracts the fingers with an
+  uncalibrated geometric model and reads ~58% high against `cap_cmomi`. Trust the compact model.
+- **A gdsfactory GDS needs rewriting for Magic.** kfactory stores state in a `$$$CONTEXT_INFO$$$`
+  cell that Magic cannot parse, and `gf.Component()` without a name lands as `Unnamed_1`. Use
+  `gds.write_for_magic()`.
+- **gdsfactory needs a PDK activated before anything else.** It resolves its default from `$PDK`,
+  which `env.sh` sets to `ihp-sg13g2` for the SPICE flow and which is not an importable module.
+  Cross-sections must be registered as factories, not instances.
+- **Post-layout numbers measured here** `[sim]`: the rppd load goes 86.71 → 90.68 Ω (+4.6%, exactly
+  the 2 × 1.98 Ω of terminal metal), the 0.5 µm-wide rsil 86.63 → 116.8 Ω (+34.9%, the same contact
+  resistance the LUT underestimates), the MIM decap +1.2%. Magic and `klayout.pex` agree on a routed
+  Metal1 wire to 0.6% (22.486 Ω vs 22.350 Ω). The coil's 13.7 fF of substrate capacitance corroborates
+  the ~11.6 fF port capacitance in the EM-fitted `ind_shunt`.
+
 ## Agent workflow
 
 - Coordinator plans, reviews, and runs git/PR tooling; **Composer 2.5 sub-agents implement**.

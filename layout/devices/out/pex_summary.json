@@ -341,162 +341,46 @@
       "log": "/workspace/layout/devices/out/pex_run/npn13G2_pair_device/magic_pex.log",
       "error": ""
     },
-    "nmos_tail": {
-      "cell": "nmos_tail",
-      "gds": "/workspace/layout/devices/out/gds/nmos_tail.gds",
-      "netlist": "/workspace/layout/devices/out/pex_run/nmos_tail/nmos_tail_pex.spice",
+    "nmos_tail_unit": {
+      "cell": "nmos_tail_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_tail_unit.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/nmos_tail_unit/nmos_tail_unit_pex.spice",
       "ok": true,
-      "resistors": 102,
-      "capacitors": 306,
-      "total_resistance_ohm": 147952.06778,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 7797.84038,
       "resistor_elements": [
         {
-          "name": "R3",
-          "a": "w_n26_n36.t52",
-          "b": "w_n26_n36.t31",
-          "ohm": 1483.87
+          "name": "R2",
+          "a": "w_n26_n36.n0",
+          "b": "w_n26_n36.t0",
+          "ohm": 7793.81
         },
         {
-          "name": "R4",
-          "a": "w_n26_n36.t31",
-          "b": "w_n26_n36.t32",
-          "ohm": 1483.87
+          "name": "R0",
+          "a": "S",
+          "b": "S.t0",
+          "ohm": 2.01519
         },
         {
-          "name": "R5",
-          "a": "w_n26_n36.t32",
-          "b": "w_n26_n36.t41",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R6",
-          "a": "w_n26_n36.t41",
-          "b": "w_n26_n36.t39",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R7",
-          "a": "w_n26_n36.t39",
-          "b": "w_n26_n36.t33",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R8",
-          "a": "w_n26_n36.t33",
-          "b": "w_n26_n36.t36",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R9",
-          "a": "w_n26_n36.t36",
-          "b": "w_n26_n36.t37",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R10",
-          "a": "w_n26_n36.t37",
-          "b": "w_n26_n36.t35",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R11",
-          "a": "w_n26_n36.t35",
-          "b": "w_n26_n36.t53",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R12",
-          "a": "w_n26_n36.t53",
-          "b": "w_n26_n36.t58",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R13",
-          "a": "w_n26_n36.t58",
-          "b": "w_n26_n36.t55",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R14",
-          "a": "w_n26_n36.t55",
-          "b": "w_n26_n36.t42",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R15",
-          "a": "w_n26_n36.t42",
-          "b": "w_n26_n36.t40",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R16",
-          "a": "w_n26_n36.t40",
-          "b": "w_n26_n36.t34",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R17",
-          "a": "w_n26_n36.t34",
-          "b": "w_n26_n36.t54",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R18",
-          "a": "w_n26_n36.t54",
-          "b": "w_n26_n36.t38",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R19",
-          "a": "w_n26_n36.t38",
-          "b": "w_n26_n36.t59",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R20",
-          "a": "w_n26_n36.t59",
-          "b": "w_n26_n36.t56",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R21",
-          "a": "w_n26_n36.t56",
-          "b": "w_n26_n36.t66",
-          "ohm": 1483.87
-        },
-        {
-          "name": "R22",
-          "a": "w_n26_n36.t66",
-          "b": "w_n26_n36.t49",
-          "ohm": 1483.87
+          "name": "R1",
+          "a": "D",
+          "b": "D.t0",
+          "ohm": 2.01519
         }
       ],
       "resistance_extracted": true,
       "note": "",
-      "total_capacitance_f": 6.274558999999986e-14,
+      "total_capacitance_f": 3.8099100000000004e-15,
       "per_net_capacitance_f": {
-        "0": 6.131786999999986e-14,
-        "a_68_n36#": 5.0109e-16,
-        "a_344_n36#": 4.3559000000000004e-16,
-        "a_11660_n36#": 3.6842000000000003e-16,
-        "a_11384_n36#": 3.6842000000000003e-16,
-        "a_13592_n36#": 3.6842000000000003e-16,
-        "a_13868_n36#": 3.6842000000000003e-16,
-        "a_2552_n36#": 3.6842000000000003e-16,
-        "a_2828_n36#": 3.6842000000000003e-16,
-        "a_7244_n36#": 3.6842000000000003e-16,
-        "a_7520_n36#": 3.6842000000000003e-16,
-        "a_15800_n36#": 3.6842000000000003e-16,
-        "a_16076_n36#": 3.6842000000000003e-16,
-        "a_3104_n36#": 3.6842000000000003e-16,
-        "a_26288_n36#": 3.6842000000000003e-16,
-        "a_26012_n36#": 3.6842000000000003e-16,
-        "a_1172_n36#": 3.6842000000000003e-16,
-        "a_896_n36#": 3.6842000000000003e-16,
-        "a_17180_n36#": 3.6842000000000003e-16,
-        "a_17456_n36#": 3.6842000000000003e-16
+        "0": 3.00885e-15,
+        "a_68_n36#": 1.53981e-15,
+        "S": 1.05457e-15,
+        "D": 1.05457e-15,
+        "D.t0": 4.8101e-16,
+        "S.t0": 4.8101e-16
       },
-      "log": "/workspace/layout/devices/out/pex_run/nmos_tail/magic_pex.log",
+      "log": "/workspace/layout/devices/out/pex_run/nmos_tail_unit/magic_pex.log",
       "error": ""
     },
     "inductor_turn1_d40": {
@@ -625,8 +509,8 @@
       "total_capacitance_f": 4.9888e-16,
       "per_net_capacitance_f": {
         "0": 3.8465999999999997e-16,
-        "D": 1.9608000000000002e-16,
         "S": 1.9608000000000002e-16,
+        "D": 1.9608000000000002e-16,
         "D.t0": 7.496e-17,
         "S.t0": 7.496e-17,
         "a_68_n36#": 7.102e-17

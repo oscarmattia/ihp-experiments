@@ -1,0 +1,179 @@
+* NGSPICE file created from ctle_stage.ext - technology: ihp-sg13g2
+
+.subckt rdeg_R90 a_0_1000# sub a_0_0# a_0_n70#
+X0 a_0_1000# a_0_n70# sub rsil l=5u w=0.5u
+C0 a_0_1000# a_0_0# 0.01932f
+C1 a_0_0# a_0_n70# 0.01932f
+C2 a_0_1000# a_0_n70# 0.00265f
+C3 a_0_n70# sub 0.10719f
+C4 a_0_0# sub 0.66395f
+C5 a_0_1000# sub 0.10719f
+.ends
+
+.subckt q1_R0 m1_n70_n157# a_n630_n626# w_n203_n494# a_n185_196#
+X0 a_n185_196# w_n203_n494# a_n7_n90# a_n630_n626# npn13g2 le=70n we=0.9u
+**devattr s=2520,388
+C0 a_n185_196# m1_n70_n157# 0.1426f
+C1 w_n203_n494# a_n185_196# 0.01687f
+C2 w_n203_n494# m1_n70_n157# 0.14385f
+C3 m1_n70_n157# a_n630_n626# 0.35189f
+C4 a_n185_196# a_n630_n626# 0.12184f
+C5 w_n203_n494# a_n630_n626# 0.12326f
+.ends
+
+.subckt tail1_unitcell a_268_0# a_68_n36# sub a_0_0#
+X0 a_268_0# a_68_n36# a_0_0# sub sg13_lv_nmos ad=3.3048p pd=20.12u as=3.3048p ps=20.12u w=9.72u l=1u
+C0 a_68_n36# a_0_0# 0.26867f
+C1 a_0_0# a_268_0# 0.26372f
+C2 a_68_n36# a_268_0# 0.26867f
+C3 a_268_0# sub 0.38544f
+C4 a_0_0# sub 0.38544f
+C5 a_68_n36# sub 1.00247f
+.ends
+
+.subckt tail1_cell sub a_n200_1960# m2_n200_2380# m2_n200_n636#
+Xtail1_unitcell_0 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_2 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_1 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_20 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_3 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_22 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_21 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_11 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_10 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_4 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_23 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_12 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_5 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_24 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_13 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_6 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_14 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_7 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_15 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_8 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_16 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_9 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_17 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_18 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+Xtail1_unitcell_19 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail1_unitcell
+C0 m2_n200_n636# a_n200_1960# 1.11668f
+C1 a_n200_1960# m2_n200_2380# 3.00541f
+C2 m2_n200_n636# m2_n200_2380# 10.74589f
+C3 m2_n200_n636# sub -3.0965f
+C4 m2_n200_2380# sub -4.22491f
+C5 a_n200_1960# sub 5.50222f
+.ends
+
+.subckt q2_M90 m1_n70_n157# a_n630_n626# w_n203_n494# a_n185_196#
+X0 a_n185_196# w_n203_n494# a_n7_n90# a_n630_n626# npn13g2 le=70n we=0.9u
+**devattr s=2520,388
+C0 w_n203_n494# a_n185_196# 0.01687f
+C1 w_n203_n494# m1_n70_n157# 0.14385f
+C2 a_n185_196# m1_n70_n157# 0.1426f
+C3 m1_n70_n157# a_n630_n626# 0.35189f
+C4 a_n185_196# a_n630_n626# 0.12184f
+C5 w_n203_n494# a_n630_n626# 0.12326f
+.ends
+
+.subckt tail2_unitcell a_268_0# a_68_n36# sub a_0_0#
+X0 a_268_0# a_68_n36# a_0_0# sub sg13_lv_nmos ad=3.3048p pd=20.12u as=3.3048p ps=20.12u w=9.72u l=1u
+C0 a_68_n36# a_268_0# 0.26867f
+C1 a_268_0# a_0_0# 0.26372f
+C2 a_68_n36# a_0_0# 0.26867f
+C3 a_268_0# sub 0.38544f
+C4 a_0_0# sub 0.38544f
+C5 a_68_n36# sub 1.00247f
+.ends
+
+.subckt tail2_cell sub a_n200_1960# m2_n200_2380# m2_n200_n636#
+Xtail2_unitcell_0 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_1 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_3 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_2 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_4 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_20 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_5 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_21 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_10 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_6 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_22 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_11 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_7 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_23 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_12 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_8 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_24 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_14 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_13 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_9 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_15 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_16 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_17 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_18 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+Xtail2_unitcell_19 m2_n200_n636# a_n200_1960# sub m2_n200_2380# tail2_unitcell
+C0 m2_n200_n636# a_n200_1960# 1.11668f
+C1 m2_n200_2380# a_n200_1960# 3.00541f
+C2 m2_n200_2380# m2_n200_n636# 10.74589f
+C3 m2_n200_n636# sub -3.0965f
+C4 m2_n200_2380# sub -4.22491f
+C5 a_n200_1960# sub 5.50222f
+.ends
+
+.subckt rd2_M90 sub a_0_n86# a_0_0# a_0_280#
+X0 a_0_280# a_0_n86# sub rppd l=1.4u w=5u
+C0 a_0_n86# a_0_280# 0.09728f
+C1 a_0_n86# a_0_0# 0.15206f
+C2 a_0_0# a_0_280# 0.15206f
+C3 a_0_n86# sub 0.66885f
+C4 a_0_0# sub 0.73673f
+C5 a_0_280# sub 0.66885f
+.ends
+
+.subckt rd1_R0 sub a_0_n86# a_0_0# a_0_280#
+X0 a_0_280# a_0_n86# sub rppd l=1.4u w=5u
+C0 a_0_n86# a_0_280# 0.09728f
+C1 a_0_n86# a_0_0# 0.15206f
+C2 a_0_0# a_0_280# 0.15206f
+C3 a_0_n86# sub 0.66885f
+C4 a_0_0# sub 0.73673f
+C5 a_0_280# sub 0.66885f
+.ends
+
+.subckt ctle_stage
+Xrdeg_R90_0 e2 sub rdeg_R90_0/a_0_0# e1 rdeg_R90
+Xq1_R0_0 e1 sub inp outp q1_R0
+Xtail1_cell_0 sub a_n200_1960# e1 vss tail1_cell
+Xq2_M90_0 e2 sub inn outn q2_M90
+Xtail2_cell_0 sub a_n200_1960# e2 vss tail2_cell
+Xrd2_M90_0 sub outn rd2_M90_0/a_0_0# vdd rd2_M90
+Xrd1_R0_0 sub outp rd1_R0_0/a_0_0# vdd rd1_R0
+C0 inp e1 0.03245f
+C1 inn e2 0.03245f
+C2 outn inn 0
+C3 a_n200_1960# e2 0.04853f
+C4 vdd outp 0.04313f
+C5 vdd rd1_R0_0/a_0_0# 0.02798f
+C6 outp e1 0.03539f
+C7 vss e2 0.00329f
+C8 a_n200_1960# e1 0.03762f
+C9 inp outp 0
+C10 outn e2 0.03539f
+C11 vdd outn 0.04313f
+C12 vss e1 0.00494f
+C13 rd2_M90_0/a_0_0# outn 0.01901f
+C14 rdeg_R90_0/a_0_0# e2 0.05979f
+C15 e1 e2 0.17805p
+C16 rd1_R0_0/a_0_0# outp 0.01901f
+C17 vdd rd2_M90_0/a_0_0# 0.02798f
+C18 e1 rdeg_R90_0/a_0_0# 0.05393f
+C19 vdd sub 0.93334f
+C20 e2 sub -7.05484f
+C21 a_n200_1960# sub -16.5602f
+C22 outn sub 0.67935f
+C23 inn sub 0.0024f
+C24 vss sub -20.21641f
+C25 e1 sub -6.97701f
+C26 outp sub 0.67935f
+.ends
+

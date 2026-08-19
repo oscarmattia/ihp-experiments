@@ -5,7 +5,7 @@
   "clean": true,
   "params_ok": true,
   "devices_matched": 0,
-  "summary": "2026-08-19 15:15:32 +0000: Memory Usage (141496K) : INFO : Congratulations! Netlists match.",
+  "summary": "2026-08-19 15:52:43 +0000: Memory Usage (142092K) : INFO : Congratulations! Netlists match.",
   "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmomi_cs/cmomi_cs_extracted.cir",
   "param_checks": [
     {

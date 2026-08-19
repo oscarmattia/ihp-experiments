@@ -275,32 +275,32 @@
       "png": "png/npn13G2_pair_device.png"
     },
     {
-      "name": "nmos_tail",
+      "name": "nmos_tail_unit",
       "kind": "nmos_lv",
       "pcell": "nmos",
       "spice_model": "sg13_lv_nmos",
-      "note": "CTLE tail/mirror device, W=243.000 um total in 100 fingers of 2.430 um, L=1.00 um; sizing asked for 242.988 um (+0.005% on the finger-width grid)",
+      "note": "CTLE tail unit, W=9.720 um x L=1.00 um; 25 of these make the 243.0 um tail (sizing asked for 242.988 um)",
       "params": {
-        "w": 0.000243,
+        "w": 9.72e-06,
         "l": 1e-06,
-        "ng": 100
+        "ng": 1
       },
       "pcell_params": {
-        "w": "243u",
+        "w": "9.72u",
         "l": "1u",
-        "ng": "100",
+        "ng": "1",
         "m": "1"
       },
       "cdl_params": {
-        "w": "243u",
+        "w": "9.72u",
         "l": "1u",
-        "ng": "100",
+        "ng": "1",
         "m": "1"
       },
       "bbox_um": {
-        "width": 138.3,
-        "height": 2.79,
-        "area": 385.857
+        "width": 1.68,
+        "height": 10.08,
+        "area": 16.9344
       },
       "terminals": [
         {
@@ -308,9 +308,9 @@
           "layer": "metal1_pin",
           "center": [
             0.15000000000000002,
-            1.215
+            4.86
           ],
-          "width": 2.43,
+          "width": 9.72,
           "orientation": 180.0
         },
         {
@@ -318,9 +318,9 @@
           "layer": "metal1_pin",
           "center": [
             1.53,
-            1.215
+            4.86
           ],
-          "width": 2.43,
+          "width": 9.72,
           "orientation": 0.0
         },
         {
@@ -328,27 +328,27 @@
           "layer": "gatpoly_pin",
           "center": [
             0.8400000000000001,
-            1.2149999999999999
+            4.86
           ],
-          "width": 2.79,
-          "orientation": 180.0
+          "width": 10.08,
+          "orientation": 0.0
         }
       ],
       "unlabelled_terminals": [
         "G"
       ],
       "layers": {
-        "activ_drw": 102,
-        "cont_drw": 707,
-        "gatpoly_drw": 100,
+        "activ_drw": 3,
+        "cont_drw": 56,
+        "gatpoly_drw": 1,
         "gatpoly_pin": 1,
-        "heattrans_drw": 100,
-        "metal1_drw": 101,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
         "metal1_pin": 2
       },
-      "gds": "gds/nmos_tail.gds",
-      "cdl": "cdl/nmos_tail.cdl",
-      "png": "png/nmos_tail.png"
+      "gds": "gds/nmos_tail_unit.gds",
+      "cdl": "cdl/nmos_tail_unit.cdl",
+      "png": "png/nmos_tail_unit.png"
     },
     {
       "name": "inductor_turn1_d40",

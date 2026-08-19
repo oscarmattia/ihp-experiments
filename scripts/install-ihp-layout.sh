@@ -124,10 +124,34 @@ klayout_required_version() {
   printf '%s\n' "${v:-$KLAYOUT_VERSION_FALLBACK}"
 }
 
+magic_tech_required_version() {
+  # The Magic tech file carries a hard "requires magic-X.Y.Z". It is the real
+  # constraint: below it, ihp-sg13g2.tech fails to load its version section and
+  # then its cifinput section, and Magic cannot even read a GDS
+  # ("Nothing in cifinput section of tech file").
+  local tech="$PDK_ROOT/$PDK/libs.tech/magic/ihp-sg13g2.tech"
+  [[ -f "$tech" ]] || return 0
+  sed -n 's/^[[:space:]]*requires[[:space:]]\+magic-\([0-9.]\+\).*/\1/p' "$tech" | head -n1
+}
+
+version_ge() {
+  # version_ge A B -> true when A >= B
+  [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -n1)" == "$1" ]]
+}
+
 magic_required_version() {
-  local v
-  v="$(pdk_pinned_version magic)"
-  printf '%s\n' "${v:-$MAGIC_VERSION_FALLBACK}"
+  # versions.txt records what IHP tested with, but it can lag the tech file:
+  # the PDK at 970a7688 pins 8.3.589 while ihp-sg13g2.tech requires 8.3.617.
+  # Take whichever is higher so the tech file actually loads.
+  local pinned tech
+  pinned="$(pdk_pinned_version magic)"
+  pinned="${pinned:-$MAGIC_VERSION_FALLBACK}"
+  tech="$(magic_tech_required_version)"
+  if [[ -n "$tech" ]] && ! version_ge "$pinned" "$tech"; then
+    printf '%s\n' "$tech"
+  else
+    printf '%s\n' "$pinned"
+  fi
 }
 
 klayout_binary_version() {
@@ -304,14 +328,14 @@ install_magic() {
   if [[ -x "$IHP_TOOLS_PREFIX/bin/magic" && "$FORCE" -eq 0 ]]; then
     local current
     current="$("$IHP_TOOLS_PREFIX/bin/magic" --version 2>/dev/null | head -n1 || true)"
-    if [[ "$current" == "$required" ]]; then
-      log "Magic already at $required"
+    if [[ -n "$current" ]] && version_ge "$current" "$required"; then
+      log "Magic already at $current (need >= $required)"
       return 0
     fi
-    log "Magic present at ${current:-unknown}; PDK pins $required — rebuilding"
+    log "Magic present at ${current:-unknown}; need >= $required — rebuilding"
   fi
 
-  log "Building Magic $required (PDK versions.txt)"
+  log "Building Magic $required (max of versions.txt and the tech file's requires)"
   local src="$IHP_SRC_DIR/magic"
   clone_at_tag https://github.com/RTimothyEdwards/magic.git "$required" "$src" \
     || { warn "Magic clone failed"; return 1; }

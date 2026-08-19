@@ -21,6 +21,7 @@ from layout.common.devices import build, kind_of
 from layout.common.gds import layer_summary, stamp_net_labels, write_gds
 from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.layers import layer_map
+from layout.common.xsection import ROUTE_WIDTHS
 from layout.common.pdk import new_layout, pya_module
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
@@ -238,8 +239,12 @@ def degeneration_network(res_spec: DeviceSpec, cap_spec: DeviceSpec, gap: float 
     # netlist that puts them in parallel.
     by_name = {t.name: t for t in res}
     cap_by_name = {t.name: t for t in cap}
-    _connect_metal1_to(layout, cell, by_name["PLUS"], cap_by_name["PLUS"], "Metal4")
-    _connect_metal1_to(layout, cell, by_name["MINUS"], cap_by_name["MINUS"], "Metal5")
+    _connect_metal1_to(
+        layout, cell, by_name["PLUS"], cap_by_name["PLUS"], "Metal4", avoid=by_name["MINUS"]
+    )
+    _connect_metal1_to(
+        layout, cell, by_name["MINUS"], cap_by_name["MINUS"], "Metal5", avoid=by_name["PLUS"]
+    )
 
     block = Block(
         name="degeneration_network",
@@ -262,7 +267,14 @@ def degeneration_network(res_spec: DeviceSpec, cap_spec: DeviceSpec, gap: float 
     return block
 
 
-def _connect_metal1_to(layout, cell, m1_terminal: Terminal, target: Terminal, metal: str) -> None:
+def _connect_metal1_to(
+    layout,
+    cell,
+    m1_terminal: Terminal,
+    target: Terminal,
+    metal: str,
+    avoid: Terminal | None = None,
+) -> None:
     """Join a Metal1 terminal to a terminal on a higher metal.
 
     A via stack is placed at the Metal1 terminal and an L-shaped run on the
@@ -293,17 +305,41 @@ def _connect_metal1_to(layout, cell, m1_terminal: Terminal, target: Terminal, me
     ld = lm[f"{metal.lower()}_drw"]
     layer_index = layout.layer(ld[0], ld[1])
     x1, y1 = target.center
-    width = 0.6
-    # Horizontal leg from the via across to the target's x, then a vertical leg.
+    # Each metal has its own minimum width, and the thick top metals are far
+    # wider than the thin ones: drawing every run at 0.6 um put eight TM2.a
+    # width violations on the TopMetal2 connections, whose minimum is 2 um.
+    width = ROUTE_WIDTHS.get(metal, 0.6)
+
+    # Which leg to run first depends on where the device's other terminal is.
+    # Both orders are wrong in one case and right in the other: a resistor drawn
+    # upright has its two terminals in the same column, so a vertical-first run
+    # passes straight over the sibling's via pad, while the same resistor rotated
+    # has them in the same row and a horizontal-first run does. Either way the
+    # two nets short through an intermediate metal of the stack, so step away
+    # from the sibling first.
+    vertical_first = True
+    if avoid is not None:
+        ax, ay = avoid.center
+        # Sibling in the same column -> leave sideways; same row -> leave upward.
+        vertical_first = abs(ax - x0) > abs(ay - y0)
+
+    legs = (
+        (x0, min(y0, y1), x0, max(y0, y1), min(x0, x1), y1, max(x0, x1), y1)
+        if vertical_first
+        else (min(x0, x1), y0, max(x0, x1), y0, x1, min(y0, y1), x1, max(y0, y1))
+    )
+    ax0, ay0, ax1, ay1, bx0, by0, bx1, by1 = legs
     cell.shapes(layer_index).insert(
-        pya.DBox(min(x0, x1) - width / 2, y0 - width / 2, max(x0, x1) + width / 2, y0 + width / 2)
+        pya.DBox(min(ax0, ax1) - width / 2, min(ay0, ay1) - width / 2,
+                 max(ax0, ax1) + width / 2, max(ay0, ay1) + width / 2)
     )
     cell.shapes(layer_index).insert(
-        pya.DBox(x1 - width / 2, min(y0, y1) - width / 2, x1 + width / 2, max(y0, y1) + width / 2)
+        pya.DBox(min(bx0, bx1) - width / 2, min(by0, by1) - width / 2,
+                 max(bx0, bx1) + width / 2, max(by0, by1) + width / 2)
     )
 
 
-def tail_pair(spec: DeviceSpec, gap: float = 6.0) -> Block:
+def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
     """The two tail devices as strapped arrays, guard-ringed.
 
     The topology uses two tails, one per emitter node, rather than one shared
@@ -320,9 +356,6 @@ def tail_pair(spec: DeviceSpec, gap: float = 6.0) -> Block:
     pya = pya_module()
     layout = new_layout()
     cell = layout.create_cell("nmos_tail_pair")
-
-    total_w = spec.params["w"]
-    length = spec.params["l"]
 
     array_a = build_mos_array("tail1", total_w, length)
     array_b = build_mos_array("tail2", total_w, length)

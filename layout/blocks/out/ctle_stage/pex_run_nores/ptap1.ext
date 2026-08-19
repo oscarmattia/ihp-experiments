@@ -1,0 +1,7 @@
+timestamp 1615756651
+version 8.3
+tech ihp-sg13g2
+style ngspice()
+scale 1000 1 0.5
+resistclasses 3000000 67000 110 88 88 88 88 18 11 7000 260000 1360000
+substrate "sub!" 0 0 0 0 ppd 0 0 0 0 12000 440 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

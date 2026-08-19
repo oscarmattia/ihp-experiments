@@ -1,17 +1,17 @@
 {
   "name": "ctle_stage",
   "bbox_um": {
-    "width": 286.28,
-    "height": 162.89,
-    "area": 46632.1492
+    "width": 241.72,
+    "height": 135.05,
+    "area": 32644.286
   },
   "ports": {
     "inp": {
       "name": "B",
       "layer": "metal1_pin",
       "center": [
-        132.3,
-        26.14
+        53.05,
+        45.54
       ],
       "width": 1.95,
       "orientation": 270.0
@@ -20,8 +20,8 @@
       "name": "B",
       "layer": "metal1_pin",
       "center": [
-        155.0,
-        26.14
+        75.75,
+        45.54
       ],
       "width": 1.95,
       "orientation": 270.0
@@ -30,8 +30,8 @@
       "name": "C",
       "layer": "metal1_pin",
       "center": [
-        132.3,
-        28.41
+        53.05,
+        47.81
       ],
       "width": 1.85,
       "orientation": 90.0
@@ -40,51 +40,41 @@
       "name": "C",
       "layer": "metal1_pin",
       "center": [
-        155.0,
-        28.41
+        75.75,
+        47.81
       ],
       "width": 1.85,
       "orientation": 90.0
     },
-    "vdd_l1": {
+    "vdd": {
       "name": "PLUS",
       "layer": "topmetal2_pin",
       "center": [
-        75.24,
-        49.01
-      ],
-      "width": 4.0,
-      "orientation": 270.0
-    },
-    "vdd_l2": {
-      "name": "PLUS",
-      "layer": "topmetal2_pin",
-      "center": [
-        199.26,
-        49.01
+        56.4,
+        74.57
       ],
       "width": 4.0,
       "orientation": 270.0
     },
     "mgate": {
-      "name": "G",
-      "layer": "gatpoly_pin",
+      "name": "G_A",
+      "layer": "gatpoly_drw",
       "center": [
-        0.84,
-        1.215
+        -0.4,
+        10.1
       ],
-      "width": 2.79,
+      "width": 0.6,
       "orientation": 180.0
     },
     "vss": {
-      "name": "S",
-      "layer": "metal1_pin",
+      "name": "S_A",
+      "layer": "metal2_drw",
       "center": [
-        1.53,
-        1.215
+        28.2,
+        -2.68
       ],
-      "width": 2.43,
-      "orientation": 0.0
+      "width": 1.0,
+      "orientation": 270.0
     }
   },
   "port_nets": [
@@ -98,7 +88,7 @@
   ],
   "devices": [
     {
-      "name": "tail1",
+      "name": "tail1_u0",
       "kind": "nmos_lv",
       "nets": {
         "D": "e1",
@@ -108,7 +98,487 @@
       }
     },
     {
-      "name": "tail2",
+      "name": "tail1_u1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u3",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u4",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u5",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u6",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u7",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u8",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u9",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u10",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u11",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u12",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u13",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u14",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u15",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u16",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u17",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u18",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u19",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u20",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u21",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u22",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u23",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail1_u24",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u0",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u3",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u4",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u5",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u6",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u7",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u8",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u9",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u10",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u11",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u12",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u13",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u14",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u15",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u16",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u17",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u18",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u19",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u20",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u21",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u22",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u23",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2_u24",
       "kind": "nmos_lv",
       "nets": {
         "D": "e2",
@@ -158,8 +628,8 @@
       "name": "rd1",
       "kind": "rppd",
       "nets": {
-        "PLUS": "nlp1",
-        "MINUS": "outp",
+        "MINUS": "nlp1",
+        "PLUS": "outp",
         "sub": "sub"
       }
     },
@@ -167,8 +637,8 @@
       "name": "rd2",
       "kind": "rppd",
       "nets": {
-        "PLUS": "nlp2",
-        "MINUS": "outn",
+        "MINUS": "nlp2",
+        "PLUS": "outn",
         "sub": "sub"
       }
     },
@@ -193,73 +663,100 @@
   ],
   "guard_ring": {
     "kind": "ptap1",
-    "taps": 638,
-    "clearance_um": 2.0,
-    "pitch_um": 1.4,
+    "taps": 314,
+    "clearance_um": 4.0,
+    "pitch_um": 2.0,
     "outer_box_um": [
-      -2.84,
-      -3.0200000000000005,
-      283.44,
-      159.87
+      -56.46,
+      -9.52,
+      185.26,
+      67.31
     ],
-    "worst_distance_to_tie_um": 80.605,
+    "worst_distance_to_tie_um": 37.575,
     "latchup_limit_um": 20.0,
     "within_latchup_limit": false
   },
-  "symmetry": null,
+  "symmetry": {
+    "axis_x_um": 64.4,
+    "pairs": {
+      "tails": [
+        0.0,
+        70.4
+      ],
+      "hbt": [
+        53.05,
+        75.75
+      ],
+      "loads": [
+        53.9,
+        74.9
+      ],
+      "coil_feeds": [
+        56.4,
+        72.4
+      ]
+    },
+    "coil_feed_dy_um": 6.1
+  },
   "notes": [
-    "row order is VDD -> L -> RD -> collector, which MEMORY.md records as the working shunt-peaking order",
-    "the coil's port capacitance lands on nlp1/nlp2, not on the output, so it must not be counted in the C_L budget",
-    "sized from circuits/ctle56n/spice/params.inc: RD 86.74 ohm, RS 86.63 ohm, CS 183.7 fF, coil ~66.4 pH"
+    "every row is centred on x=64.40 um and the two halves are mirror images about it",
+    "the coils are rotated to face each other (M135 and R270), which puts both supply feeds at the same height so vdd is one straight TopMetal2 strap, with the nlp feeds below it running straight down to the loads",
+    "row order is VDD -> L -> RD -> collector, the working shunt-peaking order recorded in MEMORY.md",
+    "the coils' port capacitance lands on nlp1/nlp2, not on the outputs, so it must stay out of the C_L budget",
+    "each tail is 25 strapped single-finger units totalling 243.0 um",
+    "sized from params.inc: RD 86.74 ohm, RS 86.63 ohm, CS 183.7 fF, coil ~66.4 pH"
   ],
   "layers": {
-    "activ_drw": 846,
+    "activ_drw": 468,
     "activ_mask": 2,
     "activ_nofill": 2,
-    "cont_drw": 3976,
+    "cont_drw": 4066,
     "emwind_drw": 2,
     "extblock_drw": 9,
-    "gatpoly_drw": 210,
+    "gatpoly_drw": 63,
     "gatpoly_nofill": 2,
-    "gatpoly_pin": 2,
+    "gatpoly_pin": 50,
     "heatres_drw": 3,
-    "heattrans_drw": 202,
+    "heattrans_drw": 52,
     "ind_drw": 2,
     "ind_pin": 4,
     "lbe_drw": 2,
-    "metal1_drw": 1490,
+    "metal1_drw": 858,
     "metal1_nofill": 2,
-    "metal1_pin": 652,
-    "metal2_drw": 380,
+    "metal1_pin": 424,
+    "metal2_drw": 603,
     "metal2_nofill": 2,
     "metal2_pin": 2,
-    "metal3_drw": 378,
+    "metal3_drw": 406,
     "metal3_nofill": 2,
-    "metal4_drw": 379,
+    "metal4_drw": 385,
     "metal4_nofill": 2,
     "metal4_pin": 1,
-    "metal5_drw": 379,
+    "metal5_drw": 384,
     "metal5_nofill": 2,
     "metal5_pin": 1,
     "nometfiller_drw": 1,
     "norcx_drw": 2,
     "nsd_block": 2,
     "polyres_drw": 3,
-    "psd_drw": 646,
+    "psd_drw": 322,
     "pwell_block": 2,
     "recog_mom": 1,
     "res_drw": 1,
     "salblock_drw": 2,
-    "substrate_drw": 638,
+    "substrate_drw": 314,
+    "topmetal1_drw": 2,
     "topmetal1_nofill": 2,
-    "topmetal2_drw": 10,
+    "topmetal2_drw": 17,
     "topmetal2_nofill": 2,
     "topmetal2_pin": 4,
+    "topvia1_drw": 2,
+    "topvia2_drw": 2,
     "trans_drw": 2,
-    "via1_drw": 16,
-    "via2_drw": 364,
-    "via3_drw": 364,
-    "via4_drw": 364
+    "via1_drw": 256,
+    "via2_drw": 420,
+    "via3_drw": 380,
+    "via4_drw": 376
   },
   "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
   "cdl": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.cdl",
@@ -269,14 +766,18 @@
     "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
     "clean": false,
     "strictly_clean": false,
-    "total_violations": 26,
-    "real_violations": 10,
+    "total_violations": 48,
+    "real_violations": 32,
     "by_rule": {
+      "CntB.h1": 10,
       "LBE.a": 16,
-      "LBE.c": 10
+      "LBE.c": 10,
+      "PWB.f": 12
     },
     "real_by_rule": {
-      "LBE.c": 10
+      "CntB.h1": 10,
+      "LBE.c": 10,
+      "PWB.f": 12
     },
     "context_by_rule": {
       "LBE.a": 16
@@ -285,6 +786,20 @@
       "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
     },
     "examples": {
+      "PWB.f": [
+        "edge-pair: (4,108.02;5.26,108.02)/(5.02,108.035;4.24,108.035)",
+        "edge-pair: (23.24,0.87;22.4,0.03)/(22.57,0.2;23.07,0.7)",
+        "edge-pair: (23.31,0.94;23.07,0.7)/(23.07,0.7;23.409,0.7)",
+        "edge-pair: (27.47,5.1;27.23,4.86)/(27.47,4.761;27.47,5.1)",
+        "edge-pair: (28.14,5.77;27.3,4.93)/(27.47,5.1;27.97,5.6)"
+      ],
+      "CntB.h1": [
+        "edge-pair: (-0.825,1.21;-0.09,1.21)/(-0.855,1.25;-0.12,1.25)",
+        "edge-pair: (0.09,1.21;0.825,1.21)/(0.12,1.25;0.855,1.25)",
+        "edge-pair: (0.825,1.05;-0.825,1.05)/(0.855,1.01;-0.855,1.01)",
+        "edge-pair: (-0.76,-1.06;0.76,-1.06)/(-0.79,-1.02;0.79,-1.02)",
+        "edge-pair: (0.76,-1.22;-0.76,-1.22)/(0.79,-1.26;-0.79,-1.26)"
+      ],
       "LBE.a": [
         "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
         "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
@@ -293,11 +808,11 @@
         "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
       ],
       "LBE.c": [
-        "edge-pair: (54.01,31.64;22.37,0)|(70.01,31.64;70.01,47.64)",
-        "edge-pair: (101.65,0;70.01,31.64)|(54.01,47.64;54.01,31.64)",
-        "edge-pair: (70.01,31.64;70.01,76.38)|(54.01,76.38;54.01,31.64)",
-        "edge-pair: (54.01,76.38;54.01,60.38)|(70.01,76.38;101.65,108.02)",
-        "edge-pair: (70.01,60.38;70.01,76.38)|(22.37,108.02;54.01,76.38)"
+        "edge-pair: (-22.37,-16;-6.37,-16)|(-22.37,0;-54.01,31.64)",
+        "edge-pair: (-54.01,-47.64;-22.37,-16)|(-6.37,0;-22.37,0)",
+        "edge-pair: (6.37,-16;22.37,-16)|(54.01,31.64;22.37,0)",
+        "edge-pair: (-22.37,-16;22.37,-16)|(22.37,0;-22.37,0)",
+        "edge-pair: (22.37,-16;54.01,-47.64)|(22.37,0;6.37,0)"
       ]
     },
     "tables": [],
@@ -305,62 +820,67 @@
     "log": "/workspace/layout/blocks/out/ctle_stage/drc_run/drc_run.log",
     "error": "",
     "ok": false,
-    "allowed_context_rules": [
-      "LBE.a"
+    "allowed_chip_level_rules": [
+      "LBE.a",
+      "LBE.c"
     ],
     "enforced_context_rules": [
       "LU.a",
       "LU.b"
-    ]
+    ],
+    "remaining_violations": {
+      "CntB.h1": 10,
+      "PWB.f": 12
+    }
   },
   "lvs": {
     "cell": "ctle_stage",
     "layout": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
     "netlist": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.cdl",
-    "clean": true,
+    "clean": false,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "2026-08-19 15:13:13 +0000: Memory Usage (145596K) : ERROR : Netlists don't match",
+    "summary": "2026-08-19 15:53:20 +0000: Memory Usage (144904K) : ERROR : Netlists don't match",
     "extracted_netlist": "/workspace/layout/blocks/out/ctle_stage/lvs_run/ctle_stage_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
-    "error": ""
+    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log"
   },
   "pex": {
     "cell": "ctle_stage",
     "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
-    "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_stage_pex.spice",
+    "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run_nores/ctle_stage_pex.spice",
     "ok": true,
     "resistors": 0,
-    "capacitors": 1683,
+    "capacitors": 81,
     "total_resistance_ohm": 0.0,
     "resistor_elements": [],
-    "resistance_extracted": true,
-    "note": "",
-    "total_capacitance_f": 3.287768899999986e-13,
+    "resistance_extracted": false,
+    "note": "resistance extraction crashed (Magic extresist segfaults on DC-shorted ports); capacitance-only extraction used",
+    "total_capacitance_f": 1.6897830000000003e-13,
     "per_net_capacitance_f": {
-      "e1": 1.7806534e-13,
-      "e2": 1.7801042999999998e-13,
-      "w_n26_n36#": 7.995584000000015e-14,
-      "ptap1_9/sub": 2.1281980000000024e-14,
-      "w_0_n86#": 4.14886e-15,
-      "a_0_0#": 3.30489e-15,
+      "e1": 1.7123732e-13,
+      "e2": 1.7117461e-13,
+      "m2_n200_2380#": 1.9052779999999996e-14,
+      "m2_n200_n636#": 1.7532140000000002e-14,
+      "a_0_0#": 4.619950000000001e-15,
+      "a_68_n36#": 3.07962e-15,
+      "a_n200_1960#": 2.7745700000000012e-15,
       "a_0_n86#": 1.83638e-15,
       "a_0_280#": 1.83638e-15,
+      "a_268_0#": 1.8356600000000003e-15,
       "m1_n70_n157#": 1.27668e-15,
-      "w_n656_n652#": 1.1939800000000001e-15,
-      "a_18836_n36#": 1.0055200000000002e-15,
-      "a_2000_n36#": 1.0055200000000002e-15,
-      "a_17732_n36#": 1.0055200000000002e-15,
-      "a_23528_n36#": 1.0055200000000002e-15,
-      "a_23804_n36#": 1.0055200000000002e-15,
-      "a_19664_n36#": 1.0055200000000002e-15,
-      "a_620_n36#": 1.0055200000000002e-15,
-      "a_13040_n36#": 1.0055200000000002e-15,
-      "a_6416_n36#": 1.0055200000000002e-15,
-      "a_3104_n36#": 1.0055200000000002e-15
+      "a_n630_n626#": 1.1939800000000001e-15,
+      "vdd": 1.07556e-15,
+      "outn": 7.768800000000001e-16,
+      "outp": 7.768800000000001e-16,
+      "w_n203_n494#": 5.679600000000001e-16,
+      "a_n185_196#": 5.626200000000001e-16,
+      "a_0_1000#": 1.2916e-16,
+      "a_0_n70#": 1.2916e-16,
+      "rdeg_R90_0/a_0_0#": 1.1372e-16
     },
-    "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",
+    "log": "/workspace/layout/blocks/out/ctle_stage/pex_run_nores/magic_pex.log",
     "error": "",
     "signal_resistance_ohm": 0
   }

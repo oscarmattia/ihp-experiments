@@ -74,9 +74,9 @@
       "log": "/workspace/layout/devices/out/drc_run/npn13G2_pair_device/drc_run.log",
       "error": ""
     },
-    "nmos_tail": {
-      "cell": "nmos_tail",
-      "gds": "/workspace/layout/devices/out/gds/nmos_tail.gds",
+    "nmos_tail_unit": {
+      "cell": "nmos_tail_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_tail_unit.gds",
       "clean": true,
       "strictly_clean": false,
       "total_violations": 1,
@@ -93,12 +93,12 @@
       },
       "examples": {
         "LU.b": [
-          "polygon: (0,0;0,2.425;138.3,2.425;138.3,0)"
+          "polygon: (0,0;0,9.72;1.68,9.72;1.68,0)"
         ]
       },
       "tables": [],
-      "report": "/workspace/layout/devices/out/drc_run/nmos_tail/nmos_tail_nmos_tail_main.lyrdb",
-      "log": "/workspace/layout/devices/out/drc_run/nmos_tail/drc_run.log",
+      "report": "/workspace/layout/devices/out/drc_run/nmos_tail_unit/nmos_tail_unit_nmos_tail_unit_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_tail_unit/drc_run.log",
       "error": ""
     },
     "inductor_turn1_d40": {

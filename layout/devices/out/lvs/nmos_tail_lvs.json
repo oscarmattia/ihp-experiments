@@ -5,7 +5,7 @@
   "clean": false,
   "params_ok": true,
   "devices_matched": 0,
-  "summary": "2026-08-19 15:15:34 +0000: Memory Usage (142092K) : ERROR : Netlists don't match",
+  "summary": "2026-08-19 15:47:39 +0000: Memory Usage (141860K) : ERROR : Netlists don't match",
   "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_tail/nmos_tail_extracted.cir",
   "param_checks": [],
   "log": "/workspace/layout/devices/out/lvs_run/nmos_tail/lvs_run.log",

@@ -38,14 +38,14 @@
     "note": "CTLE differential pair HBT, Nx=1"
   },
   {
-    "name": "nmos_tail",
+    "name": "nmos_tail_unit",
     "kind": "nmos_lv",
     "params": {
-      "w": 0.000243,
+      "w": 9.72e-06,
       "l": 1e-06,
-      "ng": 100
+      "ng": 1
     },
-    "note": "CTLE tail/mirror device, W=243.000 um total in 100 fingers of 2.430 um, L=1.00 um; sizing asked for 242.988 um (+0.005% on the finger-width grid)"
+    "note": "CTLE tail unit, W=9.720 um x L=1.00 um; 25 of these make the 243.0 um tail (sizing asked for 242.988 um)"
   },
   {
     "name": "inductor_turn1_d40",

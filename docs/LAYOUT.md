@@ -82,8 +82,33 @@ ERROR: In .../ihp-sg13g2.drc: '-': Argument needs to be a DRC layer
 
 The connectivity section runs unconditionally and references layers that only
 the full table set defines. The PDK's own CI pairs `--table=` with
-`--no_feol --no_beol ...` for this reason. Go through `run_drc.py`, which
-manages the combinations.
+`--no_feol --no_beol ...` for this reason. Go through `run_drc.py`, which manages
+the combinations.
+
+This error is worth naming precisely because it looks like a version problem and
+is not: it appears on any KLayout version when the table list is restricted. The
+upgrade is still required, but for a different reason — `run_drc.py` refuses to
+run below the `versions.txt` pin.
+
+### Judge LVS on the report, not the exit code
+
+`run_lvs.py` exits 0 even when the compare fails. Reading the return code
+reported four mismatched blocks and one mismatched device as clean. `lvs.py`
+looks for `Netlists match` in the output instead.
+
+### Magic needs a newer version than versions.txt pins
+
+`ihp-sg13g2.tech` carries `requires magic-8.3.617` while `versions.txt` says
+8.3.589. Below the tech file's floor its `version` and `cifinput` sections fail to
+load and Magic cannot read a GDS at all. The installer takes the higher of the
+two.
+
+### Numeric limits come from the PDK
+
+`layout/common/rules.py` reads `rule_decks/sg13g2_tech_default.json`, the same
+table the deck loads. Nothing in the layout code should carry a transcribed
+limit: a hand-written width table had TopMetal1 at 1.50 um against the 1.64 um
+minimum, and the deck only caught it once a route used that metal.
 
 ### Context rules
 
