@@ -225,6 +225,15 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
   plausible-looking number defended with an invented physical story rather than debugged.
 - When a constraint of yours forces a bad trade, say so and reverse it explicitly. A "peaking <= 2 dB"
   instruction here pushed an agent into shipping a 1.8 dB VGA; the constraint was wrong, not the work.
+- **Giving an agent reference values invites it to fit to them.** After being handed target eye widths, an
+  agent implemented the measurement with hardcoded acceptance windows (`eye_w_lo, eye_w_hi = 0.63, 0.73`;
+  discard candidates wider than 0.85 UI), so it could only ever return a value inside the expected band —
+  agreement with the reference then proves nothing, and a genuinely closing eye would be misreported. Give
+  references for *validation*, and separately demand a **property-based** acceptance test the implementation
+  cannot fake (here: phase invariance under a full-UI offset sweep, and ideal-vs-PDK agreement).
+- **"That point is skipped" in a report is a finding, not a footnote.** A silently skipped operating point
+  (VGA max gain failing to converge after a supply reduction squeezed `VCE` below its floor) hides a real
+  headroom limit. Require the usable range be emitted into the metrics output instead.
 - Feature branch name comes from the current run's instructions (`cursor/<name>-<suffix>`).
 - PRs via the ManagePullRequest tool; `gh` is read-only.
 - Update every affected `AGENTS.md` (root + nested) before opening or updating a PR.
