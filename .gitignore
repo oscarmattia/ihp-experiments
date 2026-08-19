@@ -1,5 +1,5 @@
 scripts/env-ihp.local.sh
-pdk
+/pdk
 
 char/passive/out/em_work/
 

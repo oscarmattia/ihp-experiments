@@ -1,0 +1,16 @@
+parameter,value
+pdk_dc_gain_dB,-0.052
+pdk_peaking_28G_dB,5.492
+pdk_G_peak_dB,5.879
+pdk_f_peak_Hz,4.4854e+10
+pdk_f_3dB_Hz,1.33276e+11
+pdk_CMRR_dB,12.722
+pdk_PSRR_dB,120.000
+pdk_VCE_V,1.0354
+pdk_VDS_tail_V,0.2234
+pdk_VGS_tail_V,0.4396
+pdk_Ic_A,0.00260943
+pdk_Id_tail_A,0.00523202
+pdk_sbr_cursor_mV,-173.7282
+pdk_sbr_isi_norm,-0.392989
+pdk_sbr_isi_abs,0.392989
