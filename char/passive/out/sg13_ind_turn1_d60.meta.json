@@ -2,7 +2,14 @@
   "axes": {
     "FREQ": "frequency (Hz)",
     "L": "differential series inductance Ldiff (H)",
-    "Q": "differential Q factor Qdiff"
+    "Q": "differential Q factor Qdiff",
+    "S11_IM": "EM S11 imaginary part",
+    "S11_RE": "EM S11 real part",
+    "S21_IM": "EM S21 imaginary part",
+    "S21_RE": "EM S21 real part",
+    "S22_IM": "EM S22 imaginary part",
+    "S22_RE": "EM S22 real part",
+    "SP_FREQ": "S-parameter verification frequency (Hz)"
   },
   "case": "turn1_d60",
   "d": 60.0,
@@ -42,6 +49,8 @@
   },
   "s": 2.1,
   "solver": "openEMS",
+  "sparam_nfreq": 401,
+  "sparam_s2p": "/workspace/char/passive/out/em_work/turn1_d60/sg13_ind_turn1_d60_data/sg13_ind_turn1_d60.s2p",
   "subgnd_added": true,
   "to_layer": "TopMetal2",
   "valid": true,

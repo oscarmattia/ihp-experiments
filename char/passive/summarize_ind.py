@@ -19,6 +19,11 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import load_lut  # noqa: E402
+from char.passive.ind_pimodel import (  # noqa: E402
+    SP_FSTOP_HZ,
+    SpVerifyResult,
+    load_em_sparams,
+)
 from char.passive.ind_validate import (  # noqa: E402
     l_at_freq,
     l_low_freq,
@@ -129,12 +134,158 @@ def plot_l_q(path: Path, out_dir: Path) -> None:
     plt.close(fig)
 
 
+def write_sp_validation_artifacts(
+    out_dir: Path,
+    artifact_dir: Path,
+    results: list[SpVerifyResult] | None = None,
+) -> tuple[Path, list[Path]]:
+    """Write SP validation summary CSV, per-case CSVs, and overlay plots."""
+    size_ind_dir = _REPO / "circuits/ctle56n/python"
+    if str(size_ind_dir) not in sys.path:
+        sys.path.insert(0, str(size_ind_dir))
+    from size_ind import (  # noqa: WPS433
+        build_ind_shunt_model_for_case,
+        run_ind_shunt_sp,
+        write_ind_shunt_inc,
+    )
+
+    artifact_dir = Path(artifact_dir)
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = Path(out_dir)
+
+    if results is None:
+        if str(size_ind_dir) not in sys.path:
+            sys.path.insert(0, str(size_ind_dir))
+        from size_ind import verify_all_em_cases
+
+        results = verify_all_em_cases(out_dir=out_dir, artifact_dir=None)
+
+    summary_path = artifact_dir / "ind_sp_validate_summary.csv"
+    summary_fields = [
+        "case",
+        "source",
+        "passed",
+        "fit_s21_mean_rel_pct",
+        "fit_s21_max_rel_pct",
+        "fit_s21_phase_mean_deg",
+        "fit_s21_phase_max_deg",
+        "fit_s11_mean_rel_pct",
+        "extrap_s21_mean_rel_pct",
+        "extrap_s21_max_rel_pct",
+        "extrap_s21_phase_mean_deg",
+        "failures",
+    ]
+    summary_rows: list[dict] = []
+    detail_paths: list[Path] = []
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as td:
+        work = Path(td)
+        for res in results:
+            case = res.case
+            npz_path = out_dir / f"sg13_ind_{case}.npz"
+            _, meta = load_lut(npz_path)
+            fstop = float(meta.get("fstop_hz", SP_FSTOP_HZ))
+            model = build_ind_shunt_model_for_case(case)
+            inc = work / f"ind_shunt_{case}.inc"
+            write_ind_shunt_inc(model, inc)
+            freq_m, s11_m, s21_m, _ = run_ind_shunt_sp(inc, f_stop_hz=min(fstop, SP_FSTOP_HZ))
+            em_freq, s11_e, s21_e, _, _ = load_em_sparams(npz_path)
+
+            # Align on EM grid.
+            s11_mi = np.array([s11_m[int(np.argmin(np.abs(freq_m - f)))] for f in em_freq])
+            s21_mi = np.array([s21_m[int(np.argmin(np.abs(freq_m - f)))] for f in em_freq])
+
+            csv_path = artifact_dir / f"ind_sp_validate_{case}.csv"
+            with csv_path.open("w", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow([
+                    "freq_Hz",
+                    "S21_mag_model",
+                    "S21_mag_em",
+                    "S21_ang_deg_model",
+                    "S21_ang_deg_em",
+                    "S11_mag_model",
+                    "S11_mag_em",
+                ])
+                for i, f_hz in enumerate(em_freq):
+                    writer.writerow([
+                        f"{f_hz:.6e}",
+                        f"{abs(s21_mi[i]):.8f}",
+                        f"{abs(s21_e[i]):.8f}",
+                        f"{np.degrees(np.angle(s21_mi[i])):.6f}",
+                        f"{np.degrees(np.angle(s21_e[i])):.6f}",
+                        f"{abs(s11_mi[i]):.8f}",
+                        f"{abs(s11_e[i]):.8f}",
+                    ])
+            detail_paths.append(csv_path)
+
+            f_ghz = em_freq / 1e9
+            fig, axes = plt.subplots(3, 1, figsize=(8, 8), constrained_layout=True, sharex=True)
+            axes[0].plot(f_ghz, np.abs(s21_mi), "b-", label="model", linewidth=1.2)
+            axes[0].plot(f_ghz, np.abs(s21_e), "r--", label="EM", linewidth=1.0)
+            axes[0].set_ylabel("|S21|")
+            axes[0].legend(loc="best")
+            axes[0].grid(True, alpha=0.3)
+            axes[0].set_title(f"{case}: lumped model vs EM S-parameters")
+
+            axes[1].plot(f_ghz, np.degrees(np.angle(s21_mi)), "b-", linewidth=1.2)
+            axes[1].plot(f_ghz, np.degrees(np.angle(s21_e)), "r--", linewidth=1.0)
+            axes[1].set_ylabel("ang(S21) [deg]")
+            axes[1].grid(True, alpha=0.3)
+
+            axes[2].plot(f_ghz, np.abs(s11_mi), "b-", linewidth=1.2)
+            axes[2].plot(f_ghz, np.abs(s11_e), "r--", linewidth=1.0)
+            axes[2].set_ylabel("|S11|")
+            axes[2].set_xlabel("Frequency [GHz]")
+            axes[2].grid(True, alpha=0.3)
+
+            plot_path = artifact_dir / f"ind_sp_validate_{case}.png"
+            fig.savefig(plot_path, dpi=140)
+            plt.close(fig)
+            detail_paths.append(plot_path)
+
+            summary_rows.append({
+                "case": case,
+                "source": res.source,
+                "passed": res.passed,
+                "fit_s21_mean_rel_pct": res.fit.s21_mag_mean_rel_pct,
+                "fit_s21_max_rel_pct": res.fit.s21_mag_max_rel_pct,
+                "fit_s21_phase_mean_deg": res.fit.s21_phase_mean_abs_deg,
+                "fit_s21_phase_max_deg": res.fit.s21_phase_max_abs_deg,
+                "fit_s11_mean_rel_pct": res.fit.s11_mag_mean_rel_pct,
+                "extrap_s21_mean_rel_pct": (
+                    res.extrap.s21_mag_mean_rel_pct if res.extrap else ""
+                ),
+                "extrap_s21_max_rel_pct": (
+                    res.extrap.s21_mag_max_rel_pct if res.extrap else ""
+                ),
+                "extrap_s21_phase_mean_deg": (
+                    res.extrap.s21_phase_mean_abs_deg if res.extrap else ""
+                ),
+                "failures": ";".join(res.failures),
+            })
+
+    with summary_path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=summary_fields)
+        writer.writeheader()
+        writer.writerows(summary_rows)
+    print(f"wrote {summary_path}")
+    return summary_path, detail_paths
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--out-dir",
         type=Path,
         default=Path(__file__).resolve().parent / "out",
+    )
+    parser.add_argument(
+        "--sp-validate",
+        action="store_true",
+        help="Run ngspice SP validation and write ind_sp_validate_* artifacts",
     )
     args = parser.parse_args()
     out_dir = args.out_dir
@@ -192,6 +343,9 @@ def main() -> int:
                 f"{r['L_10GHz_nH']:12.4g} {r['Q_peak']:8.2f} "
                 f"{str(r['valid']):>5} {str(r['em_completed']):>5}"
             )
+
+    if args.sp_validate:
+        write_sp_validation_artifacts(out_dir, out_dir)
     return 0
 
 

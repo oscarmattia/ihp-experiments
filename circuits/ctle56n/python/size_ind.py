@@ -26,6 +26,17 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import load_lut  # noqa: E402
+from char.passive.ind_pimodel import (  # noqa: E402
+    SP_FSTART_HZ,
+    SP_FSTOP_HZ,
+    SP_NFREQ,
+    SP_VERIFY_S21_MEAN_REL_EXTRAP,
+    SP_VERIFY_S21_MEAN_REL_FIT,
+    SpVerifyResult,
+    compare_sparams,
+    load_em_sparams,
+    parse_sp_wrdata,
+)
 from char.passive.ind_validate import validate_ind_lut  # noqa: E402
 
 # TopMetal2 from openEMS SG13G2.xml: sigma=30.3 MS/m, thickness=3 µm [model]
@@ -227,8 +238,31 @@ def pick_em_case(l_target_h: float) -> tuple[str, dict[str, np.ndarray], dict]:
     return case, arrays, meta
 
 
+def build_ind_shunt_model_for_case(case: str) -> IndShuntModel:
+    """Build lumped model from a specific EM LUT case (self-consistent L target)."""
+    paths = _ind_npz_paths()
+    path = paths.get(case)
+    if path is None:
+        raise RuntimeError(f"Unknown or missing LUT case: {case}")
+    arrays, meta = load_lut(path)
+    if not _usable_case(case, arrays, meta):
+        raise RuntimeError(f"LUT case {case} is not usable for lumped-model extraction")
+    l_arr = arrays["L_PI"] if "L_PI" in arrays else arrays["L"]
+    l_target = in_band_l_h(arrays["FREQ"], l_arr)
+    return _build_ind_shunt_model_from_lut(case, arrays, meta, l_target)
+
+
 def build_ind_shunt_model(l_target_h: float) -> IndShuntModel:
     case, arrays, meta = pick_em_case(l_target_h)
+    return _build_ind_shunt_model_from_lut(case, arrays, meta, l_target_h)
+
+
+def _build_ind_shunt_model_from_lut(
+    case: str,
+    arrays: dict[str, np.ndarray],
+    meta: dict,
+    l_target_h: float,
+) -> IndShuntModel:
     freq = np.asarray(arrays["FREQ"], dtype=float)
     l_pi = np.asarray(arrays["L_PI"] if "L_PI" in arrays else arrays["L"], dtype=float)
     r_series = np.asarray(arrays["R_SERIES"], dtype=float) if "R_SERIES" in arrays else None
@@ -438,6 +472,171 @@ def verify_ind_shunt_ngspice(
         }
 
 
+def _ngspice_workdir(inc_path: Path) -> tuple[Path, tempfile.TemporaryDirectory[str]]:
+    pdk = os.environ.get("PDK_ROOT")
+    if not pdk:
+        raise RuntimeError("PDK_ROOT not set")
+    td = tempfile.TemporaryDirectory()
+    tdir = Path(td.name)
+    spiceinit = Path(pdk) / "ihp-sg13g2/libs.tech/ngspice/.spiceinit"
+    if spiceinit.is_file():
+        (tdir / ".spiceinit").write_bytes(spiceinit.read_bytes())
+    return tdir, td
+
+
+def run_ind_shunt_sp(
+    inc_path: Path,
+    *,
+    f_start_hz: float = SP_FSTART_HZ,
+    f_stop_hz: float = SP_FSTOP_HZ,
+    n_freq: int = SP_NFREQ,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Run ngspice 2-port ``sp`` analysis on ``ind_shunt``; return freq, S11, S21, S22."""
+    inc_path = Path(inc_path).resolve()
+    tdir, td = _ngspice_workdir(inc_path)
+    try:
+        cir = tdir / "ind_sp.cir"
+        cir.write_text(
+            f".include '{inc_path}'\n"
+            "V1 p 0 dc 0 ac 1 portnum 1 z0 50\n"
+            "V2 n 0 dc 0 ac 1 portnum 2 z0 50\n"
+            "Xl p n 0 ind_shunt\n"
+            ".control\n"
+            f"sp lin {n_freq} {f_start_hz:.6g} {f_stop_hz:.6g}\n"
+            "set wr_singlescale\n"
+            "wrdata sp_model.raw frequency real(S_1_1) imag(S_1_1)"
+            " real(S_2_1) imag(S_2_1) real(S_2_2) imag(S_2_2)\n"
+            ".endc\n"
+            ".end\n"
+        )
+        log = tdir / "ind_sp.log"
+        subprocess.run(
+            ["ngspice", "-b", "-o", str(log), str(cir)],
+            cwd=tdir,
+            check=False,
+            capture_output=True,
+        )
+        raw = tdir / "sp_model.raw"
+        if not raw.is_file():
+            raise RuntimeError(f"ngspice sp verify failed: {log.read_text()[:800]}")
+        parsed = parse_sp_wrdata(raw)
+        freq = parsed["FREQ"]
+        s11 = parsed["S11_RE"] + 1j * parsed["S11_IM"]
+        s21 = parsed["S21_RE"] + 1j * parsed["S21_IM"]
+        s22 = parsed["S22_RE"] + 1j * parsed["S22_IM"]
+        return freq, s11, s21, s22
+    finally:
+        td.cleanup()
+
+
+def verify_ind_shunt_sp(
+    inc_path: Path,
+    npz_path: Path,
+    *,
+    case: str = "",
+    fstop_hz: float = SP_FSTOP_HZ,
+) -> SpVerifyResult:
+    """Compare ngspice ``sp`` of lumped model against committed / fallback EM S-parameters."""
+    em_freq, s11_em, s21_em, _, source = load_em_sparams(npz_path)
+    freq_m, s11_m, s21_m, _ = run_ind_shunt_sp(
+        inc_path,
+        f_stop_hz=min(fstop_hz, SP_FSTOP_HZ),
+    )
+    s11_mi = np.zeros_like(em_freq, dtype=complex)
+    s21_mi = np.zeros_like(em_freq, dtype=complex)
+    for i, f in enumerate(em_freq):
+        j = int(np.argmin(np.abs(freq_m - f)))
+        s11_mi[i] = s11_m[j]
+        s21_mi[i] = s21_m[j]
+    return compare_sparams(
+        em_freq,
+        s11_mi,
+        s21_mi,
+        s11_em,
+        s21_em,
+        case=case or npz_path.stem.replace("sg13_ind_", ""),
+        source=source,
+        fstop_hz=fstop_hz,
+    )
+
+
+def _format_sp_result(res: SpVerifyResult) -> str:
+    lines = [
+        f"  SP verify case={res.case} source={res.source} pass={res.passed}",
+        (
+            f"    fit 1-50 GHz: |S21| mean/max rel="
+            f"{res.fit.s21_mag_mean_rel_pct:.2f}%/{res.fit.s21_mag_max_rel_pct:.2f}%"
+            f"  phase mean/max={res.fit.s21_phase_mean_abs_deg:.2f}/"
+            f"{res.fit.s21_phase_max_abs_deg:.2f} deg"
+            f"  |S11| mean/max rel={res.fit.s11_mag_mean_rel_pct:.2f}%/"
+            f"{res.fit.s11_mag_max_rel_pct:.2f}% (report only)"
+        ),
+    ]
+    if res.extrap is not None:
+        lines.append(
+            f"    extrap 50-100 GHz: |S21| mean/max rel="
+            f"{res.extrap.s21_mag_mean_rel_pct:.2f}%/{res.extrap.s21_mag_max_rel_pct:.2f}%"
+            f"  phase mean/max={res.extrap.s21_phase_mean_abs_deg:.2f}/"
+            f"{res.extrap.s21_phase_max_abs_deg:.2f} deg"
+        )
+    if res.failures:
+        lines.append(f"    FAIL: {'; '.join(res.failures)}")
+    return "\n".join(lines)
+
+
+def verify_all_em_cases(
+    *,
+    out_dir: Path | None = None,
+    artifact_dir: Path | None = None,
+) -> list[SpVerifyResult]:
+    """Run SP verification for every usable EM case (skips turn2)."""
+    out_dir = out_dir or (_REPO / "char/passive/out")
+    results: list[SpVerifyResult] = []
+    skipped: list[str] = []
+    with tempfile.TemporaryDirectory() as td:
+        work = Path(td)
+        for case in CASE_ORDER:
+            if case in EXCLUDED_CASES:
+                skipped.append(f"{case} (excluded)")
+                continue
+            npz_path = out_dir / f"sg13_ind_{case}.npz"
+            if not npz_path.is_file():
+                skipped.append(f"{case} (missing npz)")
+                continue
+            arrays, meta = load_lut(npz_path)
+            if not _usable_case(case, arrays, meta):
+                skipped.append(f"{case} (invalid LUT)")
+                continue
+            if "R_SERIES" not in arrays:
+                skipped.append(f"{case} (no pi-model)")
+                continue
+            try:
+                model = build_ind_shunt_model_for_case(case)
+            except RuntimeError as exc:
+                skipped.append(f"{case} ({exc})")
+                continue
+            inc = work / f"ind_shunt_{case}.inc"
+            write_ind_shunt_inc(model, inc)
+            try:
+                fstop = float(meta.get("fstop_hz", SP_FSTOP_HZ))
+                res = verify_ind_shunt_sp(inc, npz_path, case=case, fstop_hz=fstop)
+            except FileNotFoundError as exc:
+                skipped.append(f"{case} ({exc})")
+                continue
+            results.append(res)
+            print(_format_sp_result(res), flush=True)
+
+    if skipped:
+        print("  skipped:", ", ".join(skipped), flush=True)
+
+    if artifact_dir is not None:
+        from char.passive.summarize_ind import write_sp_validation_artifacts
+
+        write_sp_validation_artifacts(out_dir, artifact_dir, results)
+
+    return results
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Generate EM-based ind_shunt.inc for CTLE/VGA PDK netlists"
@@ -457,14 +656,43 @@ def main() -> None:
     parser.add_argument(
         "--verify",
         action="store_true",
-        help="Run ngspice AC verification after generation",
+        help="Alias for --verify-sp (ngspice S-parameter check vs EM)",
     )
     parser.add_argument(
         "--no-verify",
         action="store_true",
         help="Skip ngspice verification",
     )
+    parser.add_argument(
+        "--verify-sp",
+        action="store_true",
+        help="Run ngspice sp verification vs EM Touchstone (default unless --no-verify)",
+    )
+    parser.add_argument(
+        "--verify-lq",
+        action="store_true",
+        help="Also run legacy AC L/Q one-port check",
+    )
+    parser.add_argument(
+        "--verify-all-cases",
+        action="store_true",
+        help="Run SP verification for every usable EM LUT case; write artifacts to char/passive/out/",
+    )
+    parser.add_argument(
+        "--artifact-dir",
+        type=Path,
+        default=_REPO / "char/passive/out",
+        help="Directory for SP validation CSV/plot (with --verify-all-cases)",
+    )
     args = parser.parse_args()
+
+    if args.verify_all_cases:
+        results = verify_all_em_cases(artifact_dir=args.artifact_dir)
+        if not results:
+            raise SystemExit("No cases verified (missing SP data or pi-model?)")
+        if any(not r.passed for r in results):
+            raise SystemExit(1)
+        return
 
     if not os.environ.get("PDK_ROOT"):
         print("Warning: PDK_ROOT not set — verification will fail.")
@@ -479,20 +707,32 @@ def main() -> None:
         f"  Cox={model.cox_p_f*1e15:.2f} fF/term"
     )
 
-    if args.verify or not args.no_verify:
+    do_sp = args.verify_sp or args.verify or not args.no_verify
+    if do_sp:
+        npz_path = _REPO / "char/passive/out" / f"sg13_ind_{model.case}.npz"
+        try:
+            res = verify_ind_shunt_sp(args.out, npz_path, case=model.case)
+            print(_format_sp_result(res))
+            if not res.passed:
+                raise SystemExit(1)
+        except Exception as exc:
+            print(f"  ngspice SP verify failed: {exc}")
+            if args.verify or args.verify_sp:
+                raise
+
+    if args.verify_lq:
         try:
             v = verify_ind_shunt_ngspice(args.out)
             print(
-                f"  ngspice verify: L(1G)={v['l_1g_ph']:.2f} pH"
+                f"  ngspice L/Q verify: L(1G)={v['l_1g_ph']:.2f} pH"
                 f" L(10G)={v['l_10g_ph']:.2f} pH"
                 f" L(28G)={v['l_28g_ph']:.2f} pH"
                 f" L(50G)={v['l_50g_ph']:.2f} pH"
                 f" Q@28G={v['q_28g']:.1f}"
             )
         except Exception as exc:
-            print(f"  ngspice verify failed: {exc}")
-            if args.verify:
-                raise
+            print(f"  ngspice L/Q verify failed: {exc}")
+            raise
 
 
 if __name__ == "__main__":

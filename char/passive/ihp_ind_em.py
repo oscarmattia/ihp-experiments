@@ -30,7 +30,13 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import load_lut, save_lut  # noqa: E402
-from char.passive.ind_pimodel import pi_model_from_s2p, pi_model_summary  # noqa: E402
+from char.passive.ind_pimodel import (  # noqa: E402
+    merge_sparams_into_lut,
+    pi_model_from_s2p,
+    pi_model_summary,
+    refresh_sparam_luts,
+    sparam_arrays_from_s2p,
+)
 from char.passive.ind_validate import validate_ind_lut  # noqa: E402
 
 
@@ -589,6 +595,13 @@ def _write_case_outputs(
             "C_PORT2": "pi-model port-2 shunt capacitance (F)",
             "G_PORT1": "pi-model port-1 shunt conductance (S)",
             "G_PORT2": "pi-model port-2 shunt conductance (S)",
+            "SP_FREQ": "S-parameter verification frequency (Hz)",
+            "S11_RE": "EM S11 real part",
+            "S11_IM": "EM S11 imaginary part",
+            "S21_RE": "EM S21 real part",
+            "S21_IM": "EM S21 imaginary part",
+            "S22_RE": "EM S22 real part",
+            "S22_IM": "EM S22 imaginary part",
         },
         "em_completed": em_completed,
         "valid": valid,
@@ -615,6 +628,12 @@ def _write_case_outputs(
             meta["pimodel_s2p"] = str(s2p_path)
         except Exception as exc:
             meta["pimodel_error"] = str(exc)
+        try:
+            arrays.update(sparam_arrays_from_s2p(s2p_path))
+            meta["sparam_s2p"] = str(s2p_path)
+            meta["sparam_nfreq"] = int(len(arrays["SP_FREQ"]))
+        except Exception as exc:
+            meta["sparam_error"] = str(exc)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"sg13_ind_{case.key}.npz"
     save_lut(out_path, arrays, meta)
@@ -741,6 +760,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Re-extract pi-model arrays from existing .s2p into committed .npz LUTs",
     )
+    p.add_argument(
+        "--refresh-sparams",
+        action="store_true",
+        help="Re-extract downsampled S-parameter arrays from existing .s2p into .npz LUTs",
+    )
     return p.parse_args()
 
 
@@ -750,6 +774,12 @@ def main() -> int:
         out_dir = args.out_dir
         n = refresh_pimodel_luts(out_dir)
         print(f"Refreshed pi-model in {n} LUT file(s)", flush=True)
+        return 0 if n > 0 else 1
+
+    if args.refresh_sparams:
+        out_dir = args.out_dir
+        n = refresh_sparam_luts(out_dir)
+        print(f"Refreshed S-parameters in {n} LUT file(s)", flush=True)
         return 0 if n > 0 else 1
 
     pdk_root = args.pdk_root or Path(os.environ.get("PDK_ROOT", ""))
