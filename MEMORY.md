@@ -82,6 +82,26 @@ from a PDK model file, `[est]` when still unverified.
 
 - Shunt-peaking load order is **VDD → L → RD → collector**.
 - Bessel maximally-flat-delay shunt peaking: `m = L/(RD^2*C_L) = 0.32`.
+- **A lumped inductor model needs port shunt capacitance to ground at BOTH ports**, and it is the
+  dominant parasitic. Designer rule of thumb: **5-10 fF per 100 pH**. Confirmed by EM for the 66 pH
+  `turn1_d40` coil: 5.79 fF and 5.80 fF (symmetric), against a 3.3-6.6 fF rule-of-thumb band `[EM]`.
+  Plate area alone is not the right estimator and underestimates by ~6x here (541 µm² of TopMetal2 at
+  3.233 aF/µm² gives only 1.75 fF), because the synthesized structure includes the Metal1 frame /
+  SUBGND plane and the feed.
+- **Extract the inductor pi-model from the EM Touchstone file, not from `L(f)`/`Q(f)` alone.** With
+  `Y = (1/Z0)(I+S)^-1(I-S)`: series `Z = -1/Y12`, `C_port1 = imag(Y11+Y12)/w`,
+  `C_port2 = imag(Y22+Y12)/w`, and `G_port = real(Y11+Y12)` sets the substrate branch.
+  `char/passive/out/em_work/` is **gitignored**, so persist the extracted parameters into the committed
+  `.npz`/`.meta.json` or nothing downstream survives a fresh checkout.
+- **The openEMS series resistance carries a systematic de-embedding offset** of about −0.4 Ω for these
+  small coils: `Re{Z_series}` goes *negative* below ~15 GHz (−0.32 Ω at 5 GHz) `[EM]`. That is why `Q(f)`
+  is unusable at low frequency. Anchor `R(f->0)` to a physically computed `R_dc` and take only the
+  *shape* of the EM curve above ~20 GHz. Tell-tale of a bad fit: raw EM R at 28 GHz coming out *below*
+  the DC value, which skin effect makes impossible.
+- Do not accept a plausible-looking number with an invented physical story. Two separate cases here: a
+  factor-of-2 inductance error blamed on "single-ended vs differential" (there is no such factor for a
+  two-terminal component), and VGA bias drift of 18% called "expected for this topology" when it was
+  caused by DC current flowing through the gain-control device.
 - **Budget `C_L` honestly.** Raw LUT `CIN` of the next stage is not the load: add the Miller term
   `CBC*(1+|Av|)` and an interconnect estimate. Under-budgeting `C_L` yields an implausible `f_-3dB` and
   a design that looks over-peaked.
