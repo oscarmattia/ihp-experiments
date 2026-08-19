@@ -30,6 +30,7 @@ Analog IC / IHP SG13G2 experiments repo. This file is the **root** contract for 
 | `docs/` | Environment and setup docs | `docs/AGENTS.md` |
 | `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |
 | `pdk/` | IHP SG13G2 PDK submodule (upstream; rarely edited here) | — |
+| `.cursor/plans/` | Approved multi-stage plans not yet implemented (read before starting related work) | — |
 
 Read the nested `AGENTS.md` in a directory before changing files there.
 
