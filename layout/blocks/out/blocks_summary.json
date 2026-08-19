@@ -112,6 +112,188 @@
           17.39,
           6.12
         ],
+        "tap_centres_um": [
+          [
+            -5.27,
+            -5.25
+          ],
+          [
+            -5.27,
+            -3.685
+          ],
+          [
+            -5.27,
+            -2.12
+          ],
+          [
+            -5.27,
+            -0.555
+          ],
+          [
+            -5.27,
+            1.005
+          ],
+          [
+            -5.27,
+            2.57
+          ],
+          [
+            -5.27,
+            4.135
+          ],
+          [
+            -5.27,
+            5.7
+          ],
+          [
+            -3.785,
+            -5.25
+          ],
+          [
+            -3.785,
+            5.7
+          ],
+          [
+            -2.305,
+            -5.25
+          ],
+          [
+            -2.305,
+            5.7
+          ],
+          [
+            -0.82,
+            -5.25
+          ],
+          [
+            -0.82,
+            5.7
+          ],
+          [
+            0.66,
+            -5.25
+          ],
+          [
+            0.66,
+            5.7
+          ],
+          [
+            2.145,
+            -5.25
+          ],
+          [
+            2.145,
+            5.7
+          ],
+          [
+            3.625,
+            -5.25
+          ],
+          [
+            3.625,
+            5.7
+          ],
+          [
+            5.11,
+            -5.25
+          ],
+          [
+            5.11,
+            5.7
+          ],
+          [
+            6.59,
+            -5.25
+          ],
+          [
+            6.59,
+            5.7
+          ],
+          [
+            8.075,
+            -5.25
+          ],
+          [
+            8.075,
+            5.7
+          ],
+          [
+            9.555,
+            -5.25
+          ],
+          [
+            9.555,
+            5.7
+          ],
+          [
+            11.04,
+            -5.25
+          ],
+          [
+            11.04,
+            5.7
+          ],
+          [
+            12.52,
+            -5.25
+          ],
+          [
+            12.52,
+            5.7
+          ],
+          [
+            14.005,
+            -5.25
+          ],
+          [
+            14.005,
+            5.7
+          ],
+          [
+            15.485,
+            -5.25
+          ],
+          [
+            15.485,
+            5.7
+          ],
+          [
+            16.97,
+            -5.25
+          ],
+          [
+            16.97,
+            -3.685
+          ],
+          [
+            16.97,
+            -2.12
+          ],
+          [
+            16.97,
+            -0.555
+          ],
+          [
+            16.97,
+            1.005
+          ],
+          [
+            16.97,
+            2.57
+          ],
+          [
+            16.97,
+            4.135
+          ],
+          [
+            16.97,
+            5.7
+          ]
+        ],
+        "tap_size_um": [
+          0.84,
+          0.84
+        ],
         "worst_distance_to_tie_um": 5.055,
         "latchup_limit_um": 20.0,
         "within_latchup_limit": true
@@ -137,6 +319,7 @@
           }
         ]
       },
+      "power_ring": null,
       "notes": [
         "mirrored about x=5.85 um so both devices see the same inner neighbour"
       ],
@@ -189,7 +372,7 @@
         "clean": true,
         "params_ok": true,
         "devices_matched": 0,
-        "summary": "2026-08-19 15:52:57 +0000: Memory Usage (141612K) : INFO : Congratulations! Netlists match.",
+        "summary": "2026-08-19 19:25:56 +0000: Memory Usage (142896K) : INFO : Congratulations! Netlists match.",
         "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/hbt_diff_pair/hbt_diff_pair_extracted.cir",
         "param_checks": [],
         "log": "/workspace/layout/blocks/out/lvs_run/hbt_diff_pair/lvs_run.log",
@@ -314,6 +497,7 @@
           }
         ]
       },
+      "power_ring": null,
       "notes": [],
       "layers": {
         "cont_drw": 4,
@@ -359,7 +543,7 @@
         "clean": true,
         "params_ok": true,
         "devices_matched": 0,
-        "summary": "2026-08-19 15:53:02 +0000: Memory Usage (142456K) : INFO : Congratulations! Netlists match.",
+        "summary": "2026-08-19 19:26:01 +0000: Memory Usage (142344K) : INFO : Congratulations! Netlists match.",
         "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/rppd_load_pair/rppd_load_pair_extracted.cir",
         "param_checks": [],
         "log": "/workspace/layout/blocks/out/lvs_run/rppd_load_pair/lvs_run.log",
@@ -380,8 +564,8 @@
         "per_net_capacitance_f": {
           "w_0_n86#": 4.200040000000001e-15,
           "a_0_0#": 2.0817e-15,
-          "a_0_n86#": 1.83638e-15,
           "a_0_280#": 1.83638e-15,
+          "a_0_n86#": 1.83638e-15,
           "rppd_load_b_m_0/a_0_0#": 5.885000000000001e-17,
           "rppd_load_a_n_0/a_0_0#": 5.885000000000001e-17,
           "PLUS": -2.1370000000000003e-17,
@@ -466,6 +650,7 @@
       ],
       "guard_ring": null,
       "symmetry": null,
+      "power_ring": null,
       "notes": [
         "Rs and Cs are in parallel between the emitter nodes",
         "the cap's terminals are stacked on Metal4 and Metal5 (feed=same), so each side is joined with a via_stack up from the resistor's Metal1 and a run on the cap's metal"
@@ -525,7 +710,7 @@
         "clean": true,
         "params_ok": true,
         "devices_matched": 0,
-        "summary": "2026-08-19 15:53:05 +0000: Memory Usage (143292K) : INFO : Congratulations! Netlists match.",
+        "summary": "2026-08-19 19:26:04 +0000: Memory Usage (143972K) : INFO : Congratulations! Netlists match.",
         "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/degeneration_network/degeneration_network_extracted.cir",
         "param_checks": [],
         "log": "/workspace/layout/blocks/out/lvs_run/degeneration_network/lvs_run.log",
@@ -550,8 +735,8 @@
           "a_0_0#": 7.0259e-16,
           "rsil_degen_n_0/a_0_0#": 3.5044000000000003e-16,
           "w_n20_n142#": 2.2813e-16,
-          "a_0_n70#": 1.2916e-16,
-          "a_0_1000#": 1.2916e-16
+          "a_0_1000#": 1.2916e-16,
+          "a_0_n70#": 1.2916e-16
         },
         "log": "/workspace/layout/blocks/out/pex_run/degeneration_network/magic_pex.log",
         "error": "",
@@ -561,9 +746,9 @@
     "nmos_tail_pair": {
       "name": "nmos_tail_pair",
       "bbox_um": {
-        "width": 127.88,
-        "height": 20.76,
-        "area": 2654.7888
+        "width": 135.4,
+        "height": 27.395,
+        "area": 3709.283
       },
       "ports": {
         "D_A": {
@@ -571,9 +756,9 @@
           "layer": "metal2_drw",
           "center": [
             28.2,
-            12.4
+            13.34
           ],
-          "width": 1.0,
+          "width": 2.88,
           "orientation": 90.0
         },
         "S_A": {
@@ -581,16 +766,16 @@
           "layer": "metal2_drw",
           "center": [
             28.2,
-            -2.68
+            -3.62
           ],
-          "width": 1.0,
+          "width": 2.88,
           "orientation": 270.0
         },
         "G_A": {
           "name": "G_A",
           "layer": "gatpoly_drw",
           "center": [
-            -0.4,
+            -2.28,
             10.1
           ],
           "width": 0.6,
@@ -600,27 +785,27 @@
           "name": "D_B",
           "layer": "metal2_drw",
           "center": [
-            92.6,
-            12.4
+            96.36,
+            13.34
           ],
-          "width": 1.0,
+          "width": 2.88,
           "orientation": 90.0
         },
         "S_B": {
           "name": "S_B",
           "layer": "metal2_drw",
           "center": [
-            92.6,
-            -2.68
+            96.36,
+            -3.62
           ],
-          "width": 1.0,
+          "width": 2.88,
           "orientation": 270.0
         },
         "G_B": {
           "name": "G_B",
           "layer": "gatpoly_drw",
           "center": [
-            64.0,
+            65.88,
             10.1
           ],
           "width": 0.6,
@@ -635,7 +820,7 @@
       ],
       "devices": [
         {
-          "name": "tail1_u0",
+          "name": "tail1",
           "kind": "nmos_lv",
           "nets": {
             "D": "e1",
@@ -645,487 +830,7 @@
           }
         },
         {
-          "name": "tail1_u1",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u2",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u3",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u4",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u5",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u6",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u7",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u8",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u9",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u10",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u11",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u12",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u13",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u14",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u15",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u16",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u17",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u18",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u19",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u20",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u21",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u22",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u23",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail1_u24",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e1",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u0",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u1",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u2",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u3",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u4",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u5",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u6",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u7",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u8",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u9",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u10",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u11",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u12",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u13",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u14",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u15",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u16",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u17",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u18",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u19",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u20",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u21",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u22",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u23",
-          "kind": "nmos_lv",
-          "nets": {
-            "D": "e2",
-            "G": "mgate",
-            "S": "vss",
-            "sub": "sub"
-          }
-        },
-        {
-          "name": "tail2_u24",
+          "name": "tail2",
           "kind": "nmos_lv",
           "nets": {
             "D": "e2",
@@ -1137,36 +842,956 @@
       ],
       "guard_ring": {
         "kind": "ptap1",
-        "taps": 208,
+        "taps": 228,
         "clearance_um": 1.5,
         "pitch_um": 1.4,
         "outer_box_um": [
-          -3.74,
-          -5.52,
-          124.14,
-          15.24
+          -5.62,
+          -10.275,
+          129.78,
+          17.12
         ],
-        "worst_distance_to_tie_um": 9.54,
+        "tap_centres_um": [
+          [
+            -5.2,
+            -9.855
+          ],
+          [
+            -5.2,
+            -8.38
+          ],
+          [
+            -5.2,
+            -6.905
+          ],
+          [
+            -5.2,
+            -5.43
+          ],
+          [
+            -5.2,
+            -3.955
+          ],
+          [
+            -5.2,
+            -2.48
+          ],
+          [
+            -5.2,
+            -1.005
+          ],
+          [
+            -5.2,
+            0.47
+          ],
+          [
+            -5.2,
+            1.945
+          ],
+          [
+            -5.2,
+            3.42
+          ],
+          [
+            -5.2,
+            4.9
+          ],
+          [
+            -5.2,
+            6.375
+          ],
+          [
+            -5.2,
+            7.85
+          ],
+          [
+            -5.2,
+            9.325
+          ],
+          [
+            -5.2,
+            10.8
+          ],
+          [
+            -5.2,
+            12.275
+          ],
+          [
+            -5.2,
+            13.75
+          ],
+          [
+            -5.2,
+            15.225
+          ],
+          [
+            -5.2,
+            16.7
+          ],
+          [
+            -3.8,
+            -9.855
+          ],
+          [
+            -3.8,
+            16.7
+          ],
+          [
+            -2.395,
+            -9.855
+          ],
+          [
+            -2.395,
+            16.7
+          ],
+          [
+            -0.995,
+            -9.855
+          ],
+          [
+            -0.995,
+            16.7
+          ],
+          [
+            0.405,
+            -9.855
+          ],
+          [
+            0.405,
+            16.7
+          ],
+          [
+            1.81,
+            -9.855
+          ],
+          [
+            1.81,
+            16.7
+          ],
+          [
+            3.21,
+            -9.855
+          ],
+          [
+            3.21,
+            16.7
+          ],
+          [
+            4.61,
+            -9.855
+          ],
+          [
+            4.61,
+            16.7
+          ],
+          [
+            6.015,
+            -9.855
+          ],
+          [
+            6.015,
+            16.7
+          ],
+          [
+            7.415,
+            -9.855
+          ],
+          [
+            7.415,
+            16.7
+          ],
+          [
+            8.815,
+            -9.855
+          ],
+          [
+            8.815,
+            16.7
+          ],
+          [
+            10.22,
+            -9.855
+          ],
+          [
+            10.22,
+            16.7
+          ],
+          [
+            11.62,
+            -9.855
+          ],
+          [
+            11.62,
+            16.7
+          ],
+          [
+            13.02,
+            -9.855
+          ],
+          [
+            13.02,
+            16.7
+          ],
+          [
+            14.425,
+            -9.855
+          ],
+          [
+            14.425,
+            16.7
+          ],
+          [
+            15.825,
+            -9.855
+          ],
+          [
+            15.825,
+            16.7
+          ],
+          [
+            17.225,
+            -9.855
+          ],
+          [
+            17.225,
+            16.7
+          ],
+          [
+            18.63,
+            -9.855
+          ],
+          [
+            18.63,
+            16.7
+          ],
+          [
+            20.03,
+            -9.855
+          ],
+          [
+            20.03,
+            16.7
+          ],
+          [
+            21.43,
+            -9.855
+          ],
+          [
+            21.43,
+            16.7
+          ],
+          [
+            22.835,
+            -9.855
+          ],
+          [
+            22.835,
+            16.7
+          ],
+          [
+            24.235,
+            -9.855
+          ],
+          [
+            24.235,
+            16.7
+          ],
+          [
+            25.635,
+            -9.855
+          ],
+          [
+            25.635,
+            16.7
+          ],
+          [
+            27.04,
+            -9.855
+          ],
+          [
+            27.04,
+            16.7
+          ],
+          [
+            28.44,
+            -9.855
+          ],
+          [
+            28.44,
+            16.7
+          ],
+          [
+            29.84,
+            -9.855
+          ],
+          [
+            29.84,
+            16.7
+          ],
+          [
+            31.245,
+            -9.855
+          ],
+          [
+            31.245,
+            16.7
+          ],
+          [
+            32.645,
+            -9.855
+          ],
+          [
+            32.645,
+            16.7
+          ],
+          [
+            34.045,
+            -9.855
+          ],
+          [
+            34.045,
+            16.7
+          ],
+          [
+            35.45,
+            -9.855
+          ],
+          [
+            35.45,
+            16.7
+          ],
+          [
+            36.85,
+            -9.855
+          ],
+          [
+            36.85,
+            16.7
+          ],
+          [
+            38.25,
+            -9.855
+          ],
+          [
+            38.25,
+            16.7
+          ],
+          [
+            39.655,
+            -9.855
+          ],
+          [
+            39.655,
+            16.7
+          ],
+          [
+            41.055,
+            -9.855
+          ],
+          [
+            41.055,
+            16.7
+          ],
+          [
+            42.455,
+            -9.855
+          ],
+          [
+            42.455,
+            16.7
+          ],
+          [
+            43.86,
+            -9.855
+          ],
+          [
+            43.86,
+            16.7
+          ],
+          [
+            45.26,
+            -9.855
+          ],
+          [
+            45.26,
+            16.7
+          ],
+          [
+            46.66,
+            -9.855
+          ],
+          [
+            46.66,
+            16.7
+          ],
+          [
+            48.065,
+            -9.855
+          ],
+          [
+            48.065,
+            16.7
+          ],
+          [
+            49.465,
+            -9.855
+          ],
+          [
+            49.465,
+            16.7
+          ],
+          [
+            50.865,
+            -9.855
+          ],
+          [
+            50.865,
+            16.7
+          ],
+          [
+            52.27,
+            -9.855
+          ],
+          [
+            52.27,
+            16.7
+          ],
+          [
+            53.67,
+            -9.855
+          ],
+          [
+            53.67,
+            16.7
+          ],
+          [
+            55.07,
+            -9.855
+          ],
+          [
+            55.07,
+            16.7
+          ],
+          [
+            56.475,
+            -9.855
+          ],
+          [
+            56.475,
+            16.7
+          ],
+          [
+            57.875,
+            -9.855
+          ],
+          [
+            57.875,
+            16.7
+          ],
+          [
+            59.275,
+            -9.855
+          ],
+          [
+            59.275,
+            16.7
+          ],
+          [
+            60.68,
+            -9.855
+          ],
+          [
+            60.68,
+            16.7
+          ],
+          [
+            62.08,
+            -9.855
+          ],
+          [
+            62.08,
+            16.7
+          ],
+          [
+            63.48,
+            -9.855
+          ],
+          [
+            63.48,
+            16.7
+          ],
+          [
+            64.885,
+            -9.855
+          ],
+          [
+            64.885,
+            16.7
+          ],
+          [
+            66.285,
+            -9.855
+          ],
+          [
+            66.285,
+            16.7
+          ],
+          [
+            67.685,
+            -9.855
+          ],
+          [
+            67.685,
+            16.7
+          ],
+          [
+            69.09,
+            -9.855
+          ],
+          [
+            69.09,
+            16.7
+          ],
+          [
+            70.49,
+            -9.855
+          ],
+          [
+            70.49,
+            16.7
+          ],
+          [
+            71.89,
+            -9.855
+          ],
+          [
+            71.89,
+            16.7
+          ],
+          [
+            73.295,
+            -9.855
+          ],
+          [
+            73.295,
+            16.7
+          ],
+          [
+            74.695,
+            -9.855
+          ],
+          [
+            74.695,
+            16.7
+          ],
+          [
+            76.095,
+            -9.855
+          ],
+          [
+            76.095,
+            16.7
+          ],
+          [
+            77.5,
+            -9.855
+          ],
+          [
+            77.5,
+            16.7
+          ],
+          [
+            78.9,
+            -9.855
+          ],
+          [
+            78.9,
+            16.7
+          ],
+          [
+            80.3,
+            -9.855
+          ],
+          [
+            80.3,
+            16.7
+          ],
+          [
+            81.705,
+            -9.855
+          ],
+          [
+            81.705,
+            16.7
+          ],
+          [
+            83.105,
+            -9.855
+          ],
+          [
+            83.105,
+            16.7
+          ],
+          [
+            84.505,
+            -9.855
+          ],
+          [
+            84.505,
+            16.7
+          ],
+          [
+            85.91,
+            -9.855
+          ],
+          [
+            85.91,
+            16.7
+          ],
+          [
+            87.31,
+            -9.855
+          ],
+          [
+            87.31,
+            16.7
+          ],
+          [
+            88.71,
+            -9.855
+          ],
+          [
+            88.71,
+            16.7
+          ],
+          [
+            90.115,
+            -9.855
+          ],
+          [
+            90.115,
+            16.7
+          ],
+          [
+            91.515,
+            -9.855
+          ],
+          [
+            91.515,
+            16.7
+          ],
+          [
+            92.915,
+            -9.855
+          ],
+          [
+            92.915,
+            16.7
+          ],
+          [
+            94.32,
+            -9.855
+          ],
+          [
+            94.32,
+            16.7
+          ],
+          [
+            95.72,
+            -9.855
+          ],
+          [
+            95.72,
+            16.7
+          ],
+          [
+            97.12,
+            -9.855
+          ],
+          [
+            97.12,
+            16.7
+          ],
+          [
+            98.525,
+            -9.855
+          ],
+          [
+            98.525,
+            16.7
+          ],
+          [
+            99.925,
+            -9.855
+          ],
+          [
+            99.925,
+            16.7
+          ],
+          [
+            101.325,
+            -9.855
+          ],
+          [
+            101.325,
+            16.7
+          ],
+          [
+            102.73,
+            -9.855
+          ],
+          [
+            102.73,
+            16.7
+          ],
+          [
+            104.13,
+            -9.855
+          ],
+          [
+            104.13,
+            16.7
+          ],
+          [
+            105.53,
+            -9.855
+          ],
+          [
+            105.53,
+            16.7
+          ],
+          [
+            106.935,
+            -9.855
+          ],
+          [
+            106.935,
+            16.7
+          ],
+          [
+            108.335,
+            -9.855
+          ],
+          [
+            108.335,
+            16.7
+          ],
+          [
+            109.735,
+            -9.855
+          ],
+          [
+            109.735,
+            16.7
+          ],
+          [
+            111.14,
+            -9.855
+          ],
+          [
+            111.14,
+            16.7
+          ],
+          [
+            112.54,
+            -9.855
+          ],
+          [
+            112.54,
+            16.7
+          ],
+          [
+            113.94,
+            -9.855
+          ],
+          [
+            113.94,
+            16.7
+          ],
+          [
+            115.345,
+            -9.855
+          ],
+          [
+            115.345,
+            16.7
+          ],
+          [
+            116.745,
+            -9.855
+          ],
+          [
+            116.745,
+            16.7
+          ],
+          [
+            118.145,
+            -9.855
+          ],
+          [
+            118.145,
+            16.7
+          ],
+          [
+            119.55,
+            -9.855
+          ],
+          [
+            119.55,
+            16.7
+          ],
+          [
+            120.95,
+            -9.855
+          ],
+          [
+            120.95,
+            16.7
+          ],
+          [
+            122.35,
+            -9.855
+          ],
+          [
+            122.35,
+            16.7
+          ],
+          [
+            123.755,
+            -9.855
+          ],
+          [
+            123.755,
+            16.7
+          ],
+          [
+            125.155,
+            -9.855
+          ],
+          [
+            125.155,
+            16.7
+          ],
+          [
+            126.555,
+            -9.855
+          ],
+          [
+            126.555,
+            16.7
+          ],
+          [
+            127.96,
+            -9.855
+          ],
+          [
+            127.96,
+            16.7
+          ],
+          [
+            129.36,
+            -9.855
+          ],
+          [
+            129.36,
+            -8.38
+          ],
+          [
+            129.36,
+            -6.905
+          ],
+          [
+            129.36,
+            -5.43
+          ],
+          [
+            129.36,
+            -3.955
+          ],
+          [
+            129.36,
+            -2.48
+          ],
+          [
+            129.36,
+            -1.005
+          ],
+          [
+            129.36,
+            0.47
+          ],
+          [
+            129.36,
+            1.945
+          ],
+          [
+            129.36,
+            3.42
+          ],
+          [
+            129.36,
+            4.9
+          ],
+          [
+            129.36,
+            6.375
+          ],
+          [
+            129.36,
+            7.85
+          ],
+          [
+            129.36,
+            9.325
+          ],
+          [
+            129.36,
+            10.8
+          ],
+          [
+            129.36,
+            12.275
+          ],
+          [
+            129.36,
+            13.75
+          ],
+          [
+            129.36,
+            15.225
+          ],
+          [
+            129.36,
+            16.7
+          ]
+        ],
+        "tap_size_um": [
+          0.84,
+          0.84
+        ],
+        "worst_distance_to_tie_um": 12.858,
         "latchup_limit_um": 20.0,
         "within_latchup_limit": true
       },
       "symmetry": null,
+      "power_ring": null,
       "notes": [
-        "each tail is 25 single-finger units of 9.72 um strapped on Metal2 with 50 vias, totalling 243.0 um",
-        "the nmos PCell provides no finger strapping and caps a single finger near 10 um, so a wide device must be built as an array"
+        "each tail is 25 single-finger units of 9.72 um strapped on Metal2, each terminal carrying a 24-cut via column, totalling 243.0 um",
+        "the nmos PCell provides no finger strapping and caps a single finger near 10 um, so a wide device must be built as an array",
+        "rails sized from the technology LEF: 2.88 um per array at 2.88 mA, 5.755 um shared at 5.76 mA"
       ],
       "layers": {
-        "activ_drw": 358,
-        "cont_drw": 3632,
+        "activ_drw": 378,
+        "cont_drw": 3712,
         "gatpoly_drw": 53,
         "gatpoly_pin": 50,
         "heattrans_drw": 50,
-        "metal1_drw": 616,
-        "metal1_pin": 308,
+        "metal1_drw": 656,
+        "metal1_pin": 328,
         "metal2_drw": 205,
-        "psd_drw": 208,
-        "substrate_drw": 208,
-        "via1_drw": 200
+        "psd_drw": 228,
+        "substrate_drw": 228,
+        "via1_drw": 2400
       },
       "gds": "gds/nmos_tail_pair.gds",
       "cdl": "cdl/nmos_tail_pair.cdl",
@@ -1201,7 +1826,7 @@
         "clean": true,
         "params_ok": true,
         "devices_matched": 0,
-        "summary": "2026-08-19 15:53:08 +0000: Memory Usage (142180K) : INFO : Congratulations! Netlists match.",
+        "summary": "2026-08-19 19:26:07 +0000: Memory Usage (142868K) : INFO : Congratulations! Netlists match.",
         "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/nmos_tail_pair/nmos_tail_pair_extracted.cir",
         "param_checks": [],
         "log": "/workspace/layout/blocks/out/lvs_run/nmos_tail_pair/lvs_run.log",
@@ -1218,21 +1843,21 @@
         "resistor_elements": [],
         "resistance_extracted": true,
         "note": "",
-        "total_capacitance_f": -1.719635e-14,
+        "total_capacitance_f": -2.1401117e-13,
         "per_net_capacitance_f": {
-          "a_n200_1960#": 1.92486e-14,
-          "m2_n200_2380#": 1.9161e-14,
-          "m2_n200_n636#": 1.764036e-14,
+          "a_n576_1960#": 2.8617220000000004e-14,
+          "m2_n576_2380#": 8.511119999999994e-15,
+          "m2_n576_n1012#": 7.770959999999999e-15,
           "w_n26_n36#": 3.88806e-15,
           "a_68_n36#": 3.07962e-15,
-          "a_268_0#": 2.00634e-15,
           "a_0_0#": 2.00634e-15,
-          "w_n200_n636#": -3.4219600000000017e-15,
-          "a_n280_1960#": -3.96328e-15,
-          "e2": -1.1107100000000001e-14,
-          "e1": -1.1120610000000001e-14,
-          "vss": -2.2767130000000003e-14,
-          "ptap1_9/sub": -4.9042940000000006e-14
+          "a_268_0#": 2.00634e-15,
+          "a_n656_1960#": -4.3869e-15,
+          "e2": -4.455555000000001e-14,
+          "e1": -4.456136e-14,
+          "vss": -8.432642999999999e-14,
+          "w_n576_n1012#": -1.2809782e-13,
+          "ptap1_9/sub": -1.7797394000000002e-13
         },
         "log": "/workspace/layout/blocks/out/pex_run/nmos_tail_pair/magic_pex.log",
         "error": "",
@@ -1285,6 +1910,7 @@
       ],
       "guard_ring": null,
       "symmetry": null,
+      "power_ring": null,
       "notes": [
         "L and Q come from openEMS plus the fitted ind_shunt model; Magic contributes substrate capacitance only",
         "the nofill/no-RCX keep-out markers extend well beyond the coil metal, which is why the cell is much larger than the coil"
@@ -1353,7 +1979,7 @@
         "clean": true,
         "params_ok": true,
         "devices_matched": 0,
-        "summary": "2026-08-19 15:53:12 +0000: Memory Usage (143780K) : INFO : Congratulations! Netlists match.",
+        "summary": "2026-08-19 19:26:12 +0000: Memory Usage (143928K) : INFO : Congratulations! Netlists match.",
         "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/shunt_coil/shunt_coil_extracted.cir",
         "param_checks": [],
         "log": "/workspace/layout/blocks/out/lvs_run/shunt_coil/lvs_run.log",

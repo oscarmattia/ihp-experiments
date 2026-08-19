@@ -58,7 +58,7 @@ def build_blocks(only: set[str] | None = None):
         "degeneration_network": lambda: degeneration_network(
             devices["rsil_degen"], devices["cmomi_cs"]
         ),
-        "nmos_tail_pair": lambda: tail_pair(tail_w, tail_l),
+        "nmos_tail_pair": lambda: tail_pair(tail_w, tail_l, float(params["ITAIL"])),
         "shunt_coil": lambda: shunt_coil(devices["inductor_turn1_d40"]),
     }
     for name, builder in builders.items():

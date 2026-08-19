@@ -23,6 +23,7 @@ from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.layers import layer_map
 from layout.common.xsection import ROUTE_WIDTHS
 from layout.common.pdk import new_layout, pya_module
+from layout.common.rules import grid, route_width
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
 
@@ -344,7 +345,7 @@ def _connect_metal1_to(
     )
 
 
-def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
+def tail_pair(total_w: float, length: float, current_a: float, gap: float = 6.0) -> Block:
     """The two tail devices as strapped arrays, guard-ringed.
 
     The topology uses two tails, one per emitter node, rather than one shared
@@ -362,8 +363,8 @@ def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
     layout = new_layout()
     cell = layout.create_cell("nmos_tail_pair")
 
-    array_a = build_mos_array("tail1", total_w, length)
-    array_b = build_mos_array("tail2", total_w, length)
+    array_a = build_mos_array("tail1", total_w, length, current_a=current_a)
+    array_b = build_mos_array("tail2", total_w, length, current_a=current_a)
     array_box = array_a.cell.dbbox()  # type: ignore[attr-defined]
     pitch = array_box.width() + gap
 
@@ -388,10 +389,10 @@ def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
             )
             ports[placed.name] = placed
         nets = {"D": drain_net, "G": "mgate", "S": "vss", "sub": "sub"}
-        instances += [
-            (array.unit.with_name(f"{array.name}_u{i}"), dict(nets))
-            for i in range(array.units)
-        ]
+        # One device of the total width, not one per drawn unit: the extractor
+        # merges the parallel units before comparing, so this is the form both the
+        # schematic and the layout netlist carry.
+        instances.append((array.total_spec.with_name(array.name), dict(nets)))
 
     # Tie the two arrays' source rails and gate straps together. Both arrays are
     # identical and sit at the same y, so a single spanning shape on each layer
@@ -401,10 +402,22 @@ def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
     span_left = min(t.center[0] for t in ports.values()) - 1.0
     span_right = max(t.center[0] for t in ports.values()) + 1.0
 
-    source_y = ports["S_A"].center[1]
+    # The shared rail carries both tails, so its width comes from the EM limit for
+    # twice the per-tail current. It grows downward from the arrays' own source
+    # rails: centred, the extra width reaches into the drain via columns, which
+    # start at the bottom of the active area, and shorts the drains to vss.
+    from layout.common import em
+
+    g = grid()
+    rail_w = round(
+        round(max(em.width_for_a("Metal2", 2 * current_a), route_width("Metal2")) / g) * g, 6
+    )
+    source_top = round(
+        round((ports["S_A"].center[1] + array_a.rail_width_um / 2) / g) * g, 6
+    )
     m2 = lm["metal2_drw"]
     cell.shapes(layout.layer(m2[0], m2[1])).insert(
-        pya.DBox(span_left, source_y - 0.5, span_right, source_y + 0.5)
+        pya.DBox(span_left, source_top - rail_w, span_right, source_top)
     )
 
     gate_y = ports["G_A"].center[1]
@@ -422,10 +435,18 @@ def tail_pair(total_w: float, length: float, gap: float = 6.0) -> Block:
         port_nets=["e1", "e2", "mgate", "vss"],
         notes=[
             f"each tail is {array_a.units} single-finger units of "
-            f"{array_a.unit.params['w'] * 1e6:.2f} um strapped on Metal2 with "
-            f"{array_a.vias} vias, totalling {array_a.total_w * 1e6:.1f} um",
+            f"{array_a.unit.params['w'] * 1e6:.2f} um strapped on Metal2, each "
+            f"terminal carrying a {array_a.via_rows}-cut via column, "
+            f"totalling {array_a.total_w * 1e6:.1f} um",
             "the nmos PCell provides no finger strapping and caps a single "
             "finger near 10 um, so a wide device must be built as an array",
+            f"rails sized from the technology LEF: {array_a.rail_width_um} um per "
+            f"array at {current_a * 1e3:.2f} mA, {rail_w:.3f} um shared at "
+            f"{2 * current_a * 1e3:.2f} mA",
+        ],
+        em_segments=array_a.em_segments + array_b.em_segments + [
+            em.Segment("vss.shared_rail", "Metal2", width_um=rail_w,
+                       current_a=2 * current_a, note="both tails' source current")
         ],
     )
     # The tails are the reason LU.b appears at device level: a lone NMOS has no
