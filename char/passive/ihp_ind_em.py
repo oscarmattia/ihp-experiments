@@ -30,8 +30,7 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import save_lut  # noqa: E402
-
-CASE_CHOICES = ("l2n0", "turn1", "turn2", "all")
+from char.passive.ind_validate import validate_ind_lut  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -50,6 +49,7 @@ class IndCase:
     synth_d: float | None = None
     synth_w: float | None = None
     synth_s: float | None = None
+    fstop_hz: float = 30e9
 
 
 CASES: dict[str, IndCase] = {
@@ -95,6 +95,56 @@ CASES: dict[str, IndCase] = {
         synth_d=150.0,
         synth_w=3.0,
         synth_s=3.0,
+    ),
+    # Small 1-turn octagons for CTLE shunt-peaking (40–120 pH target band).
+    # Same SUBGND → TopMetal2 port convention as turn1 (known-good de-embedding).
+    "turn1_d40": IndCase(
+        key="turn1_d40",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=40.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d40_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=40.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
+    ),
+    "turn1_d60": IndCase(
+        key="turn1_d60",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=60.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d60_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=60.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
+    ),
+    "turn1_d80": IndCase(
+        key="turn1_d80",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=80.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d80_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=80.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
     ),
 }
 
@@ -168,10 +218,10 @@ def _check_openems() -> tuple[bool, bool, str | None]:
     return py_ok, bin_ok, "; ".join(reasons)
 
 
-def _freq_grid(coarse: bool) -> tuple[float, float, int]:
-    fstart, fstop = 0.0, 30e9
+def _freq_grid(coarse: bool, fstop_hz: float) -> tuple[float, float, int]:
+    fstart = 0.0
     numfreq = 51 if coarse else 401
-    return fstart, fstop, numfreq
+    return fstart, fstop_hz, numfreq
 
 
 def _prepare_workflow_modules(workflow: Path) -> None:
@@ -253,6 +303,7 @@ def _run_openems_case(
     gds_path: Path,
     preview_only: bool,
     coarse: bool,
+    fstop_hz: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
     """Run mesh preview or full FDTD; return FREQ, Ldiff, Qdiff."""
     _prepare_workflow_modules(workflow)
@@ -270,7 +321,7 @@ def _run_openems_case(
 
     unit = 1e-6
     margin = 200.0
-    fstart, fstop, numfreq = _freq_grid(coarse)
+    fstart, fstop, numfreq = _freq_grid(coarse, fstop_hz)
     refined_cellsize = 2.0 if coarse else 1.0
     cells_per_wavelength = 10
     energy_limit = -50.0
@@ -326,6 +377,8 @@ def _run_openems_case(
     run_log: dict[str, Any] = {
         "preview_only": preview_only,
         "coarse": coarse,
+        "fstart_hz": fstart,
+        "fstop_hz": fstop,
         "refined_cellsize_um": refined_cellsize,
         "cells_per_wavelength": cells_per_wavelength,
         "numfreq": numfreq,
@@ -423,6 +476,13 @@ def _write_case_outputs(
     em_ok: bool,
     skip_reason: str | None,
 ) -> Path:
+    em_completed = bool(em_ok)
+    valid, invalid_reason = validate_ind_lut(
+        freq,
+        l_series,
+        q_series,
+        em_completed=em_completed,
+    )
     meta: dict[str, Any] = {
         "format": "ihp-ind-em-lut-v1",
         "device": f"sg13_ind_{case.key}",
@@ -436,12 +496,15 @@ def _write_case_outputs(
         "gds": str(gds_path),
         "from_layer": case.from_layer,
         "to_layer": case.to_layer,
+        "fstop_hz": case.fstop_hz,
         "axes": {
             "FREQ": "frequency (Hz)",
             "L": "differential series inductance Ldiff (H)",
             "Q": "differential Q factor Qdiff",
         },
-        "em_completed": bool(em_ok),
+        "em_completed": em_completed,
+        "valid": valid,
+        "invalid_reason": invalid_reason,
     }
     if skip_reason:
         meta["skip_reason"] = skip_reason
@@ -491,7 +554,7 @@ def run_case(
     subgnd_added = _maybe_add_subgnd(gds_path)
     print(f"== {case.key}: gds={gds_path.name} subgnd_added={subgnd_added}", flush=True)
 
-    fstart, fstop, numfreq = _freq_grid(coarse)
+    fstart, fstop, numfreq = _freq_grid(coarse, case.fstop_hz)
     freq = np.linspace(fstart, fstop, numfreq)
     l_series = np.full(numfreq, np.nan)
     q_series = np.full(numfreq, np.nan)
@@ -510,6 +573,7 @@ def run_case(
                     gds_path=gds_path,
                     preview_only=False,
                     coarse=coarse,
+                    fstop_hz=case.fstop_hz,
                 )
             else:
                 freq, l_series, q_series, run_log = _run_openems_case(
@@ -519,6 +583,7 @@ def run_case(
                     gds_path=gds_path,
                     preview_only=True,
                     coarse=coarse,
+                    fstop_hz=case.fstop_hz,
                 )
                 if not bin_ok and not preview_only:
                     exit_code = 2
@@ -556,9 +621,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--cases",
         nargs="+",
-        choices=list(CASE_CHOICES),
         default=["all"],
-        help="Cases to run (default: all)",
+        help=f"Cases to run (default: all). Known: {', '.join(sorted(CASES))}",
     )
     p.add_argument(
         "--coarse",
@@ -594,9 +658,12 @@ def main() -> int:
 
     selected = args.cases
     if "all" in selected:
-        keys = ["l2n0", "turn1", "turn2"]
+        keys = list(CASES.keys())
     else:
         keys = list(dict.fromkeys(selected))
+        unknown = [k for k in keys if k not in CASES]
+        if unknown:
+            raise SystemExit(f"Unknown case(s): {unknown}. Known: {sorted(CASES)}")
 
     symmetric_octa: Callable[..., None] | None = None
     if any(CASES[k].synthesize for k in keys):

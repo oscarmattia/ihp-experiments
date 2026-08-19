@@ -10,15 +10,21 @@ passive tables load the same way.
 | --- | --- | --- | --- |
 | **Resistors** | `rsil`, `rppd`, `rhigh` | W × L × T (−40 / 27 / 125 °C) | ngspice DC |
 | **Capacitors** | `cap_cmim`, `cap_cmomi`, `sg13_moscap_n`, `sg13_moscap_p` | geometry; MOSCAP also V | ngspice AC @ 100 MHz |
-| **Inductors** | `l2n0`, `turn1`, `turn2` | L(f), Q(f) | openEMS (primary) |
+| **Inductors** | `l2n0`, `turn1`, `turn1_d40` … `turn1_d80`, `turn2` | L(f), Q(f); small cases to 100 GHz | openEMS (primary) |
 
 ### Inductor cases
 
-| Case | Geometry | Status |
-| --- | --- | --- |
-| `l2n0` | Canonical PDK smoke GDS (`L_2n0_twoport.gds`) | **Validated** — L ≈ 2 nH @ 10 GHz |
-| `turn1` | 1-turn synthesized octagon (TopMetal2) | **Experimental** — geometry synthesis |
-| `turn2` | 2-turn synthesized octagon (TopMetal1) | **Experimental** — geometry synthesis |
+| Case | Geometry | f\_stop | Status |
+| --- | --- | --- | --- |
+| `l2n0` | Canonical PDK smoke GDS (`L_2n0_twoport.gds`) | 30 GHz | **Validated** — L ≈ 2 nH @ 10 GHz |
+| `turn1` | 1-turn synthesized octagon, d=120 µm (TopMetal2) | 30 GHz | **Experimental** — plausible |
+| `turn1_d40` | 1-turn octagon, d=40 µm, w=4 µm, s=2.1 µm (TopMetal2) | 100 GHz | Small coil — CTLE shunt peaking |
+| `turn1_d60` | 1-turn octagon, d=60 µm | 100 GHz | Small coil — CTLE shunt peaking |
+| `turn1_d80` | 1-turn octagon, d=80 µm | 100 GHz | Small coil — CTLE shunt peaking |
+| `turn2` | 2-turn synthesized octagon (TopMetal1) | 30 GHz | **Invalid** — negative L, Q=0 |
+
+`ind_summary.csv` includes `valid` and `invalid_reason` so broken EM runs (e.g. `turn2`) are
+not mistaken for usable data. Regenerate with `summarize_ind.py` after any `.npz` change.
 
 Committed artifacts under `char/passive/out/` include `.npz`, `.meta.json`, `*_summary.csv`,
 and PNG plots. Transient openEMS working files live in `out/em_work/` (gitignored).

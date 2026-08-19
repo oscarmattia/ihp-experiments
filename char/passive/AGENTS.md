@@ -22,8 +22,9 @@ committed `l2n0` smoke case).
 | `ihp_cap_sweep.py` | AC C for MIM / MoM / MOSCAP → `sg13_cap_*.npz`, `sg13_moscap_*.npz` |
 | `summarize_cap.py` | `cap_summary.csv` + C(V) / density plots |
 | `run_cap.sh` | Sweep + summarize capacitors |
-| `ihp_ind_em.py` | openEMS L(f), Q(f) for `l2n0`, `turn1`, `turn2` |
-| `summarize_ind.py` | `ind_summary.csv` + L/Q vs frequency plots |
+| `ihp_ind_em.py` | openEMS L(f), Q(f) for inductor cases (see matrix below) |
+| `summarize_ind.py` | `ind_summary.csv` + L/Q vs frequency plots; flags invalid EM |
+| `ind_validate.py` | Shared L/Q sanity checks (`valid`, `invalid_reason`) |
 | `run_ind.sh` | EM sweep + summarize; supports `--skip-em` |
 | `run_all.sh` | Runs `run_res.sh`, `run_cap.sh`, `run_ind.sh`; parses `--skip-em` |
 | `render_layouts.py` | KLayout batch GDS→PNG for MIM/MoM/MOSCAP + inductor cells |
@@ -53,13 +54,23 @@ Shared I/O: `char.common.lut` (`save_lut`, `load_lut`, `parse_wrdata`, `matrange
 
 ### Inductors (`ihp_ind_em.py`)
 
-| Case | Source | Validation |
-| --- | --- | --- |
-| `l2n0` | PDK `L_2n0_twoport.gds` | **Production** — ~2 nH @ 10 GHz |
-| `turn1` | Synthesized 1-turn octagon | **Experimental** |
-| `turn2` | Synthesized 2-turn octagon | **Experimental** |
+| Case | Source | f\_stop | Validation |
+| --- | --- | --- | --- |
+| `l2n0` | PDK `L_2n0_twoport.gds` | 30 GHz | **Production** — ~2 nH @ 10 GHz |
+| `turn1` | Synthesized 1-turn octagon, d=120 µm | 30 GHz | **Experimental**, plausible |
+| `turn1_d40` | Synthesized 1-turn octagon, d=40 µm, w=4 µm, s=2.1 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn1_d60` | Synthesized 1-turn octagon, d=60 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn1_d80` | Synthesized 1-turn octagon, d=80 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn2` | Synthesized 2-turn octagon | 30 GHz | **Invalid** — negative L, Q=0 (bad ports) |
 
-CLI: `--cases l2n0 turn1`, `--preview-only`, `--coarse` / `--no-coarse`.
+All synthesized small cases use **TopMetal2** with the same SUBGND → top-metal via-port
+convention as `turn1`. Per-case `fstop_hz` keeps legacy cases on 0–30 GHz so committed
+`.npz` files do not churn.
+
+`summarize_ind.py` adds `valid` and `invalid_reason` to `ind_summary.csv` (and plots mark
+`[INVALID]`). Criteria: `L` not finite above DC, `L(low‑f) ≤ 0`, or `Q_peak ≤ 0`.
+
+CLI: `--cases l2n0 turn1_d40`, `--preview-only`, `--coarse` / `--no-coarse`.
 
 ## Outputs (`char/passive/out/`)
 
