@@ -1,67 +1,87 @@
-# 56 Gb/s NRZ CML CTLE (ctle56n)
+# 56 Gb/s NRZ RX front end (ctle56n)
 
-HBT CML continuous-time linear equalizer with shunt-peaked loads and emitter degeneration, sized from characterization LUTs for IHP SG13G2.
+An IHP SG13G2 receiver front end sized from characterization LUTs: **50 Ω/ESD termination → HBT CML CTLE
+→ current-steering VGA**, plus a combined chain testbench. The directory keeps its original `ctle56n`
+name; the CTLE is still the centrepiece, and the surrounding stages share its sizing, simulation, and
+measurement code.
+
+## Stages
+
+| Stage | What it is |
+| --- | --- |
+| **Termination** | Bond pad, primary ESD (`diodevdd_2kv` + `diodevss_2kv`) with an `nmoscl_2` rail clamp, 50 Ω per leg to an on-chip ~1.4 V common mode from an `rppd` divider with a `cap_cmim` decap |
+| **CTLE** | HBT differential pair, shunt-peaked loads, `Rs`∥`Cs` emitter degeneration, two per-emitter tail current sources |
+| **VGA** | Fixed signal pair plus a dummy pair sharing the loads, with the tail current steered between them — frequency-flat gain control |
+| **Chain** | All three cascaded, DC-coupled, driven from a 50 Ω per leg source |
 
 ## Targets
 
-- 56 Gb/s NRZ → Nyquist **28 GHz**
-- DC gain **−6 … 0 dB** (aim 0 dB)
-- Peaking **3–10 dB at 28 GHz** (aim ~6 dB)
-- FO1 load: C_L = HBT CIN at max-fT bias
-- CMRR **> 6 dB** (Adm/Acm, input common-mode)
-- PSRR **> 20 dB** (|vdd/vod|, VDD supply noise on the differential output)
-- AC sweeps from 1 MHz to **300 GHz**
-- Transient: 56G NRZ **PRBS9** (`x^9+x^5+1`), **511 UI**, **100 mVpp,diff** stimulus
-- **Single-bit response (SBR):** isolated **1 UI** pulse (32 UI settle + 1 UI high + 24 UI low), 3 pre / 10 post cursors, 2.5% tap truncation, normalized total ISI
-- Bessel shunt-peaking: m = L/(RD² C_L) = 0.32
+- 56 Gb/s NRZ → Nyquist **28 GHz**; AC swept to **300 GHz**
+- CTLE DC gain **−6 … 0 dB**, peaking **3–10 dB at 28 GHz**
+- Bessel shunt peaking **m = L/(RD²·C_L) = 0.32** (accepted 0.30–0.45), from *realized* device values
+- Fan-out: the CTLE sees **FO1** (one VGA input unit); the VGA drives **FO2** (2× its own input)
+- CMRR **> 6 dB**, PSRR **> 20 dB**
+- VGA range **≥ 10 dB measured at 28 GHz**
+- Transient: **PRBS9** (`x^9+x^5+1`), 511 UI, 100 mVpp,diff
+- **SBR**: isolated 1 UI pulse, 3 pre / 10 post cursors, **0.5%** tap truncation, normalized total ISI
 
-## Supply voltage
+## Design points worth knowing
 
-**VDD ≈ 1.58 V** (at scale 1.05 sizing).
-
-At max-fT bias (Nx=1, VBE ≈ 0.95 V, Ic ≈ 2.8 mA), load **RD ≈ 87 Ω** drops ~0.25 V. With **VBASE = 1.23 V** (VBE + tail VDS) and **VCE ≈ 1.0–1.1 V**, **VDD ≈ 1.58 V** keeps the HBT below BVceo (1.6 V).
-
-MOS tail runs at VDS ≈ 0.25–0.3 V (source at 0 V), VGS ≤ 1.2 V.
+- **Load capacitance is budgeted honestly**: the Miller-inclusive input capacitance of the next stage
+  (`CBE + CBC·(1+|Av|)`) plus interconnect at ~0.17 fF/µm. Using the raw LUT `CIN` under-loads the stage and
+  makes it look over-peaked.
+- **The coil's port capacitance is excluded from `C_L`** — it sits on the internal node between `L` and
+  `RD`, where it resonates with the coil instead of loading the output.
+- **`RD` is set by the Bessel condition, not by the gain target.** The smallest buildable coil (PCell
+  `dmin` = 25.35 µm → ~39 pH) puts a floor on it; gain is trimmed with `Rs`.
+- **Gain control is current steering, not variable degeneration.** Varying `Rs` moves DC gain ~10 dB but
+  in-band gain at 28 GHz only ~2 dB, because the emitter capacitance shorts the degeneration out — it is a
+  variable equalizer, not a variable gain stage. VGA range is therefore always quoted at 28 GHz.
+- **Two per-emitter tail sources**, so the degeneration resistor carries no DC and the tail device actually
+  gets the `VDS` the sizing assumes.
 
 ## Run
 
 ```bash
 source ~/.local/share/ihp-eda/env.sh
-./circuits/ctle56n/run.sh
+./circuits/ctle56n/run.sh                 # termination -> CTLE -> VGA -> summary
+./circuits/ctle56n/run.sh --with-chain    # also the combined chain
+./circuits/ctle56n/run.sh --no-tran       # skip PRBS + SBR everywhere
 ```
 
-Requires prior LUT generation (`./char/run_all.sh` or at least MOS + BJT + passive R/C sweeps).
+Requires prior LUT generation (`./char/run_all.sh`, or at least the MOS, BJT, and passive R/C/L sweeps).
 
-Outputs land under `out/`:
+## Outputs
 
-- `summary.csv` — combined DC gain, peaking, G_peak, f_peak, f_{−3dB}, CMRR, PSRR (ideal and PDK)
-- `ctle_report.md` — design narrative + sizing table (auto-generated)
-
-Per-pass directories `out/ideal/` and `out/pdk/` (same file set in each):
+`out/summary.csv` aggregates every pass; `ctle_report.md` is an auto-generated narrative. Per-pass
+directories `out/{term,ideal,pdk,vga_ideal,vga_pdk,chain}/` each contain:
 
 | File | Description |
 | --- | --- |
 | `op.txt` | DC operating point |
-| `metrics.csv` | Per-pass metrics (+ SBR when run) |
-| `ac_diff.png`, `ac_diff.csv` | Bode + group delay (28 GHz, f_peak, f_{−3dB}) |
+| `metrics.csv` | Per-pass metrics, including realized `RD` and `m`, eye metrics, and SBR |
+| `ac_diff.png`, `ac_diff.csv` | Bode + group delay with 28 GHz, `f_peak`, `f_-3dB` markers |
 | `cmrr.png`, `psrr.png` | CMRR / PSRR vs frequency |
-| `tran_se.png`, `tran_diff.png` | PRBS transient (full 511 UI + 40-UI zoom) |
-| `tran.csv` | Full transient waveform |
-| `eye_se.png`, `eye_diff.png` | 2-UI eye diagrams |
-| `eye_se.csv`, `eye_diff.csv` | Folded post-settle eye samples (t_ui 0–2) |
-| `sbr.png`, `sbr.csv`, `sbr_taps.csv` | Single-bit pulse response |
+| `zin.png`, `zin.csv` | Input impedance and return loss (termination and chain), 100 Ω differential reference |
+| `tran_se.png`, `tran_diff.png`, `tran.csv` | PRBS transient |
+| `eye_se.png`, `eye_diff.png` + CSVs | Eye diagrams (CSVs are 2-UI folded samples) |
+| `sbr.png`, `sbr.csv`, `sbr_taps.csv` | Single-bit response and taps |
 | `work/` | ngspice scratch (gitignored) |
 
-Both **ideal** and **PDK** passes run PRBS transient, SBR, and AC plots. Use `--no-tran` to skip PRBS and SBR for both passes.
-
-Device currents in DC OP require explicit `save` lines in the testbench (see AGENTS.md).
+Eye height is the vertical opening at the optimal sampling phase and eye width the threshold crossings
+around it — both measured on a phase-centred fold, and peak-to-peak swing is reported separately. Device
+currents in the DC operating point require explicit `save` lines; see [AGENTS.md](AGENTS.md).
 
 ## PDK passives
 
-Second pass replaces ideal RD and Cs (when practical) with `rppd` and `cap_cmim`. Inductors remain **ideal** — no compact spiral model in ngspice; minimum EM cell `l2n0` (~2 nH) is too large for this shunt-peaking network.
+The PDK pass is fully real: `rppd` loads, `rsil` degeneration and 50 Ω termination, a `cap_cmomi`
+metal-only finger cap for degeneration (`feed=same` to avoid its in-band self-resonance, `mmin=2` to keep
+M1 off the substrate), `cap_cmim` decoupling, and an EM-extracted lumped inductor.
 
-RPPD sizing picks the LUT entry closest to **rd/0.88** to offset contact resistance and keep PDK DC gain within −6…0 dB.
+SG13G2 has **no ngspice inductor model at all**, so shunt-peaking coils are openEMS-extracted as small
+1-turn TopMetal2 octagons, fitted to a lumped model by `python/size_ind.py`, and verified against the EM
+S-parameters with ngspice `sp` analysis. Resistors are sized by `op` measurement rather than sheet
+resistance, since head and contact resistance dominate and do not scale with `L/W`.
 
-If Cs < ~73 fF (7×7 µm MIM), the README notes ideal Cs is kept in the PDK netlist.
-
-See [AGENTS.md](AGENTS.md) for topology and agent contracts.
+See [AGENTS.md](AGENTS.md) for topology details and agent contracts, and
+[`../../MEMORY.md`](../../MEMORY.md) for the accumulated pitfalls.

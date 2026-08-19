@@ -23,6 +23,14 @@ passive tables load the same way.
 | `turn1_d80` | 1-turn octagon, d=80 µm | 100 GHz | Small coil — CTLE shunt peaking |
 | `turn2` | 2-turn synthesized octagon (TopMetal1) | 30 GHz | **Invalid** — negative L, Q=0 |
 
+Beyond `L(f)`/`Q(f)`, the inductor flow extracts a full 2-port pi-model from the EM Touchstone
+(series impedance, per-port capacitance and conductance) and persists it — along with a downsampled
+S-matrix — into the committed `.npz`, since `out/em_work/` is gitignored. The lumped SPICE model built
+from it is then verified against the EM data in S-parameter space using ngspice `sp` analysis; see
+`ind_sp_validate_summary.csv` and the per-case `ind_sp_validate_*.png` overlays. `Q(f)` is not usable
+for these small coils on its own (65 pH at 10 GHz is only ~4 Ω of reactance, so the extracted `Q` swings
+wildly), which is why the pi-model route exists.
+
 `ind_summary.csv` includes `valid` and `invalid_reason` so broken EM runs (e.g. `turn2`) are
 not mistaken for usable data. Regenerate with `summarize_ind.py` after any `.npz` change.
 
