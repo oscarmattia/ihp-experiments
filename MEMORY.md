@@ -85,6 +85,11 @@ from a PDK model file, `[est]` when still unverified.
 - **Budget `C_L` honestly.** Raw LUT `CIN` of the next stage is not the load: add the Miller term
   `CBC*(1+|Av|)` and an interconnect estimate. Under-budgeting `C_L` yields an implausible `f_-3dB` and
   a design that looks over-peaked.
+- **The Magic `defaultareacap` values are aF/µm², not fF/µm².** Misreading them is a 1000x capacitance
+  error; it has happened here. Cross-check against the MIM row (`1500` aF/µm² = the independently known
+  1.5 fF/µm²). Also: stacked plates shield each other, so use the bottom plate only, and area
+  capacitance alone badly underestimates a narrow signal route (use ~0.15-0.2 fF/µm for wires). See
+  [docs/PDK.md](docs/PDK.md).
 - MOS tail devices at high `VGS` can slip into triode if `VDS < Vov`; size for `VGS` 0.55–0.70 V.
 - One 2 kV ESD diode pair (`diodevdd_2kv` + `diodevss_2kv`) loads a pad with **50.9 fF** at 1.4 V
   `[sim]`. That dominates a 28 GHz input and is why the 50 Ω shunt termination matters.

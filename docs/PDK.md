@@ -115,7 +115,7 @@ Use `char/passive/out/sg13_{rsil,rppd,rhigh}.npz` or a quick `op` sim instead.
 | `cap_rfcmim` | `capacitors_mod.lib` | `PLUS MINUS bn` | polynomial fit | `w`,`l` 7–75u, `wfeed` 1–30u |
 | **`cap_cmomi`** | `cap_cmomi.lib` + OSDI | `PLUS MINUS` | 0.82 / 1.09 / **1.36** fF/µm² for N=3/4/5 metal layers `[model]` | **the metal-only interdigitated finger cap** |
 | `cap_cmomf` | `cap_cmomf.lib` + OSDI | `PLUS MINUS` | `(mmin==1 ? 0.372 : 0.305) + (N-1)*0.305` fF/µm² `[model]` | fringe MoM, **low-frequency only**, not silicon-validated |
-| `sg13_moscap_n/p` | `sg13g2_moscap_mod.lib` | `G SUB` / `G NW` | ~2.7 fF/µm² at 0 V `[EM/sim]` | PSP103 MOSCAP |
+| `sg13_moscap_n/p` | `sg13g2_moscap_mod.lib` | `G SUB` / `G NW` | ~2.7 fF/µm² at 0 V `[sim]` | PSP103 MOSCAP |
 | `cparasitic` | `capacitors_mod.lib` | — | scaled by `cap_cpara` | extraction wrapper, not a drawn device |
 
 `cap_cmomi` details that matter:
@@ -186,9 +186,38 @@ high-speed input, and it is the reason a 50 Ω shunt termination is what makes s
 ### Bond pad — placeholder only
 
 `sg13g2_bondpad.lib` is an **empty** `.subckt bondpad PAD` with `size=80u shape=0 padtype=0` and no
-electrical content `[model]`. Pad capacitance must be hand-modelled; the Magic extract deck
-(`magic/ihp-sg13g2-extract.tech`) has the layer-to-substrate `defaultareacap` values to build an
-estimate `[est]`.
+electrical content `[model]`. Pad capacitance must be hand-modelled from the layer-to-substrate
+`defaultareacap` values below.
+
+### Layer-to-substrate area capacitance (Magic extract deck)
+
+From `magic/ihp-sg13g2-extract.tech`, typ variant `[model]`.
+
+> **UNITS ARE aF/µm², NOT fF/µm².** The deck says so explicitly: *"Units are aF/um^2 for area caps
+> and aF/um for perimeter and sidewall caps."* Getting this wrong is a **1000x** error in a load or
+> pad capacitance budget, and it has already happened once in this repo.
+>
+> Built-in cross-check: the MIM row reads `1500`, and the MIM density is independently
+> `cap_carea = 1.5e-15` F/µm² = 1.5 fF/µm² = **1500 aF/µm²**. If your reading of the table does not
+> reproduce that, your units are off.
+
+| Layer | To substrate | | Layer | To substrate |
+| --- | --- | --- | --- | --- |
+| `metal1` | 35.015 aF/µm² | | `metal5` | 7.136 aF/µm² |
+| `metal2` | 18.180 aF/µm² | | `metal6` (TopMetal1) | 5.649 aF/µm² |
+| `metal3` | 11.994 aF/µm² | | `metal7` (TopMetal2) | 3.233 aF/µm² |
+| `metal4` | 8.948 aF/µm² | | MIM (on `metal5`) | 1500 aF/µm² |
+
+Two further traps when budgeting with these:
+
+- **Stacked plates shield each other.** For a pad or strap drawn on TopMetal1 + TopMetal2, the
+  capacitance to substrate is set by the **bottom** plate (TM1, 5.649 aF/µm²); TM2 sees TM1, not the
+  substrate. Summing both rows double counts.
+- **Area capacitance alone badly underestimates a narrow signal wire.** A 0.14 µm-wide route is
+  fringe- and coupling-dominated, not plate-dominated: plate area gives well under 0.1 fF for a 40 µm
+  run, whereas a realistic on-chip wire is order 0.15-0.2 fF/µm. Use a per-length figure for routing
+  estimates and reserve these area values for genuinely plate-like structures (pads, wide straps,
+  coil metal over substrate).
 
 ### Metal resistors
 
