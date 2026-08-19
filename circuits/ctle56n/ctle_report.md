@@ -72,21 +72,21 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_{-3} pre | -3 | 0.000 | -0.0000 | no |
 | h_{-2} pre | -2 | 0.000 | -0.0000 | no |
 | h_{-1} pre | -1 | 0.000 | -0.0000 | no |
-| **h_0 cursor** | 0 | -167.174 | 1.000 | yes |
-| h_1 post | 1 | 46.571 | -0.2786 | yes |
-| h_2 post | 2 | 13.980 | -0.0836 | yes |
-| h_3 post | 3 | 3.353 | -0.0201 | yes |
-| h_4 post | 4 | 0.799 | -0.0048 | no |
-| h_5 post | 5 | 0.185 | -0.0011 | no |
-| h_6 post | 6 | 0.038 | -0.0002 | no |
+| **h_0 cursor** | 0 | -163.635 | 1.000 | yes |
+| h_1 post | 1 | 43.662 | -0.2668 | yes |
+| h_2 post | 2 | 13.504 | -0.0825 | yes |
+| h_3 post | 3 | 3.238 | -0.0198 | yes |
+| h_4 post | 4 | 0.771 | -0.0047 | no |
+| h_5 post | 5 | 0.179 | -0.0011 | no |
+| h_6 post | 6 | 0.037 | -0.0002 | no |
 | h_7 post | 7 | 0.003 | -0.0000 | no |
 | h_8 post | 8 | -0.006 | 0.0000 | no |
 | h_9 post | 9 | -0.008 | 0.0000 | no |
 | h_10 post | 10 | -0.008 | 0.0000 | no |
 
-- Main cursor h_0 = **-167.17 mV** at t = **0.504 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3823** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3823** (same taps)
+- Main cursor h_0 = **-163.64 mV** at t = **0.504 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.3691** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.3691** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
 
 ### PDK
@@ -99,14 +99,14 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 
 | Tap | k | h (mV) | h / h_0 | Kept |
 | --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
-| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
-| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
-| **h_0 cursor** | 0 | -166.900 | 1.000 | yes |
-| h_1 post | 1 | 49.426 | -0.2961 | yes |
-| h_2 post | 2 | 12.059 | -0.0723 | yes |
-| h_3 post | 3 | 2.449 | -0.0147 | yes |
-| h_4 post | 4 | 0.496 | -0.0030 | no |
+| h_{-3} pre | -3 | 0.000 | -0.0000 | no |
+| h_{-2} pre | -2 | 0.000 | -0.0000 | no |
+| h_{-1} pre | -1 | 0.000 | -0.0000 | no |
+| **h_0 cursor** | 0 | -157.975 | 1.000 | yes |
+| h_1 post | 1 | 40.611 | -0.2571 | yes |
+| h_2 post | 2 | 11.976 | -0.0758 | yes |
+| h_3 post | 3 | 2.431 | -0.0154 | yes |
+| h_4 post | 4 | 0.492 | -0.0031 | no |
 | h_5 post | 5 | 0.097 | -0.0006 | no |
 | h_6 post | 6 | 0.015 | -0.0001 | no |
 | h_7 post | 7 | -0.002 | 0.0000 | no |
@@ -114,7 +114,7 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_9 post | 9 | -0.007 | 0.0000 | no |
 | h_10 post | 10 | -0.007 | 0.0000 | no |
 
-- Main cursor h_0 = **-166.90 mV** at t = **0.504 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3831** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3831** (same taps)
+- Main cursor h_0 = **-157.98 mV** at t = **0.504 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.3483** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.3483** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.

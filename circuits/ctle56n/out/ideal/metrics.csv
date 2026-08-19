@@ -13,3 +13,11 @@ ideal_Ic_A,0.0028884
 ideal_Id_tail_A,0.00289598
 ideal_RD_realized_ohm,86.9999
 ideal_m,0.3200
+ideal_sbr_cursor_mV,-163.6354
+ideal_sbr_isi_norm,-0.369131
+ideal_sbr_isi_abs,0.369131
+ideal_eye_height_mV,101.93
+ideal_eye_width_UI,0.5900
+ideal_eye_width_ps,10.536
+ideal_eye_pp_swing_mV,226.09
+ideal_eye_sample_phase_UI,0.4040
