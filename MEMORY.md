@@ -84,6 +84,15 @@ from a PDK model file, `[est]` when still unverified.
 - Bessel maximally-flat-delay shunt peaking: `m = L/(RD^2*C_L) = 0.32`. Reference points: MFD 0.32,
   maximally-flat magnitude ~0.41, and beyond ~0.5 the step response overshoots and rings — which lands in
   the SBR post-cursors, so `m` is not a cosmetic target.
+- **Verify a metric against the netlist under test, not against design intent.** A PDK pass reported
+  `m = 0.349` computed from the *ideal* netlist's `RD = 87 Ohm` while its own `rppd w=5u l=1.0u` realized
+  only **65.94 Ohm** (confirmed from the operating point and by a standalone sweep), so the shipped netlist
+  was actually at `m = 0.607`. Emit realized device values into the metrics output, and derive reported
+  figures from them. The tell was that the PDK metrics barely moved while the ideal pass changed a lot.
+- **`RD` is not the gain knob.** It is pinned by the Bessel condition and the buildable-coil floor. Trim gain
+  with the degeneration `Rs`, which is what sets gain and peaking. Two separate agents reached for `RD`
+  (once directly, once via a resistor-LUT scale factor) to pull DC gain under its ceiling, and both broke
+  `m` doing it.
 - **The smallest realizable coil puts a floor on `RD`.** The `inductor` PCell has `dmin = 25.35 um`, and our
   EM fit is `L(28 GHz) = 1.774*D - 5.55` pH, so nothing below about **39 pH** can be built. Through the
   Bessel condition that becomes `RD_min = sqrt(L_min/(m*C_L))` — about **70 Ohm** at `C_L = 25 fF`. Since
