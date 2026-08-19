@@ -30,4 +30,15 @@ source ~/.local/share/ihp-eda/env.sh
 
 See [char/README.md](char/README.md).
 
+## Circuit experiments
+
+SPICE experiments sized from LUTs (e.g. 56 Gb/s CML CTLE):
+
+```bash
+source ~/.local/share/ihp-eda/env.sh
+./circuits/ctle56n/run.sh
+```
+
+See [circuits/AGENTS.md](circuits/AGENTS.md).
+
 Upstream PDK docs: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/installation.html
