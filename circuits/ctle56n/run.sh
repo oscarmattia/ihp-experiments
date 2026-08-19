@@ -10,6 +10,7 @@ RUN_TERM=1
 RUN_CTLE=1
 RUN_VGA=1
 RUN_CHAIN=0
+POSTLAYOUT_DUT=""
 NO_TRAN=""
 NO_PDK=""
 
@@ -27,6 +28,8 @@ Options:
   --no-ctle       Skip CTLE size + run_sims.py
   --no-vga        Skip VGA stage
   --with-chain    Run chain stage (term → CTLE → VGA cascade)
+  --with-postlayout PATH
+                  Run post-layout CTLE pass (stage_postlayout.py) on PATH
   -h, --help      Show this help
 EOF
 }
@@ -39,6 +42,15 @@ while [[ $# -gt 0 ]]; do
     --no-ctle) RUN_CTLE=0; shift ;;
     --no-vga) RUN_VGA=0; shift ;;
     --with-chain) RUN_CHAIN=1; shift ;;
+    --with-postlayout)
+      if [[ $# -lt 2 ]]; then
+        echo "error: --with-postlayout requires a DUT netlist path" >&2
+        usage
+        exit 1
+      fi
+      POSTLAYOUT_DUT="$2"
+      shift 2
+      ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
   esac
@@ -68,6 +80,13 @@ if [[ "$RUN_VGA" -eq 1 ]]; then
       "$PY" "$CTLE/python/vga_analysis.py" --pass-name vga_pdk --dut vga_pdk.cir
     fi
   fi
+fi
+
+if [[ -n "$POSTLAYOUT_DUT" ]]; then
+  echo "=== Post-layout CTLE pass ==="
+  POST_ARGS=(--dut "$POSTLAYOUT_DUT" --pass-name postlayout)
+  [[ -n "$NO_TRAN" ]] && POST_ARGS+=(--no-tran)
+  "$PY" "$CTLE/python/stage_postlayout.py" "${POST_ARGS[@]}"
 fi
 
 if [[ "$RUN_CHAIN" -eq 1 ]]; then

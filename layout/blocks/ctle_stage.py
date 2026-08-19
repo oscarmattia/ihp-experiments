@@ -161,24 +161,42 @@ def _snap(value: float) -> float:
     return round(round(value / g) * g, 6)
 
 
-def _place(layout, cell, spec: DeviceSpec, dx: float, dy: float, orientation: str = "R0"):
-    """Place a device and return its terminals in stage coordinates."""
+def _orient_trans(orientation: str):
     pya = pya_module()
-    device_layout, device_cell = build(spec)
-    terminals = derive_terminals(spec, device_layout, device_cell)
-
-    rot = {
+    return {
         "R0": pya.DTrans.R0, "R90": pya.DTrans.R90, "R180": pya.DTrans.R180,
         "R270": pya.DTrans.R270, "M0": pya.DTrans.M0, "M45": pya.DTrans.M45,
         "M90": pya.DTrans.M90, "M135": pya.DTrans.M135,
     }[orientation]
 
-    index = layout.add_cell(f"{spec.name}_{orientation}")
-    layout.cell(index).copy_tree(device_cell)
-    trans = pya.DTrans(rot, pya.DVector(_snap(dx), _snap(dy)))
-    cell.insert(pya.DCellInstArray(index, trans))
+
+def _device_bbox_at(spec: DeviceSpec, dx: float, dy: float, orientation: str = "R0"):
+    """BBox a fully placed device would occupy, without drawing anything."""
+    pya = pya_module()
+    _, device_cell = build(spec)
+    trans = pya.DTrans(_orient_trans(orientation), pya.DVector(_snap(dx), _snap(dy)))
+    return trans * device_cell.dbbox()
+
+
+def _place(layout, cell, spec: DeviceSpec, dx: float, dy: float, orientation: str = "R0",
+           black_box: bool = False):
+    """Place a device and return its terminals in stage coordinates."""
+    from layout.common.route import metal_of
+
+    pya = pya_module()
+    device_layout, device_cell = build(spec)
+    terminals = derive_terminals(spec, device_layout, device_cell)
+
+    trans = pya.DTrans(_orient_trans(orientation), pya.DVector(_snap(dx), _snap(dy)))
+
+    if not black_box:
+        index = layout.add_cell(f"{spec.name}_{orientation}")
+        layout.cell(index).copy_tree(device_cell)
+        cell.insert(pya.DCellInstArray(index, trans))
+        device_bbox = trans * layout.cell(index).dbbox()
 
     placed = {}
+    pad_boxes: list = []
     for terminal in terminals:
         point = trans * pya.DPoint(*terminal.center)
         placed[terminal.name] = Terminal(
@@ -188,7 +206,28 @@ def _place(layout, cell, spec: DeviceSpec, dx: float, dy: float, orientation: st
             width=terminal.width,
             orientation=terminal.orientation,
         )
-    return placed, (trans * layout.cell(index).dbbox())
+        if black_box:
+            metal = metal_of(terminal.layer)
+            if metal is None:
+                continue
+            pad_w = _snap(terminal.width if terminal.width > 0 else route_width(metal))
+            half = pad_w / 2
+            cx, cy = placed[terminal.name].center
+            _rect(layout, cell, metal, cx - half, cy - half, cx + half, cy + half)
+            pad_boxes.append(pya.DBox(cx - half, cy - half, cx + half, cy + half))
+
+    if black_box:
+        # feed=same puts PLUS and MINUS at one x,y on Metal4 and Metal5; two pads
+        # stacked there are correct and are not a short.
+        if pad_boxes:
+            bbox = pad_boxes[0]
+            for box in pad_boxes[1:]:
+                bbox += box
+        else:
+            bbox = pya.DBox(0, 0, 0, 0)
+    else:
+        bbox = device_bbox
+    return placed, bbox
 
 
 def _mirrored_pair_x(spec: DeviceSpec, axis: float, gap: float) -> tuple[float, float]:
@@ -318,12 +357,14 @@ def _vertical_net(layout, cell, terminals: list[Terminal], metal: str,
     _rect(layout, cell, metal, x - w / 2, min(ys), x + w / 2, max(ys))
 
 
-def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
+def build_ctle_stage(params: dict[str, float] | None = None,
+                     black_box: tuple[str, ...] = ()) -> Block:
     """Place and wire one CTLE stage."""
     from layout.devices.catalog import ctle_devices
 
     p = params or read_params()
     devices = {spec.name: spec for spec in ctle_devices(p)}
+    bb_kinds = set(black_box)
     pya = pya_module()
     lm = layer_map()
 
@@ -484,9 +525,14 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
 
     _, cdeg_probe = build(cdeg_i)
     cdeg_w = cdeg_probe.dbbox().height()  # R90 swaps the cell's extents
-    cdeg_t, cdeg_box = _place(
-        layout, cell, cdeg_i,
-        _snap(axis + cdeg_w / 2.0), _snap(rdeg_box.top + ROW_GAP), "R90",
+    cdeg_dx = _snap(axis + cdeg_w / 2.0)
+    cdeg_dy = _snap(rdeg_box.top + ROW_GAP)
+    cdeg_bb = cdeg_i.kind in bb_kinds
+    cdeg_t, cdeg_place_box = _place(
+        layout, cell, cdeg_i, cdeg_dx, cdeg_dy, "R90", black_box=cdeg_bb,
+    )
+    cdeg_box = (
+        _device_bbox_at(cdeg_i, cdeg_dx, cdeg_dy, "R90") if cdeg_bb else cdeg_place_box
     )
 
     # Legs run out of the cap's bottom edge, down into the clear band above the
@@ -557,8 +603,20 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     row_y = _snap(max(load_top + ROW_GAP, hbt_top + coil_half_h + PWB_TAP_CLEARANCE))
     l1 = coil.with_name("l1")
     l2 = coil.with_name("l2")
-    l1_t, l1_box = _place(layout, cell, l1, _snap(axis - COIL_PIN_GAP / 2), row_y, "M135")
-    l2_t, l2_box = _place(layout, cell, l2, _snap(axis + COIL_PIN_GAP / 2), row_y, "R270")
+    l1_dx = _snap(axis - COIL_PIN_GAP / 2)
+    l2_dx = _snap(axis + COIL_PIN_GAP / 2)
+    coil_bb = l1.kind in bb_kinds
+    l1_t, l1_place_box = _place(
+        layout, cell, l1, l1_dx, row_y, "M135", black_box=coil_bb,
+    )
+    l2_t, l2_place_box = _place(
+        layout, cell, l2, l2_dx, row_y, "R270", black_box=coil_bb,
+    )
+    if coil_bb:
+        l1_box = _device_bbox_at(l1, l1_dx, row_y, "M135")
+        l2_box = _device_bbox_at(l2, l2_dx, row_y, "R270")
+    else:
+        l1_box, l2_box = l1_place_box, l2_place_box
     instances += [
         (l1, {"PLUS": "vdd", "MINUS": "nlp1", "sub": "vss"}),
         (l2, {"PLUS": "vdd", "MINUS": "nlp2", "sub": "vss"}),
@@ -654,6 +712,12 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     # bias diode hangs off the left of the NMOS row, so it is the left side that
     # sets the half-width and the right side that widens to match.
     devices_box = cell.dbbox()
+    if coil_bb:
+        # Ring clearance is measured from the coils too; black-boxing omits their
+        # drawn geometry but the floorplan footprint must stay put.
+        devices_box = devices_box + l1_box + l2_box
+    if cdeg_bb:
+        devices_box = devices_box + cdeg_box
     ring_half = _snap(max(axis - devices_box.left, devices_box.right - axis))
     ring = add_power_ring(
         layout, cell,
@@ -787,7 +851,15 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
             "coils; the bias diode sets the left side and the right widens to match",
             f"drawn nlp interconnect {interconnect_um:.1f} um per side against the "
             f"{float(p.get('CL_INTERCONNECT', 0.0)) * 1e15:.2f} fF budget in params.inc",
-        ],
+        ]
+        + (
+            [
+                "black-boxed kinds (geometry omitted, terminal landing pads only): "
+                + ", ".join(black_box),
+            ]
+            if black_box
+            else []
+        ),
     )
     block.em_segments = em_segments
     block.ring = ring
@@ -799,10 +871,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, default=OUT_DIR)
     parser.add_argument("--no-render", action="store_true")
     parser.add_argument("--no-pex", action="store_true")
+    parser.add_argument(
+        "--black-box",
+        action="append",
+        default=[],
+        metavar="KIND",
+        help="device kind to omit as geometry (repeatable or comma-separated)",
+    )
     args = parser.parse_args(argv)
 
+    bb_kinds: list[str] = []
+    for item in args.black_box:
+        bb_kinds.extend(part.strip() for part in item.split(",") if part.strip())
+
     args.out.mkdir(parents=True, exist_ok=True)
-    block = build_ctle_stage()
+    block = build_ctle_stage(black_box=tuple(bb_kinds))
     entry = block.summary()
 
     gds = block.write(args.out)

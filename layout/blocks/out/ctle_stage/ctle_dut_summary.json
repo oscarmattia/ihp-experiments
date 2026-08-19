@@ -2297,7 +2297,6 @@
     "unchecked_layers": [],
     "uncheckable_reasons": {}
   },
-  "png": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.png",
   "drc": {
     "cell": "ctle_dut",
     "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
@@ -2361,43 +2360,5 @@
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
     "error": ""
-  },
-  "pex": {
-    "cell": "ctle_dut",
-    "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
-    "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_dut_pex.spice",
-    "ok": true,
-    "resistors": 0,
-    "capacitors": 100,
-    "total_resistance_ohm": 0.0,
-    "resistor_elements": [],
-    "resistance_extracted": true,
-    "note": "",
-    "total_capacitance_f": 1.89156e-13,
-    "per_net_capacitance_f": {
-      "e2": 1.41326e-13,
-      "e1": 1.40947e-13,
-      "vdd": 1.4079e-13,
-      "vss": 4.92243e-14,
-      "a_n576_1960#": 4.29258e-14,
-      "m2_n576_2380#": 1.27667e-14,
-      "inn": 1.24323e-14,
-      "m2_n576_n1012#": 1.16564e-14,
-      "inp": 1.1511e-14,
-      "outp": 1.0478e-14,
-      "outn": 1.04519e-14,
-      "w_n26_n36#": 5.83209e-15,
-      "a_0_0#": 5.7938e-15,
-      "a_68_n36#": 4.61943e-15,
-      "w_0_n86#": 4.14886e-15,
-      "a_268_0#": 3.00951e-15,
-      "a_0_280#": 1.83638e-15,
-      "a_0_n86#": 1.83638e-15,
-      "m1_n70_n157#": 1.27668e-15,
-      "w_n656_n652#": 1.19398e-15
-    },
-    "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",
-    "error": "",
-    "signal_resistance_ohm": 0
   }
 }
