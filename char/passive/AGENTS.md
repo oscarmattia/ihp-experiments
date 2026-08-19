@@ -26,6 +26,8 @@ committed `l2n0` smoke case).
 | `summarize_ind.py` | `ind_summary.csv` + L/Q vs frequency plots |
 | `run_ind.sh` | EM sweep + summarize; supports `--skip-em` |
 | `run_all.sh` | Runs `run_res.sh`, `run_cap.sh`, `run_ind.sh`; parses `--skip-em` |
+| `render_layouts.py` | KLayout batch GDS→PNG for MIM/MoM/MOSCAP + inductor cells |
+| `run_render_layouts.sh` | Driver for layout screenshots → `out/layouts/` |
 
 Shared I/O: `char.common.lut` (`save_lut`, `load_lut`, `parse_wrdata`, `matrange`).
 
@@ -61,10 +63,20 @@ CLI: `--cases l2n0 turn1`, `--preview-only`, `--coarse` / `--no-coarse`.
 
 ## Outputs (`char/passive/out/`)
 
-**Commit:** `.npz`, `.meta.json`, `*_summary.csv`, PNG plots.
+**Commit:** `.npz`, `.meta.json`, `*_summary.csv`, PNG plots, `layouts/*.png` (+ `layouts/gds/`).
 
 **Do not commit:** `out/em_work/` (openEMS mesh / S-parameter scratch; listed in root
 `.gitignore`).
+
+## Layout screenshots
+
+```bash
+source ~/.local/share/ihp-eda/env.sh
+./char/passive/run_render_layouts.sh
+```
+
+Captures PDK GDS cells (MIM, RFMOM, MOSCAP, `L_2n0`, 1-/2-turn) and EM-synthesized
+`turn1` / `turn2` spirals. See README **Layouts** section for the image gallery.
 
 ## EM notes
 
