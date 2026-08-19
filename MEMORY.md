@@ -135,6 +135,22 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
   capacitance alone badly underestimates a narrow signal route (use ~0.15-0.2 fF/µm for wires). See
   [docs/PDK.md](docs/PDK.md).
 - MOS tail devices at high `VGS` can slip into triode if `VDS < Vov`; size for `VGS` 0.55–0.70 V.
+- **Variable emitter degeneration is not a gain control at 28 GHz.** Sweeping `Rs` on a CML pair (control
+  device removed, so this is intrinsic) moves DC gain 10 dB but gain at 28 GHz only 2 dB, because the
+  emitter capacitance shorts the degeneration out well below Nyquist `[sim]`:
+  `Rs = 0.01 / 42 / 100 / 209 Ohm` gives DC `+3.88 / +0.51 / -2.56 / -6.20 dB` against 28 GHz
+  `+3.86 / +1.82 / +1.92 / +2.32 dB`. So variable `Rs` is a variable *equalizer*, not a variable *gain*
+  stage. **Always quote VGA gain range at the signal frequency, never at DC.** For real gain control use
+  current steering (scale `gm`), which keeps the response shape fixed.
+- **The LUT `gm` for these HBTs is already `re`-degenerated.** `gm/Ic = 9.90 1/V` against the intrinsic
+  `1/VT = 38.7 1/V` is the tell. Applying `gm/(1 + gm*re)` on top double-counts `re` — it cost one agent a
+  3.3 dB error in a gain ceiling and nearly a wrong architecture decision. Stage gain from the LUT `gm` is
+  `gm*RD/(1 + gm*Rs_external)`; simulation puts the `Rs -> 0` ceiling at `Nx=1`, `RD=68 Ohm` at +3.88 dB.
+- **A coil's port capacitance does not load the output in a shunt-peaked stage.** With
+  `L: vdd -> nlp1` and `RD: nlp1 -> out`, the port capacitance sits on `nlp1` and resonates with `L`
+  (effective inductance `L/(1 - w^2*L*C)`, about +9% at 74 GHz for the 66 pH coil, self-resonance ~256 GHz).
+  Keep it out of `C_L`. And remember `C_L` is a **per-side** quantity, so it takes one interconnect route,
+  not two.
 - One 2 kV ESD diode pair (`diodevdd_2kv` + `diodevss_2kv`) loads a pad with **50.9 fF** at 1.4 V
   `[sim]`. That dominates a 28 GHz input and is why the 50 Ω shunt termination matters.
 - SBR: cursor = max `|vod_ac|` in the first 3 UI after an isolated 1-bit pulse; sample taps every UI.
