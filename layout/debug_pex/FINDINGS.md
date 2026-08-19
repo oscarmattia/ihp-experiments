@@ -58,9 +58,8 @@ and 1.
 
 ## It is the hierarchy
 
-Flat extraction has zero negative terms, and five times the total capacitance, so
-hierarchical extraction was not merely mislabelling capacitance -- it was losing
-most of it. The substrate terms flip to plausible positives:
+Flat extraction has zero negative terms. The substrate terms flip to plausible
+positives:
 
 | net | hierarchical | flat |
 | --- | --- | --- |
@@ -83,6 +82,51 @@ top-level nets inherit it.
 Only the stage was ever affected. [../devices/run_pex.py](../devices/run_pex.py)
 flattens its GDS through `write_for_magic` first, so Magic never saw a hierarchy
 there; the stage passed its own hierarchical GDS straight to `run_magic_pex`.
+
+### Do not quote a ratio between the two totals
+
+The flat total is about five times the hierarchical one on the stage, which is easy
+to report as "hierarchy lost 80% of the capacitance". That is not a meaningful
+statement: the hierarchical total has negative terms inside it, so the ratio
+measures how negative those were rather than how much capacitance went missing. On
+the minimal case below the hierarchical total is negative outright, and a ratio to a
+negative number means nothing at all.
+
+Two separate things also have to be kept apart. A hierarchical netlist states a
+subcell's parasitics **once** in its `.subckt` and then instantiates it N times, so
+a textual sum over capacitor lines under-reports by roughly the instance count even
+when the extraction is perfect. `probe_hierarchy_total.py` reports both a textual
+sum and one expanded by instance count, so that effect cannot be mistaken for the
+real one.
+
+## The minimal case: one NMOS, N instances
+
+`probe_hierarchy_total.py` puts a single labelled NMOS in a subcell, instantiates it
+N times in a top cell, and extracts three ways: the subcell alone, the top cell
+hierarchically, and the top cell flat.
+
+| N | sub alone | N x sub | top flat | top hier (expanded) | hier negative terms |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 2.607 fF | 2.607 fF | **2.607 fF** | 1.352 fF | 2 |
+| 2 | 2.607 fF | 5.215 fF | **5.657 fF** | -2.068 fF | 4 |
+| 4 | 2.607 fF | 10.430 fF | **11.757 fF** | -3.694 fF | 8 |
+| 8 | 2.607 fF | 20.859 fF | **23.957 fF** | -6.945 fF | 16 |
+
+Flat extraction is verifiably right:
+
+- At N=1 it equals the subcell extracted on its own, to the last digit.
+- Above that it is `N x sub + (N-1) x 0.442 fF`. The residual per adjacent pair is
+  0.442, 0.4423 and 0.4426 fF at N=2, 4 and 8 — a constant neighbour coupling, which
+  is what a row of identical cells at a fixed pitch should produce.
+
+Hierarchical extraction is wrong at **every** N, including N=1, where it reports
+1.352 fF against the correct 2.607 fF and already emits two negative terms. The
+negative count scales as 2N.
+
+So the conclusion is not "hierarchy loses capacitance in proportion". It is that
+hierarchical extraction with this PDK's extract deck does not produce a capacitance
+at all once a cell has subcells, and flat extraction agrees with the sum of the
+parts plus a physically sensible coupling term.
 
 ## Consequences, all now in the code
 

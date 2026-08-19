@@ -336,12 +336,22 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   decides the power ring's width.
 - **An EM-derived width is a computed number and lands off-grid.** Snap widths and the offsets derived
   from them, or a rail reports `metal2_drw_Offgrid`.
-- **Extract with Magic *flat*, or capacitance comes out negative.** Hierarchical extraction of the CTLE
-  stage gave nine negative substrate terms, worst −85 fF; flat gives none and five times the total
-  capacitance, so hierarchy was losing most of it, not mislabelling it `[sim]`. It is neither of the
-  plausible causes: a bare array is clean at 1, 5 and 25 units and `cthresh` 0/0.01/1 give identical
-  negatives. Only the stage was affected — the device flow already flattens through `write_for_magic`.
-  Nothing is clamped, and `PexResult.physical` now gates it, because ngspice accepts a negative
+- **Extract with Magic *flat*.** Hierarchical extraction with this PDK's extract deck does not produce
+  a capacitance once a cell has subcells. Minimal case — one NMOS in a subcell, N instances in a top
+  cell `[sim]`: flat equals the subcell alone at N=1 to the last digit and then goes as
+  `N × sub + (N−1) × 0.442 fF` of neighbour coupling (0.4423 and 0.4426 fF per pair at N=4 and N=8),
+  while hierarchical is wrong at every N including N=1 (1.352 fF against the correct 2.607) and its
+  total goes negative from N=2 on, with 2N negative terms. On the CTLE stage that was nine negative
+  substrate terms, worst −85 fF. Neither plausible cause explains it: a bare array is clean at 1, 5 and
+  25 units and `cthresh` 0/0.01/1 give identical negatives. Only the stage was affected — the device
+  flow already flattens through `write_for_magic`.
+- **Do not quote a ratio between hierarchical and flat totals.** The flat total is ~5x the hierarchical
+  one on the stage, but the hierarchical figure has negative terms inside it, so the ratio measures how
+  negative those were rather than capacitance lost. Also keep two effects apart: a hierarchical netlist
+  states a subcell's parasitics once and instantiates it N times, so a *textual* sum under-reports by
+  about the instance count even when extraction is perfect. `probe_hierarchy_total.py` reports both
+  sums for that reason.
+- Nothing is clamped, and `PexResult.physical` gates negatives, because ngspice accepts a negative
   capacitor without complaint and it silently moves the AC result. Full bisection, the reusable probes
   and the method notes: **[layout/debug_pex/FINDINGS.md](layout/debug_pex/FINDINGS.md)**.
 - **Flat extraction emits no `.subckt` at all**, just a bare deck, so anything that needs an

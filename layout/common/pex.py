@@ -154,14 +154,14 @@ def _magic_script(
     ``ext2spice scale off`` is already set by the PDK magicrc; the thresholds are
     set to 0 here so no parasitic is discarded, which is the point of PEX.
 
-    Extraction is flattened because a hierarchical one produces **negative**
-    substrate capacitance. Measured on the CTLE stage: hierarchical gives 98
-    capacitors totalling 135.07 fF with nine negative terms, worst -85.2 fF, while
-    flat gives 26 totalling 212.71 fF with none. The negatives name the mechanism —
-    the same value repeats once per array instance on the bus rail nodes, so Magic
-    computes a rail's substrate capacitance in the parent and subtracts coupling
-    attributed to the child unit cells until the residual goes negative. So the
-    hierarchical numbers were not merely mislabelled, they were 58 fF short.
+    Extraction is flattened because a hierarchical one does not produce a
+    capacitance at all once a cell has subcells. Measured on one NMOS in a subcell
+    instantiated N times (``layout/debug_pex/probe_hierarchy_total.py``): flat equals
+    the subcell extracted alone at N=1 and then goes as ``N * sub + (N-1) * 0.442
+    fF`` of neighbour coupling, while hierarchical is wrong at every N including N=1
+    — 1.352 fF against the correct 2.607 — and its total goes negative from N=2 on.
+    On the CTLE stage that showed up as nine negative substrate terms, worst
+    -85.2 fF, one per array instance on the bus rail nodes.
 
     It is not the ``cthresh`` setting: 0, 0.01 and 1 all give identical negatives.
     """
