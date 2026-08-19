@@ -81,7 +81,14 @@ from a PDK model file, `[est]` when still unverified.
 ## Design notes that keep coming back
 
 - Shunt-peaking load order is **VDD → L → RD → collector**.
-- Bessel maximally-flat-delay shunt peaking: `m = L/(RD^2*C_L) = 0.32`.
+- Bessel maximally-flat-delay shunt peaking: `m = L/(RD^2*C_L) = 0.32`. Reference points: MFD 0.32,
+  maximally-flat magnitude ~0.41, and beyond ~0.5 the step response overshoots and rings — which lands in
+  the SBR post-cursors, so `m` is not a cosmetic target.
+- **The smallest realizable coil puts a floor on `RD`.** The `inductor` PCell has `dmin = 25.35 um`, and our
+  EM fit is `L(28 GHz) = 1.774*D - 5.55` pH, so nothing below about **39 pH** can be built. Through the
+  Bessel condition that becomes `RD_min = sqrt(L_min/(m*C_L))` — about **70 Ohm** at `C_L = 25 fF`. Since
+  `L_target` goes as `RD^2`, cutting `RD` to fix a gain target quickly makes the required inductance
+  unbuildable. `C_L` does not enter DC gain at all, so a bigger load never forces `RD` down.
 - **A lumped inductor model needs port shunt capacitance to ground at BOTH ports**, and it is the
   dominant parasitic. Designer rule of thumb: **5-10 fF per 100 pH**. Confirmed by EM for the 66 pH
   `turn1_d40` coil: 5.79 fF and 5.80 fF (symmetric), against a 3.3-6.6 fF rule-of-thumb band `[EM]`.
