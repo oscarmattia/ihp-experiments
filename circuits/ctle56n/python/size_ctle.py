@@ -246,6 +246,31 @@ def lut_interp_id(
     return float(id0 * (1 - tg) + id1 * tg)
 
 
+#: A wide tail cannot be one PCell instance. The foundry nmos PCell draws no
+#: source/drain straps, so ng > 1 extracts as transistors in series, and a single
+#: finger is silently capped near this width. The tail is therefore drawn as an
+#: array of single-finger units, and its total width has to land on that grid.
+MOS_UNIT_W_MAX_UM = 10.0
+
+#: Per-finger width snaps to this grid inside the PCell, so a total that does not
+#: divide onto it comes out narrower than asked.
+MOS_W_GRID_UM = 0.005
+
+
+def snap_drawable_mos_w(w_um: float) -> float:
+    """Round a tail width to something the layout can actually draw.
+
+    The LVS deck compares MOS ``w`` and ``l`` with essentially no tolerance —
+    242.988 um against a drawn 243.000 um is a mismatch — so the schematic has to
+    carry the drawable number rather than leaving layout to round it. Mirrors
+    ``plan_units`` in ``layout/blocks/mos_array.py``; ``layout/common/parity.py``
+    fails the build if the two ever disagree.
+    """
+    units = max(1, math.ceil(w_um / MOS_UNIT_W_MAX_UM))
+    unit_w = round(w_um / units / MOS_W_GRID_UM) * MOS_W_GRID_UM
+    return units * unit_w
+
+
 def size_mos_tail(
     mos_path: Path,
     itail: float,
@@ -600,6 +625,7 @@ def size_ctle(
     mos_w, mos_m, mos_vgs, mos_l = size_mos_tail(
         paths["mos"], itail, vds_target=tail_vds
     )
+    mos_w = snap_drawable_mos_w(mos_w)
     rppd_w, rppd_l, rppd_r = size_rppd(paths["rppd"], rd, lut_scale=1.0)
     rsil_w, rsil_l, rsil_r = size_rsil(rs, paths["rsil"])
     rs_actual = rsil_r

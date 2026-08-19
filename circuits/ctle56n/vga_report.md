@@ -17,7 +17,6 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ 1.35036** from `params.inc`).
 - Gain range **≥ 10 dB at 28 GHz** (never quoted at DC)
 - CMRR **> 6 dB**, PSRR **> 20 dB**
 - Transient stimulus: **PRBS9** (x^9+x^5+1), **511 UI** (one full period), **100 mVpp,diff**, ~4.5 ps edges. AC sweep **1 MHz–300 GHz**. CMRR **> 6 dB**, PSRR **> 20 dB**.
-- Usable VCTRL **≤ 0.6500 V** at VDD=1.6 V (VCE floor cross @ 0.1500 V).
 Measured **28 GHz small-signal gain range = 9.99 dB** (-6.69 … 3.29 dB) from `out/vga_pdk/gain_vs_vctrl_table.csv`.
 
 ## Measurement summary
@@ -40,9 +39,6 @@ Waveforms: `out/vga_ideal/`.
 | Tail VDS | V_DS,tail | 0.460 V |  |
 | Ic (signal) | I_c | 1.255 mA | per side @ mid VCTRL |
 | Tail current | I_tail | 5.750 mA | steered total |
-| Eye height | — | 112.03 mV |  |
-| Eye width | — | 0.5150 UI |  |
-| Eye pp swing | — | 119.73 mV |  |
 
 ### Ideal passives — SBR
 
@@ -92,9 +88,6 @@ Waveforms: `out/vga_pdk/`.
 | Tail VDS | V_DS,tail | 0.460 V |  |
 | Ic (signal) | I_c | 1.257 mA | per side @ mid VCTRL |
 | Tail current | I_tail | 5.749 mA | steered total |
-| Eye height | — | 145.90 mV |  |
-| Eye width | — | 0.5050 UI |  |
-| Eye pp swing | — | 154.63 mV |  |
 
 ### PDK passives — SBR
 

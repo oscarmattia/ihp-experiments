@@ -74,11 +74,11 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | CTLE @ 28 GHz | 5.47 dB |
 | VGA @ 28 GHz | -5.93 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | 52.62 mV |
-| Pad swing (pp) | 56.52 mV |
-| Eye height | 27.85 mV |
-| Eye width | 0.7100 UI |
-| SBR ISI (norm) | -0.2630 |
+| Drive swing (pp) | — |
+| Pad swing (pp) | — |
+| Eye height | — |
+| Eye width | nan UI |
+| SBR ISI (norm) | nan |
 ### Mid gain (VCTRL mid)
 
 | Metric | Value |
@@ -90,11 +90,11 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | CTLE @ 28 GHz | 5.24 dB |
 | VGA @ 28 GHz | 2.69 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | 144.97 mV |
-| Pad swing (pp) | 155.14 mV |
-| Eye height | 77.30 mV |
-| Eye width | 0.7650 UI |
-| SBR ISI (norm) | -0.3010 |
+| Drive swing (pp) | — |
+| Pad swing (pp) | — |
+| Eye height | — |
+| Eye width | nan UI |
+| SBR ISI (norm) | nan |
 ### Maximum gain (VCTRL max)
 
 | Metric | Value |
@@ -106,11 +106,11 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | CTLE @ 28 GHz | 5.17 dB |
 | VGA @ 28 GHz | 3.85 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | 166.10 mV |
-| Pad swing (pp) | 177.13 mV |
-| Eye height | 88.19 mV |
-| Eye width | 0.7650 UI |
-| SBR ISI (norm) | -0.3048 |
+| Drive swing (pp) | — |
+| Pad swing (pp) | — |
+| Eye height | — |
+| Eye width | nan UI |
+| SBR ISI (norm) | nan |
 
 Plots and waveforms: `out/chain/` (AC, Zin, transient, eye, SBR at each VCTRL).
 ISI comparison: `out/chain/isi_analysis.csv`.
@@ -127,22 +127,22 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 
 | Tap | k | h (mV) | h / h_0 | Kept |
 | --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | 0.000 | -0.0000 | no |
-| h_{-2} pre | -2 | 0.000 | -0.0000 | no |
-| h_{-1} pre | -1 | 0.000 | -0.0000 | no |
-| **h_0 cursor** | 0 | -57.685 | 1.000 | yes |
-| h_1 post | 1 | 12.617 | -0.2187 | yes |
-| h_2 post | 2 | 4.069 | -0.0705 | yes |
-| h_3 post | 3 | 0.680 | -0.0118 | yes |
-| h_4 post | 4 | 0.098 | -0.0017 | no |
-| h_5 post | 5 | -0.012 | 0.0002 | no |
-| h_6 post | 6 | -0.032 | 0.0005 | no |
-| h_7 post | 7 | -0.035 | 0.0006 | no |
-| h_8 post | 8 | -0.034 | 0.0006 | no |
-| h_9 post | 9 | -0.034 | 0.0006 | no |
-| h_10 post | 10 | -0.033 | 0.0006 | no |
+| h_{-3} pre | -3 | 0.001 | -0.0000 | no |
+| h_{-2} pre | -2 | 0.001 | -0.0000 | no |
+| h_{-1} pre | -1 | 0.001 | -0.0000 | no |
+| **h_0 cursor** | 0 | -114.184 | 1.000 | yes |
+| h_1 post | 1 | 23.309 | -0.2041 | yes |
+| h_2 post | 2 | 7.791 | -0.0682 | yes |
+| h_3 post | 3 | 1.483 | -0.0130 | yes |
+| h_4 post | 4 | 0.240 | -0.0021 | no |
+| h_5 post | 5 | -0.003 | 0.0000 | no |
+| h_6 post | 6 | -0.049 | 0.0004 | no |
+| h_7 post | 7 | -0.058 | 0.0005 | no |
+| h_8 post | 8 | -0.059 | 0.0005 | no |
+| h_9 post | 9 | -0.058 | 0.0005 | no |
+| h_10 post | 10 | -0.057 | 0.0005 | no |
 
-- Main cursor h_0 = **-57.69 mV** at t = **0.504 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3010** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3010** (same taps)
+- Main cursor h_0 = **-114.18 mV** at t = **0.504 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.2853** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.2853** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.

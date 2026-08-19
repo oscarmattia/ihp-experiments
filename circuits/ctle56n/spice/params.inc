@@ -14,9 +14,9 @@
 .param CL_MILLER=1.83348e-14
 .param CL_INTERCONNECT=6.8e-15
 .param ITAIL=0.00287812
-.param MOS_W=242.988
+.param MOS_W=243
 .param MOS_L=1
-.param MOS_W_m=0.000242988195909
+.param MOS_W_m=0.000243
 .param MOS_L_m=1e-06
 .param MOS_M=1
 .param MOS_VGS=0.55
