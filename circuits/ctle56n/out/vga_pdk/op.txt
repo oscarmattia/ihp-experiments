@@ -1,0 +1,205 @@
+
+=== VCTRL = 0.150 V ===
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op testbench — 56g cml ctle
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.356518e+00
+v(outn) = 1.356518e+00
+v(inp) = 1.300000e+00
+v(inn) = 1.300000e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.848005e-01
+v(xu1.e2) = 4.848005e-01
+v(xu1.ed1) = 3.561841e-01
+v(xu1.ed2) = 3.561841e-01
+v(xu1.mgate) = 4.112360e-01
+v(xu1.tx1) = 3.275439e-01
+v(xu1.tx2) = 3.275439e-01
+v(xu1.steerp) = 5.830000e-01
+v(xu1.steern) = 1.157000e+00
+v(xu1.ctrl) = 1.500000e-01
+@q.xu1.xq1.qnpn13g2[ic] = 2.241840e-04
+@q.xu1.xq2.qnpn13g2[ic] = 2.241840e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.571666e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.571666e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.802521e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.802521e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.244696e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.578048e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.244696e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.578048e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
+Note: Simulation executed from .control section 
+
+=== VCTRL = 0.280 V ===
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op testbench — 56g cml ctle
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.354734e+00
+v(outn) = 1.354734e+00
+v(inp) = 1.300000e+00
+v(inn) = 1.300000e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.350839e-01
+v(xu1.e2) = 4.350839e-01
+v(xu1.ed1) = 3.764417e-01
+v(xu1.ed2) = 3.764417e-01
+v(xu1.mgate) = 4.112360e-01
+v(xu1.tx1) = 3.476508e-01
+v(xu1.tx2) = 3.476508e-01
+v(xu1.steerp) = 6.900000e-01
+v(xu1.steern) = 1.050000e+00
+v(xu1.ctrl) = 2.800000e-01
+@q.xu1.xq1.qnpn13g2[ic] = 7.894921e-04
+@q.xu1.xq2.qnpn13g2[ic] = 7.894921e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.026838e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.026838e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.821883e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.821883e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 7.906795e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.031202e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 7.906795e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.031202e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
+Note: Simulation executed from .control section 
+
+=== VCTRL = 0.420 V ===
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op testbench — 56g cml ctle
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.353550e+00
+v(outn) = 1.353550e+00
+v(inp) = 1.300000e+00
+v(inn) = 1.300000e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.104808e-01
+v(xu1.e2) = 4.104808e-01
+v(xu1.ed1) = 3.944636e-01
+v(xu1.ed2) = 3.944636e-01
+v(xu1.mgate) = 4.112360e-01
+v(xu1.tx1) = 3.619319e-01
+v(xu1.tx2) = 3.619319e-01
+v(xu1.steerp) = 8.040000e-01
+v(xu1.steern) = 9.360000e-01
+v(xu1.ctrl) = 4.200000e-01
+@q.xu1.xq1.qnpn13g2[ic] = 1.240881e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.240881e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.589039e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.589039e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.835093e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.835093e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.243021e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.592071e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.243021e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.592071e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
+Note: Simulation executed from .control section 
+
+=== VCTRL = 0.650 V ===
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op testbench — 56g cml ctle
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.353968e+00
+v(outn) = 1.353968e+00
+v(inp) = 1.300000e+00
+v(inn) = 1.300000e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 3.866303e-01
+v(xu1.e2) = 3.866303e-01
+v(xu1.ed1) = 4.201142e-01
+v(xu1.ed2) = 4.201142e-01
+v(xu1.mgate) = 4.112360e-01
+v(xu1.tx1) = 3.568202e-01
+v(xu1.tx2) = 3.568202e-01
+v(xu1.steerp) = 9.930000e-01
+v(xu1.steern) = 7.470000e-01
+v(xu1.ctrl) = 6.500000e-01
+@q.xu1.xq1.qnpn13g2[ic] = 1.773594e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.773594e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.051538e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.051538e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.830410e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.830410e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.777157e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.053252e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.777157e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.053252e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
+Note: Simulation executed from .control section 
+
+=== VCTRL = 1.000 V ===
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op testbench — 56g cml ctle
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.356974e+00
+v(outn) = 1.356974e+00
+v(inp) = 1.300000e+00
+v(inn) = 1.300000e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 3.488909e-01
+v(xu1.e2) = 3.488909e-01
+v(xu1.ed1) = 5.725471e-01
+v(xu1.ed2) = 5.725471e-01
+v(xu1.mgate) = 4.112360e-01
+v(xu1.tx1) = 3.229054e-01
+v(xu1.tx2) = 3.229054e-01
+v(xu1.steerp) = 1.280000e+00
+v(xu1.steern) = 4.600000e-01
+v(xu1.ctrl) = 1.000000e+00
+@q.xu1.xq1.qnpn13g2[ic] = 2.780277e-03
+@q.xu1.xq2.qnpn13g2[ic] = 2.780277e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.033316e-05
+@q.xu1.xqd2.qnpn13g2[ic] = 1.033316e-05
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.797902e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.797902e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.787548e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.034685e-05
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.787548e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.034685e-05
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
+Note: Simulation executed from .control section 

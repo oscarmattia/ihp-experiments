@@ -1,0 +1,41 @@
+* 56G CML VGA DUT — PDK rppd + EM shunt inductor, tail-current steering
+.include '{IND_SHUNT_INC}'
+
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+
+.subckt vga_dut outp outn inp inn vdd
+Xl1 vdd nlp1 0 ind_shunt
+Xrd1 nlp1 outp 0 rppd w={RPPD_W} l={RPPD_L} m=1
+Xl2 vdd nlp2 0 ind_shunt
+Xrd2 nlp2 outn 0 rppd w={RPPD_W} l={RPPD_L} m=1
+
+Vicm vicm 0 dc {VBASE}
+
+Rs e1 e2 {RS}
+XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
+Vs2 s2 0 dc 0
+
+XQd1 outp vicm ed1 sd1 npn13G2 Nx={Nx}
+Vsd1 sd1 0 dc 0
+XQd2 outn vicm ed2 sd2 npn13G2 Nx={Nx}
+Vsd2 sd2 0 dc 0
+
+Iref vdd mgate {ITAIL}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+
+Vctrl ctrl 0 dc {VCTRL}
+Vsp steerp 0 dc {VCTRL_P}
+Vsn steern 0 dc {VCTRL_N}
+
+Xtail1 tx1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xps1 e1 steerp tx1 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+Xpd1 ed1 steern tx1 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+
+Xtail2 tx2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xps2 e2 steerp tx2 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+Xpd2 ed2 steern tx2 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+.ends vga_dut

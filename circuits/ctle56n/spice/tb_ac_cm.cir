@@ -3,13 +3,13 @@
 .include {DUT_CIR}
 
 Vdd vdd 0 dc {VDD}
-XU1 outp outn inp inn vdd ctle_dut
+XU1 outp outn inp inn vdd {DUT_NAME}
 
 Vp inp 0 dc {VBASE} ac 1
 Vn inn 0 dc {VBASE} ac 1
 
-Cload_p outp 0 {CL}
-Cload_n outn 0 {CL}
+Cload_p outp 0 {CL_TB}
+Cload_n outn 0 {CL_TB}
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 .nodeset v(xu1.mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.e1)=0.28 v(xu1.e2)=0.28

@@ -1,0 +1,42 @@
+* 56G RX input termination — bond pad + ESD + 50 Ohm shunt to on-chip vtt
+* Geometry tokens supplied via size_term.py / extra_params (not params.inc).
+
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerCAP.lib' cap_typ
+.lib '{PDK_MODELS}/cornerDIO.lib' dio_tt
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+
+* Bond pad hand cap (sg13g2_bondpad.lib is empty — see docs/PDK.md).
+* Construction: stacked TM1+TM2 bond pad; TM1 shields TM2 from substrate, so pad-to-sub
+* capacitance is set by the bottom plate only (Magic defaultareacap, aF/um^2):
+*   TopMetal1 metal6 -> substrate: 5.649 aF/um^2
+*   PAD_W x PAD_L um (default 70 x 70 um): C_pad = 5.649e-18 * PAD_W * PAD_L (~27.7 fF).
+* Set PAD_C=0 to disable.
+.param PAD_W={PAD_W}
+.param PAD_L={PAD_L}
+.param PAD_C={PAD_C}
+
+.subckt term_dut outp outn inp inn vdd
+* Positive side (pad inp -> CTLE outp)
+Cpadp inp 0 {PAD_C}
+Xesd_vdd_p vdd inp 0 diodevdd_2kv m={ESD_M}
+Xesd_vss_p vdd inp 0 diodevss_2kv m={ESD_M}
+Xrt_p inp vtt 0 rsil w={RSIL_W} l={RSIL_L} m=1
+Rout_p inp outp {ROUT_SER}
+
+* Negative side (pad inn -> CTLE outn)
+Cpadn inn 0 {PAD_C}
+Xesd_vdd_n vdd inn 0 diodevdd_2kv m={ESD_M}
+Xesd_vss_n vdd inn 0 diodevss_2kv m={ESD_M}
+Xrt_n inn vtt 0 rsil w={RSIL_W} l={RSIL_L} m=1
+Rout_n inn outn {ROUT_SER}
+
+* On-chip common-mode reference (~1.4 V). For differential signals vtt is a virtual
+* ground (termination currents cancel); divider impedance matters mainly for CM.
+Xrtt_top vdd vtt 0 rppd w={VTT_RTOP_W} l={VTT_RTOP_L} m=1
+Xrtt_bot vtt 0 0 rppd w={VTT_RBOT_W} l={VTT_RBOT_L} m=1
+Xvtt_decap vtt 0 cap_cmim w={VTT_CAP_W} l={VTT_CAP_L} m=1
+
+* Rail clamp for diode ESD current return between VDD and VSS
+Xclamp vdd 0 nmoscl_2 m=1
+.ends term_dut

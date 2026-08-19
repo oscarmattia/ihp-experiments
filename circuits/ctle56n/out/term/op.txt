@@ -1,0 +1,20 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: * dc op — termination stage
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+--- DC operating point ---
+v(outp) = 1.395690e+00
+v(outn) = 1.395690e+00
+v(inp) = 1.395690e+00
+v(inn) = 1.395690e+00
+v(vdd) = 1.600000e+00
+v(xu1.vtt) = 1.395712e+00
+(v(vdd)-v(xu1.vtt))/273.7 = 7.463941e-04
+Note: Simulation executed from .control section 

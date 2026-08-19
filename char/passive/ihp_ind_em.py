@@ -29,9 +29,15 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from char.common.lut import save_lut  # noqa: E402
-
-CASE_CHOICES = ("l2n0", "turn1", "turn2", "all")
+from char.common.lut import load_lut, save_lut  # noqa: E402
+from char.passive.ind_pimodel import (  # noqa: E402
+    merge_sparams_into_lut,
+    pi_model_from_s2p,
+    pi_model_summary,
+    refresh_sparam_luts,
+    sparam_arrays_from_s2p,
+)
+from char.passive.ind_validate import validate_ind_lut  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -50,6 +56,7 @@ class IndCase:
     synth_d: float | None = None
     synth_w: float | None = None
     synth_s: float | None = None
+    fstop_hz: float = 30e9
 
 
 CASES: dict[str, IndCase] = {
@@ -95,6 +102,56 @@ CASES: dict[str, IndCase] = {
         synth_d=150.0,
         synth_w=3.0,
         synth_s=3.0,
+    ),
+    # Small 1-turn octagons for CTLE shunt-peaking (40–120 pH target band).
+    # Same SUBGND → TopMetal2 port convention as turn1 (known-good de-embedding).
+    "turn1_d40": IndCase(
+        key="turn1_d40",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=40.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d40_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=40.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
+    ),
+    "turn1_d60": IndCase(
+        key="turn1_d60",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=60.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d60_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=60.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
+    ),
+    "turn1_d80": IndCase(
+        key="turn1_d80",
+        nr_r=1,
+        w_um=4.0,
+        s_um=2.1,
+        d_um=80.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_d80_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=80.0,
+        synth_w=4.0,
+        synth_s=2.1,
+        fstop_hz=100e9,
     ),
 }
 
@@ -168,10 +225,10 @@ def _check_openems() -> tuple[bool, bool, str | None]:
     return py_ok, bin_ok, "; ".join(reasons)
 
 
-def _freq_grid(coarse: bool) -> tuple[float, float, int]:
-    fstart, fstop = 0.0, 30e9
+def _freq_grid(coarse: bool, fstop_hz: float) -> tuple[float, float, int]:
+    fstart = 0.0
     numfreq = 51 if coarse else 401
-    return fstart, fstop, numfreq
+    return fstart, fstop_hz, numfreq
 
 
 def _prepare_workflow_modules(workflow: Path) -> None:
@@ -253,6 +310,7 @@ def _run_openems_case(
     gds_path: Path,
     preview_only: bool,
     coarse: bool,
+    fstop_hz: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
     """Run mesh preview or full FDTD; return FREQ, Ldiff, Qdiff."""
     _prepare_workflow_modules(workflow)
@@ -270,7 +328,7 @@ def _run_openems_case(
 
     unit = 1e-6
     margin = 200.0
-    fstart, fstop, numfreq = _freq_grid(coarse)
+    fstart, fstop, numfreq = _freq_grid(coarse, fstop_hz)
     refined_cellsize = 2.0 if coarse else 1.0
     cells_per_wavelength = 10
     energy_limit = -50.0
@@ -326,6 +384,8 @@ def _run_openems_case(
     run_log: dict[str, Any] = {
         "preview_only": preview_only,
         "coarse": coarse,
+        "fstart_hz": fstart,
+        "fstop_hz": fstop,
         "refined_cellsize_um": refined_cellsize,
         "cells_per_wavelength": cells_per_wavelength,
         "numfreq": numfreq,
@@ -411,6 +471,87 @@ def _jsonable(obj: Any) -> Any:
     return obj
 
 
+def _pimodel_arrays_from_s2p(s2p_path: Path) -> tuple[dict[str, np.ndarray], dict[str, float]]:
+    """Extract pi-model frequency arrays + band-mean scalars from a Touchstone .s2p."""
+    pimodel = pi_model_from_s2p(s2p_path)
+    summary = pi_model_summary(pimodel)
+    arrays = {
+        "L_PI": pimodel["L"].astype(float),
+        "R_SERIES": pimodel["R_SERIES"].astype(float),
+        "C_PORT1": pimodel["C_PORT1"].astype(float),
+        "C_PORT2": pimodel["C_PORT2"].astype(float),
+        "G_PORT1": pimodel["G_PORT1"].astype(float),
+        "G_PORT2": pimodel["G_PORT2"].astype(float),
+    }
+    return arrays, summary
+
+
+def _merge_pimodel_into_lut(
+    out_path: Path,
+    s2p_path: Path | None,
+) -> bool:
+    """Attach pi-model arrays from .s2p into an existing committed .npz (no openEMS re-run)."""
+    if s2p_path is None or not Path(s2p_path).is_file():
+        return False
+    arrays, meta = load_lut(out_path)
+    pimodel = pi_model_from_s2p(Path(s2p_path))
+    pi_summary = pi_model_summary(pimodel)
+    freq = np.asarray(arrays["FREQ"], dtype=float)
+    pi_freq = np.asarray(pimodel["FREQ"], dtype=float)
+    pi_arrays: dict[str, np.ndarray] = {}
+    key_map = {
+        "L_PI": "L",
+        "R_SERIES": "R_SERIES",
+        "C_PORT1": "C_PORT1",
+        "C_PORT2": "C_PORT2",
+        "G_PORT1": "G_PORT1",
+        "G_PORT2": "G_PORT2",
+    }
+    for dst, src in key_map.items():
+        src_arr = np.asarray(pimodel[src], dtype=float)
+        if len(pi_freq) == len(freq) and np.allclose(pi_freq, freq):
+            pi_arrays[dst] = src_arr
+        else:
+            pi_arrays[dst] = np.interp(freq, pi_freq, src_arr)
+    arrays.update(pi_arrays)
+    meta["pimodel"] = _jsonable(pi_summary)
+    meta["pimodel_s2p"] = str(s2p_path)
+    axes = meta.get("axes") or {}
+    axes.update({
+        "L_PI": "2-port pi-model series inductance imag(Z12)/omega (H)",
+        "R_SERIES": "2-port pi-model series resistance real(Z12) (Ohm)",
+        "C_PORT1": "pi-model port-1 shunt capacitance (F)",
+        "C_PORT2": "pi-model port-2 shunt capacitance (F)",
+        "G_PORT1": "pi-model port-1 shunt conductance (S)",
+        "G_PORT2": "pi-model port-2 shunt conductance (S)",
+    })
+    meta["axes"] = axes
+    save_lut(out_path, arrays, meta)
+    (out_path.parent / f"{out_path.stem}.meta.json").write_text(
+        json.dumps(meta, indent=2, sort_keys=True) + "\n"
+    )
+    print(f"  pimodel merged into {out_path.name} from {Path(s2p_path).name}", flush=True)
+    return True
+
+
+def refresh_pimodel_luts(out_dir: Path) -> int:
+    """Re-extract pi-model fields from on-disk .s2p paths referenced in LUT meta."""
+    updated = 0
+    for npz_path in sorted(out_dir.glob("sg13_ind_*.npz")):
+        _, meta = load_lut(npz_path)
+        s2p = None
+        run_log = meta.get("run_log") or {}
+        if isinstance(run_log, dict) and run_log.get("s2p"):
+            s2p = Path(run_log["s2p"])
+        if s2p is None and meta.get("pimodel_s2p"):
+            s2p = Path(meta["pimodel_s2p"])
+        if s2p is None and meta.get("from_s2p"):
+            s2p = out_dir.parent / meta["from_s2p"] if not Path(meta["from_s2p"]).is_absolute() else Path(meta["from_s2p"])
+        if _merge_pimodel_into_lut(npz_path, s2p):
+            updated += 1
+    return updated
+
+
 def _write_case_outputs(
     case: IndCase,
     *,
@@ -423,6 +564,13 @@ def _write_case_outputs(
     em_ok: bool,
     skip_reason: str | None,
 ) -> Path:
+    em_completed = bool(em_ok)
+    valid, invalid_reason = validate_ind_lut(
+        freq,
+        l_series,
+        q_series,
+        em_completed=em_completed,
+    )
     meta: dict[str, Any] = {
         "format": "ihp-ind-em-lut-v1",
         "device": f"sg13_ind_{case.key}",
@@ -436,22 +584,56 @@ def _write_case_outputs(
         "gds": str(gds_path),
         "from_layer": case.from_layer,
         "to_layer": case.to_layer,
+        "fstop_hz": case.fstop_hz,
         "axes": {
             "FREQ": "frequency (Hz)",
             "L": "differential series inductance Ldiff (H)",
             "Q": "differential Q factor Qdiff",
+            "L_PI": "2-port pi-model series inductance imag(Z12)/omega (H)",
+            "R_SERIES": "2-port pi-model series resistance real(Z12) (Ohm)",
+            "C_PORT1": "pi-model port-1 shunt capacitance (F)",
+            "C_PORT2": "pi-model port-2 shunt capacitance (F)",
+            "G_PORT1": "pi-model port-1 shunt conductance (S)",
+            "G_PORT2": "pi-model port-2 shunt conductance (S)",
+            "SP_FREQ": "S-parameter verification frequency (Hz)",
+            "S11_RE": "EM S11 real part",
+            "S11_IM": "EM S11 imaginary part",
+            "S21_RE": "EM S21 real part",
+            "S21_IM": "EM S21 imaginary part",
+            "S22_RE": "EM S22 real part",
+            "S22_IM": "EM S22 imaginary part",
         },
-        "em_completed": bool(em_ok),
+        "em_completed": em_completed,
+        "valid": valid,
+        "invalid_reason": invalid_reason,
     }
     if skip_reason:
         meta["skip_reason"] = skip_reason
     meta.update(_jsonable(meta_extra))
 
-    arrays = {
+    arrays: dict[str, np.ndarray] = {
         "FREQ": freq.astype(float),
         "L": l_series.astype(float),
         "Q": q_series.astype(float),
     }
+    s2p_path = None
+    run_log = meta_extra.get("run_log") if isinstance(meta_extra.get("run_log"), dict) else {}
+    if run_log and run_log.get("s2p"):
+        s2p_path = Path(run_log["s2p"])
+    if s2p_path is not None and s2p_path.is_file():
+        try:
+            pi_arrays, pi_summary = _pimodel_arrays_from_s2p(s2p_path)
+            arrays.update(pi_arrays)
+            meta["pimodel"] = _jsonable(pi_summary)
+            meta["pimodel_s2p"] = str(s2p_path)
+        except Exception as exc:
+            meta["pimodel_error"] = str(exc)
+        try:
+            arrays.update(sparam_arrays_from_s2p(s2p_path))
+            meta["sparam_s2p"] = str(s2p_path)
+            meta["sparam_nfreq"] = int(len(arrays["SP_FREQ"]))
+        except Exception as exc:
+            meta["sparam_error"] = str(exc)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"sg13_ind_{case.key}.npz"
     save_lut(out_path, arrays, meta)
@@ -491,7 +673,7 @@ def run_case(
     subgnd_added = _maybe_add_subgnd(gds_path)
     print(f"== {case.key}: gds={gds_path.name} subgnd_added={subgnd_added}", flush=True)
 
-    fstart, fstop, numfreq = _freq_grid(coarse)
+    fstart, fstop, numfreq = _freq_grid(coarse, case.fstop_hz)
     freq = np.linspace(fstart, fstop, numfreq)
     l_series = np.full(numfreq, np.nan)
     q_series = np.full(numfreq, np.nan)
@@ -510,6 +692,7 @@ def run_case(
                     gds_path=gds_path,
                     preview_only=False,
                     coarse=coarse,
+                    fstop_hz=case.fstop_hz,
                 )
             else:
                 freq, l_series, q_series, run_log = _run_openems_case(
@@ -519,6 +702,7 @@ def run_case(
                     gds_path=gds_path,
                     preview_only=True,
                     coarse=coarse,
+                    fstop_hz=case.fstop_hz,
                 )
                 if not bin_ok and not preview_only:
                     exit_code = 2
@@ -556,9 +740,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument(
         "--cases",
         nargs="+",
-        choices=list(CASE_CHOICES),
         default=["all"],
-        help="Cases to run (default: all)",
+        help=f"Cases to run (default: all). Known: {', '.join(sorted(CASES))}",
     )
     p.add_argument(
         "--coarse",
@@ -572,11 +755,33 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="PDK root (default: PDK_ROOT env)",
     )
+    p.add_argument(
+        "--refresh-pimodel",
+        action="store_true",
+        help="Re-extract pi-model arrays from existing .s2p into committed .npz LUTs",
+    )
+    p.add_argument(
+        "--refresh-sparams",
+        action="store_true",
+        help="Re-extract downsampled S-parameter arrays from existing .s2p into .npz LUTs",
+    )
     return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.refresh_pimodel:
+        out_dir = args.out_dir
+        n = refresh_pimodel_luts(out_dir)
+        print(f"Refreshed pi-model in {n} LUT file(s)", flush=True)
+        return 0 if n > 0 else 1
+
+    if args.refresh_sparams:
+        out_dir = args.out_dir
+        n = refresh_sparam_luts(out_dir)
+        print(f"Refreshed S-parameters in {n} LUT file(s)", flush=True)
+        return 0 if n > 0 else 1
+
     pdk_root = args.pdk_root or Path(os.environ.get("PDK_ROOT", ""))
     if not pdk_root or not pdk_root.is_dir():
         raise SystemExit("PDK_ROOT is not set or invalid. Source ihp-eda env.sh first.")
@@ -594,9 +799,12 @@ def main() -> int:
 
     selected = args.cases
     if "all" in selected:
-        keys = ["l2n0", "turn1", "turn2"]
+        keys = list(CASES.keys())
     else:
         keys = list(dict.fromkeys(selected))
+        unknown = [k for k in keys if k not in CASES]
+        if unknown:
+            raise SystemExit(f"Unknown case(s): {unknown}. Known: {sorted(CASES)}")
 
     symmetric_octa: Callable[..., None] | None = None
     if any(CASES[k].synthesize for k in keys):

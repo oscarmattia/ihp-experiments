@@ -1,0 +1,25 @@
+* Input impedance / return loss at bond pads — 100 Ohm differential reference
+.include {DUT_CIR}
+
+Vdd vdd 0 dc {VDD}
+XU1 outp outn inp inn vdd {DUT_NAME}
+
+* Common-mode bias; differential AC current probe between pads
+Vcm cm 0 dc {VBASE}
+Rcm_p cm inp 1e9
+Rcm_n cm inn 1e9
+Iac inp inn dc 0 ac 1
+
+* CTLE input load on stage outputs
+Cload_p outp 0 {CL_TB}
+Cload_n outn 0 {CL_TB}
+
+.options gmin=1e-18 abstol=1e-15 reltol=1e-3
+
+.control
+save v(inp) v(inn) v(outp) v(outn) v(xu1.vtt)
+ac dec 300 1e6 100e9
+set wr_singlescale
+wrdata zin.raw frequency vm(inp) vp(inp) vm(inn) vp(inn)
+.endc
+.end

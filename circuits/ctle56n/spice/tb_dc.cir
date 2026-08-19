@@ -3,7 +3,7 @@
 .include {DUT_CIR}
 
 Vdd vdd 0 dc {VDD}
-XU1 outp outn inp inn vdd ctle_dut
+XU1 outp outn inp inn vdd {DUT_NAME}
 
 Vp inp 0 dc {VBASE}
 Vn inn 0 dc {VBASE}
@@ -12,15 +12,9 @@ Vn inn 0 dc {VBASE}
 .nodeset v(xu1.mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.e1)=0.28 v(xu1.e2)=0.28
 
 .control
-save v(outp) v(outn) v(inp) v(inn) v(vdd)
-save v(xu1.e1) v(xu1.e2) v(xu1.em) v(xu1.mgate)
-save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]
-save @n.xu1.xtail.nsg13_lv_nmos[ids] @n.xu1.xmdiode.nsg13_lv_nmos[ids]
+{DC_SAVE_LINES}
 op
 echo "--- DC operating point ---"
-print v(outp) v(outn) v(inp) v(inn) v(vdd)
-print v(xu1.e1) v(xu1.e2) v(xu1.em) v(xu1.mgate)
-print @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]
-print @n.xu1.xtail.nsg13_lv_nmos[ids] @n.xu1.xmdiode.nsg13_lv_nmos[ids]
+{DC_PRINT_LINES}
 .endc
 .end

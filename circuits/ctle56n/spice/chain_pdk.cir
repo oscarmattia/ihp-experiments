@@ -1,0 +1,132 @@
+* 56G RX front-end chain — termination -> CTLE -> VGA -> pad driver (PDK passives)
+* Token namespaces: params.inc (CTLE), TERM_* (bond pad / vtt), VGA_* (steering VGA), DRV_* (pad driver).
+* ctle_dut is included verbatim from ctle_pdk.cir; term and VGA bodies are inlined here
+* so RSIL_W / RPPD_W / Nx / ITAIL / MOS_* / VBASE do not collide across stages.
+
+.include params.inc
+.include '{IND_SHUNT_INC}'
+
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerCAP.lib' cap_typ
+.lib '{PDK_MODELS}/cornerDIO.lib' dio_tt
+
+* ---------------------------------------------------------------------------
+* Termination (from term_pdk.cir, TERM_* geometry tokens)
+* ---------------------------------------------------------------------------
+.subckt term_dut outp outn inp inn vdd
+Cpadp inp 0 {TERM_PAD_C}
+Xesd_vdd_p vdd inp 0 diodevdd_2kv m={TERM_ESD_M}
+Xesd_vss_p vdd inp 0 diodevss_2kv m={TERM_ESD_M}
+Xrt_p inp vtt 0 rsil w={TERM_RSIL_W} l={TERM_RSIL_L} m=1
+Rout_p inp outp {TERM_ROUT_SER}
+
+Cpadn inn 0 {TERM_PAD_C}
+Xesd_vdd_n vdd inn 0 diodevdd_2kv m={TERM_ESD_M}
+Xesd_vss_n vdd inn 0 diodevss_2kv m={TERM_ESD_M}
+Xrt_n inn vtt 0 rsil w={TERM_RSIL_W} l={TERM_RSIL_L} m=1
+Rout_n inn outn {TERM_ROUT_SER}
+
+Xrtt_top vdd vtt 0 rppd w={TERM_VTT_RTOP_W} l={TERM_VTT_RTOP_L} m=1
+Xrtt_bot vtt 0 0 rppd w={TERM_VTT_RBOT_W} l={TERM_VTT_RBOT_L} m=1
+Xvtt_decap vtt 0 cap_cmim w={TERM_VTT_CAP_W} l={TERM_VTT_CAP_L} m=1
+
+Xclamp vdd 0 nmoscl_2 m=1
+.ends term_dut
+
+* ---------------------------------------------------------------------------
+* CTLE (ctle_pdk.cir — shares params.inc tokens)
+* ---------------------------------------------------------------------------
+.subckt ctle_dut outp outn inp inn vdd
+Xl1 vdd nlp1 0 ind_shunt
+Xrd1 nlp1 outp 0 rppd w={RPPD_W} l={RPPD_L} m=1
+Xl2 vdd nlp2 0 ind_shunt
+Xrd2 nlp2 outn 0 rppd w={RPPD_W} l={RPPD_L} m=1
+Xrdeg e1 e2 0 rsil w={RSIL_W} l={RSIL_L} m=1
+Xcdeg e1 e2 cap_cmomi w={CMOMI_W} l={CMOMI_L} mmin={CMOMI_MMIN} mmax={CMOMI_MMAX} feed=same m=1
+
+XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
+Vs2 s2 0 dc 0
+
+Iref vdd mgate {ITAIL}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail1 e1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail2 e2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+.ends ctle_dut
+
+* ---------------------------------------------------------------------------
+* VGA in chain — vicm port tied to CTLE output CM (no fixed VBASE source)
+* ---------------------------------------------------------------------------
+.subckt vga_chain_dut outp outn inp inn vicm vdd
+Xl1 vdd nlp1 0 ind_shunt
+Xrd1 nlp1 outp 0 rppd w={VGA_RPPD_W} l={VGA_RPPD_L} m=1
+Xl2 vdd nlp2 0 ind_shunt
+Xrd2 nlp2 outn 0 rppd w={VGA_RPPD_W} l={VGA_RPPD_L} m=1
+
+Rs e1 e2 {VGA_RS}
+XQ1 outp inp e1 s1 npn13G2 Nx={VGA_Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn e2 s2 npn13G2 Nx={VGA_Nx}
+Vs2 s2 0 dc 0
+
+XQd1 outp vicm ed1 sd1 npn13G2 Nx={VGA_Nx}
+Vsd1 sd1 0 dc 0
+XQd2 outn vicm ed2 sd2 npn13G2 Nx={VGA_Nx}
+Vsd2 sd2 0 dc 0
+
+Iref vdd mgate {VGA_ITAIL}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={VGA_MOS_W_m} l={VGA_MOS_L_m} ng=1 m=1 rfmode=0
+
+Vctrl ctrl 0 dc {VGA_VCTRL}
+Vsp steerp 0 dc {VGA_VCTRL_P}
+Vsn steern 0 dc {VGA_VCTRL_N}
+
+Xtail1 tx1 mgate 0 0 sg13_lv_nmos w={VGA_MOS_W_m} l={VGA_MOS_L_m} ng=1 m=1 rfmode=0
+Xps1 e1 steerp tx1 0 sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=1 rfmode=0
+Xpd1 ed1 steern tx1 0 sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=1 rfmode=0
+
+Xtail2 tx2 mgate 0 0 sg13_lv_nmos w={VGA_MOS_W_m} l={VGA_MOS_L_m} ng=1 m=1 rfmode=0
+Xps2 e2 steerp tx2 0 sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=1 rfmode=0
+Xpd2 ed2 steern tx2 0 sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=1 rfmode=0
+.ends vga_chain_dut
+
+* ---------------------------------------------------------------------------
+* Pad driver (from driver_pdk.cir — DRV_* geometry tokens)
+* ---------------------------------------------------------------------------
+.subckt driver_chain_dut outp outn inp inn vdd
+Xl1 vdd nlp1 0 ind_shunt
+Xrd1 nlp1 outp 0 rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
+Xl2 vdd nlp2 0 ind_shunt
+Xrd2 nlp2 outn 0 rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
+
+XQ1 outp inp em s1 npn13G2 Nx={DRV_Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn em s2 npn13G2 Nx={DRV_Nx}
+Vs2 s2 0 dc 0
+
+Iref vdd mgate {DRV_ITAIL_HALF}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={DRV_MOS_W_m} l={DRV_MOS_L_m} ng=1 m=1 rfmode=0
+Xtail em mgate 0 0 sg13_lv_nmos w={DRV_TAIL_W_m} l={DRV_MOS_L_m} ng=1 m=1 rfmode=0
+
+Cpadp outp 0 {DRV_PAD_C}
+Xesd_vdd_p vdd outp 0 diodevdd_2kv m={DRV_ESD_M}
+Xesd_vss_p vdd outp 0 diodevss_2kv m={DRV_ESD_M}
+Cpadn outn 0 {DRV_PAD_C}
+Xesd_vdd_n vdd outn 0 diodevdd_2kv m={DRV_ESD_M}
+Xesd_vss_n vdd outn 0 diodevss_2kv m={DRV_ESD_M}
+Xclamp vdd 0 nmoscl_2 m=1
+.ends driver_chain_dut
+
+* ---------------------------------------------------------------------------
+* End-to-end chain — inp/inn = bond pads, outp/outn = output pads (post-driver)
+* ---------------------------------------------------------------------------
+.subckt chain_dut outp outn inp inn vdd
+Xuterm ctle_inp ctle_inn inp inn vdd term_dut
+Xuctle vga_inp vga_inn ctle_inp ctle_inn vdd ctle_dut
+Bvga_vicm vga_vicm 0 V=0.5*(V(vga_inp)+V(vga_inn))
+Xuvga drv_inp drv_inn vga_inp vga_inn vga_vicm vdd vga_chain_dut
+Xudrv outp outn drv_inp drv_inn vdd driver_chain_dut
+.ends chain_dut

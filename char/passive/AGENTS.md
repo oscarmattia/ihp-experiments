@@ -22,8 +22,10 @@ committed `l2n0` smoke case).
 | `ihp_cap_sweep.py` | AC C for MIM / MoM / MOSCAP → `sg13_cap_*.npz`, `sg13_moscap_*.npz` |
 | `summarize_cap.py` | `cap_summary.csv` + C(V) / density plots |
 | `run_cap.sh` | Sweep + summarize capacitors |
-| `ihp_ind_em.py` | openEMS L(f), Q(f) for `l2n0`, `turn1`, `turn2` |
-| `summarize_ind.py` | `ind_summary.csv` + L/Q vs frequency plots |
+| `ihp_ind_em.py` | openEMS L(f), Q(f) for inductor cases (see matrix below); `--refresh-pimodel`, `--refresh-sparams` persist the 2-port fit and S-matrix into the committed `.npz` |
+| `summarize_ind.py` | `ind_summary.csv` + L/Q vs frequency plots; flags invalid EM; `--sp-validate` writes the S-parameter validation CSV/plots |
+| `ind_validate.py` | Shared L/Q sanity checks (`valid`, `invalid_reason`) |
+| `ind_pimodel.py` | 2-port pi-model extraction from the EM Touchstone and ngspice `sp` verification (`run_ind_shunt_sp`, `verify_ind_shunt_sp`, `compare_sparams`, `load_em_sparams`) |
 | `run_ind.sh` | EM sweep + summarize; supports `--skip-em` |
 | `run_all.sh` | Runs `run_res.sh`, `run_cap.sh`, `run_ind.sh`; parses `--skip-em` |
 | `render_layouts.py` | KLayout batch GDS→PNG for MIM/MoM/MOSCAP + inductor cells |
@@ -53,13 +55,45 @@ Shared I/O: `char.common.lut` (`save_lut`, `load_lut`, `parse_wrdata`, `matrange
 
 ### Inductors (`ihp_ind_em.py`)
 
-| Case | Source | Validation |
-| --- | --- | --- |
-| `l2n0` | PDK `L_2n0_twoport.gds` | **Production** — ~2 nH @ 10 GHz |
-| `turn1` | Synthesized 1-turn octagon | **Experimental** |
-| `turn2` | Synthesized 2-turn octagon | **Experimental** |
+| Case | Source | f\_stop | Validation |
+| --- | --- | --- | --- |
+| `l2n0` | PDK `L_2n0_twoport.gds` | 30 GHz | **Production** — ~2 nH @ 10 GHz |
+| `turn1` | Synthesized 1-turn octagon, d=120 µm | 30 GHz | **Experimental**, plausible |
+| `turn1_d40` | Synthesized 1-turn octagon, d=40 µm, w=4 µm, s=2.1 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn1_d60` | Synthesized 1-turn octagon, d=60 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn1_d80` | Synthesized 1-turn octagon, d=80 µm | 100 GHz | Small coil for CTLE peaking |
+| `turn2` | Synthesized 2-turn octagon | 30 GHz | **Invalid** — negative L, Q=0 (bad ports) |
 
-CLI: `--cases l2n0 turn1`, `--preview-only`, `--coarse` / `--no-coarse`.
+All synthesized small cases use **TopMetal2** with the same SUBGND → top-metal via-port
+convention as `turn1`. Per-case `fstop_hz` keeps legacy cases on 0–30 GHz so committed
+`.npz` files do not churn.
+
+`summarize_ind.py` adds `valid` and `invalid_reason` to `ind_summary.csv` (and plots mark
+`[INVALID]`). Criteria: `L` not finite above DC, `L(low‑f) ≤ 0`, or `Q_peak ≤ 0`.
+
+CLI: `--cases l2n0 turn1_d40`, `--preview-only`, `--coarse` / `--no-coarse`.
+
+### 2-port pi-model and S-parameter validation
+
+`L(f)`/`Q(f)` alone is not enough to build a SPICE model, and `Q(f)` is unusable for these small coils
+(it swings between roughly ±1500 because 65 pH at 10 GHz is only ~4 Ω of reactance). So `ind_pimodel.py`
+extracts the full pi-model from the EM Touchstone with `Y = (1/Z0)(I+S)⁻¹(I−S)`:
+
+- series `Z = −1/Y12`, `C_port1 = imag(Y11+Y12)/ω`, `C_port2 = imag(Y22+Y12)/ω`, `G_port = real(Y11+Y12)`
+- **port capacitance is the dominant parasitic**, ~5–10 fF per 100 pH; plate area underestimates it ~6x
+- `Re{Z_series}` carries a systematic **de-embedding offset of about −0.4 Ω** and goes negative below
+  ~15 GHz, so anchor DC resistance to the PDK sheet resistance and take only the shape from EM above 20 GHz
+- `G_port` is characterized but deliberately **not** consumed by the emitted model: the ITF and openEMS
+  stacks both model oxide as permittivity-only, so dielectric loss is zero by construction and the residual
+  is substrate coupling. If that ever needs modelling, use coupled inductors with parallel resistors
+  (induced substrate current loops), not a lumped port resistor.
+
+`em_work/` is gitignored, so the extracted pi-model **and** a downsampled S-matrix are persisted into the
+committed `.npz` (`--refresh-pimodel`, `--refresh-sparams`), which is what lets the model be verified on a
+fresh checkout. Verification uses ngspice **`sp` analysis** (ports declared on voltage sources with
+`portnum`/`z0`) to compare the lumped model against the EM data in S-parameter space, gated on `|S21|`
+magnitude and phase — `|S11|` is reported but not gated, being small and worst where the de-embedding
+offset lives. Artifacts: `ind_sp_validate_summary.csv`, `ind_sp_validate_{case}.csv/.png`.
 
 ## Outputs (`char/passive/out/`)
 
