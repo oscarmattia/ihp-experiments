@@ -131,6 +131,29 @@ capacitance from Magic.** Restricting Magic's capacitors to nets both views shar
 keeps 493 fF and discards 3 fF (0.6%), all of it on resistor body nodes whose
 parasitics the compact model already covers.
 
+## Two further traps, found while wiring the flows up
+
+**`write_for_magic` merges nets on a block.** The CTLE simulation view, which
+LVS-matches its own CDL, extracted with `e1`, `e2` and `vss` collapsed into one
+node: all 75 array devices read `d=e2 s=e2`, and `e1` and `vss` were absent from the
+deck entirely. Passing the same GDS straight to `run_magic_pex` gives the correct
+three distinct arrays. Flatten in the netlist, not in the layout.
+
+The tell was asymmetry. `nlp1` and `nlp2` both coupled to `e2` with byte-identical
+values, and so did `outp` and `outn` — which a differential layout cannot do. A
+correct extraction gives matched pairs instead (`mgate-e1` 11.406 fF against
+`mgate-e2` 11.383 fF). Worth checking symmetry before believing any parasitic set
+from a symmetric layout.
+
+**Extracted ports are not the interface.** The LVS netlist lists only nets a
+*device* touches. In the reduced view nothing touches `vdd`, because both coils are
+black-boxed, so `vdd` is missing from its `.SUBCKT` line. Building the post-layout
+core from that list discarded 137 fF of supply capacitance — 134.78 fF of it the
+power ring's coupling to `vss` — and left the wrapper connecting `ind_shunt` to a
+`vdd` that was not the layout's `vdd`. The core has to be built from the intended
+interface, with the extracted list checked against it so a net that should have been
+promoted surfaces as an error rather than as missing parasitics.
+
 ## Method notes worth reusing
 
 - **Compare merged polygons, not bounding boxes.** An early connectivity check

@@ -346,6 +346,22 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   and the method notes: **[layout/debug_pex/FINDINGS.md](layout/debug_pex/FINDINGS.md)**.
 - **Flat extraction emits no `.subckt` at all**, just a bare deck, so anything that needs an
   includable subcircuit has to supply the header and the port list itself.
+- **Do not pre-flatten a GDS with `write_for_magic` before extracting a block.** It **merges nets**:
+  the CTLE sim view, which LVS-matches its CDL, extracted with `e1`, `e2` and `vss` collapsed into one
+  node — all 75 array devices reading `d=e2 s=e2`, and `e1` and `vss` absent from the deck entirely
+  `[sim]`. Passing the same GDS straight to `run_magic_pex` gives three distinct arrays and symmetric
+  couplings. Flatten in the netlist (`ext2spice hierarchy off`), not in the layout. The tell was
+  asymmetry: `nlp1` and `nlp2` both coupling to `e2` with byte-identical values, which a differential
+  layout cannot do. `write_for_magic` is still used by the single-device flow, where 2–3 nets per cell
+  makes the collapse unlikely and the numbers check out, but it should not be trusted on a block.
+- **Check parasitics for symmetry before believing them.** A correctly extracted differential layout
+  gives matched pairs — `mgate–e1` 11.406 fF against `mgate–e2` 11.383 fF, `nlp1–vdd` and `nlp2–vdd`
+  identical. One-sided couplings mean merged nets, not a real asymmetry.
+- **Post-layout ports are not the same set as extracted ports.** The LVS netlist lists only nets a
+  *device* touches. In the reduced view nothing touches `vdd` — both coils are black-boxed — so `vdd`
+  is missing from its `.SUBCKT` line, and building the core from that list silently discarded 137 fF
+  of supply capacitance (134.78 fF of it the ring's coupling to `vss`) and left the wrapper connecting
+  `ind_shunt` to a `vdd` that was not the layout's. Build the core from the intended interface.
 - **Magic's MOS `as`/`ad`/`ps`/`pd` are unusable for a strapped array.** Parallel units share drain and
   source nets, so it puts the merged node's whole diffusion on one arbitrary instance and gives the
   rest `as=0` — which the model file defines as "calculate it", not "none here", so 24 estimated
