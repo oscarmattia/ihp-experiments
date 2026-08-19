@@ -68,7 +68,6 @@ from ctlelib import (  # noqa: E402
     plot_tran_se,
     prepare_tb,
     run_ngspice,
-    sbr_tap_label,
     targets_ok,
     verify_eye_pair_width_agreement,
     verify_eye_phase_invariance,
@@ -80,6 +79,7 @@ from ctlelib import (  # noqa: E402
     write_sbr_taps_csv,
     write_tran_csv,
 )
+from ctlelib.reports import write_ctle_report  # noqa: E402
 
 NYQUIST_HZ = 28e9
 CMRR_MIN_DB = 6.0
@@ -510,194 +510,6 @@ def write_summary(
         rows += extra_rows
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
-
-
-def _fmt_hz(hz: float) -> str:
-    if math.isnan(hz):
-        return "—"
-    if hz >= 1e9:
-        return f"{hz / 1e9:.2f} GHz"
-    if hz >= 1e6:
-        return f"{hz / 1e6:.1f} MHz"
-    return f"{hz:.3g} Hz"
-
-
-def _fmt_db(val: float) -> str:
-    return "—" if math.isnan(val) else f"{val:.2f} dB"
-
-
-def _fmt_v(val: float) -> str:
-    return "—" if math.isnan(val) else f"{val:.3f} V"
-
-
-def _fmt_a(val: float) -> str:
-    return "—" if math.isnan(val) else f"{val * 1e3:.3f} mA"
-
-
-def _sbr_section_body(title: str, sbr: SbrResult, out_subdir: str) -> str:
-    sbr_rows: list[str] = []
-    h0 = sbr.cursor_mV
-    for k, h_mV, kept in sbr.taps:
-        label = sbr_tap_label(k)
-        ratio = h_mV / h0 if h0 != 0 else float("nan")
-        kept_str = "yes" if kept else "no"
-        if k == 0:
-            sbr_rows.append(
-                f"| **{label}** | {k} | {h_mV:.3f} | 1.000 | {kept_str} |"
-            )
-        else:
-            sbr_rows.append(
-                f"| {label} | {k} | {h_mV:.3f} | {ratio:.4f} | {kept_str} |"
-            )
-    return f"""
-### {title}
-
-Waveforms: `out/{out_subdir}/sbr.png`, `out/{out_subdir}/sbr.csv`, `out/{out_subdir}/sbr_taps.csv`.
-
-Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **{SBR_SETTLE_UI} UI** settle at logic 0.
-Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; drop taps with
-|h| < **{SBR_KEEP_FRAC * 100:.2g}%** of |cursor| (h_0 always kept).
-
-| Tap | k | h (mV) | h / h_0 | Kept |
-| --- | --- | --- | --- | --- |
-{chr(10).join(sbr_rows)}
-
-- Main cursor h_0 = **{sbr.cursor_mV:.2f} mV** at t = **{sbr.t_cursor_ui:.3f} UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **{sbr.isi_norm:.4f}** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **{sbr.isi_abs:.4f}** (same taps)
-- Taps with |h| < {SBR_KEEP_FRAC * 100:.2g}% of |cursor| are omitted from the ISI sums.
-"""
-
-
-def write_ctle_report(
-    path: Path,
-    params: CtleParams,
-    ideal: SimMetrics,
-    pdk: SimMetrics | None,
-    sbr_ideal: SbrResult | None = None,
-    sbr_pdk: SbrResult | None = None,
-) -> None:
-    """Regenerate circuits/ctle56n/ctle_report.md from sizing + sim metrics."""
-    m_bessel = params.l_h / (params.rd_ohm**2 * params.cl_f)
-    l_ph = params.l_h * 1e12
-    mos_vgs = params.mos_vgs
-    rppd_note = f"{params.rppd_w_um:.1f}×{params.rppd_l_um:.1f} µm" if params.rppd_w_um else "ideal RD"
-
-    def row(param: str, symbol: str, ideal_val: str, pdk_val: str, notes: str = "") -> str:
-        if pdk is None:
-            return f"| {param} | {symbol} | {ideal_val} | {notes} |"
-        return f"| {param} | {symbol} | {ideal_val} | {pdk_val} | {notes} |"
-
-    pdk_dc = _fmt_db(pdk.dc_gain_db) if pdk else "—"
-    pdk_peak28 = _fmt_db(pdk.peaking_db) if pdk else "—"
-    pdk_gpeak = _fmt_db(pdk.peak_gain_db) if pdk else "—"
-    pdk_fpeak = _fmt_hz(pdk.f_peak_hz) if pdk else "—"
-    pdk_f3 = _fmt_hz(pdk.f_3db_hz) if pdk else "—"
-    pdk_cmrr = _fmt_db(pdk.cmrr_db) if pdk else "—"
-    pdk_psrr = _fmt_db(pdk.psrr_db) if pdk else "—"
-    pdk_vce = _fmt_v(pdk.vce_v) if pdk else "—"
-    pdk_vds = _fmt_v(pdk.vds_tail_v) if pdk else "—"
-
-    table_header = (
-        "| Parameter | Symbol | Ideal | PDK | Notes |\n"
-        "| --- | --- | --- | --- | --- |"
-        if pdk
-        else "| Parameter | Symbol | Value | Notes |\n| --- | --- | --- | --- |"
-    )
-
-    rows = [
-        row("Emitter multiplier", "Nx", str(params.nx), str(params.nx), "HBT LUT index"),
-        row("HBT VBE (LUT)", "VBE", f"{params.vbe:.3f} V", f"{params.vbe:.3f} V", "max-fT bias"),
-        row("Input common-mode", "VBASE", f"{params.vbase:.3f} V", f"{params.vbase:.3f} V", "inp/inn DC"),
-        row("Supply", "VDD", f"{params.vdd:.3f} V", f"{params.vdd:.3f} V", "below BVceo ~1.6 V"),
-        row("HBT collector current", "Ic", _fmt_a(ideal.ic_a), _fmt_a(pdk.ic_a) if pdk else "—", "per side"),
-        row("Tail current", "I_tail", _fmt_a(params.itail_a), _fmt_a(params.itail_a), "Ic per tail (×2 devices)"),
-        row("Transition frequency", "f_T", _fmt_hz(params.ft_hz), _fmt_hz(params.ft_hz), "LUT at bias"),
-        row("Transconductance", "g_m", f"{params.gm * 1e3:.2f} mS", f"{params.gm * 1e3:.2f} mS", ""),
-        row("Input capacitance", "C_in", f"{params.cin_f * 1e15:.2f} fF", f"{params.cin_f * 1e15:.2f} fF", "HBT CIN"),
-        row(
-            "Load capacitance",
-            "C_L",
-            f"{params.cl_f * 1e15:.2f} fF",
-            f"{params.cl_f * 1e15:.2f} fF",
-            "Miller + route (no coil port C)",
-        ),
-        row("Load resistor", "R_D", f"{params.rd_ohm:.1f} Ω", rppd_note if pdk else f"{params.rd_ohm:.1f} Ω", "shunt peak"),
-        row("Emitter degeneration", "R_s", f"{params.rs_ohm:.1f} Ω", f"{params.rs_ohm:.1f} Ω", ""),
-        row("Degeneration cap", "C_s", f"{params.cs_f * 1e15:.1f} fF", f"{params.cs_f * 1e15:.1f} fF", "ideal or MIM"),
-        row(
-            "Drain inductor",
-            "L",
-            f"{l_ph:.2f} pH",
-            f"{l_ph:.2f} pH",
-            "ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH)",
-        ),
-        row("Bessel MFD", "m", f"{m_bessel:.2f}", f"{m_bessel:.2f}", "L/(R_D² C_L)"),
-        row(
-            "MOS tail W/L/VGS",
-            "W/L/VGS",
-            f"{params.mos_w_um:.0f}/{params.mos_l_um:.1f}/{mos_vgs:.3f} V",
-            f"{params.mos_w_um:.0f}/{params.mos_l_um:.1f}/{mos_vgs:.3f} V",
-            "LV NMOS + mirror",
-        ),
-        row("RPPD load", "W/L", "ideal R", rppd_note, "LUT ≈ R_D/0.88"),
-        row("DC gain", "A_v0", _fmt_db(ideal.dc_gain_db), pdk_dc, "−6…0 dB target"),
-        row("Peaking @ 28 GHz", "—", _fmt_db(ideal.peaking_db), pdk_peak28, "3–10 dB target"),
-        row("Peak AC gain", "G_peak", _fmt_db(ideal.peak_gain_db), pdk_gpeak, ""),
-        row("Peak frequency", "f_peak", _fmt_hz(ideal.f_peak_hz), pdk_fpeak, ""),
-        row("−3 dB bandwidth", "f_{−3dB}", _fmt_hz(ideal.f_3db_hz), pdk_f3, "after peak"),
-        row("CMRR", "—", _fmt_db(ideal.cmrr_db), pdk_cmrr, "> 6 dB"),
-        row("PSRR", "—", _fmt_db(ideal.psrr_db), pdk_psrr, "> 20 dB (clipped 120 dB)"),
-        row("HBT VCE", "V_CE", _fmt_v(ideal.vce_v), pdk_vce, ""),
-        row("MOS tail VDS", "V_DS,tail", _fmt_v(ideal.vds_tail_v), pdk_vds, ""),
-    ]
-
-    stim_note = (
-        f"Transient stimulus: **PRBS9** ({PRBS9_POLY}), **{PRBS9_BITS} UI** "
-        f"(one full period), **100 mVpp,diff**, ~4.5 ps edges. "
-        f"AC sweep **1 MHz–300 GHz**. CMRR **> 6 dB**, PSRR **> 20 dB**."
-    )
-
-    body = f"""# 56 Gb/s NRZ CML CTLE — design report
-
-Auto-generated by `python/run_sims.py` — do not hand-edit numbers.
-
-## Topology
-
-CML continuous-time linear equalizer (CTLE) for **56 Gb/s NRZ** (Nyquist **28 GHz**).
-HBT differential pair (`npn13G2`) with **shunt-peaked loads** (R_D + ideal L from VDD),
-**emitter degeneration** (R_s + C_s), and an **LV NMOS tail** with 1:1 diode-connected mirror.
-
-Sizing uses characterization LUTs (`char/bjt`, `char/mos`, `char/passive`) at max-f_T HBT bias.
-Load C_L = Miller-aware FO1 VGA input + interconnect (not raw LUT CIN; coil port C excluded).
-Bessel shunt-peaking **m = L/(R_D² C_L) ≈ {m_bessel:.2f}**.
-
-The drain inductor **L = {l_ph:.2f} pH** ({params.l_h:.6g} H) is physically tiny (via / short-trace scale).
-No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L remains **ideal** in ngspice.
-
-## Targets
-
-- DC gain **−6 … 0 dB** (aim 0 dB)
-- Peaking **3–10 dB at 28 GHz**
-- CMRR **> 6 dB**, PSRR **> 20 dB** at low frequency
-- {stim_note}
-
-## Sizing summary
-
-{table_header}
-{chr(10).join(rows)}
-
-Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
-Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
-Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk/metrics.csv`.
-"""
-    if sbr_ideal or sbr_pdk:
-        body += "\n## Single-bit response\n"
-        if sbr_ideal:
-            body += _sbr_section_body("Ideal", sbr_ideal, "ideal")
-        if sbr_pdk:
-            body += _sbr_section_body("PDK", sbr_pdk, "pdk")
-    path.write_text(body)
 
 
 def _read_pass_metrics(path: Path) -> list[tuple[str, str]]:
