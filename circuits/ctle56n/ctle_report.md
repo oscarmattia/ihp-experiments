@@ -51,3 +51,31 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 | PSRR | — | 120.00 dB | 120.00 dB | > 20 dB (clipped 120 dB) |
 | HBT VCE | V_CE | 1.067 V | 1.035 V |  |
 | MOS tail VDS | V_DS,tail | 0.224 V | 0.223 V |  |
+
+## Single-bit response
+
+Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **32 UI** settle at logic 0.
+Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
+|h| < **2.5%** of |cursor| (h_0 always kept).
+
+| Tap | k | h (mV) | h / h_0 | Kept |
+| --- | --- | --- | --- | --- |
+| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
+| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
+| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
+| **h_0 cursor** | 0 | -155.558 | 1.000 | yes |
+| h_1 post | 1 | 57.372 | -0.3688 | yes |
+| h_2 post | 2 | 5.870 | -0.0377 | yes |
+| h_3 post | 3 | 0.475 | -0.0031 | no |
+| h_4 post | 4 | 0.031 | -0.0002 | no |
+| h_5 post | 5 | -0.006 | 0.0000 | no |
+| h_6 post | 6 | -0.009 | 0.0001 | no |
+| h_7 post | 7 | -0.009 | 0.0001 | no |
+| h_8 post | 8 | -0.009 | 0.0001 | no |
+| h_9 post | 9 | -0.009 | 0.0001 | no |
+| h_10 post | 10 | -0.009 | 0.0001 | no |
+
+- Main cursor h_0 = **-155.56 mV** at t = **0.392 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.4065** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.4065** (same taps)
+- Taps with |h| < 2.5% of |cursor| are omitted from the ISI sums.
