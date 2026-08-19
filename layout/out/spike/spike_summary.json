@@ -1,0 +1,13 @@
+{
+  "ports": [
+    "A",
+    "B"
+  ],
+  "routes": 1,
+  "gds": "/workspace/layout/out/spike/rppd_route_spike.gds",
+  "png": "/workspace/layout/out/spike/rppd_route_spike.png",
+  "drc_clean": true,
+  "drc_real_violations": 0,
+  "drc_context_violations": {},
+  "drc_real_by_rule": {}
+}

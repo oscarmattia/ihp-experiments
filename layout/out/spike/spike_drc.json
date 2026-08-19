@@ -1,0 +1,17 @@
+{
+  "cell": "rppd_route_spike",
+  "gds": "/workspace/layout/out/spike/rppd_route_spike.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/out/spike/drc_run/rppd_route_spike_Unnamed_1_main.lyrdb",
+  "log": "/workspace/layout/out/spike/drc_run/drc_run.log",
+  "error": ""
+}

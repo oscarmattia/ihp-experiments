@@ -373,6 +373,28 @@ install_python_deps() {
   venv_install "$GDSFACTORY_SPEC" psutil tqdm termcolor matplotlib \
     || warn "Some layout Python packages failed to install"
 
+  # Then force the klayout module back to the PDK's pinned version.
+  #
+  # These two requirements genuinely conflict: gdsfactory 9.44 depends on
+  # kfactory >= 2.5, which declares klayout >= 0.30.8, while the PDK pins
+  # 0.30.5 and its CI asserts that the binary and the pip module both match.
+  # The PDK version is the one that decides whether signoff is running on a
+  # combination IHP tested, and it is also the version our PCell generation
+  # shares with the DRC binary, so it wins. kfactory works below its declared
+  # floor for the routing we do, and verify-ihp-layout.sh proves it rather than
+  # assuming: the routing spike exercises kfactory end to end and puts the
+  # result through the DRC deck.
+  local klayout_pin
+  klayout_pin="klayout==$(klayout_required_version)"
+  log "Pinning the klayout module to $klayout_pin (PDK versions.txt)"
+  venv_install --reinstall "$klayout_pin" || warn "could not pin $klayout_pin"
+
+  local installed
+  installed="$("$IHP_EDA_ROOT/venv/bin/python" -c 'import klayout;print(klayout.__version__)' 2>/dev/null)"
+  if [[ "$installed" != "$(klayout_required_version)" ]]; then
+    warn "klayout pip module is $installed, expected $(klayout_required_version)"
+  fi
+
   if [[ "$WITH_IHP_GDSFACTORY" -eq 1 ]]; then
     # --no-deps is deliberate: ihp-gdsfactory declares a hard dependency on
     # gdsfactoryplus, which is proprietary. No module in the ihp package

@@ -108,3 +108,31 @@ def layer_map() -> LayerMap:
             f"No layers parsed from {pdk_paths().drc_layers_def}; PDK format may have changed"
         )
     return LayerMap(polygons=polygons, texts=texts)
+
+
+def validate_routing_layers() -> list[str]:
+    """Check ROUTING_METALS and VIA_STACK against the PDK's own definitions.
+
+    ``ROUTING_METALS`` is written out rather than derived because gdsfactory
+    needs the routing stack at class-definition time. That makes it the one
+    hand-maintained layer table in the flow, so it is checked against the
+    parsed PDK map instead of being trusted. Returns a list of mismatches,
+    empty when consistent.
+    """
+    lm = layer_map()
+    problems: list[str] = []
+    for metal, spec in ROUTING_METALS.items():
+        for role, suffix in (("drw", "drw"), ("pin", "pin"), ("text", "text")):
+            name = f"{metal.lower()}_{suffix}"
+            expected = lm.get(name)
+            actual = spec[role]
+            if expected is None:
+                problems.append(f"{name} is not defined by the PDK")
+            elif tuple(expected) != tuple(actual):  # type: ignore[arg-type]
+                problems.append(f"{name}: table says {actual}, PDK says {expected}")
+    for bottom, via, top in VIA_STACK:
+        # Via layer names in the PDK are via1..via4, topvia1, topvia2.
+        candidates = [n for n, ld in lm.polygons.items() if tuple(ld) == tuple(via)]
+        if not candidates:
+            problems.append(f"via {via} between {bottom} and {top} is not defined by the PDK")
+    return problems

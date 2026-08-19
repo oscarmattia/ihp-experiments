@@ -46,7 +46,10 @@ The repo's `pdk/` path is **gitignored and empty**; `$PDK_ROOT` is the only real
 | ngspice | **45.2**, KLU solver, `--enable-osdi` | built from source; apt ngspice is not OSDI-compatible with IHP models |
 | OpenVAF-Reloaded | `openvaf-r` (reports "unknown") | Verilog-A → OSDI; needs LLVM 21 runtime |
 | xschem | 3.4.6 | schematic capture |
-| KLayout | 0.28.16 (apt fallback) | IHP tests against 0.30.x; the official `.deb` needs `klayout.de` egress |
+| KLayout | **0.30.5** (source build) | the version `$PDK_ROOT/versions.txt` pins and `run_drc.py` enforces; `klayout.org`/`klayout.de` are blocked, so `install-ihp-layout.sh` builds from GitHub |
+| Magic | **8.3.589** | `install-ihp-layout.sh`; the pin in `versions.txt`. apt's 8.3.105 is below the tech file's 8.3.573 floor |
+| netgen | **1.5.323** | `install-ihp-layout.sh`; LVS netgen, **not** apt's FEM mesh generator of the same name |
+| gdsfactory | **9.44.0** | composition and electrical routing only; devices are foundry PCells |
 | Python | 3.12.3 in `$IHP_EDA_ROOT/venv` | |
 | PDK | branch `dev`, `970a7688` | docs require `dev` for current ngspice examples |
 | openEMS | **not installed by default** | `./scripts/install-ihp-em.sh`; no `em.env.sh` until then |
@@ -129,7 +132,28 @@ Hosts commonly blocked until allowlisted, and what the installer does instead:
 | `apt.llvm.org` | LLVM 21 runtime for `openvaf-r` | required, usually allowlisted |
 | `ihp-open-pdk-docs.readthedocs.io` | docs only | — |
 
+## Layout tier (optional)
+
+Magic, netgen, a PDK-pinned KLayout and gdsfactory are **not** part of the analog
+installer. Add them with:
+
+```bash
+./scripts/install-ihp-layout.sh          # or: ./scripts/install-ihp-eda.sh --with-layout
+source ~/.local/share/ihp-eda/env.sh     # sources layout.env.sh automatically
+./scripts/verify-ihp-layout.sh
+```
+
+This writes `$IHP_EDA_ROOT/layout.env.sh` (KLayout tech path, PCell Python paths,
+`MAGIC_RCFILE`, `NETGEN_SETUP`) and hooks it into `env.sh`. See
+[LAYOUT.md](LAYOUT.md) for the flow and its pitfalls.
+
+Egress note: `klayout.org` and `klayout.de` are blocked here, so KLayout is built
+from GitHub source instead of installed from the official `.deb`. Allowlisting
+either domain switches the installer to the fast path automatically.
+
 ## Out of scope (analog-first)
 
-Not installed by default: Xyce + ADMS, Qucs-S, Magic/netgen (PDK ships Magic tech files),
-OpenROAD/LibreLane, GDSFactory, pygmid beyond `requirements.txt`.
+Not installed by default: Xyce + ADMS, Qucs-S, OpenROAD/LibreLane,
+`ihp-gdsfactory` (its cells are re-implementations of the foundry PCells, and it
+declares a proprietary `gdsfactoryplus` dependency), pygmid beyond
+`requirements.txt`.
