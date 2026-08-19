@@ -10,7 +10,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:47 +0000: Memory Usage (142156K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rppd_load/rppd_load_extracted.cir",
       "param_checks": [
         {
@@ -45,7 +45,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:48 +0000: Memory Usage (142320K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rsil_degen/rsil_degen_extracted.cir",
       "param_checks": [
         {
@@ -80,7 +80,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:48 +0000: Memory Usage (142412K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmomi_cs/cmomi_cs_extracted.cir",
       "param_checks": [
         {
@@ -101,7 +101,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:49 +0000: Memory Usage (141840K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/npn13G2_pair_device_extracted.cir",
       "param_checks": [
         {
@@ -129,7 +129,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:50 +0000: Memory Usage (142236K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_tail_unit/nmos_tail_unit_extracted.cir",
       "param_checks": [
         {
@@ -157,7 +157,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:51 +0000: Memory Usage (143920K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/inductor_turn1_d40_extracted.cir",
       "param_checks": [
         {
@@ -199,7 +199,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:52 +0000: Memory Usage (142660K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ntap1_guard/ntap1_guard_extracted.cir",
       "param_checks": [
         {
@@ -220,7 +220,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:53 +0000: Memory Usage (142664K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ptap1_guard/ptap1_guard_extracted.cir",
       "param_checks": [
         {
@@ -241,7 +241,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:53 +0000: Memory Usage (142544K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmim_decap/cmim_decap_extracted.cir",
       "param_checks": [
         {
@@ -262,7 +262,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:54 +0000: Memory Usage (142264K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p13/nmos_char_l0p13_extracted.cir",
       "param_checks": [
         {
@@ -290,7 +290,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:55 +0000: Memory Usage (141748K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p18/nmos_char_l0p18_extracted.cir",
       "param_checks": [
         {
@@ -318,7 +318,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:56 +0000: Memory Usage (142328K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p25/nmos_char_l0p25_extracted.cir",
       "param_checks": [
         {
@@ -346,7 +346,7 @@
       "clean": true,
       "params_ok": true,
       "devices_matched": 0,
-      "summary": "2026-08-19 20:04:57 +0000: Memory Usage (141876K) : INFO : Congratulations! Netlists match.",
+      "summary": "Congratulations! Netlists match.",
       "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/nmos_char_l0p5_extracted.cir",
       "param_checks": [
         {

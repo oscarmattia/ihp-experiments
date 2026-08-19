@@ -92,8 +92,21 @@ def write_gds(layout, cell, path: Path, name: str | None = None, flatten: bool =
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     out, _ = export_cell(layout, cell, name or path.stem, flatten=flatten)
-    out.write(str(path))
+    out.write(str(path), deterministic_save_options())
     return path
+
+
+def deterministic_save_options():
+    """Save options that make GDS output a function of the layout alone.
+
+    GDS records a modification and access date in every structure's BGNSTR, so an
+    otherwise identical re-run rewrites four bytes per cell — 176 across the CTLE
+    stage's 44 cells. These files are committed and diffed as goldens, so that noise
+    would hide a real change on every run.
+    """
+    options = pya_module().SaveLayoutOptions()
+    options.gds2_write_timestamps = False
+    return options
 
 
 def write_for_magic(gds_in: Path, gds_out: Path, cell: str | None = None) -> tuple[Path, str]:
@@ -130,7 +143,7 @@ def write_for_magic(gds_in: Path, gds_out: Path, cell: str | None = None) -> tup
     name = cell or (gds_out.stem if source.name.startswith("Unnamed") else source.name)
     out, target = export_cell(layout, source, name, flatten=True)
 
-    options = pya.SaveLayoutOptions()
+    options = deterministic_save_options()
     options.format = "GDS2"
     options.select_all_layers()
     options.write_context_info = False

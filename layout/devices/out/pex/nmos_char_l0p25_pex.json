@@ -28,9 +28,9 @@
   ],
   "resistance_extracted": true,
   "note": "",
-  "total_capacitance_f": 4.612100000000001e-16,
+  "total_capacitance_f": 4.6121e-16,
   "per_net_capacitance_f": {
-    "0": 3.6526000000000004e-16,
+    "0": 3.6526e-16,
     "S": 1.6679e-16,
     "D": 1.6679e-16,
     "a_68_n36#": 1.0568e-16,

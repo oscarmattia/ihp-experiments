@@ -16,12 +16,12 @@
   ],
   "resistance_extracted": true,
   "note": "",
-  "total_capacitance_f": 5.220650000000001e-15,
+  "total_capacitance_f": 5.22065e-15,
   "per_net_capacitance_f": {
-    "w_n120_n120#": 4.397830000000001e-15,
+    "w_n120_n120#": 4.39783e-15,
     "MINUS": 3.15688e-15,
     "PLUS": 2.26947e-15,
-    "MINUS.t0": 6.171200000000001e-16
+    "MINUS.t0": 6.1712e-16
   },
   "log": "/workspace/layout/devices/out/pex_run/cmim_decap/magic_pex.log",
   "error": "",

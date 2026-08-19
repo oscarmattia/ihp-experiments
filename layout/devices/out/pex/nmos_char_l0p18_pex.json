@@ -30,12 +30,12 @@
   "note": "",
   "total_capacitance_f": 4.7674e-16,
   "per_net_capacitance_f": {
-    "0": 3.7222000000000006e-16,
+    "0": 3.7222e-16,
     "S": 1.8103e-16,
     "D": 1.8103e-16,
-    "a_68_n36#": 8.564000000000001e-17,
-    "D.t0": 6.678000000000001e-17,
-    "S.t0": 6.678000000000001e-17
+    "a_68_n36#": 8.564e-17,
+    "D.t0": 6.678e-17,
+    "S.t0": 6.678e-17
   },
   "log": "/workspace/layout/devices/out/pex_run/nmos_char_l0p18/magic_pex.log",
   "error": ""

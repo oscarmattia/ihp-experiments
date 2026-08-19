@@ -305,9 +305,14 @@ def _summarize_netlist(text: str, result: PexResult) -> None:
     result.resistors = count_r
     result.capacitors = count_c
     result.total_resistance = round(total_r, 6)
-    result.total_capacitance = total_c
+    # Summing floats in file order leaves the last couple of digits unstable between
+    # otherwise identical runs, and these summaries are committed, so that jitter
+    # showed up as a diff every time. Six significant figures is far more precision
+    # than an extraction of an aF-scale coupling supports.
+    result.total_capacitance = float(f"{total_c:.6g}")
     result.per_net_capacitance = {
-        net: value for net, value in sorted(per_net.items(), key=lambda kv: -kv[1])[:20]
+        net: float(f"{value:.6g}")
+        for net, value in sorted(per_net.items(), key=lambda kv: -kv[1])[:20]
     }
 
 

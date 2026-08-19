@@ -33,6 +33,22 @@ _SI = {
 _NUM_RE = re.compile(r"^([+-]?\d*\.?\d+(?:[eE][+-]?\d+)?)\s*([a-zA-Zµ]*)$")
 
 
+_LVS_PREFIX = re.compile(
+    r"^\s*\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}: "
+    r"Memory Usage \(\d+K\) : (?:INFO|ERROR|WARNING) : "
+)
+
+
+def _verdict_only(line: str) -> str:
+    """Strip the deck's timestamp and memory prefix from a verdict line.
+
+    The verdict is the result; the wall-clock time and the resident size are
+    telemetry. These summaries are committed, so leaving them in meant every run
+    rewrote the JSON and a real change had to be picked out of that noise.
+    """
+    return _LVS_PREFIX.sub("", line).strip()
+
+
 def parse_si(text: str) -> float | None:
     """Parse a SPICE number with an optional SI suffix."""
     match = _NUM_RE.match(text.strip())
@@ -160,7 +176,7 @@ def run_lvs(
     for marker in ("Congratulations", "Netlists don't match", "LVS Check Failed", "ERROR"):
         for line in combined.splitlines():
             if marker in line:
-                result.summary = line.strip()
+                result.summary = _verdict_only(line)
                 break
         if result.summary:
             break
