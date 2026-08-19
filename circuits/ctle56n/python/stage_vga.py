@@ -57,6 +57,7 @@ from ctlelib import (  # noqa: E402
     plot_tran_se,
     prepare_tb,
     run_ngspice,
+    verify_eye_pair_width_agreement,
     verify_eye_phase_invariance,
     write_ac_diff_csv,
     write_eye_csvs,
@@ -69,6 +70,7 @@ from ctlelib import (  # noqa: E402
 
 NYQUIST_HZ = 28e9
 VGA_DUT_NAME = "vga_dut"
+VCE_FLOOR_V = 0.9
 
 VGA_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
@@ -113,6 +115,8 @@ class VgaSettingMetrics:
     id_tail_a: float
     vout_cm_v: float
     steer_ok: bool
+    op_ok: bool = True
+    op_error: str = ""
 
 
 def _spice_dir() -> Path:
@@ -243,7 +247,36 @@ def run_dc_sweep(
             spice_dir,
             ep,
         )
-        dc_log = run_ngspice(tb_dc, work, f"dc_vctrl_{vc:.3f}.log")
+        try:
+            dc_log = run_ngspice(tb_dc, work, f"dc_vctrl_{vc:.3f}.log")
+        except RuntimeError as exc:
+            err = str(exc).strip().splitlines()[-1] if exc else "OP failed"
+            print(f"    ERROR: DC OP failed at VCTRL={vc:.2f} V — {err}")
+            op_chunks.append(f"\n=== VCTRL = {vc:.3f} V (OP FAILED) ===\n{exc}\n")
+            rows.append(
+                VgaSettingMetrics(
+                    vctrl_v=vc,
+                    dc_gain_db=float("nan"),
+                    ac_gain_28g_db=float("nan"),
+                    peaking_db=float("nan"),
+                    peak_gain_db=float("nan"),
+                    f_peak_hz=float("nan"),
+                    f_3db_hz=float("nan"),
+                    vce_v=float("nan"),
+                    vds_tail_v=float("nan"),
+                    vgs_tail_v=float("nan"),
+                    ic_signal_a=float("nan"),
+                    ic_dummy_a=float("nan"),
+                    id_tail_signal_a=float("nan"),
+                    id_tail_dummy_a=float("nan"),
+                    id_tail_a=float("nan"),
+                    vout_cm_v=float("nan"),
+                    steer_ok=False,
+                    op_ok=False,
+                    op_error=err,
+                )
+            )
+            continue
         dc = parse_dc_log(dc_log)
         v_c1 = dc.get("v(outp)", 0.0)
         v_c2 = dc.get("v(outn)", 0.0)
@@ -273,6 +306,7 @@ def run_dc_sweep(
                 id_tail_a=id_tail,
                 vout_cm_v=vout_cm,
                 steer_ok=steer_ok,
+                op_ok=True,
             )
         )
         op_chunks.append(f"\n=== VCTRL = {vc:.3f} V ===\n")
@@ -448,15 +482,97 @@ def plot_gain_vs_vctrl(settings: list[VgaSettingMetrics], path: Path) -> None:
     plt.close(fig)
 
 
+def analyze_vga_headroom(dc_rows: list[VgaSettingMetrics]) -> dict[str, float | str | None]:
+    """Identify usable VCTRL range at VDD=1.6 V from per-setting VCE."""
+    usable_max: float | None = None
+    cross_vctrl: float | None = None
+    vce_at_max: float | None = None
+    for row in sorted(dc_rows, key=lambda r: r.vctrl_v):
+        if not row.op_ok:
+            continue
+        if row.vce_v < VCE_FLOOR_V and cross_vctrl is None:
+            cross_vctrl = row.vctrl_v
+        if row.vce_v >= VCE_FLOOR_V:
+            usable_max = row.vctrl_v
+    max_vc = max((r.vctrl_v for r in dc_rows), default=float("nan"))
+    max_row = next((r for r in dc_rows if abs(r.vctrl_v - max_vc) < 1e-6), None)
+    if max_row:
+        vce_at_max = max_row.vce_v if max_row.op_ok else float("nan")
+    return {
+        "usable_vctrl_max": usable_max,
+        "vce_cross_vctrl": cross_vctrl,
+        "vce_floor_v": VCE_FLOOR_V,
+        "vctrl_max_op_ok": max_row.op_ok if max_row else False,
+        "vce_at_vctrl_max": vce_at_max,
+    }
+
+
+def write_vce_vs_vctrl_csv(path: Path, dc_rows: list[VgaSettingMetrics]) -> None:
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow([
+            "VCTRL_V", "VCE_V", "VDS_tail_V", "Vout_CM_V", "Ic_signal_A",
+            "op_ok", "above_vce_floor", "op_error",
+        ])
+        for dc in sorted(dc_rows, key=lambda r: r.vctrl_v):
+            above = (
+                dc.op_ok and not math.isnan(dc.vce_v) and dc.vce_v >= VCE_FLOOR_V
+            )
+            w.writerow([
+                f"{dc.vctrl_v:.4f}",
+                f"{dc.vce_v:.4f}" if dc.op_ok else "nan",
+                f"{dc.vds_tail_v:.4f}" if dc.op_ok else "nan",
+                f"{dc.vout_cm_v:.4f}" if dc.op_ok else "nan",
+                f"{dc.ic_signal_a:.6g}" if dc.op_ok else "nan",
+                "yes" if dc.op_ok else "no",
+                "yes" if above else "no",
+                dc.op_error,
+            ])
+
+
+def read_vga_headroom(pass_name: str = "vga_pdk") -> dict[str, float | str | None]:
+    """Load headroom summary written by the VGA stage."""
+    path = pass_out(pass_name) / "vce_vs_vctrl.csv"
+    if not path.is_file():
+        return {"usable_vctrl_max": None, "vce_cross_vctrl": None}
+    rows: list[VgaSettingMetrics] = []
+    with path.open() as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            rows.append(
+                VgaSettingMetrics(
+                    vctrl_v=float(row["VCTRL_V"]),
+                    dc_gain_db=float("nan"),
+                    ac_gain_28g_db=float("nan"),
+                    peaking_db=float("nan"),
+                    peak_gain_db=float("nan"),
+                    f_peak_hz=float("nan"),
+                    f_3db_hz=float("nan"),
+                    vce_v=float(row["VCE_V"]) if row["VCE_V"] != "nan" else float("nan"),
+                    vds_tail_v=float("nan"),
+                    vgs_tail_v=float("nan"),
+                    ic_signal_a=float("nan"),
+                    ic_dummy_a=float("nan"),
+                    id_tail_signal_a=float("nan"),
+                    id_tail_dummy_a=float("nan"),
+                    id_tail_a=float("nan"),
+                    vout_cm_v=float("nan"),
+                    steer_ok=False,
+                    op_ok=row["op_ok"].strip().lower() == "yes",
+                )
+            )
+    return analyze_vga_headroom(rows)
+
+
 def write_gain_table(path: Path, dc_rows: list[VgaSettingMetrics], ac_rows: list[VgaSettingMetrics]) -> None:
     ac_by_vc = {round(r.vctrl_v, 4): r for r in ac_rows}
     with path.open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow([
             "VCTRL_V", "dc_gain_dB", "ac_gain_28G_dB", "peaking_28G_dB", "G_peak_dB",
-            "f_peak_Hz", "f_3dB_Hz", "Vout_CM_V",
+            "f_peak_Hz", "f_3dB_Hz", "VCE_V", "Vout_CM_V",
             "Ic_signal_A", "Ic_dummy_A", "Id_tail_signal_A", "Id_tail_dummy_A",
-            "Id_tail_total_A", "steer_ok",
+            "Id_tail_total_A", "steer_ok", "op_ok",
         ])
         for dc in dc_rows:
             ac = ac_by_vc.get(round(dc.vctrl_v, 4))
@@ -468,13 +584,15 @@ def write_gain_table(path: Path, dc_rows: list[VgaSettingMetrics], ac_rows: list
                 f"{ac.peak_gain_db:.3f}" if ac else "",
                 f"{ac.f_peak_hz:.6g}" if ac else "",
                 f"{ac.f_3db_hz:.6g}" if ac else "",
-                f"{dc.vout_cm_v:.4f}",
+                f"{dc.vce_v:.4f}" if dc.op_ok else "nan",
+                f"{dc.vout_cm_v:.4f}" if dc.op_ok else "nan",
                 f"{dc.ic_signal_a:.6g}",
                 f"{dc.ic_dummy_a:.6g}",
                 f"{dc.id_tail_signal_a:.6g}",
                 f"{dc.id_tail_dummy_a:.6g}",
-                f"{dc.id_tail_a:.6g}",
+                f"{dc.id_tail_a:.6g}" if dc.op_ok else "nan",
                 "yes" if dc.steer_ok else "no",
+                "yes" if dc.op_ok else "no",
             ])
 
 
@@ -492,15 +610,24 @@ def write_gain_vs_vctrl_csv(path: Path, settings: list[VgaSettingMetrics]) -> No
 def _alias_tran_sbr(pout: Path, src_tag: str, label: str) -> None:
     """Copy transient/SBR artifacts to CTLE-style min/mid/max names."""
     pairs = [
-        (f"tran_{src_tag}.csv", f"tran_{label}.csv" if label != "mid" else "tran.csv"),
-        (f"tran_se_{src_tag}.png", f"tran_se_{label}.png" if label != "mid" else "tran_se.png"),
-        (f"tran_diff_{src_tag}.png", f"tran_diff_{label}.png" if label != "mid" else "tran_diff.png"),
-        (f"eye_se_{src_tag}.png", f"eye_se_{label}.png" if label != "mid" else "eye_se.png"),
-        (f"eye_diff_{src_tag}.png", f"eye_diff_{label}.png" if label != "mid" else "eye_diff.png"),
-        (f"sbr_{src_tag}.csv", f"sbr_{label}.csv" if label != "mid" else "sbr.csv"),
-        (f"sbr_taps_{src_tag}.csv", f"sbr_taps_{label}.csv" if label != "mid" else "sbr_taps.csv"),
-        (f"sbr_{src_tag}.png", f"sbr_{label}.png" if label != "mid" else "sbr.png"),
+        (f"tran_{src_tag}.csv", f"tran_{label}.csv"),
+        (f"tran_se_{src_tag}.png", f"tran_se_{label}.png"),
+        (f"tran_diff_{src_tag}.png", f"tran_diff_{label}.png"),
+        (f"eye_se_{src_tag}.png", f"eye_se_{label}.png"),
+        (f"eye_diff_{src_tag}.png", f"eye_diff_{label}.png"),
+        (f"sbr_{src_tag}.csv", f"sbr_{label}.csv"),
+        (f"sbr_taps_{src_tag}.csv", f"sbr_taps_{label}.csv"),
+        (f"sbr_{src_tag}.png", f"sbr_{label}.png"),
     ]
+    if label == "mid":
+        pairs.append((f"tran_{src_tag}.csv", "tran.csv"))
+        pairs.append((f"tran_se_{src_tag}.png", "tran_se.png"))
+        pairs.append((f"tran_diff_{src_tag}.png", "tran_diff.png"))
+        pairs.append((f"eye_se_{src_tag}.png", "eye_se.png"))
+        pairs.append((f"eye_diff_{src_tag}.png", "eye_diff.png"))
+        pairs.append((f"sbr_{src_tag}.csv", "sbr.csv"))
+        pairs.append((f"sbr_taps_{src_tag}.csv", "sbr_taps.csv"))
+        pairs.append((f"sbr_{src_tag}.png", "sbr.png"))
     for src_name, dst_name in pairs:
         src = pout / src_name
         dst = pout / dst_name
@@ -611,7 +738,11 @@ def run_pass(
     print(f"  [{pass_name}] AC differential at each VCTRL …")
     for vc in params.vctrl_v:
         tag = f"vctrl_{vc:.2f}".replace(".", "p")
-        ac_m, _, _, _ = run_ac_at_vctrl(pass_name, dut_rel, params, vc, tag)
+        try:
+            ac_m, _, _, _ = run_ac_at_vctrl(pass_name, dut_rel, params, vc, tag)
+        except RuntimeError as exc:
+            print(f"    WARNING: AC failed at VCTRL={vc:.2f} V — skipping")
+            continue
         ac_rows.append(ac_m)
         print(
             f"    VCTRL={vc:.2f} V: DC={ac_m.dc_gain_db:.2f} dB "
@@ -639,6 +770,23 @@ def run_pass(
         merged.append(ac)
 
     write_gain_table(pout / "gain_vs_vctrl_table.csv", dc_rows, ac_rows)
+    write_vce_vs_vctrl_csv(pout / "vce_vs_vctrl.csv", dc_rows)
+    headroom = analyze_vga_headroom(dc_rows)
+    if pass_name.endswith("pdk"):
+        print(
+            f"  [{pass_name}] VCE headroom (floor {VCE_FLOOR_V:.1f} V): "
+            f"usable VCTRL <= {headroom['usable_vctrl_max']}"
+            + (
+                f" (crosses floor at VCTRL={headroom['vce_cross_vctrl']:.2f} V)"
+                if headroom["vce_cross_vctrl"] is not None
+                else ""
+            )
+        )
+        if not headroom["vctrl_max_op_ok"]:
+            print(
+                f"  [{pass_name}] VCTRL=1.00 V OP FAILED — out of headroom at VDD=1.6 V "
+                f"(VCE@max_usable={headroom['vce_at_vctrl_max']:.3f} V)"
+            )
     write_gain_vs_vctrl_csv(pout / "gain_vs_vctrl.csv", merged)
     plot_gain_vs_vctrl(merged, pout / "gain_vs_vctrl.png")
 
@@ -672,8 +820,12 @@ def run_pass(
         for vc in params.vctrl_v:
             tag = f"vctrl_{vc:.2f}".replace(".", "p")
             print(f"  [{pass_name}] transient + SBR @ VCTRL={vc:.2f} V …")
-            run_tran(pass_name, dut_rel, params, vc, tag)
-            run_sbr(pass_name, dut_rel, params, vc, tag)
+            try:
+                run_tran(pass_name, dut_rel, params, vc, tag)
+                run_sbr(pass_name, dut_rel, params, vc, tag)
+            except RuntimeError:
+                print(f"    WARNING: transient/SBR failed at VCTRL={vc:.2f} V — skipping")
+                continue
             # CTLE-style aliases for min / mid / max gain settings.
             if vc == v_min:
                 _alias_tran_sbr(pout, tag, "min")
@@ -690,7 +842,11 @@ def run_pass(
                     phase_ok, phase_summary, _, _ = verify_eye_phase_invariance(
                         time_s, v_outp, v_outn,
                     )
-                    print(f"    eye phase-invariance: {phase_summary} ({'PASS' if phase_ok else 'FAIL'})")
+                    if not phase_ok:
+                        raise ValueError(
+                            f"{pass_name} eye metrics are not phase-invariant: {phase_summary}"
+                        )
+                    print(f"    eye phase-invariance: {phase_summary} (PASS)")
 
         if eye_mid is not None:
             rows = []
@@ -698,6 +854,14 @@ def run_pass(
                 rows = [
                     ["eye_phase_invariance_ok", "yes" if phase_ok else "no"],
                     ["eye_phase_invariance", phase_summary],
+                ]
+            if pass_name.endswith("pdk"):
+                hr = analyze_vga_headroom(dc_rows)
+                rows += [
+                    ["vga_usable_vctrl_max", f"{hr['usable_vctrl_max']:.4f}" if hr["usable_vctrl_max"] is not None else "nan"],
+                    ["vga_vce_cross_vctrl", f"{hr['vce_cross_vctrl']:.4f}" if hr["vce_cross_vctrl"] is not None else "nan"],
+                    ["vga_vctrl_max_op_ok", "yes" if hr["vctrl_max_op_ok"] else "no"],
+                    ["vga_vce_floor_V", f"{VCE_FLOOR_V:.3f}"],
                 ]
             write_pass_metrics(pout / "metrics.csv", sim_m, eye=eye_mid)
             if rows:
@@ -740,6 +904,26 @@ def run(
         else:
             print("=== VGA PDK pass ===")
             run_pass("vga_pdk", "vga_pdk.cir", params, run_tran_sbr=not no_tran)
+
+    if not no_tran and ideal and pdk:
+        from vga_analysis import read_tran_csv
+
+        tran_i = pass_out("vga_ideal") / "tran_mid.csv"
+        tran_p = pass_out("vga_pdk") / "tran_mid.csv"
+        if tran_i.is_file() and tran_p.is_file():
+            ti, oi, ni, _, _ = read_tran_csv(tran_i)
+            tp, op, np_, _, _ = read_tran_csv(tran_p)
+            eye_i = compute_eye_metrics(ti, oi, ni)
+            eye_p = compute_eye_metrics(tp, op, np_)
+            pair_ok, pair_summary = verify_eye_pair_width_agreement(
+                eye_i, eye_p, "vga_ideal", "vga_pdk",
+            )
+            print(
+                f"  VGA ideal/pdk eye width agreement: {pair_summary} "
+                f"({'PASS' if pair_ok else 'FAIL'})"
+            )
+            if not pair_ok:
+                raise ValueError(f"VGA ideal/pdk eye widths disagree: {pair_summary}")
 
     return params
 

@@ -100,6 +100,14 @@ scale factor. Head/contact resistance dominates and does not scale with `L/W`.
   means the folding window is being measured instead of the opening.
 - **Peak-to-peak swing** is reported separately and is not the eye height (height is ~44% of pp on the
   CTLE, consistent with its post-cursor ISI).
+- **Known limitation, verified independently**: sweeping an artificial time offset through a full UI leaves
+  eye *height* invariant everywhere (spread <= 0.17%), and leaves *width* invariant for the termination,
+  VGA and driver passes (0-0.5%). But CTLE width still varies ~15% with phase (ideal 0.51-0.61 UI, pdk
+  0.62-0.73 UI), because that eye has the most ISI and so the most ambiguous plateau/alias structure. Treat
+  CTLE eye width as indicative only. The acceptance-critical measurement — driver pad eye margin — is
+  invariant to 0.3%. Do not "fix" this with acceptance windows on the result: a previous attempt hardcoded
+  a `[0.63, 0.73] UI` band and discarded candidates above 0.85 UI, which made the metric unable to report a
+  closing eye at all.
 - **VGA gain range is quoted at 28 GHz.** DC-referenced range badly overstates in-band range for a
   degenerated stage, and small-signal range can overstate large-signal range where the steered pair runs
   at low current.

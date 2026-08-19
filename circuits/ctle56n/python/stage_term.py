@@ -28,6 +28,7 @@ from ctlelib import (  # noqa: E402
     compute_eye_metrics,
     extract_sbr,
     eye_metrics_rows,
+    verify_eye_phase_invariance,
     group_delay_s,
     interp_db_at,
     parse_ac_raw,
@@ -497,6 +498,14 @@ def run(
         plot_eye_se(time_s, v_outp, v_outn, pout / "eye_se.png")
         plot_eye_diff(time_s, v_outp, v_outn, pout / "eye_diff.png")
         eye_result = compute_eye_metrics(time_s, v_outp, v_outn)
+        phase_ok, phase_summary, _, _ = verify_eye_phase_invariance(
+            time_s, v_outp, v_outn,
+        )
+        if not phase_ok:
+            raise ValueError(
+                f"term eye metrics are not phase-invariant: {phase_summary}"
+            )
+        print(f"  eye phase-invariance: {phase_summary} (PASS)")
 
         tmax_sbr = write_sbr_stim(work / "sbr_stim.inc", params.vbase)
         _patch_stim_source(work / "sbr_stim.inc")

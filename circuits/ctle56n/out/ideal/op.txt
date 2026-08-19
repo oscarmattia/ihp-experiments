@@ -21,17 +21,17 @@ Note: Dynamic gmin stepping completed
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.449940e+00
-v(outn) = 1.449940e+00
-v(inp) = 1.373960e+00
-v(inn) = 1.373960e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 4.200705e-01
-v(xu1.e2) = 4.200705e-01
-v(xu1.mgate) = 4.153956e-01
-@q.xu1.xq1.qnpn13g2[ic] = 2.874258e-03
-@q.xu1.xq2.qnpn13g2[ic] = 2.874258e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.881972e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.881972e-03
+v(outp) = 1.348710e+00
+v(outn) = 1.348710e+00
+v(inp) = 1.395690e+00
+v(inn) = 1.395690e+00
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.384694e-01
+v(xu1.e2) = 4.384694e-01
+v(xu1.mgate) = 4.164601e-01
+@q.xu1.xq1.qnpn13g2[ic] = 2.888390e-03
+@q.xu1.xq2.qnpn13g2[ic] = 2.888390e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.895973e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.895973e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 

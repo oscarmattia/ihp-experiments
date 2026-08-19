@@ -10,20 +10,17 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.384379e+00
-v(outn) = 1.384379e+00
-v(inp) = 1.400360e+00
-v(inn) = 1.400360e+00
-v(vdd) = 1.650000e+00
-v(xu1.vtt) = 1.383346e+00
-v(xu1.coll_p) = 1.384379e+00
-v(xu1.coll_n) = 1.384379e+00
-v(xu1.e1) = 4.934316e-01
-v(xu1.e2) = 4.934316e-01
-v(xu1.mgate) = 4.598688e-01
-@q.xu1.xq1.qnpn13g2[ic] = 6.563353e-03
-@q.xu1.xq2.qnpn13g2[ic] = 6.563353e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 6.576149e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 6.576149e-03
-@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 6.523693e-03
+v(outp) = 1.388759e+00
+v(outn) = 1.388759e+00
+v(inp) = 1.350360e+00
+v(inn) = 1.350360e+00
+v(vdd) = 1.600000e+00
+v(xu1.em) = 4.253890e-01
+v(xu1.mgate) = 3.934158e-01
+v(xu1.nlp1) = 1.598447e+00
+v(xu1.nlp2) = 1.598447e+00
+@q.xu1.xq1.qnpn13g2[ic] = 4.172472e-03
+@q.xu1.xq2.qnpn13g2[ic] = 4.172472e-03
+@n.xu1.xtail.nsg13_lv_nmos[ids] = 8.363344e-03
+@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 4.000000e-03
 Note: Simulation executed from .control section 

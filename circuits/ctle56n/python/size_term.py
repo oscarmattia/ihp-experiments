@@ -29,7 +29,7 @@ CAP_M6_AF_UM2 = 5.649  # TopMetal1 (metal6) -> substrate; bottom plate of stacke
 ESD_C_FF_PER_PAD = 50.9  # docs/PDK.md [sim] one diodevdd + diodevss pair @ 1.4 V
 
 VTT_TARGET_V = 1.4
-VDD_DEFAULT_V = 1.65
+VDD_DEFAULT_V = 1.6  # single rail for term, CTLE, VGA, and chain
 IDIV_TARGET_A = 1.0e-3
 RSIL_W_UM = 0.5
 RSIL_L_UM = 2.35

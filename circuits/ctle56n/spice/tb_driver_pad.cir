@@ -1,25 +1,25 @@
-* Pad return loss — small diff voltage at pads (100 Ohm differential reference)
+* Pad return loss — 1 A AC diff current, Z = |V(outp)-V(outn)| / 1 A
+* Measure intrinsic pad impedance (no external Rterm — on-chip back-term only).
 .include params.inc
 .include {DUT_CIR}
 
 Vdd vdd 0 dc {VDD}
 XU1 outp outn inp inn vdd {DUT_NAME}
 
-* Hold driver inputs at VGA output CM
+* Hold driver inputs at VGA output CM (AC ground)
 Vcm_drv cm_drv 0 dc {VBASE}
 Rcm_p cm_drv inp 1e9
 Rcm_n cm_drv inn 1e9
 
-Vcm_pad cm_pad 0 dc {VBASE}
-Vp outp cm_pad dc 0 ac 0.025 0
-Vn outn cm_pad dc 0 ac 0.025 180
+* Unit AC diff current: I(Iac)=1 A → Z_diff = |V(outp)-V(outn)|
+Iac outp outn dc 0 ac 1
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 
 .control
-save v(outp) v(outn) i(vp) i(vn)
+save v(outp) v(outn)
 ac dec 300 1e6 100e9
 set wr_singlescale
-wrdata zin_pad.raw frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(i(vp)) vp(i(vp)) vm(i(vn)) vp(i(vn))
+wrdata zin_pad.raw frequency vm(outp) vp(outp) vm(outn) vp(outn)
 .endc
 .end

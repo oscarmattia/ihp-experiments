@@ -12,31 +12,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.456396e+00
-v(outn) = 1.456396e+00
+v(outp) = 1.356518e+00
+v(outn) = 1.356518e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 4.862358e-01
-v(xu1.e2) = 4.862358e-01
-v(xu1.ed1) = 3.579407e-01
-v(xu1.ed2) = 3.579407e-01
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.848005e-01
+v(xu1.e2) = 4.848005e-01
+v(xu1.ed1) = 3.561841e-01
+v(xu1.ed2) = 3.561841e-01
 v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.291099e-01
-v(xu1.tx2) = 3.291099e-01
+v(xu1.tx1) = 3.275439e-01
+v(xu1.tx2) = 3.275439e-01
 v(xu1.steerp) = 5.830000e-01
 v(xu1.steern) = 1.157000e+00
 v(xu1.ctrl) = 1.500000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 2.161613e-04
-@q.xu1.xq2.qnpn13g2[ic] = 2.161613e-04
-@q.xu1.xqd1.qnpn13g2[ic] = 2.581086e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 2.581086e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.804066e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.804066e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.164364e-04
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.587627e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.164364e-04
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.587627e-03
+@q.xu1.xq1.qnpn13g2[ic] = 2.241840e-04
+@q.xu1.xq2.qnpn13g2[ic] = 2.241840e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.571666e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.571666e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.802521e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.802521e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.244696e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.578048e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.244696e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.578048e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -53,31 +53,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.454657e+00
-v(outn) = 1.454657e+00
+v(outp) = 1.354734e+00
+v(outn) = 1.354734e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 4.364013e-01
-v(xu1.e2) = 4.364013e-01
-v(xu1.ed1) = 3.777116e-01
-v(xu1.ed2) = 3.777116e-01
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.350839e-01
+v(xu1.e2) = 4.350839e-01
+v(xu1.ed1) = 3.764417e-01
+v(xu1.ed2) = 3.764417e-01
 v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.486867e-01
-v(xu1.tx2) = 3.486867e-01
+v(xu1.tx1) = 3.476508e-01
+v(xu1.tx2) = 3.476508e-01
 v(xu1.steerp) = 6.900000e-01
 v(xu1.steern) = 1.050000e+00
 v(xu1.ctrl) = 2.800000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 7.798175e-04
-@q.xu1.xq2.qnpn13g2[ic] = 7.798175e-04
-@q.xu1.xqd1.qnpn13g2[ic] = 2.037393e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 2.037393e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.822855e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.822855e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 7.809938e-04
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.041860e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 7.809938e-04
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.041860e-03
+@q.xu1.xq1.qnpn13g2[ic] = 7.894921e-04
+@q.xu1.xq2.qnpn13g2[ic] = 7.894921e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.026838e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.026838e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.821883e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.821883e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 7.906795e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.031202e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 7.906795e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.031202e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -94,31 +94,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.453479e+00
-v(outn) = 1.453479e+00
+v(outp) = 1.353550e+00
+v(outn) = 1.353550e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 4.117008e-01
-v(xu1.e2) = 4.117008e-01
-v(xu1.ed1) = 3.956474e-01
-v(xu1.ed2) = 3.956474e-01
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 4.104808e-01
+v(xu1.e2) = 4.104808e-01
+v(xu1.ed1) = 3.944636e-01
+v(xu1.ed2) = 3.944636e-01
 v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.629050e-01
-v(xu1.tx2) = 3.629050e-01
+v(xu1.tx1) = 3.619319e-01
+v(xu1.tx2) = 3.619319e-01
 v(xu1.steerp) = 8.040000e-01
 v(xu1.steern) = 9.360000e-01
 v(xu1.ctrl) = 4.200000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 1.237948e-03
-@q.xu1.xq2.qnpn13g2[ic] = 1.237948e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 1.592797e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 1.592797e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.835978e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.835978e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.240102e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.595876e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.240102e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.595876e-03
+@q.xu1.xq1.qnpn13g2[ic] = 1.240881e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.240881e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.589039e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.589039e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.835093e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.835093e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.243021e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.592071e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.243021e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.592071e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -135,31 +135,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.453895e+00
-v(outn) = 1.453895e+00
+v(outp) = 1.353968e+00
+v(outn) = 1.353968e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 3.878266e-01
-v(xu1.e2) = 3.878266e-01
-v(xu1.ed1) = 4.213731e-01
-v(xu1.ed2) = 4.213731e-01
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 3.866303e-01
+v(xu1.e2) = 3.866303e-01
+v(xu1.ed1) = 4.201142e-01
+v(xu1.ed2) = 4.201142e-01
 v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.577975e-01
-v(xu1.tx2) = 3.577975e-01
+v(xu1.tx1) = 3.568202e-01
+v(xu1.tx2) = 3.568202e-01
 v(xu1.steerp) = 9.930000e-01
 v(xu1.steern) = 7.470000e-01
 v(xu1.ctrl) = 6.500000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 1.780664e-03
-@q.xu1.xq2.qnpn13g2[ic] = 1.780664e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 1.045298e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 1.045298e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.831309e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.831309e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.784297e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.047011e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.784297e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.047011e-03
+@q.xu1.xq1.qnpn13g2[ic] = 1.773594e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.773594e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.051538e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.051538e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.830410e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.830410e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.777157e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.053252e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.777157e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.053252e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -176,30 +176,30 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.456809e+00
-v(outn) = 1.456809e+00
+v(outp) = 1.356974e+00
+v(outn) = 1.356974e+00
 v(inp) = 1.300000e+00
 v(inn) = 1.300000e+00
-v(vdd) = 1.700000e+00
-v(xu1.e1) = 3.510422e-01
-v(xu1.e2) = 3.510422e-01
-v(xu1.ed1) = 5.744589e-01
-v(xu1.ed2) = 5.744589e-01
+v(vdd) = 1.600000e+00
+v(xu1.e1) = 3.488909e-01
+v(xu1.e2) = 3.488909e-01
+v(xu1.ed1) = 5.725471e-01
+v(xu1.ed2) = 5.725471e-01
 v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.249599e-01
-v(xu1.tx2) = 3.249599e-01
+v(xu1.tx1) = 3.229054e-01
+v(xu1.tx2) = 3.229054e-01
 v(xu1.steerp) = 1.280000e+00
 v(xu1.steern) = 4.600000e-01
 v(xu1.ctrl) = 1.000000e+00
-@q.xu1.xq1.qnpn13g2[ic] = 2.782880e-03
-@q.xu1.xq2.qnpn13g2[ic] = 2.782880e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 9.629550e-06
-@q.xu1.xqd2.qnpn13g2[ic] = 9.629550e-06
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.799956e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.799956e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.790307e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 9.642330e-06
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.790307e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 9.642330e-06
+@q.xu1.xq1.qnpn13g2[ic] = 2.780277e-03
+@q.xu1.xq2.qnpn13g2[ic] = 2.780277e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.033316e-05
+@q.xu1.xqd2.qnpn13g2[ic] = 1.033316e-05
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.797902e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.797902e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.787548e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.034685e-05
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.787548e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.034685e-05
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 

@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from size_ind import DEFAULT_OUT, generate_ind_shunt  # noqa: E402
 from size_term import VDD_DEFAULT_V  # noqa: E402
 
-VDD_V = VDD_DEFAULT_V  # single 1.65 V rail for term, CTLE, VGA, and chain
+VDD_V = VDD_DEFAULT_V  # single 1.6 V rail for term, CTLE, VGA, and chain
 F_Z_HZ = 10e9  # degeneration zero — below Nyquist for ~6 dB peaking at 28 GHz
 MFD = 0.32
 RPPD_RSH = 260.0  # Ω/sq typ (cornerRES.lib)
@@ -559,8 +559,7 @@ def compute_elements(
 
     cs = 1.0 / (2.0 * math.pi * F_Z_HZ * rs)
     l_h = MFD * rd ** 2 * cl_f
-    vdd = vce_target_v + ic * rd + tail_vds_v
-    vdd = max(1.35, min(vdd, VDD_V))
+    vdd = VDD_V  # fixed supply — headroom verified at 1.6 V
     return rd, rs, cs, l_h, vdd, rd_min
 
 

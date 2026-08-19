@@ -354,56 +354,264 @@ def _eye_width_centered_ui(
     return width_ui
 
 
-def compute_eye_metrics(
-    time_s: np.ndarray,
-    v_outp: np.ndarray,
-    v_outn: np.ndarray,
-) -> EyeMetrics:
-    """Eye height/width/pp swing from post-settle differential PRBS transient.
+def _vertical_opening_at_centre_mv(
+    ph_ui: np.ndarray,
+    vod_v: np.ndarray,
+    window_ui: float = EYE_PHASE_WINDOW,
+) -> float:
+    """Vertical opening at ph = 0 from centred phase samples."""
+    wmask = np.abs(ph_ui) <= window_ui
+    if not np.any(wmask):
+        return 0.0
+    samples = vod_v[wmask]
+    above = samples[samples >= 0.0]
+    below = samples[samples < 0.0]
+    if above.size and below.size:
+        return float((np.min(above) - np.max(below)) * 1e3)
+    return 0.0
 
-    Phase-invariant: roll settled samples so the optimal sample sits at ph = 0 before
-    height and width are extracted. Ideal-vs-PDK passes that differ only in passives
-    must agree in width (same channel); height may differ slightly with realized RD.
-    """
-    vod = v_outp - v_outn
+
+def _vertical_opening_profile_from_samples_mv(
+    ph_ui: np.ndarray,
+    vod_v: np.ndarray,
+    phases: np.ndarray,
+    window_ui: float = EYE_PHASE_WINDOW,
+) -> np.ndarray:
+    """Vertical opening at 0 V for each phase on a centred axis."""
+    heights = np.zeros(len(phases))
+    for i, phi in enumerate(phases):
+        delta = np.abs(ph_ui - phi)
+        delta = np.minimum(delta, 1.0 - delta)
+        wmask = delta <= window_ui
+        if not np.any(wmask):
+            continue
+        samples = vod_v[wmask]
+        above = samples[samples >= 0.0]
+        below = samples[samples < 0.0]
+        if above.size and below.size:
+            heights[i] = (float(np.min(above)) - float(np.max(below))) * 1e3
+    return heights
+
+
+def _fold_settled_samples(
+    time_s: np.ndarray,
+    vod: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, float]:
+    """Return (tm_ui, vod_settled, pp_swing_mV) from post-settle PRBS samples."""
     t0 = EYE_SETTLE_UI * UI_S
     settled_mask = time_s >= t0
     if not np.any(settled_mask):
         raise ValueError("No post-settle samples for eye metrics")
-
     settled = vod[settled_mask]
     pp_swing_mV = float((np.max(settled) - np.min(settled)) * 1e3)
-
     tm = np.mod(time_s[settled_mask] - t0, UI_S) / UI_S
-    vod_settled = settled
+    return tm, settled, pp_swing_mV
 
-    scan_phases = np.linspace(0.0, 1.0, 800, endpoint=False)
-    centered_phases = np.linspace(-0.5, 0.5, 800, endpoint=False)
-    idx0 = int(np.argmin(np.abs(centered_phases)))
+
+def _circular_median_ui(phases_ui: np.ndarray) -> float:
+    """Circular median of phase samples on [0, 1) UI."""
+    p = np.sort(np.mod(phases_ui, 1.0))
+    n = len(p)
+    if n == 0:
+        return 0.0
+    if n == 1:
+        return float(p[0])
+    extended = np.concatenate([p, p + 1.0])
+    best_span = 2.0
+    best_mid = float(p[0])
+    for i in range(n):
+        window = extended[i : i + n]
+        span = float(window[-1] - window[0])
+        if span < best_span:
+            best_span = span
+            best_mid = 0.5 * (float(window[0]) + float(window[-1]))
+    return best_mid % 1.0
+
+
+def _contiguous_plateau_from_argmax(
+    heights_scan_mV: np.ndarray,
+    height_tol_mV: float,
+) -> np.ndarray:
+    """Contiguous peak plateau containing the global maximum."""
+    h_peak = float(np.max(heights_scan_mV))
+    if h_peak <= 0.0:
+        return np.array([], dtype=int)
+    idx_max = int(np.argmax(heights_scan_mV))
+    thresh = h_peak - height_tol_mV
+    n = len(heights_scan_mV)
+    indices = [idx_max]
+    for k in range(1, n):
+        i = (idx_max + k) % n
+        if heights_scan_mV[i] >= thresh:
+            indices.append(i)
+        else:
+            break
+    for k in range(1, n):
+        i = (idx_max - k) % n
+        if heights_scan_mV[i] >= thresh:
+            indices.insert(0, i)
+        else:
+            break
+    return np.asarray(indices, dtype=int)
+
+
+def _refine_centre_ui(
+    tm: np.ndarray,
+    vod_settled: np.ndarray,
+    centre_guess_ui: float,
+    half_window_ui: float = 0.08,
+    n_refine: int = 80,
+) -> float:
+    """Refine centre on continuous phase (immune to coarse scan grid aliasing)."""
+    lo = centre_guess_ui - half_window_ui
+    centres = (lo + np.arange(n_refine) * (2.0 * half_window_ui / n_refine)) % 1.0
+    best_c = centre_guess_ui
+    best_h = -1.0
+    for c in centres:
+        ph = np.mod(tm - c + 0.5, 1.0) - 0.5
+        h = _vertical_opening_at_centre_mv(ph, vod_settled)
+        if h > best_h:
+            best_h = h
+            best_c = float(c)
+    return best_c
+
+
+EYE_FLAT_SCAN_FRAC = 0.15
+EYE_MIN_VALID_WIDTH_UI = 0.10
+
+
+def _enumerate_peak_plateaus(
+    heights_scan_mV: np.ndarray,
+    height_tol_mV: float,
+) -> list[np.ndarray]:
+    """All contiguous plateaus at the scan peak height."""
+    h_peak = float(np.max(heights_scan_mV))
+    if h_peak <= 0.0:
+        return []
+    thresh = h_peak - height_tol_mV
+    n = len(heights_scan_mV)
+    plateaus: list[np.ndarray] = []
+    for start in range(n):
+        if heights_scan_mV[start] < thresh:
+            continue
+        if heights_scan_mV[(start - 1) % n] >= thresh:
+            continue
+        indices: list[int] = []
+        i = start
+        while heights_scan_mV[i] >= thresh:
+            indices.append(i)
+            i = (i + 1) % n
+            if i == start:
+                break
+        plateaus.append(np.asarray(indices, dtype=int))
+    return plateaus
+
+
+def _width_at_centre_ui(
+    tm: np.ndarray,
+    vod_settled: np.ndarray,
+    centre_ui: float,
+    n_profile: int = 400,
+) -> float:
+    """Horizontal eye width (UI) at a candidate centre."""
+    ph = np.mod(tm - centre_ui + 0.5, 1.0) - 0.5
+    prof_ph = np.linspace(-0.5, 0.5, n_profile, endpoint=False)
+    prof_h = _vertical_opening_profile_from_samples_mv(ph, vod_settled, prof_ph)
+    return _eye_width_centered_ui(prof_ph, prof_h)
+
+
+def _pick_eye_centre_ui(
+    tm: np.ndarray,
+    vod_settled: np.ndarray,
+    scan_phases: np.ndarray,
+    heights_scan_mV: np.ndarray,
+    height_tol_frac: float = 1e-4,
+) -> tuple[float, float]:
+    """Pick eye centre: circular median of peak plateau, refine if not flat."""
+    h_peak = float(np.max(heights_scan_mV))
+    if h_peak <= 0.0:
+        return 0.0, 0.0
+
+    height_tol_mV = max(height_tol_frac * h_peak, 1e-6)
+    tied_idx = np.where(heights_scan_mV >= h_peak - height_tol_mV)[0]
+    flat_thresh = max(3, int(len(scan_phases) * EYE_FLAT_SCAN_FRAC))
+    if len(tied_idx) > flat_thresh:
+        # Flat-topped scan (height ≈ pp over many phases): median of tied phases.
+        centre_ui = _circular_median_ui(scan_phases[tied_idx])
+    else:
+        plateaus = _enumerate_peak_plateaus(heights_scan_mV, height_tol_mV)
+        if len(plateaus) <= 1:
+            plateau_idx = (
+                plateaus[0]
+                if plateaus
+                else _contiguous_plateau_from_argmax(heights_scan_mV, height_tol_mV)
+            )
+            coarse_ui = _circular_median_ui(scan_phases[plateau_idx])
+            centre_ui = _refine_centre_ui(tm, vod_settled, coarse_ui)
+        else:
+            # Equal-height alias peaks: keep plateaus with a valid width measurement.
+            valid: list[tuple[float, float]] = []
+            for plat_idx in plateaus:
+                coarse_ui = _circular_median_ui(scan_phases[plat_idx])
+                centre_c = _refine_centre_ui(tm, vod_settled, coarse_ui)
+                width_ui = _width_at_centre_ui(tm, vod_settled, centre_c)
+                if EYE_MIN_VALID_WIDTH_UI <= width_ui < 1.0:
+                    valid.append((centre_c, width_ui))
+            if not valid:
+                plateau_idx = _contiguous_plateau_from_argmax(
+                    heights_scan_mV, height_tol_mV,
+                )
+                coarse_ui = _circular_median_ui(scan_phases[plateau_idx])
+                centre_ui = _refine_centre_ui(tm, vod_settled, coarse_ui)
+            elif len(valid) == 1:
+                centre_ui = valid[0][0]
+            else:
+                centre_ui = min(valid, key=lambda cw: cw[1])[0]
+
+    height_mV = _vertical_opening_at_centre_mv(
+        np.mod(tm - centre_ui + 0.5, 1.0) - 0.5,
+        vod_settled,
+    )
+    return centre_ui, height_mV
+
+
+def _measure_eye_from_folded(
+    tm: np.ndarray,
+    vod_settled: np.ndarray,
+    pp_swing_mV: float,
+    phase_offset_ui: float = 0.0,
+    n_scan: int = 1200,
+    n_profile: int = 400,
+) -> EyeMetrics:
+    """Measure eye metrics on folded samples with optional circular phase offset."""
+    tm_shifted = np.mod(tm + phase_offset_ui, 1.0)
+    scan_phases = np.linspace(0.0, 1.0, n_scan, endpoint=False)
+    centered_phases = np.linspace(-0.5, 0.5, n_profile, endpoint=False)
 
     heights_scan_mV = np.zeros(len(scan_phases))
     for i, centre_ui in enumerate(scan_phases):
-        ph = np.mod(tm - centre_ui + 0.5, 1.0) - 0.5
-        heights_at_centre = _vertical_opening_at_phase_mv(
-            ph, vod_settled, centered_phases,
-        )
-        heights_scan_mV[i] = heights_at_centre[idx0]
+        ph = np.mod(tm_shifted - centre_ui + 0.5, 1.0) - 0.5
+        heights_scan_mV[i] = _vertical_opening_at_centre_mv(ph, vod_settled)
 
-    # Every candidate centre is scored on a rolled axis — no seam exclusion.
-    centre_idx = int(np.argmax(heights_scan_mV))
-    centre_ui = float(scan_phases[centre_idx])
-    height_mV = float(heights_scan_mV[centre_idx])
+    centre_ui, _ = _pick_eye_centre_ui(tm_shifted, vod_settled, scan_phases, heights_scan_mV)
 
-    ph = np.mod(tm - centre_ui + 0.5, 1.0) - 0.5
-    heights_centered_mV = _vertical_opening_at_phase_mv(
+    ph = np.mod(tm_shifted - centre_ui + 0.5, 1.0) - 0.5
+    height_mV = _vertical_opening_at_centre_mv(ph, vod_settled)
+    heights_centered_mV = _vertical_opening_profile_from_samples_mv(
         ph, vod_settled, centered_phases,
     )
-
-    if height_mV > pp_swing_mV:
-        height_mV = pp_swing_mV
-
     width_ui = _eye_width_centered_ui(centered_phases, heights_centered_mV)
     width_ps = width_ui * UI_S * 1e12
+
+    if height_mV > pp_swing_mV + 1e-6:
+        raise ValueError(
+            f"Eye height {height_mV:.2f} mV exceeds peak-to-peak swing "
+            f"{pp_swing_mV:.2f} mV"
+        )
+    if width_ui >= 1.0:
+        raise ValueError(
+            f"Eye width {width_ui:.4f} UI >= 1 UI (centre={centre_ui:.4f})"
+        )
 
     return EyeMetrics(
         height_mV=height_mV,
@@ -414,6 +622,40 @@ def compute_eye_metrics(
     )
 
 
+def compute_eye_metrics(
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+) -> EyeMetrics:
+    """Eye height/width/pp swing from post-settle differential PRBS transient.
+
+    Phase-invariant: every candidate centre is scored on a rolled axis
+    (``ph = mod(tm - centre + 0.5, 1) - 0.5``) so no fold seam is privileged.
+    """
+    vod = v_outp - v_outn
+    tm, vod_settled, pp_swing_mV = _fold_settled_samples(time_s, vod)
+    return _measure_eye_from_folded(tm, vod_settled, pp_swing_mV)
+
+
+def verify_eye_pair_width_agreement(
+    eye_a: EyeMetrics,
+    eye_b: EyeMetrics,
+    label_a: str,
+    label_b: str,
+    tol_frac: float = 0.05,
+) -> tuple[bool, str]:
+    """Ideal and PDK eye widths must agree within ``tol_frac`` (passives-only delta)."""
+    if eye_a.width_ui <= 1e-6:
+        return False, f"{label_a} eye width is zero"
+    err = abs(eye_a.width_ui - eye_b.width_ui) / eye_a.width_ui
+    ok = err <= tol_frac
+    summary = (
+        f"{label_a}/{label_b} width_err={err:.4f} "
+        f"({eye_a.width_ui:.4f} vs {eye_b.width_ui:.4f} UI, tol {tol_frac})"
+    )
+    return ok, summary
+
+
 def verify_eye_phase_invariance(
     time_s: np.ndarray,
     v_outp: np.ndarray,
@@ -422,16 +664,23 @@ def verify_eye_phase_invariance(
     height_tol_frac_pp: float = 0.02,
     width_tol_frac: float = 0.05,
 ) -> tuple[bool, str, float, float]:
-    """Sweep artificial time offsets over one UI; height/width must stay stable.
+    """Sweep circular phase offsets over one UI; height/width must stay stable.
+
+    Offsets are applied on the folded axis (not absolute time) so the settle
+    window is unchanged — the actual definition of phase invariance.
 
     Returns (ok, summary, max_height_err_frac_pp, max_width_err_frac).
     """
-    base = compute_eye_metrics(time_s, v_outp, v_outn)
+    vod = v_outp - v_outn
+    tm, vod_settled, pp_swing_mV = _fold_settled_samples(time_s, vod)
+    base = _measure_eye_from_folded(tm, vod_settled, pp_swing_mV)
     max_h_err = 0.0
     max_w_err = 0.0
     for i in range(1, n_offsets):
-        dt = i * UI_S / n_offsets
-        eye = compute_eye_metrics(time_s + dt, v_outp, v_outn)
+        phase_offset_ui = i / n_offsets
+        eye = _measure_eye_from_folded(
+            tm, vod_settled, pp_swing_mV, phase_offset_ui=phase_offset_ui,
+        )
         if base.pp_swing_mV > 1e-6:
             max_h_err = max(max_h_err, abs(eye.height_mV - base.height_mV) / base.pp_swing_mV)
         if base.width_ui > 1e-6:

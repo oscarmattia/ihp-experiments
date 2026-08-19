@@ -1,5 +1,5 @@
-* 56G RX front-end chain — termination -> CTLE -> VGA (PDK passives)
-* Token namespaces: params.inc (CTLE), TERM_* (bond pad / vtt), VGA_* (steering VGA).
+* 56G RX front-end chain — termination -> CTLE -> VGA -> pad driver (PDK passives)
+* Token namespaces: params.inc (CTLE), TERM_* (bond pad / vtt), VGA_* (steering VGA), DRV_* (pad driver).
 * ctle_dut is included verbatim from ctle_pdk.cir; term and VGA bodies are inlined here
 * so RSIL_W / RPPD_W / Nx / ITAIL / MOS_* / VBASE do not collide across stages.
 
@@ -94,11 +94,39 @@ Xpd2 ed2 steern tx2 0 sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=1 
 .ends vga_chain_dut
 
 * ---------------------------------------------------------------------------
-* End-to-end chain — inp/inn = bond pads, outp/outn = VGA outputs
+* Pad driver (from driver_pdk.cir — DRV_* geometry tokens)
+* ---------------------------------------------------------------------------
+.subckt driver_chain_dut outp outn inp inn vdd
+Xl1 vdd nlp1 0 ind_shunt
+Xrd1 nlp1 outp 0 rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
+Xl2 vdd nlp2 0 ind_shunt
+Xrd2 nlp2 outn 0 rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
+
+XQ1 outp inp em s1 npn13G2 Nx={DRV_Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn em s2 npn13G2 Nx={DRV_Nx}
+Vs2 s2 0 dc 0
+
+Iref vdd mgate {DRV_ITAIL_HALF}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={DRV_MOS_W_m} l={DRV_MOS_L_m} ng=1 m=1 rfmode=0
+Xtail em mgate 0 0 sg13_lv_nmos w={DRV_TAIL_W_m} l={DRV_MOS_L_m} ng=1 m=1 rfmode=0
+
+Cpadp outp 0 {DRV_PAD_C}
+Xesd_vdd_p vdd outp 0 diodevdd_2kv m={DRV_ESD_M}
+Xesd_vss_p vdd outp 0 diodevss_2kv m={DRV_ESD_M}
+Cpadn outn 0 {DRV_PAD_C}
+Xesd_vdd_n vdd outn 0 diodevdd_2kv m={DRV_ESD_M}
+Xesd_vss_n vdd outn 0 diodevss_2kv m={DRV_ESD_M}
+Xclamp vdd 0 nmoscl_2 m=1
+.ends driver_chain_dut
+
+* ---------------------------------------------------------------------------
+* End-to-end chain — inp/inn = bond pads, outp/outn = output pads (post-driver)
 * ---------------------------------------------------------------------------
 .subckt chain_dut outp outn inp inn vdd
 Xuterm ctle_inp ctle_inn inp inn vdd term_dut
 Xuctle vga_inp vga_inn ctle_inp ctle_inn vdd ctle_dut
 Bvga_vicm vga_vicm 0 V=0.5*(V(vga_inp)+V(vga_inn))
-Xuvga outp outn vga_inp vga_inn vga_vicm vdd vga_chain_dut
+Xuvga drv_inp drv_inn vga_inp vga_inn vga_vicm vdd vga_chain_dut
+Xudrv outp outn drv_inp drv_inn vdd driver_chain_dut
 .ends chain_dut

@@ -59,6 +59,8 @@ from ctlelib.stim import UI_S, write_prbs_stim, write_sbr_stim  # noqa: E402
 from size_ctle import CtleParams, size_ctle  # noqa: E402
 from size_term import RSRC_LEG_OHM, TermParams, Z0_DIFF_OHM, size_term, to_extra  # noqa: E402
 from size_vga import VgaParams, extra_params, size_vga_for_chain  # noqa: E402
+from stage_vga import read_vga_headroom  # noqa: E402
+from size_driver import DriverParams, extra_params as driver_extra_params, size_driver  # noqa: E402
 
 NYQUIST_HZ = 28e9
 CHAIN_DUT_NAME = "chain_dut"
@@ -74,35 +76,49 @@ VGA_TOKEN_KEYS = (
     "STEER_W", "STEER_L", "STEER_W_m", "STEER_L_m",
     "VCTRL", "VCTRL_P", "VCTRL_N",
 )
+DRV_TOKEN_KEYS = (
+    "Nx", "VBE", "VBASE", "VDD", "ITAIL", "ITAIL_HALF",
+    "MOS_W", "MOS_L", "MOS_W_m", "MOS_L_m", "TAIL_W_m", "MOS_M", "MOS_VGS",
+    "RSIL_W", "RSIL_L", "RSIL_R", "RD_ON_CHIP", "LLOAD",
+    "PAD_W", "PAD_L", "PAD_C", "ESD_M", "CL_PAD", "RDIFF_TB",
+)
 
 CHAIN_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
     "save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
+    "save v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "save v(xu1.xuterm.vtt)\n"
     "save v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.xuctle.mgate)\n"
     "save v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
     "save v(xu1.xuvga.mgate) v(xu1.xuvga.tx1) v(xu1.xuvga.tx2)\n"
+    "save v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
     "save @q.xu1.xuctle.xq1.qnpn13g2[ic] @q.xu1.xuctle.xq2.qnpn13g2[ic]\n"
     "save @q.xu1.xuvga.xq1.qnpn13g2[ic] @q.xu1.xuvga.xq2.qnpn13g2[ic]\n"
     "save @q.xu1.xuvga.xqd1.qnpn13g2[ic] @q.xu1.xuvga.xqd2.qnpn13g2[ic]\n"
+    "save @q.xu1.xudrv.xq1.qnpn13g2[ic] @q.xu1.xudrv.xq2.qnpn13g2[ic]\n"
     "save @n.xu1.xuctle.xtail1.nsg13_lv_nmos[ids] @n.xu1.xuctle.xtail2.nsg13_lv_nmos[ids]\n"
     "save @n.xu1.xuvga.xtail1.nsg13_lv_nmos[ids] @n.xu1.xuvga.xtail2.nsg13_lv_nmos[ids]\n"
     "save @n.xu1.xuvga.xps1.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd1.nsg13_lv_nmos[ids]\n"
-    "save @n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids]"
+    "save @n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids]\n"
+    "save @n.xu1.xudrv.xtail.nsg13_lv_nmos[ids]"
 )
 CHAIN_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
     "print v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
+    "print v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "print v(xu1.xuterm.vtt)\n"
     "print v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.xuctle.mgate)\n"
     "print v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
+    "print v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
     "print @q.xu1.xuctle.xq1.qnpn13g2[ic] @q.xu1.xuctle.xq2.qnpn13g2[ic]\n"
     "print @q.xu1.xuvga.xq1.qnpn13g2[ic] @q.xu1.xuvga.xq2.qnpn13g2[ic]\n"
     "print @q.xu1.xuvga.xqd1.qnpn13g2[ic] @q.xu1.xuvga.xqd2.qnpn13g2[ic]\n"
+    "print @q.xu1.xudrv.xq1.qnpn13g2[ic] @q.xu1.xudrv.xq2.qnpn13g2[ic]\n"
     "print @n.xu1.xuctle.xtail1.nsg13_lv_nmos[ids] @n.xu1.xuctle.xtail2.nsg13_lv_nmos[ids]\n"
     "print @n.xu1.xuvga.xtail1.nsg13_lv_nmos[ids] @n.xu1.xuvga.xtail2.nsg13_lv_nmos[ids]\n"
     "print @n.xu1.xuvga.xps1.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd1.nsg13_lv_nmos[ids]\n"
-    "print @n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids]"
+    "print @n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] @n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids]\n"
+    "print @n.xu1.xudrv.xtail.nsg13_lv_nmos[ids]"
 )
 
 
@@ -121,6 +137,9 @@ class GainSettingMetrics:
     gain_term_pad_db: float = float("nan")
     gain_ctle_db: float = float("nan")
     gain_vga_db: float = float("nan")
+    gain_driver_db: float = float("nan")
+    drive_swing_mv: float = float("nan")
+    pad_swing_mv: float = float("nan")
     sbr: SbrResult | None = None
     eye: EyeMetrics | None = None
 
@@ -164,9 +183,10 @@ def _copy_params_inc(spice_dir: Path, work: Path) -> None:
 def build_chain_extra(
     term: TermParams,
     vga: VgaParams,
+    driver: DriverParams,
     vctrl: float,
 ) -> dict[str, str]:
-    """Merge term / CTLE(params.inc) / VGA tokens for chain_pdk.cir."""
+    """Merge term / CTLE(params.inc) / VGA / driver tokens for chain_pdk.cir."""
     ep: dict[str, str] = {}
 
     term_ep = to_extra(term)
@@ -183,9 +203,28 @@ def build_chain_extra(
         if key in vga_ep:
             ep[f"VGA_{key}"] = vga_ep[key]
     ep["IND_SHUNT_INC"] = vga_ep["IND_SHUNT_INC"]
-    ep["CL_TB"] = vga_ep["CL"]
+    ep["CL_TB"] = "0"
     ep["TMAX"] = "1e-8"
+
+    drv_ep = driver_extra_params(driver)
+    for key in DRV_TOKEN_KEYS:
+        if key in drv_ep:
+            ep[f"DRV_{key}"] = drv_ep[key]
+    ep["RDIFF_TB"] = drv_ep["RDIFF_TB"]
     return ep
+
+
+def _inject_receiver_load(text: str, rdiff: str = "100") -> str:
+    """Floating differential receiver termination — testbench only."""
+    needle = f"XU1 outp outn inp inn vdd {CHAIN_DUT_NAME}"
+    if needle not in text:
+        return text
+    return text.replace(
+        needle,
+        needle + f"\n* Floating {rdiff} Ohm differential receiver (TB only)\n"
+        f"Rterm outp outn {rdiff}",
+        1,
+    )
 
 
 def _write_work_params(work: Path, extra: dict[str, str]) -> None:
@@ -208,7 +247,7 @@ def _prepare_chain_dut(work: Path, models: Path, spice_dir: Path, extra: dict[st
     return dut_local
 
 
-def _patch_nodeset(tb_path: Path, term: TermParams, vga: VgaParams, ctle: CtleParams) -> None:
+def _patch_nodeset(tb_path: Path, term: TermParams, vga: VgaParams, ctle: CtleParams, driver: DriverParams) -> None:
     text = tb_path.read_text()
     tail_vds = ctle.vbase - ctle.vbe
     text = re.sub(
@@ -216,10 +255,11 @@ def _patch_nodeset(tb_path: Path, term: TermParams, vga: VgaParams, ctle: CtlePa
         ".nodeset "
         f"v(xu1.xuctle.mgate)={term.extra.get('MOS_VGS', '0.55')} "
         f"v(xu1.xuvga.mgate)={vga.mos_vgs:.4g} "
+        f"v(xu1.xudrv.mgate)={driver.mos_vgs:.4g} "
         f"v(xu1.xuctle.e1)={tail_vds:.4g} v(xu1.xuctle.e2)={tail_vds:.4g} "
         f"v(xu1.xuvga.e1)={tail_vds:.4g} v(xu1.xuvga.e2)={tail_vds:.4g} "
         f"v(xu1.xuvga.ed1)={tail_vds:.4g} v(xu1.xuvga.ed2)={tail_vds:.4g} "
-        f"v(outp)={vga.vbase:.4g} v(outn)={vga.vbase:.4g}",
+        f"v(outp)={driver.vout_cm_est:.4g} v(outn)={driver.vout_cm_est:.4g}",
         text,
         count=1,
     )
@@ -248,6 +288,8 @@ def _prepare_chain_tb(
         dc_save_lines=CHAIN_DC_SAVE_LINES,
         dc_print_lines=CHAIN_DC_PRINT_LINES,
     )
+    text = _inject_receiver_load(tb.read_text(), extra.get("RDIFF_TB", "100"))
+    tb.write_text(text)
     return tb
 
 
@@ -275,8 +317,11 @@ Vn vn 0 dc {{VBASE}} ac 0.5 180
 Rsrc_p vp inp {{RSRC_LEG}}
 Rsrc_n vn inn {{RSRC_LEG}}
 
-Cload_p outp 0 {{CL_TB}}
-Cload_n outn 0 {{CL_TB}}
+* Floating 100 Ohm differential receiver (TB only)
+Rterm outp outn {{RDIFF_TB}}
+
+Cload_p outp 0 0
+Cload_n outn 0 0
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 .nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
@@ -284,9 +329,10 @@ Cload_n outn 0 {{CL_TB}}
 .control
 save v(outp) v(outn) v(inp) v(inn) v(vp) v(vn)
 save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)
+save v(xu1.drv_inp) v(xu1.drv_inn)
 ac dec 200 1e6 300e9
 set wr_singlescale
-wrdata {raw_name} frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn) vm(xu1.ctle_inp) vp(xu1.ctle_inp) vm(xu1.ctle_inn) vp(xu1.ctle_inn) vm(xu1.vga_inp) vp(xu1.vga_inp) vm(xu1.vga_inn) vp(xu1.vga_inn)
+wrdata {raw_name} frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn) vm(xu1.ctle_inp) vp(xu1.ctle_inp) vm(xu1.ctle_inn) vp(xu1.ctle_inn) vm(xu1.vga_inp) vp(xu1.vga_inp) vm(xu1.vga_inn) vp(xu1.vga_inn) vm(xu1.drv_inp) vp(xu1.drv_inp) vm(xu1.drv_inn) vp(xu1.drv_inn)
 .endc
 .end
 """
@@ -327,6 +373,7 @@ echo "--- DC operating point ---"
 .end
 """
     text = apply_params(text, spice_dir, extra)
+    text = _inject_receiver_load(text, extra.get("RDIFF_TB", "100"))
     out = work / "tb_dc.cir"
     out.write_text(text)
     return out
@@ -360,18 +407,20 @@ def _write_tran_chain_tb(
 
 Vdd vdd 0 dc {{VDD}}
 XU1 outp outn inp inn vdd {CHAIN_DUT_NAME}
+* Floating 100 Ohm differential receiver (TB only)
+Rterm outp outn {{RDIFF_TB}}
 
-Cload_p outp 0 {{CL_TB}}
-Cload_n outn 0 {{CL_TB}}
+Cload_p outp 0 0
+Cload_n outn 0 0
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 .nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
 
 .control
-save v(outp) v(outn) v(inp) v(inn)
+save v(outp) v(outn) v(inp) v(inn) v(xu1.drv_inp) v(xu1.drv_inn)
 tran 0.5p {{TMAX}} 0 1p
 set wr_singlescale
-wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn)
+wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn) v(xu1.drv_inp) v(xu1.drv_inn)
 .endc
 .end
 """
@@ -448,19 +497,23 @@ def _ac_gains_from_raw(raw: Path) -> dict[str, np.ndarray]:
     vctleinn = complex_from_vm_vp(rows[:, 17], rows[:, 18])
     vvgap = complex_from_vm_vp(rows[:, 19], rows[:, 20])
     vvgainn = complex_from_vm_vp(rows[:, 21], rows[:, 22])
+    vdrvinp = complex_from_vm_vp(rows[:, 23], rows[:, 24])
+    vdrvinn = complex_from_vm_vp(rows[:, 25], rows[:, 26])
 
     vod = voutp - voutn
     vpad = vinp - vinn
     vsrc = vvp - vvn
     vctle = vctlep - vctleinn
     vvga = vvgap - vvgainn
+    vdrv = vdrvinp - vdrvinn
 
     def _h(num: np.ndarray, den: np.ndarray) -> np.ndarray:
         return np.where(np.abs(den) > 1e-30, num / den, 0.0)
 
     h_term = _h(vctle, vpad)
     h_ctle = _h(vvga, vctle)
-    h_vga = _h(vod, vvga)
+    h_vga = _h(vdrv, vvga)
+    h_driver = _h(vod, vdrv)
 
     return {
         "freq": freq,
@@ -469,8 +522,54 @@ def _ac_gains_from_raw(raw: Path) -> dict[str, np.ndarray]:
         "h_term_db": 20.0 * np.log10(np.maximum(np.abs(h_term), 1e-30)),
         "h_ctle_db": 20.0 * np.log10(np.maximum(np.abs(h_ctle), 1e-30)),
         "h_vga_db": 20.0 * np.log10(np.maximum(np.abs(h_vga), 1e-30)),
+        "h_driver_db": 20.0 * np.log10(np.maximum(np.abs(h_driver), 1e-30)),
         "h_src": _h(vod, vsrc),
     }
+
+
+def _parse_chain_tran_raw(
+    raw: Path,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Parse chain transient: pad out, bond pad in, VGA/driver interface."""
+    rows = np.loadtxt(raw)
+    if rows.ndim == 1:
+        rows = rows.reshape(1, -1)
+    ncol = rows.shape[1]
+    if ncol >= 8:
+        # wrdata: time, [time dup], v(outp), v(outn), v(inp), v(inn), v(drv_inp), v(drv_inn)
+        return (
+            rows[:, 0],
+            rows[:, 2],
+            rows[:, 3],
+            rows[:, 4],
+            rows[:, 5],
+            rows[:, 6],
+            rows[:, 7],
+        )
+    if ncol >= 7:
+        return (
+            rows[:, 0],
+            rows[:, 1],
+            rows[:, 2],
+            rows[:, 3],
+            rows[:, 4],
+            rows[:, 5],
+            rows[:, 6],
+        )
+    if ncol >= 5:
+        z = np.zeros(rows.shape[0])
+        return rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3], rows[:, 4], z, z
+    raise RuntimeError(f"{raw}: expected ≥7 columns, got {ncol}")
+
+
+def _pp_mv_from_tran(time_s: np.ndarray, sig: np.ndarray) -> float:
+    from ctlelib.stim import UI_S
+
+    mask = time_s >= EYE_SETTLE_UI * UI_S
+    if not np.any(mask):
+        return float("nan")
+    s = sig[mask]
+    return float((np.max(s) - np.min(s)) * 1e3)
 
 
 def extract_eye_metrics(
@@ -575,6 +674,7 @@ def write_op_table(
     term: TermParams,
     vga: VgaParams,
     ctle: CtleParams,
+    driver: DriverParams,
 ) -> None:
     vcm = 0.5 * (dc.get("v(inp)", term.vbase) + dc.get("v(inn)", term.vbase))
     vtt = dc.get("v(xu1.xuterm.vtt)", term.vbase)
@@ -594,6 +694,10 @@ def write_op_table(
         dc.get("@q.xu1.xuvga.xqd1.qnpn13g2[ic]", float("nan"))
         + dc.get("@q.xu1.xuvga.xqd2.qnpn13g2[ic]", float("nan"))
     ) / 2.0
+    drv_ve = dc.get("v(xu1.xudrv.em)", float("nan"))
+    drv_vout = 0.5 * (dc.get("v(outp)", 0) + dc.get("v(outn)", 0))
+    drv_ic = dc.get("@q.xu1.xudrv.xq1.qnpn13g2[ic]", float("nan"))
+    drv_vce = drv_vout - drv_ve if not math.isnan(drv_ve) else float("nan")
     rows = [
         ["quantity", "value", "sized_for", "note"],
         ["VDD", f"{dc.get('v(vdd)', term.vdd):.4f}", "shared", "chain rail"],
@@ -605,11 +709,14 @@ def write_op_table(
         ["ctle_Ic", f"{dc.get('@q.xu1.xuctle.xq1.qnpn13g2[ic]', float('nan')):.6g}", "", "per HBT"],
         ["ctle_VCE", f"{_vce_from_dc(dc, '@q.xu1.xuctle.xq1.qnpn13g2[ic]'):.4f}", "", "signal HBT"],
         ["vga_VBASE", f"{vga.vbase:.4f}", f"{vga.vbase:.4f}", "dummy-pair + input CM reference"],
-        ["vga_Vout_CM", f"{0.5 * (dc.get('v(outp)', 0) + dc.get('v(outn)', 0)):.4f}", "", "VGA output"],
+        ["vga_Vout_CM", f"{0.5 * (dc.get('v(xu1.drv_inp)', 0) + dc.get('v(xu1.drv_inn)', 0)):.4f}", "", "VGA → driver interface"],
         ["vga_Ic_signal", f"{vga_ic_sig:.6g}", "", "avg signal pair @ mid VCTRL"],
         ["vga_Ic_dummy", f"{vga_ic_dum:.6g}", "", "avg dummy pair @ mid VCTRL"],
         ["vga_VCE_signal", f"{_vce_from_dc(dc, '@q.xu1.xuvga.xq1.qnpn13g2[ic]'):.4f}", "", ""],
         ["vga_VCE_dummy", f"{_vce_from_dc(dc, '@q.xu1.xuvga.xqd1.qnpn13g2[ic]'):.4f}", "", ""],
+        ["driver_Vout_CM", f"{drv_vout:.4f}", f"{driver.vout_cm_est:.4f}", "output pad CM"],
+        ["driver_Ic", f"{drv_ic:.6g}", f"{driver.itail_a / 2:.6g}", "per HBT @ ITAIL/2"],
+        ["driver_VCE", f"{drv_vce:.4f}", f"{driver.vce_est:.4f}", "signal HBT"],
     ]
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
@@ -641,6 +748,9 @@ def write_metrics_csv(path: Path, m: ChainMetrics, term: TermParams, vga: VgaPar
             [f"{s.label}_gain_term_28G_dB", f"{s.gain_term_pad_db:.3f}"],
             [f"{s.label}_gain_ctle_28G_dB", f"{s.gain_ctle_db:.3f}"],
             [f"{s.label}_gain_vga_28G_dB", f"{s.gain_vga_db:.3f}"],
+            [f"{s.label}_gain_driver_28G_dB", f"{s.gain_driver_db:.3f}"],
+            [f"{s.label}_drive_swing_mV", f"{s.drive_swing_mv:.2f}"],
+            [f"{s.label}_pad_swing_mV", f"{s.pad_swing_mv:.2f}"],
             [f"{s.label}_f_peak_Hz", f"{s.f_peak_hz:.6g}"],
             [f"{s.label}_f_3dB_Hz", f"{s.f_3db_hz:.6g}"],
         ]
@@ -726,29 +836,39 @@ def run(
     term = size_term()
     ctle = size_ctle(vbase_input=term.vbase)
     vga = size_vga_for_chain(term, ctle)
+    driver = size_driver()
     v_min = min(vga.vctrl_v)
     v_mid = vga.vctrl_v[len(vga.vctrl_v) // 2]
-    v_max = max(vga.vctrl_v)
+    headroom = read_vga_headroom("vga_pdk")
+    v_max_nom = max(vga.vctrl_v)
+    v_max_usable = headroom.get("usable_vctrl_max")
+    if v_max_usable is None:
+        v_max_usable = v_mid
     gain_settings = [
         ("min", v_min),
         ("mid", v_mid),
-        ("max", v_max),
+        ("max", float(v_max_usable)),
     ]
+    print(
+        f"  Chain VGA gain points: min={v_min:.2f} mid={v_mid:.2f} "
+        f"max_usable={v_max_usable:.2f} (nominal max={v_max_nom:.2f}, "
+        f"VCTRL=1.0 OP {'ok' if headroom.get('vctrl_max_op_ok') else 'FAILED'})"
+    )
 
     models = pdk_models()
-    mid_extra = build_chain_extra(term, vga, v_mid)
+    mid_extra = build_chain_extra(term, vga, driver, v_mid)
     _write_work_params(work, mid_extra)
     dut_cir = _prepare_chain_dut(work, models, spice_dir, mid_extra)
 
     # --- DC OP at mid VGA gain ---
-    dc_extra = build_chain_extra(term, vga, v_mid)
+    dc_extra = build_chain_extra(term, vga, driver, v_mid)
     _write_work_params(work, dc_extra)
     dut_cir = _prepare_chain_dut(work, models, spice_dir, dc_extra)
     tb_dc = _write_dc_chain_tb(work, dut_cir, models, spice_dir, dc_extra)
     dc_log = run_ngspice(tb_dc, work, "dc.log")
     dc_vals = parse_dc_log(dc_log)
     (pout / "op.txt").write_text(dc_log.read_text())
-    write_op_table(pout / "op_table.csv", dc_vals, term, vga, ctle)
+    write_op_table(pout / "op_table.csv", dc_vals, term, vga, ctle, driver)
 
     vcm = 0.5 * (dc_vals.get("v(inp)", term.vbase) + dc_vals.get("v(inn)", term.vbase))
     vtt = dc_vals.get("v(xu1.xuterm.vtt)", term.vbase)
@@ -772,7 +892,7 @@ def run(
         dc_extra,
         cl_tb=dc_extra["CL_TB"],
     )
-    _patch_nodeset(tb_zin, term, vga, ctle)
+    _patch_nodeset(tb_zin, term, vga, ctle, driver)
     run_ngspice(tb_zin, work, "zin.log")
     freq_z, zdiff = _parse_zin_raw(work / "zin.raw")
     s11 = _s11_db(zdiff)
@@ -784,7 +904,7 @@ def run(
     setting_metrics: list[GainSettingMetrics] = []
 
     for label, vctrl in gain_settings:
-        extra = build_chain_extra(term, vga, vctrl)
+        extra = build_chain_extra(term, vga, driver, vctrl)
         _write_work_params(work, extra)
         dut_cir = _prepare_chain_dut(work, models, spice_dir, extra)
         tag = label
@@ -839,6 +959,7 @@ def run(
             gain_term_pad_db=interp_db_at(freq, ac["h_term_db"], NYQUIST_HZ),
             gain_ctle_db=interp_db_at(freq, ac["h_ctle_db"], NYQUIST_HZ),
             gain_vga_db=interp_db_at(freq, ac["h_vga_db"], NYQUIST_HZ),
+            gain_driver_db=interp_db_at(freq, ac["h_driver_db"], NYQUIST_HZ),
         )
         setting_metrics.append(gm)
 
@@ -850,11 +971,15 @@ def run(
                 work, dut_cir, spice_dir, extra, "prbs_stim.inc", f"tran_{tag}.raw"
             )
             run_ngspice(tb_tran, work, f"tran_{tag}.log")
-            time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / f"tran_{tag}.raw")
+            time_s, v_outp, v_outn, v_inp, v_inn, v_drvp, v_drvn = _parse_chain_tran_raw(
+                work / f"tran_{tag}.raw"
+            )
             write_tran_csv(
                 pout / (f"tran_{tag}.csv" if tag != "mid" else "tran.csv"),
                 time_s, v_outp, v_outn, v_inp, v_inn,
             )
+            gm.drive_swing_mv = _pp_mv_from_tran(time_s, v_drvp - v_drvn)
+            gm.pad_swing_mv = _pp_mv_from_tran(time_s, v_outp - v_outn)
             if tag == "mid":
                 write_eye_csvs(pout, time_s, v_outp, v_outn)
             plot_tran_se(
@@ -900,7 +1025,7 @@ def run(
             )
 
     # CMRR / PSRR at mid gain
-    mid_extra = build_chain_extra(term, vga, v_mid)
+    mid_extra = build_chain_extra(term, vga, driver, v_mid)
     _write_work_params(work, mid_extra)
     dut_cir = _prepare_chain_dut(work, models, spice_dir, mid_extra)
     mid_ac = next(s for s in setting_metrics if s.label == "mid")
@@ -909,7 +1034,7 @@ def run(
         spice_dir / "tb_ac_cm.cir", dut_cir, work, models, spice_dir, mid_extra,
         cl_tb=mid_extra["CL_TB"],
     )
-    _patch_nodeset(tb_cm, term, vga, ctle)
+    _patch_nodeset(tb_cm, term, vga, ctle, driver)
     run_ngspice(tb_cm, work, "ac_cm.log")
     freq_cm, voutp_cm, voutn_cm, vin_p_cm, vin_n_cm = parse_ac_raw(work / "ac_cm.raw")
     voc_cm = (voutp_cm + voutn_cm) / 2.0
@@ -925,7 +1050,7 @@ def run(
         spice_dir / "tb_ac_psrr.cir", dut_cir, work, models, spice_dir, mid_extra,
         cl_tb=mid_extra["CL_TB"],
     )
-    _patch_nodeset(tb_psrr, term, vga, ctle)
+    _patch_nodeset(tb_psrr, term, vga, ctle, driver)
     run_ngspice(tb_psrr, work, "ac_psrr.log")
     freq_p, voutp_p, voutn_p, vvdd = parse_psrr_raw(work / "ac_psrr.raw")
     vod_p = voutp_p - voutn_p
@@ -964,17 +1089,29 @@ def run(
     }
     write_stage_compare_csv(pout / "stage_compare.csv", chain_cmp, standalone)
 
-    print("\n=== RX chain summary ===")
+    print("\n=== RX chain summary (term → CTLE → VGA → pad driver) ===")
     print(f"  Pad CM={vcm:.4f} V  vtt={vtt:.4f} V  CTLE VDS_tail={ctle_vds:.4f} V")
     print(f"  S11 DC={s11_dc:.1f} dB  S11@28G={s11_28:.1f} dB")
+    print(
+        f"  VGA headroom @ VDD=1.6 V: usable VCTRL <= {v_max_usable:.2f} "
+        f"(VCTRL=1.0 {'ok' if headroom.get('vctrl_max_op_ok') else 'OP FAILED'})"
+    )
     for s in setting_metrics:
+        shortfall_db = 20.0 * math.log10(
+            max(s.drive_swing_mv / 405.0, 1e-6)
+        ) if not math.isnan(s.drive_swing_mv) else float("nan")
         print(
             f"  [{s.label}] VCTRL={s.vctrl_v:.2f} V: "
             f"E2E src {s.ac_gain_src_28g_db:.2f} dB (pad {s.ac_gain_pad_28g_db:.2f} dB) "
-            f"peak@28G={s.peaking_28g_db:.2f} dB "
-            f"VGA@28G {s.gain_vga_db:.2f} dB"
+            f"drive {s.drive_swing_mv:.1f} mVpp → pad {s.pad_swing_mv:.1f} mVpp "
+            f"(~{shortfall_db:.1f} dB vs 405 mVpp driver need)"
+            f"  VGA@28G {s.gain_vga_db:.2f} dB  driver@28G {s.gain_driver_db:.2f} dB"
             + (f"  SBR ISI={s.sbr.isi_norm:.4f}" if s.sbr else "")
-            + (f"  eye={s.eye.height_mV:.1f}mV x {s.eye.width_ps:.0f}ps" if s.eye else "")
+            + (
+                f"  eye={s.eye.height_mV:.1f}mV x {s.eye.width_ui:.3f}UI"
+                if s.eye
+                else ""
+            )
         )
     print(f"  CMRR={cmrr_db:.1f} dB  PSRR={psrr_db:.1f} dB")
     print(f"  Artifacts: {pout}/")

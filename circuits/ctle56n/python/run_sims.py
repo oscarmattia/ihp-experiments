@@ -70,6 +70,8 @@ from ctlelib import (  # noqa: E402
     run_ngspice,
     sbr_tap_label,
     targets_ok,
+    verify_eye_pair_width_agreement,
+    verify_eye_phase_invariance,
     write_ac_diff_csv,
     write_eye_csvs,
     write_pass_metrics,
@@ -259,13 +261,36 @@ def run_pass(
     )
 
 
+def _validate_eye_metrics(
+    pass_name: str,
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+    eye: EyeMetrics,
+) -> list[list[str]]:
+    """Run phase-invariance and sanity checks; return summary rows."""
+    phase_ok, phase_summary, _, _ = verify_eye_phase_invariance(
+        time_s, v_outp, v_outn,
+    )
+    status = "PASS" if phase_ok else "FAIL"
+    print(f"  [{pass_name}] eye phase-invariance: {phase_summary} ({status})")
+    if not phase_ok:
+        raise ValueError(
+            f"{pass_name} eye metrics are not phase-invariant: {phase_summary}"
+        )
+    return [
+        [f"{pass_name}_eye_phase_invariance_ok", "yes"],
+        [f"{pass_name}_eye_phase_invariance", phase_summary],
+    ]
+
+
 def run_tran(
     pass_name: str,
     dut_rel: str,
     spice_dir: Path,
     vbase: float,
     extra_params: dict[str, str] | None = None,
-) -> EyeMetrics:
+) -> tuple[EyeMetrics, list[list[str]]]:
     """Run 56G NRZ PRBS9 transient and plot waveforms + eye diagrams."""
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
@@ -295,7 +320,9 @@ def run_tran(
     plot_tran_diff(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_diff.png")
     plot_eye_se(time_s, v_outp, v_outn, pout / "eye_se.png")
     plot_eye_diff(time_s, v_outp, v_outn, pout / "eye_diff.png")
-    return compute_eye_metrics(time_s, v_outp, v_outn)
+    eye = compute_eye_metrics(time_s, v_outp, v_outn)
+    extra = _validate_eye_metrics(pass_name, time_s, v_outp, v_outn, eye)
+    return eye, extra
 
 
 def run_sbr(
@@ -702,7 +729,7 @@ def aggregate_front_end_summary(exp: Path) -> None:
         for row in reader:
             existing.append(row)
 
-    seen = {row[0] for row in existing[1:] if row}
+    index = {row[0]: i for i, row in enumerate(existing[1:], start=1) if row}
     extra_passes = [
         ("term", exp / "out" / "term" / "metrics.csv"),
         ("vga_ideal", exp / "out" / "vga_ideal" / "metrics.csv"),
@@ -711,10 +738,11 @@ def aggregate_front_end_summary(exp: Path) -> None:
     for prefix, mpath in extra_passes:
         for key, val in _read_pass_metrics(mpath):
             out_key = key if key.startswith(f"{prefix}_") else f"{prefix}_{key}"
-            if out_key in seen:
-                continue
-            existing.append([out_key, val])
-            seen.add(out_key)
+            if out_key in index:
+                existing[index[out_key]] = [out_key, val]
+            else:
+                existing.append([out_key, val])
+                index[out_key] = len(existing) - 1
 
     with summary_path.open("w", newline="") as f:
         csv.writer(f).writerows(existing)
@@ -778,6 +806,7 @@ def main() -> None:
     sbr_pdk: SbrResult | None = None
     eye_ideal: EyeMetrics | None = None
     eye_pdk: EyeMetrics | None = None
+    eye_extra_rows: list[list[str]] = []
     vbase: float | None = None
     if not args.no_tran:
         vbase_m = re.search(
@@ -787,7 +816,8 @@ def main() -> None:
         if vbase_m:
             vbase = float(vbase_m.group(1))
             print("Running ideal transient (56G NRZ PRBS9)...")
-            eye_ideal = run_tran("ideal", "ctle_ideal.cir", spice_dir, vbase)
+            eye_ideal, extra_ideal = run_tran("ideal", "ctle_ideal.cir", spice_dir, vbase)
+            eye_extra_rows.extend(extra_ideal)
             print("Running ideal single-bit response (1 UI pulse)...")
             sbr_ideal = run_sbr("ideal", "ctle_ideal.cir", spice_dir, vbase)
             write_pass_metrics(
@@ -823,9 +853,10 @@ def main() -> None:
             )
             if not args.no_tran and vbase is not None:
                 print("Running PDK transient (56G NRZ PRBS9)...")
-                eye_pdk = run_tran(
+                eye_pdk, extra_pdk = run_tran(
                     "pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra
                 )
+                eye_extra_rows.extend(extra_pdk)
                 print("Running PDK single-bit response (1 UI pulse)...")
                 sbr_pdk = run_sbr(
                     "pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra
@@ -836,6 +867,18 @@ def main() -> None:
         except RuntimeError as exc:
             print(f"PDK pass failed: {exc}")
 
+    if eye_ideal is not None and eye_pdk is not None:
+        pair_ok, pair_summary = verify_eye_pair_width_agreement(
+            eye_ideal, eye_pdk, "ideal", "pdk",
+        )
+        print(f"  CTLE ideal/pdk eye width agreement: {pair_summary} ({'PASS' if pair_ok else 'FAIL'})")
+        if not pair_ok:
+            raise ValueError(f"CTLE ideal/pdk eye widths disagree: {pair_summary}")
+        eye_extra_rows += [
+            ["ctle_eye_width_agreement_ok", "yes"],
+            ["ctle_eye_width_agreement", pair_summary],
+        ]
+
     write_summary(
         out_dir / "summary.csv",
         params,
@@ -845,6 +888,7 @@ def main() -> None:
         sbr_pdk,
         eye_ideal,
         eye_pdk,
+        extra_rows=eye_extra_rows or None,
     )
     write_ctle_report(
         _EXP / "ctle_report.md", params, ideal, pdk_metrics, sbr_ideal, sbr_pdk

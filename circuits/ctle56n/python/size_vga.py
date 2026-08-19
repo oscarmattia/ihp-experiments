@@ -37,7 +37,7 @@ from size_ctle import (  # noqa: E402
 )
 from size_term import VDD_DEFAULT_V  # noqa: E402
 
-VDD_V = VDD_DEFAULT_V  # 1.65 V — same rail as term / CTLE / chain
+VDD_V = VDD_DEFAULT_V  # 1.6 V — same rail as term / CTLE / chain
 
 NYQUIST_HZ = 28e9
 
@@ -209,8 +209,7 @@ def size_vga(
     )
     rppd_w, rppd_l, _ = size_rppd(paths["rppd"], rd)
 
-    vdd = vce_lut + ic * rd + tail_vds
-    vdd = max(1.35, min(vdd, VDD_V))
+    vdd = VDD_V  # fixed supply — same rail as term / CTLE / chain
 
     vctrl_list = derive_vctrl_list()
     vp_list: list[float] = []
