@@ -1,0 +1,34 @@
+{
+  "axes": {
+    "FREQ": "frequency (Hz)",
+    "L": "differential series inductance Ldiff (H)",
+    "Q": "differential Q factor Qdiff"
+  },
+  "case": "turn2",
+  "d": 150.0,
+  "device": "sg13_ind_turn2",
+  "em_completed": true,
+  "format": "ihp-ind-em-lut-v1",
+  "from_layer": "SUBGND",
+  "gds": "char/passive/out/em_work/turn2/ind_turn2_em.gds",
+  "nr_r": 2,
+  "pdk": "ihp-sg13g2",
+  "run_log": {
+    "L_at_10GHz_nH": -12.238349501596877,
+    "cells_per_wavelength": 10,
+    "coarse": true,
+    "csx_port1": "/workspace/char/passive/out/em_work/turn2/sg13_ind_turn2_data/sub-1/sg13_ind_turn2.xml",
+    "csx_port2": "/workspace/char/passive/out/em_work/turn2/sg13_ind_turn2_data/sub-2/sg13_ind_turn2.xml",
+    "numfreq": 51,
+    "peak_Q": 0.0,
+    "preview_only": false,
+    "refined_cellsize_um": 2.0,
+    "s2p": "/workspace/char/passive/out/em_work/turn2/sg13_ind_turn2_data/sg13_ind_turn2.s2p",
+    "sim_path": "/workspace/char/passive/out/em_work/turn2/sg13_ind_turn2_data"
+  },
+  "s": 3.0,
+  "solver": "openEMS",
+  "subgnd_added": true,
+  "to_layer": "TopMetal1",
+  "w": 3.0
+}

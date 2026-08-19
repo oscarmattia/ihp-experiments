@@ -1,0 +1,26 @@
+{
+  "axes": {
+    "FREQ": "frequency (Hz)",
+    "L": "differential series inductance Ldiff (H)",
+    "Q": "differential Q factor Qdiff"
+  },
+  "case": "l2n0",
+  "d": 114.0,
+  "device": "sg13_ind_l2n0",
+  "em_completed": true,
+  "format": "ihp-ind-em-lut-v1",
+  "from_layer": "SUBGND",
+  "gds": "char/passive/out/em_work/l2n0/L_2n0_twoport.gds",
+  "nr_r": 2,
+  "pdk": "ihp-sg13g2",
+  "run_log": {
+    "L_at_10GHz_nH": 2.021812799739588,
+    "from_s2p": "char/passive/out/em_work/l2n0/sg13_ind_l2n0_data/sg13_ind_l2n0.s2p",
+    "peak_Q": 20.969989534465036
+  },
+  "s": 3.0,
+  "solver": "openEMS",
+  "subgnd_added": false,
+  "to_layer": "TopMetal1",
+  "w": 3.0
+}

@@ -1,0 +1,4 @@
+case,nr_r,w_um,s_um,d_um,L_10GHz_nH,L_DC_nH,Q_peak,f_Q_peak_GHz,em_completed,solver,gds
+l2n0,2,3.0,3.0,114.0,2.021812799739588,1.6587270526223425,20.969989534465036,9.6,True,openEMS,char/passive/out/em_work/l2n0/L_2n0_twoport.gds
+turn1,1,3.0,3.0,120.0,0.2145359265367501,0.21825392379564923,23.21724776103293,30.0,True,openEMS,char/passive/out/em_work/turn1/ind_turn1_em.gds
+turn2,2,3.0,3.0,150.0,-12.238349501596877,-12.348278924162326,0.0,0.0,True,openEMS,char/passive/out/em_work/turn2/ind_turn2_em.gds

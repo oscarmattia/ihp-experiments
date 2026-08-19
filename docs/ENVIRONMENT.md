@@ -14,6 +14,8 @@ Official guide: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/insta
 | Schematic | **xschem** 3.4.x from source | Then `python3 libs.tech/xschem/install.py` |
 | Layout | **KLayout** (~0.30.x .deb, else Ubuntu apt) | Needs `KLAYOUT_PATH` / `KLAYOUT_HOME` |
 | Python | **uv** venv + PDK `requirements.txt` | Does not replace system Python for Tcl/Tk tools |
+| EM (optional) | **openEMS** + IHP Python workflow | `./scripts/install-ihp-em.sh` or `./scripts/install-ihp-eda.sh --with-em` |
+| EM (optional, large hosts) | **Palace** FEM via Apptainer | Needs **≥32 GB RAM** + `apptainer`; pulled when RAM ≥28 GB and runtime available |
 
 Default install root: `~/.local/share/ihp-eda`  
 (`PDK_ROOT=$IHP_EDA_ROOT/IHP-Open-PDK`, tools under `$IHP_EDA_ROOT/tools`).
@@ -26,18 +28,46 @@ source ~/.local/share/ihp-eda/env.sh
 ./scripts/verify-ihp-eda.sh
 ```
 
+Analog + EM in one pass:
+
+```bash
+./scripts/install-ihp-eda.sh --with-em
+source ~/.local/share/ihp-eda/env.sh
+./scripts/verify-ihp-em.sh
+```
+
+EM only (after analog install):
+
+```bash
+./scripts/install-ihp-em.sh
+source ~/.local/share/ihp-eda/em.env.sh
+./scripts/verify-ihp-em.sh
+```
+
 Cloud Agent `install` should run the same executable so a fresh VM converges without manual steps.
 
 ## What’s intentionally out of scope (analog-first)
 
-Not installed by default (add later if needed):
+Not installed by the **analog** installer by default (add later if needed):
 
 - **Xyce** + ADMS (alternate simulator)
 - **Qucs-S** (alternate schematic)
 - **Magic / netgen** (PDK has Magic tech files)
-- **OpenEMS** (EM)
 - **OpenROAD / LibreLane** (digital place-and-route)
 - **GDSFactory / pygmid** beyond whatever lands via `requirements.txt`
+
+### Optional EM tier
+
+For passive RLC / on-chip inductor EM, use the separate EM installer:
+
+- **openEMS** (primary on ~16 GB hosts): Python workflow at
+  `$PDK_ROOT/ihp-sg13g2/libs.tech/openems/openems_ihp_sg13g2/workflow`
+- **Palace** FEM (optional): needs **≥32 GB RAM** and **Apptainer**; image pull is attempted only when `MemTotal` ≥28 GB
+
+Scripts: `./scripts/install-ihp-em.sh`, `./scripts/verify-ihp-em.sh`, or `./scripts/install-ihp-eda.sh --with-em`.
+
+Headless hosts omit the AppCSXCAD Qt viewer (`BUILD_APPCSXCAD=NO`); a no-op stub is installed at
+`$IHP_EDA_ROOT/tools/bin/AppCSXCAD` — see [APPCSXCAD-STUB.md](APPCSXCAD-STUB.md).
 
 ## Known gaps / Cloud Agent caveats
 

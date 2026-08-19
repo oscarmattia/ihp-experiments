@@ -7,4 +7,4 @@ source "${HOME}/.local/share/ihp-eda/env.sh"
 
 "$ROOT/mos/run_all.sh" "$@"
 "$ROOT/bjt/run_all.sh" "$@"
-echo "Passive characterization not implemented yet (see char/passive/)."
+"$ROOT/passive/run_all.sh" "$@"
