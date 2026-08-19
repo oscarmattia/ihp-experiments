@@ -1,0 +1,19 @@
+{
+  "cell": "ntap1_guard",
+  "gds": "/workspace/layout/devices/out/gds/ntap1_guard.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/ntap1_guard_nores/ntap1_guard_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 1,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": false,
+  "note": "resistance extraction crashed (Magic extresist segfaults on DC-shorted ports); capacitance-only extraction used",
+  "total_capacitance_f": 6.896e-17,
+  "per_net_capacitance_f": {
+    "well": 6.896e-17,
+    "sub": 6.896e-17
+  },
+  "log": "/workspace/layout/devices/out/pex_run/ntap1_guard_nores/magic_pex.log",
+  "error": ""
+}

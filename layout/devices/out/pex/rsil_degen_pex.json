@@ -1,0 +1,52 @@
+{
+  "cell": "rsil_degen",
+  "gds": "/workspace/layout/devices/out/gds/rsil_degen.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/rsil_degen/rsil_degen_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 17130.1956,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_0_n70.n0",
+      "b": "w_0_n70.t0",
+      "ohm": 17100.0
+    },
+    {
+      "name": "R0",
+      "a": "PLUS",
+      "b": "PLUS.t0",
+      "ohm": 15.0978
+    },
+    {
+      "name": "R1",
+      "a": "MINUS",
+      "b": "MINUS.t0",
+      "ohm": 15.0978
+    }
+  ],
+  "resistance_extracted": true,
+  "note": "",
+  "total_capacitance_f": 9.6356e-16,
+  "per_net_capacitance_f": {
+    "0": 9.2227e-16,
+    "a_0_0#": 7.0259e-16,
+    "PLUS": 1.3804000000000002e-16,
+    "MINUS": 1.3804000000000002e-16,
+    "MINUS.t0": 1.309e-17,
+    "PLUS.t0": 1.309e-17
+  },
+  "log": "/workspace/layout/devices/out/pex_run/rsil_degen/magic_pex.log",
+  "error": "",
+  "comparison": {
+    "quantity": "resistance",
+    "unit": "ohm",
+    "ok": true,
+    "schematic": 86.62748,
+    "post_layout": 116.8231,
+    "delta": 30.19561999999999,
+    "rel_change": 0.34856860663613887,
+    "rel_change_pct": 34.85686066361389
+  }
+}

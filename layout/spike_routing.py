@@ -37,7 +37,7 @@ def build_spike():
     spec = DeviceSpec("rppd_spike", "rppd", params={"w": 5e-6, "l": 1.4e-6})
     device = device_component(spec)
 
-    top = gf.Component()
+    top = gf.Component("rppd_route_spike")
     left = top << device
     right = top << device
     # Leave room for the route to turn; rppd terminals face up and down.

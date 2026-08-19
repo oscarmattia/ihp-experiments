@@ -96,6 +96,48 @@ def write_gds(layout, cell, path: Path, name: str | None = None, flatten: bool =
     return path
 
 
+def write_for_magic(gds_in: Path, gds_out: Path, cell: str | None = None) -> tuple[Path, str]:
+    """Rewrite a GDS so Magic can read it; returns ``(path, top_cell_name)``.
+
+    Two things upset Magic about a gdsfactory-written GDS:
+
+    * kfactory stores KLayout PCell state in a ``$$$CONTEXT_INFO$$$`` cell, and
+      Magic stops with "Unknown layer/datatype in boundary" when it hits it.
+    * a component built as ``gf.Component()`` without a name lands as
+      ``Unnamed_1``, so ``load <cell>`` fails.
+
+    The output is flattened as well, since Magic has no notion of the library
+    proxies a PCell hierarchy carries.
+    """
+    pya = pya_module()
+    gds_in = Path(gds_in)
+    gds_out = Path(gds_out)
+    gds_out.parent.mkdir(parents=True, exist_ok=True)
+
+    layout = pya.Layout()
+    layout.read(str(gds_in))
+
+    if cell:
+        source = layout.cell(cell)
+        if source is None:
+            raise RuntimeError(f"no cell {cell!r} in {gds_in}")
+    else:
+        tops = layout.top_cells()
+        if len(tops) != 1:
+            raise RuntimeError(f"{gds_in} has {len(tops)} top cells; name one explicitly")
+        source = tops[0]
+
+    name = cell or (gds_out.stem if source.name.startswith("Unnamed") else source.name)
+    out, target = export_cell(layout, source, name, flatten=True)
+
+    options = pya.SaveLayoutOptions()
+    options.format = "GDS2"
+    options.select_all_layers()
+    options.write_context_info = False
+    out.write(str(gds_out), options)
+    return gds_out, target.name
+
+
 def read_gds(path: Path):
     """Read a GDS file; returns ``(layout, top_cell)``."""
     pya = pya_module()

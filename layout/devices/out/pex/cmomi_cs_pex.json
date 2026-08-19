@@ -1,0 +1,169 @@
+{
+  "cell": "cmomi_cs",
+  "gds": "/workspace/layout/devices/out/gds/cmomi_cs.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/cmomi_cs/cmomi_cs_pex.spice",
+  "ok": true,
+  "resistors": 2376,
+  "capacitors": 1378,
+  "total_resistance_ohm": 9427.132769,
+  "resistor_elements": [
+    {
+      "name": "R0",
+      "a": "MINUS.n659",
+      "b": "MINUS.n656",
+      "ohm": 9.3535
+    },
+    {
+      "name": "R1195",
+      "a": "PLUS.n336",
+      "b": "PLUS.n335",
+      "ohm": 9.3535
+    },
+    {
+      "name": "R1",
+      "a": "MINUS.n254",
+      "b": "MINUS.n251",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R2",
+      "a": "MINUS.n148",
+      "b": "MINUS.n145",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R3",
+      "a": "MINUS.n42",
+      "b": "MINUS.n39",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R4",
+      "a": "MINUS.n362",
+      "b": "MINUS.n359",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R5",
+      "a": "MINUS.n468",
+      "b": "MINUS.n465",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R6",
+      "a": "MINUS.n574",
+      "b": "MINUS.n571",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1196",
+      "a": "PLUS.n252",
+      "b": "PLUS.n249",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1197",
+      "a": "PLUS.n147",
+      "b": "PLUS.n144",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1198",
+      "a": "PLUS.n42",
+      "b": "PLUS.n39",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1199",
+      "a": "PLUS.n409",
+      "b": "PLUS.n406",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1200",
+      "a": "PLUS.n514",
+      "b": "PLUS.n511",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R1201",
+      "a": "PLUS.n619",
+      "b": "PLUS.n616",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R7",
+      "a": "MINUS.n686",
+      "b": "MINUS.n685",
+      "ohm": 9.177
+    },
+    {
+      "name": "R1202",
+      "a": "PLUS.n363",
+      "b": "PLUS.n362",
+      "ohm": 9.177
+    },
+    {
+      "name": "R8",
+      "a": "MINUS.n316",
+      "b": "MINUS.n315",
+      "ohm": 9.089
+    },
+    {
+      "name": "R9",
+      "a": "MINUS.n210",
+      "b": "MINUS.n209",
+      "ohm": 9.089
+    },
+    {
+      "name": "R10",
+      "a": "MINUS.n104",
+      "b": "MINUS.n103",
+      "ohm": 9.089
+    },
+    {
+      "name": "R11",
+      "a": "MINUS.n424",
+      "b": "MINUS.n423",
+      "ohm": 9.089
+    }
+  ],
+  "resistance_extracted": true,
+  "note": "",
+  "total_capacitance_f": 5.444132199999849e-13,
+  "per_net_capacitance_f": {
+    "w_n240_n142#": 3.670532199999898e-13,
+    "PLUS": 1.9930975e-13,
+    "MINUS": 1.9916682e-13,
+    "PLUS.n682": 5.001570000000001e-14,
+    "MINUS.n318": 5.001570000000001e-14,
+    "PLUS.n364": 4.63062e-14,
+    "MINUS.n688": 4.2258400000000005e-14,
+    "PLUS.n365": 3.2259e-14,
+    "MINUS.n689": 3.2259e-14,
+    "MINUS.n319": 2.9257800000000005e-14,
+    "PLUS.n683": 2.7404e-14,
+    "PLUS.n366": 2.14015e-14,
+    "MINUS.n690": 1.95478e-14,
+    "MINUS.n317": 1.79729e-14,
+    "PLUS.n681": 1.7960300000000003e-14,
+    "MINUS.n687": 1.0882800000000001e-14,
+    "PLUS.n363": 8.689690000000001e-15,
+    "MINUS.n653": 5.640170000000001e-15,
+    "MINUS.n660": 5.640170000000001e-15,
+    "PLUS.n358": 4.868050000000001e-15
+  },
+  "log": "/workspace/layout/devices/out/pex_run/cmomi_cs/magic_pex.log",
+  "error": "",
+  "authority_note": "Magic does not recognise the metal-finger cap as a device: it extracts the interdigitated fingers geometrically (thousands of coupling caps) with an uncalibrated area+fringe model, so the post-layout figure is not comparable to the calibrated cap_cmomi compact model. Trust the compact model; use this only to see that the geometry is connected as intended.",
+  "comparison": {
+    "quantity": "capacitance",
+    "unit": "F",
+    "ok": true,
+    "schematic": 1.708184e-13,
+    "post_layout": 2.691232e-13,
+    "delta": 9.830479999999999e-14,
+    "rel_change": 0.5754930382207069,
+    "rel_change_pct": 57.549303822070684
+  }
+}

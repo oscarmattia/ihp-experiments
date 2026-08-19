@@ -1,0 +1,16 @@
+{
+  "cell": "ptap1_guard",
+  "gds": "/workspace/layout/devices/out/gds/ptap1_guard.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/ptap1_guard/ptap1_guard_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 0,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": true,
+  "note": "",
+  "total_capacitance_f": 0.0,
+  "per_net_capacitance_f": {},
+  "log": "/workspace/layout/devices/out/pex_run/ptap1_guard/magic_pex.log",
+  "error": ""
+}

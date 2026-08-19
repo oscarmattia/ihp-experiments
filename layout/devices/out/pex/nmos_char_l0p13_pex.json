@@ -1,0 +1,42 @@
+{
+  "cell": "nmos_char_l0p13",
+  "gds": "/workspace/layout/devices/out/gds/nmos_char_l0p13.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/nmos_char_l0p13/nmos_char_l0p13_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 1918.34732,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_n26_n36.n0",
+      "b": "w_n26_n36.t0",
+      "ohm": 1906.54
+    },
+    {
+      "name": "R0",
+      "a": "S",
+      "b": "S.t0",
+      "ohm": 5.90366
+    },
+    {
+      "name": "R1",
+      "a": "D",
+      "b": "D.t0",
+      "ohm": 5.90366
+    }
+  ],
+  "resistance_extracted": true,
+  "note": "",
+  "total_capacitance_f": 4.9888e-16,
+  "per_net_capacitance_f": {
+    "0": 3.8465999999999997e-16,
+    "D": 1.9608000000000002e-16,
+    "S": 1.9608000000000002e-16,
+    "D.t0": 7.496e-17,
+    "S.t0": 7.496e-17,
+    "a_68_n36#": 7.102e-17
+  },
+  "log": "/workspace/layout/devices/out/pex_run/nmos_char_l0p13/magic_pex.log",
+  "error": ""
+}
