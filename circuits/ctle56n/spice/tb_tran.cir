@@ -1,0 +1,23 @@
+* Transient — 56G NRZ PRBS9 differential stimulus (100 mVpp,diff)
+.include params.inc
+.include {DUT_CIR}
+.include prbs_stim.inc
+
+Vdd vdd 0 dc {VDD}
+XU1 outp outn inp inn vdd ctle_dut
+
+Cload_p outp 0 {CL}
+Cload_n outn 0 {CL}
+
+.options gmin=1e-18 abstol=1e-15 reltol=1e-3
+.nodeset v(xu1.mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.e1)=0.28 v(xu1.e2)=0.28
+
+.control
+save v(outp) v(outn) v(inp) v(inn)
+save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]
+save @n.xu1.xtail.nsg13_lv_nmos[ids] @n.xu1.xmdiode.nsg13_lv_nmos[ids]
+tran 0.5p {TMAX} 0 1p
+set wr_singlescale
+wrdata tran.raw time v(outp) v(outn) v(inp) v(inn)
+.endc
+.end

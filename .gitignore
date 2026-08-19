@@ -1,7 +1,12 @@
 scripts/env-ihp.local.sh
-pdk
+/pdk
 
 char/passive/out/em_work/
+
+circuits/ctle56n/out/**/work/
+circuits/ctle56n/out/**/*.raw
+circuits/ctle56n/out/**/*.log
+circuits/ctle56n/spice/cs.inc
 
 __pycache__/
 *.py[cod]

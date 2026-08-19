@@ -15,7 +15,7 @@ Precomputed lookup tables (LUTs) for IHP SG13G2 so design-space browsing and siz
 | Path | Role |
 | --- | --- |
 | [`mos/`](mos/AGENTS.md) | LV/HV × core/RF CMOS (gm/ID-style LUTs) |
-| [`bjt/`](bjt/AGENTS.md) | SiGe NPN flavors + lateral PNP |
+| [`bjt/`](bjt/AGENTS.md) | SiGe NPN flavors + lateral PNP (DC + HBT fT/Cin AC) |
 | [`passive/`](passive/AGENTS.md) | R / L / C LUTs (ngspice + optional openEMS) |
 | [`common/`](common/AGENTS.md) | Shared `.npz` I/O (`char.common.lut`) |
 | [`run_all.sh`](run_all.sh) | Runs all implemented suites |

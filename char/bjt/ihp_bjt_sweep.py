@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""IHP SG13G2 BJT / HBT DC characterization → portable .npz LUTs.
+"""IHP SG13G2 BJT / HBT DC + AC characterization → portable .npz LUTs.
 
-Builds Gummel-style tables of Ic, Ib, β, gm, go (and Cbe/Cbc when the
-model exposes them) vs (|VBE|, |VCE|) for each geometry. Intended as
-quick design-space LUTs so later browsing does not re-run SPICE.
+Builds Gummel-style tables of Ic, Ib, β, gm, go vs (|VBE|, |VCE|) for each
+geometry. HBT devices also get a separate OP/AC pass for Cbe/Cbc, Cin, and
+fT (10 GHz |h21|). Intended as quick design-space LUTs so later browsing
+does not re-run SPICE.
 """
 
 from __future__ import annotations
@@ -31,6 +32,8 @@ from char.common.lut import matrange, parse_wrdata, save_lut  # noqa: E402
 # under wrdata — derive gm/go numerically; leave caps as NaN for now.
 PROBE_NPN = ["IC", "IB"]
 PROBE_PNP = ["IC", "IB"]
+AC_PROBE_NAMES = ["VBE", "VCE", "IC_AC", "FT", "CIN", "CBE", "CBC"]
+AC_FREQ_HZ = 10e9
 
 
 @dataclass(frozen=True)
@@ -134,6 +137,136 @@ wrdata out.raw {probes}
     return names
 
 
+def _compose_values(name: str, values: np.ndarray) -> str:
+    parts = " ".join(f"{v:.12g}" for v in values)
+    return f"compose {name} values {parts}"
+
+
+def write_ac_netlist(
+    path: Path,
+    *,
+    models: Path,
+    corner: str,
+    dev: BjtDevice,
+    geom: dict[str, float],
+    vbe: np.ndarray,
+    vce: np.ndarray,
+) -> None:
+    """Grounded-emitter CE with Vbe ac=1; per-bias OP + 10 GHz AC in dowhile loops."""
+    if len(vbe) < 2 or len(vce) < 2:
+        # ngspice compose with one value is a scalar (not indexable).
+        raise ValueError("AC pass requires at least two VBE and VCE points")
+
+    inst, probe = _instance(dev, geom)
+    commons = "Ve e 0 dc 0\nVs s 0 dc 0"
+    vbe_compose = _compose_values("vbe_list", vbe)
+    vce_compose = _compose_values("vce_list", vce)
+    freq = AC_FREQ_HZ
+
+    text = f"""* IHP SG13G2 BJT AC characterization — {dev.key}
+.lib '{models}/cornerHBT.lib' {corner}
+{inst}
+Vbe b 0 dc {vbe[0]:.12g} ac 1
+Vce c 0 dc {vce[0]:.12g}
+{commons}
+.control
+{vbe_compose}
+{vce_compose}
+let ivce = 0
+dowhile ivce < length(vce_list)
+  let vce_set = vce_list[ivce]
+  alter Vce dc = vce_set
+  let ivbe = 0
+  dowhile ivbe < length(vbe_list)
+    let vbe_set = vbe_list[ivbe]
+    alter Vbe dc = vbe_set
+    op
+    ac lin 1 {freq:.12g} {freq:.12g}
+    let icv = abs(@{probe}[ic])
+    let cbev = abs(@{probe}[cbe])
+    let cbcv = abs(@{probe}[cbc])
+    let h21 = abs(i(Vce)/i(Vbe))
+    let ftv = {freq:.12g} * h21
+    let cinv = -imag(i(Vbe))/(2*pi*{freq:.12g})
+    wrdata ac.raw vbe_set vce_set icv ftv cinv cbev cbcv
+    set appendwrite
+    let ivbe = ivbe + 1
+  end
+  let ivce = ivce + 1
+end
+.endc
+.end
+"""
+    path.write_text(text)
+
+
+def reshape_ac(
+    params: dict[str, np.ndarray],
+    n_vbe: int,
+    n_vce: int,
+) -> dict[str, np.ndarray]:
+    """Reshape AC wrdata vectors → (n_vce, n_vbe); inner VBE, outer VCE."""
+    expected = n_vbe * n_vce
+    out: dict[str, np.ndarray] = {}
+    for key, vec in params.items():
+        if vec.size != expected:
+            raise RuntimeError(f"{key}: expected {expected} AC points, got {vec.size}")
+        out[key] = vec.reshape(n_vce, n_vbe)
+    return out
+
+
+def run_ac_one(
+    *,
+    ngspice: str,
+    models: Path,
+    corner: str,
+    dev: BjtDevice,
+    geom: dict[str, float],
+    vbe: np.ndarray,
+    vce: np.ndarray,
+    work: Path,
+) -> dict[str, np.ndarray]:
+    cir = work / "bjt_ac.cir"
+    write_ac_netlist(
+        cir, models=models, corner=corner, dev=dev, geom=geom, vbe=vbe, vce=vce
+    )
+    log = work / "ngspice_ac.log"
+    with log.open("w") as lf:
+        proc = subprocess.run(
+            [ngspice, "-b", "-o", str(log), str(cir)],
+            cwd=work,
+            stdout=lf,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+    raw = work / "ac.raw"
+    if proc.returncode != 0 or not raw.is_file():
+        raise RuntimeError(
+            f"ngspice AC failed for {dev.key} {geom}:\n{log.read_text()[-4000:]}"
+        )
+    params = parse_wrdata(raw, AC_PROBE_NAMES)
+    shaped = reshape_ac(params, n_vbe=len(vbe), n_vce=len(vce))
+    return {
+        "FT": shaped["FT"],
+        "CIN": shaped["CIN"],
+        "CBE": shaped["CBE"],
+        "CBC": shaped["CBC"],
+    }
+
+
+def merge_ac_into_cube(cube: dict[str, np.ndarray], ac: dict[str, np.ndarray]) -> None:
+    cube["CBE"] = ac["CBE"]
+    cube["CBC"] = ac["CBC"]
+    cube["FT"] = ac["FT"]
+    cube["CIN"] = ac["CIN"]
+
+
+def add_ac_placeholders(cube: dict[str, np.ndarray]) -> None:
+    ic = cube["IC"]
+    cube["FT"] = np.full_like(ic, np.nan)
+    cube["CIN"] = np.full_like(ic, np.nan)
+
+
 def reshape_nested(
     params: dict[str, np.ndarray],
     n_vbe: int,
@@ -184,6 +317,7 @@ def run_one(
     vbe: np.ndarray,
     vce: np.ndarray,
     work: Path,
+    skip_ac: bool,
 ) -> dict[str, np.ndarray]:
     cir = work / "bjt.cir"
     names = write_netlist(
@@ -204,7 +338,24 @@ def run_one(
 
     params = parse_wrdata(raw, names)
     cube = reshape_nested(params, n_vbe=len(vbe), n_vce=len(vce))
-    return add_derived(cube, vbe, vce)
+    cube = add_derived(cube, vbe, vce)
+
+    if dev.kind == "hbt" and not skip_ac:
+        ac = run_ac_one(
+            ngspice=ngspice,
+            models=models,
+            corner=corner,
+            dev=dev,
+            geom=geom,
+            vbe=vbe,
+            vce=vce,
+            work=work,
+        )
+        merge_ac_into_cube(cube, ac)
+    else:
+        add_ac_placeholders(cube)
+
+    return cube
 
 
 def stack_geometries(cubes: list[dict[str, np.ndarray]]) -> dict[str, np.ndarray]:
@@ -224,6 +375,7 @@ def characterize_device(
     vbe: np.ndarray,
     vce: np.ndarray,
     out_dir: Path,
+    skip_ac: bool,
 ) -> Path:
     cubes: list[dict[str, np.ndarray]] = []
     for i, geom in enumerate(geometries):
@@ -238,6 +390,7 @@ def characterize_device(
                 vbe=vbe,
                 vce=vce,
                 work=Path(tmp),
+                skip_ac=skip_ac,
             )
         cubes.append(cube)
 
@@ -287,15 +440,19 @@ def characterize_device(
             "BETA": "Ic/Ib",
             "GM": "∂Ic/∂VBE (S), numerical",
             "GO": "∂Ic/∂VCE (S), numerical",
-            "CBE": "Cbe (F); NaN if model does not expose it in DC",
-            "CBC": "Cbc (F); NaN if model does not expose it in DC",
+            "CBE": "Cbe (F) from per-bias OP (HBT AC pass)",
+            "CBC": "Cbc (F) from per-bias OP (HBT AC pass)",
+            "CIN": "input capacitance (F) from Y11 @ 10 GHz (HBT AC pass)",
+            "FT": "transition frequency (Hz) = 10 GHz × |h21| (HBT AC pass)",
             "VA": "Early approx Ic/go (V)",
             "GM_IC": "gm/Ic (1/V)",
         },
         "shape": "signal arrays are (n_geo, n_vce, n_vbe); axes are 1-D",
         "notes": (
             "gm/go/beta recomputed from Ic,Ib after DC; VBIC @q[gm] etc. "
-            "often freeze under nested dc wrdata. Caps from @q may be stale."
+            "often freeze under nested dc wrdata. HBT Cbe/Cbc/Cin/fT come from "
+            "a separate OP+AC pass (10 GHz |h21|, not nested-dc wrdata). "
+            "PNP/lateral devices skip AC; FT/CIN remain NaN."
         ),
     }
     # Friendly alias used by MOS browsers
@@ -351,6 +508,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--vce-stop", type=float, default=1.8)
     p.add_argument("--vce-step", type=float, default=0.15)
     p.add_argument("--quick", action="store_true", help="Coarse geometry + bias grid")
+    p.add_argument(
+        "--skip-ac",
+        action="store_true",
+        help="Skip HBT OP/AC pass (FT/CIN/Cbe/Cbc remain NaN)",
+    )
     return p.parse_args()
 
 
@@ -370,7 +532,7 @@ def main() -> int:
         vbe = matrange(args.vbe_start, args.vbe_step, args.vbe_stop)
         vce = matrange(args.vce_start, args.vce_step, args.vce_stop)
 
-    print(f"BJT char: devices={keys} corner={args.corner}")
+    print(f"BJT char: devices={keys} corner={args.corner} skip_ac={args.skip_ac}")
     print(f"  |VBE|={vbe[0]:.3g}..{vbe[-1]:.3g} ({len(vbe)} pts)")
     print(f"  |VCE|={vce[0]:.3g}..{vce[-1]:.3g} ({len(vce)} pts)")
 
@@ -387,6 +549,7 @@ def main() -> int:
             vbe=vbe,
             vce=vce,
             out_dir=args.out_dir,
+            skip_ac=args.skip_ac,
         )
 
     print("\nDone.")

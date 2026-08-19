@@ -1,0 +1,16 @@
+parameter,value
+ideal_dc_gain_dB,-1.258
+ideal_peaking_28G_dB,5.605
+ideal_G_peak_dB,4.906
+ideal_f_peak_Hz,4.862e+10
+ideal_f_3dB_Hz,1.51515e+11
+ideal_CMRR_dB,12.745
+ideal_PSRR_dB,120.000
+ideal_VCE_V,1.0671
+ideal_VDS_tail_V,0.2240
+ideal_VGS_tail_V,0.4396
+ideal_Ic_A,0.00261101
+ideal_Id_tail_A,0.00523526
+ideal_sbr_cursor_mV,-155.5579
+ideal_sbr_isi_norm,-0.406549
+ideal_sbr_isi_abs,0.406549
