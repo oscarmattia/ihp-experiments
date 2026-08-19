@@ -1,0 +1,629 @@
+#!/usr/bin/env python3
+"""IHP SG13G2 inductor EM characterization via openEMS → portable .npz LUTs.
+
+Cases:
+  - l2n0   : canonical smoke GDS (L_2n0_twoport.gds)
+  - turn1  : 1-turn synthesized octagon (N=1, D≈120 µm, w=3, s=3, TopMetal2)
+  - turn2  : 2-turn synthesized octagon (N=2, D≈150 µm, w=3, s=3, TopMetal1)
+
+Adapted from PDK ``run_inductor_2port.py``; geometry synthesis from
+``synthesize_ihp_inductor_v3.symmetric_octa_IHP`` (forEM=True).
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import sys
+import types
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable
+
+import numpy as np
+
+_REPO = Path(__file__).resolve().parents[2]
+if str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+
+from char.common.lut import save_lut  # noqa: E402
+
+CASE_CHOICES = ("l2n0", "turn1", "turn2", "all")
+
+
+@dataclass(frozen=True)
+class IndCase:
+    key: str
+    # geometry meta (None = canonical smoke, not synthesized)
+    nr_r: int | None
+    w_um: float | None
+    s_um: float | None
+    d_um: float | None
+    from_layer: str
+    to_layer: str
+    gds_name: str
+    synthesize: bool = False
+    synth_n: int | None = None
+    synth_d: float | None = None
+    synth_w: float | None = None
+    synth_s: float | None = None
+
+
+CASES: dict[str, IndCase] = {
+    "l2n0": IndCase(
+        key="l2n0",
+        nr_r=2,
+        w_um=3.0,
+        s_um=3.0,
+        d_um=114.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal1",
+        gds_name="L_2n0_twoport.gds",
+        synthesize=False,
+    ),
+    "turn1": IndCase(
+        key="turn1",
+        nr_r=1,
+        w_um=3.0,
+        s_um=3.0,
+        d_um=120.0,
+        # Match L_2n0 via-port convention: SUBGND → top metal (synthesize adds Metal1
+        # frame; we also inject a SUBGND polygon for openEMS).
+        from_layer="SUBGND",
+        to_layer="TopMetal2",
+        gds_name="ind_turn1_em.gds",
+        synthesize=True,
+        synth_n=1,
+        synth_d=120.0,
+        synth_w=3.0,
+        synth_s=3.0,
+    ),
+    "turn2": IndCase(
+        key="turn2",
+        nr_r=2,
+        w_um=3.0,
+        s_um=3.0,
+        d_um=150.0,
+        from_layer="SUBGND",
+        to_layer="TopMetal1",
+        gds_name="ind_turn2_em.gds",
+        synthesize=True,
+        synth_n=2,
+        synth_d=150.0,
+        synth_w=3.0,
+        synth_s=3.0,
+    ),
+}
+
+
+def _pdk_paths(pdk_root: Path) -> tuple[Path, Path, Path]:
+    workflow = (
+        pdk_root
+        / "ihp-sg13g2/libs.tech/openems/openems_ihp_sg13g2/workflow"
+    )
+    synth_dir = (
+        pdk_root
+        / "ihp-sg13g2/libs.tech/palace/more_examples/inductor_synthesis_no_external_library"
+    )
+    synth_script = synth_dir / "synthesize_ihp_inductor_v3.py"
+    if not workflow.is_dir():
+        raise SystemExit(f"Missing openEMS workflow under {workflow}")
+    if not synth_script.is_file():
+        raise SystemExit(f"Missing synthesize script {synth_script}")
+    return workflow, synth_dir, synth_script
+
+
+def _load_symmetric_octa_ihp(synth_script: Path) -> Callable[..., None]:
+    """Load geometry-only code from synthesize_ihp_inductor_v3 (no gds2palace)."""
+    lines = synth_script.read_text().splitlines()
+    kept: list[str] = []
+    skip_block = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("from gds2palace"):
+            continue
+        if stripped.startswith("import skrf") or stripped.startswith("from matplotlib"):
+            continue
+        if stripped.startswith("# RUN CONTROLS"):
+            skip_block = True
+            continue
+        if stripped.startswith("# ==================================== INDUCTOR LAYOUT CODE"):
+            skip_block = False
+        if skip_block:
+            continue
+        if stripped.startswith("materials_list,") and "stackup_reader" in stripped:
+            continue
+        if line.startswith("# ==================================== SIMULATION FLOW"):
+            break
+        kept.append(line)
+    namespace: dict[str, Any] = {"__builtins__": __builtins__}
+    code = "\n".join(kept)
+    exec(code, namespace)  # noqa: S102
+    fn = namespace.get("symmetric_octa_IHP")
+    if fn is None:
+        raise RuntimeError(f"symmetric_octa_IHP not found in {synth_script}")
+    return fn
+
+
+def _check_openems() -> tuple[bool, bool, str | None]:
+    """Return (python_ok, binary_ok, reason_if_missing)."""
+    py_ok = False
+    try:
+        import openEMS  # noqa: F401
+
+        py_ok = True
+    except ImportError:
+        pass
+    bin_ok = shutil.which("openEMS") is not None
+    if py_ok and bin_ok:
+        return True, True, None
+    reasons: list[str] = []
+    if not py_ok:
+        reasons.append("openEMS Python bindings not importable")
+    if not bin_ok:
+        reasons.append("openEMS binary not on PATH")
+    return py_ok, bin_ok, "; ".join(reasons)
+
+
+def _freq_grid(coarse: bool) -> tuple[float, float, int]:
+    fstart, fstop = 0.0, 30e9
+    numfreq = 51 if coarse else 401
+    return fstart, fstop, numfreq
+
+
+def _prepare_workflow_modules(workflow: Path) -> None:
+    modules = workflow / "modules"
+    if str(modules) not in sys.path:
+        sys.path.insert(0, str(modules))
+    if str(workflow) not in sys.path:
+        sys.path.insert(0, str(workflow))
+
+
+def _ensure_gds(
+    case: IndCase,
+    *,
+    workflow: Path,
+    work_dir: Path,
+    symmetric_octa: Callable[..., None] | None,
+) -> Path:
+    work_dir.mkdir(parents=True, exist_ok=True)
+    gds_path = work_dir / case.gds_name
+    if case.synthesize:
+        if symmetric_octa is None:
+            raise RuntimeError("symmetric_octa_IHP loader required for synthesized cases")
+        symmetric_octa(
+            N=case.synth_n,
+            D=case.synth_d,
+            w=case.synth_w,
+            s=case.synth_s,
+            includeCenterTap=False,
+            LBE=False,
+            forEM=True,
+            filename=str(gds_path),
+        )
+        return gds_path
+    src = workflow / case.gds_name
+    if not src.is_file():
+        raise FileNotFoundError(f"Canonical GDS not found: {src}")
+    shutil.copy2(src, gds_path)
+    return gds_path
+
+
+def _maybe_add_subgnd(gds_path: Path, margin_um: float = 400.0) -> bool:
+    """Add SUBGND (210/0) box if GDS has no layer 210 geometry."""
+    import gdspy
+
+    lib = gdspy.GdsLibrary(infile=str(gds_path))
+    has_subgnd = False
+    bbox: list[float] = [np.inf, np.inf, -np.inf, -np.inf]
+    for cell in lib.cells.values():
+        for poly in cell.polygons:
+            layer = poly.layers[0]
+            if layer == 210:
+                has_subgnd = True
+            if layer in (8, 126, 134, 201, 202):
+                xs, ys = zip(*poly.polygons[0], strict=False)
+                bbox[0] = min(bbox[0], min(xs))
+                bbox[1] = min(bbox[1], min(ys))
+                bbox[2] = max(bbox[2], max(xs))
+                bbox[3] = max(bbox[3], max(ys))
+    if has_subgnd or not np.isfinite(bbox[0]):
+        return False
+    cell = lib.top_level()[0] if lib.top_level() else lib.new_cell("SUBGND_FILL")
+    m = margin_um
+    rect = gdspy.Rectangle(
+        (bbox[0] - m, bbox[1] - m),
+        (bbox[2] + m, bbox[3] + m),
+        layer=210,
+        datatype=0,
+    )
+    cell.add(rect)
+    lib.write_gds(str(gds_path))
+    return True
+
+
+def _run_openems_case(
+    case: IndCase,
+    *,
+    workflow: Path,
+    work_dir: Path,
+    gds_path: Path,
+    preview_only: bool,
+    coarse: bool,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, dict[str, Any]]:
+    """Run mesh preview or full FDTD; return FREQ, Ldiff, Qdiff."""
+    _prepare_workflow_modules(workflow)
+
+    import modules.util_stackup_reader as stackup_reader  # type: ignore[import-untyped]
+    import modules.util_gds_reader as gds_reader  # type: ignore[import-untyped]
+    import modules.util_meshlines as util_meshlines  # type: ignore[import-untyped]
+    import modules.util_simulation_setup as simulation_setup  # type: ignore[import-untyped]
+    import modules.util_utilities as utilities  # type: ignore[import-untyped]
+    from openEMS import openEMS  # type: ignore[import-untyped]
+
+    xml_src = workflow / "SG13G2.xml"
+    xml_path = work_dir / "SG13G2.xml"
+    shutil.copy2(xml_src, xml_path)
+
+    unit = 1e-6
+    margin = 200.0
+    fstart, fstop, numfreq = _freq_grid(coarse)
+    refined_cellsize = 2.0 if coarse else 1.0
+    cells_per_wavelength = 10
+    energy_limit = -50.0
+    boundaries = ["PEC", "PEC", "PEC", "PEC", "PEC", "PEC"]
+    merge_polygon_size = 1.0
+    preprocess_gds = False
+
+    materials_list, dielectrics_list, metals_list = stackup_reader.read_substrate(str(xml_path))
+
+    simulation_ports = simulation_setup.all_simulation_ports()
+    simulation_ports.add_port(
+        simulation_setup.simulation_port(
+            portnumber=1,
+            voltage=1,
+            port_Z0=50,
+            source_layernum=201,
+            from_layername=case.from_layer,
+            to_layername=case.to_layer,
+            direction="z",
+        )
+    )
+    simulation_ports.add_port(
+        simulation_setup.simulation_port(
+            portnumber=2,
+            voltage=1,
+            port_Z0=50,
+            source_layernum=202,
+            from_layername=case.from_layer,
+            to_layername=case.to_layer,
+            direction="z",
+        )
+    )
+
+    layernumbers = metals_list.getlayernumbers()
+    layernumbers.extend(simulation_ports.portlayers)
+    allpolygons = gds_reader.read_gds(
+        str(gds_path),
+        layernumbers,
+        purposelist=[0],
+        metals_list=metals_list,
+        preprocess=preprocess_gds,
+        merge_polygon_size=merge_polygon_size,
+    )
+
+    wavelength_air = 3e8 / fstop / unit
+    max_cellsize = wavelength_air / (np.sqrt(materials_list.eps_max) * cells_per_wavelength)
+
+    model_basename = f"sg13_ind_{case.key}"
+    # Absolute paths required: openEMS.Run chdirs then compares Path.resolve().
+    sim_path = (work_dir / f"{model_basename}_data").resolve()
+    sim_path.mkdir(parents=True, exist_ok=True)
+
+    run_log: dict[str, Any] = {
+        "preview_only": preview_only,
+        "coarse": coarse,
+        "refined_cellsize_um": refined_cellsize,
+        "cells_per_wavelength": cells_per_wavelength,
+        "numfreq": numfreq,
+        "sim_path": str(sim_path),
+    }
+
+    cwd0 = Path.cwd()
+    try:
+        for excite_ports in [[1], [2]]:
+            os.chdir(cwd0)
+            fdtd = openEMS(EndCriteria=np.exp(energy_limit / 10 * np.log(10)))
+            fdtd.SetGaussExcite((fstart + fstop) / 2, (fstop - fstart) / 2)
+            fdtd.SetBoundaryCond(boundaries)
+            fdtd = simulation_setup.setupSimulation(
+                excite_ports,
+                simulation_ports,
+                fdtd,
+                materials_list,
+                dielectrics_list,
+                metals_list,
+                allpolygons,
+                max_cellsize,
+                refined_cellsize,
+                margin,
+                unit,
+                xy_mesh_function=util_meshlines.create_xy_mesh_from_polygons,
+            )
+            excitation_path = Path(
+                utilities.get_excitation_path(str(sim_path), excite_ports)
+            ).resolve()
+            excitation_path.mkdir(parents=True, exist_ok=True)
+            csx_file = excitation_path / (model_basename + ".xml")
+            csx = fdtd.GetCSX()
+            csx.Write2XML(str(csx_file))
+            run_log[f"csx_port{excite_ports[0]}"] = str(csx_file)
+            if not preview_only:
+                print(f"  FDTD excitation {excite_ports} → {excitation_path}", flush=True)
+                fdtd.Run(str(excitation_path), verbose=1)
+    finally:
+        os.chdir(cwd0)
+
+    f = np.linspace(fstart, fstop, numfreq)
+    if preview_only:
+        return f, np.full(numfreq, np.nan), np.full(numfreq, np.nan), run_log
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        z11 = utilities.calculate_Zij_2port(1, 1, f, str(sim_path), simulation_ports)
+        z21 = utilities.calculate_Zij_2port(2, 1, f, str(sim_path), simulation_ports)
+        z12 = utilities.calculate_Zij_2port(1, 2, f, str(sim_path), simulation_ports)
+        z22 = utilities.calculate_Zij_2port(2, 2, f, str(sim_path), simulation_ports)
+        zdiff = z11 - z12 - z21 + z22
+        omega = 2 * np.pi * f
+        qdiff = np.where(zdiff.real != 0, zdiff.imag / zdiff.real, np.nan)
+        ldiff = np.where(f > 0, zdiff.imag / omega, np.nan)
+    idx10 = int(np.argmin(np.abs(f - 10e9)))
+    run_log["L_at_10GHz_nH"] = float(ldiff[idx10] * 1e9) if np.isfinite(ldiff[idx10]) else None
+    run_log["peak_Q"] = float(np.nanmax(qdiff)) if np.any(np.isfinite(qdiff)) else None
+    s2p = sim_path / (model_basename + ".s2p")
+    try:
+        s11 = utilities.calculate_Sij(1, 1, f, str(sim_path), simulation_ports)
+        s21 = utilities.calculate_Sij(2, 1, f, str(sim_path), simulation_ports)
+        s12 = utilities.calculate_Sij(1, 2, f, str(sim_path), simulation_ports)
+        s22 = utilities.calculate_Sij(2, 2, f, str(sim_path), simulation_ports)
+        utilities.write_snp(np.array([[s11, s21], [s12, s22]]), f, str(s2p))
+        run_log["s2p"] = str(s2p)
+    except Exception as exc:
+        run_log["s2p_error"] = str(exc)
+    return f, ldiff, qdiff, run_log
+
+
+def _jsonable(obj: Any) -> Any:
+    """Convert numpy scalars/arrays into plain Python for JSON meta."""
+    if isinstance(obj, dict):
+        return {str(k): _jsonable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_jsonable(v) for v in obj]
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, np.generic):
+        return obj.item()
+    if isinstance(obj, Path):
+        return str(obj)
+    return obj
+
+
+def _write_case_outputs(
+    case: IndCase,
+    *,
+    out_dir: Path,
+    gds_path: Path,
+    freq: np.ndarray,
+    l_series: np.ndarray,
+    q_series: np.ndarray,
+    meta_extra: dict[str, Any],
+    em_ok: bool,
+    skip_reason: str | None,
+) -> Path:
+    meta: dict[str, Any] = {
+        "format": "ihp-ind-em-lut-v1",
+        "device": f"sg13_ind_{case.key}",
+        "case": case.key,
+        "pdk": "ihp-sg13g2",
+        "solver": "openEMS",
+        "nr_r": case.nr_r,
+        "w": case.w_um,
+        "s": case.s_um,
+        "d": case.d_um,
+        "gds": str(gds_path),
+        "from_layer": case.from_layer,
+        "to_layer": case.to_layer,
+        "axes": {
+            "FREQ": "frequency (Hz)",
+            "L": "differential series inductance Ldiff (H)",
+            "Q": "differential Q factor Qdiff",
+        },
+        "em_completed": bool(em_ok),
+    }
+    if skip_reason:
+        meta["skip_reason"] = skip_reason
+    meta.update(_jsonable(meta_extra))
+
+    arrays = {
+        "FREQ": freq.astype(float),
+        "L": l_series.astype(float),
+        "Q": q_series.astype(float),
+    }
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"sg13_ind_{case.key}.npz"
+    save_lut(out_path, arrays, meta)
+    (out_dir / f"sg13_ind_{case.key}.meta.json").write_text(
+        json.dumps(meta, indent=2, sort_keys=True) + "\n"
+    )
+    print(f"  wrote {out_path}", flush=True)
+    return out_path
+
+
+def run_case(
+    case: IndCase,
+    *,
+    pdk_root: Path,
+    out_dir: Path,
+    preview_only: bool,
+    coarse: bool,
+    symmetric_octa: Callable[..., None] | None,
+) -> int:
+    workflow, _, synth_script = _pdk_paths(pdk_root)
+    em_work = out_dir / "em_work" / case.key
+    em_work.mkdir(parents=True, exist_ok=True)
+
+    py_ok, bin_ok, skip_reason = _check_openems()
+    can_mesh = py_ok
+    can_solve = py_ok and bin_ok and not preview_only
+
+    if not py_ok and symmetric_octa is None and case.synthesize:
+        symmetric_octa = _load_symmetric_octa_ihp(synth_script)
+
+    gds_path = _ensure_gds(
+        case,
+        workflow=workflow,
+        work_dir=em_work,
+        symmetric_octa=symmetric_octa,
+    )
+    subgnd_added = _maybe_add_subgnd(gds_path)
+    print(f"== {case.key}: gds={gds_path.name} subgnd_added={subgnd_added}", flush=True)
+
+    fstart, fstop, numfreq = _freq_grid(coarse)
+    freq = np.linspace(fstart, fstop, numfreq)
+    l_series = np.full(numfreq, np.nan)
+    q_series = np.full(numfreq, np.nan)
+    run_log: dict[str, Any] = {}
+
+    exit_code = 0
+    effective_skip = skip_reason
+
+    if can_mesh:
+        try:
+            if can_solve:
+                freq, l_series, q_series, run_log = _run_openems_case(
+                    case,
+                    workflow=workflow,
+                    work_dir=em_work,
+                    gds_path=gds_path,
+                    preview_only=False,
+                    coarse=coarse,
+                )
+            else:
+                freq, l_series, q_series, run_log = _run_openems_case(
+                    case,
+                    workflow=workflow,
+                    work_dir=em_work,
+                    gds_path=gds_path,
+                    preview_only=True,
+                    coarse=coarse,
+                )
+                if not bin_ok and not preview_only:
+                    exit_code = 2
+                    effective_skip = skip_reason or "openEMS binary missing"
+        except Exception as exc:
+            print(f"  [ERROR] openEMS run failed: {exc}", flush=True)
+            exit_code = 2
+            effective_skip = str(exc)
+    else:
+        exit_code = 2
+        effective_skip = skip_reason or "openEMS Python bindings missing"
+
+    _write_case_outputs(
+        case,
+        out_dir=out_dir,
+        gds_path=gds_path,
+        freq=freq,
+        l_series=l_series,
+        q_series=q_series,
+        meta_extra={"subgnd_added": subgnd_added, "run_log": run_log},
+        em_ok=can_solve and exit_code == 0 and np.any(np.isfinite(l_series)),
+        skip_reason=effective_skip if exit_code != 0 or preview_only else None,
+    )
+    return exit_code
+
+
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--out-dir", type=Path, default=Path(__file__).resolve().parent / "out")
+    p.add_argument(
+        "--preview-only",
+        action="store_true",
+        help="Build mesh / CSX only; no FDTD solve (default False)",
+    )
+    p.add_argument(
+        "--cases",
+        nargs="+",
+        choices=list(CASE_CHOICES),
+        default=["all"],
+        help="Cases to run (default: all)",
+    )
+    p.add_argument(
+        "--coarse",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Coarse mesh + fewer frequency points (default True)",
+    )
+    p.add_argument(
+        "--pdk-root",
+        type=Path,
+        default=None,
+        help="PDK root (default: PDK_ROOT env)",
+    )
+    return p.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    pdk_root = args.pdk_root or Path(os.environ.get("PDK_ROOT", ""))
+    if not pdk_root or not pdk_root.is_dir():
+        raise SystemExit("PDK_ROOT is not set or invalid. Source ihp-eda env.sh first.")
+
+    workflow, _, synth_script = _pdk_paths(pdk_root)
+    os.environ.setdefault(
+        "OPENEMS_WORKFLOW",
+        str(workflow),
+    )
+    if "PYTHONPATH" in os.environ:
+        if str(workflow) not in os.environ["PYTHONPATH"]:
+            os.environ["PYTHONPATH"] = f"{workflow}:{os.environ['PYTHONPATH']}"
+    else:
+        os.environ["PYTHONPATH"] = str(workflow)
+
+    selected = args.cases
+    if "all" in selected:
+        keys = ["l2n0", "turn1", "turn2"]
+    else:
+        keys = list(dict.fromkeys(selected))
+
+    symmetric_octa: Callable[..., None] | None = None
+    if any(CASES[k].synthesize for k in keys):
+        symmetric_octa = _load_symmetric_octa_ihp(synth_script)
+
+    print(
+        f"Inductor EM: cases={keys} preview_only={args.preview_only} coarse={args.coarse}",
+        flush=True,
+    )
+    py_ok, bin_ok, reason = _check_openems()
+    print(f"  openEMS python={py_ok} binary={bin_ok} ({reason or 'ok'})", flush=True)
+
+    worst = 0
+    for key in keys:
+        rc = run_case(
+            CASES[key],
+            pdk_root=pdk_root,
+            out_dir=args.out_dir,
+            preview_only=args.preview_only,
+            coarse=args.coarse,
+            symmetric_octa=symmetric_octa,
+        )
+        worst = max(worst, rc)
+
+    print("\nDone.", flush=True)
+    return worst
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

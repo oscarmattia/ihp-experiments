@@ -1,0 +1,38 @@
+{
+  "format": "ihp-cap-lut-v1",
+  "device": "moscap_n",
+  "subckt": "sg13_moscap_n",
+  "corner": "moscap_tt",
+  "corner_lib": "cornerMOSCAP.lib",
+  "pdk": "ihp-sg13g2",
+  "geometries_um": [
+    {
+      "w": 1.0,
+      "l": 1.0
+    },
+    {
+      "w": 3.0,
+      "l": 3.0
+    },
+    {
+      "w": 10.0,
+      "l": 10.0
+    },
+    {
+      "w": 30.0,
+      "l": 30.0
+    }
+  ],
+  "v_biases_v": [
+    -1.0,
+    -0.5,
+    0.0,
+    0.5,
+    1.0
+  ],
+  "extraction": "tran ramp C(V)=|i(Vg)|/deriv(v(g)) per xschem tran_moscap_*",
+  "signals": {
+    "C": "capacitance vs bias (F); shape (n_geo, n_v)"
+  },
+  "shape": "C is (n_geo, n_v); W,L,V are 1-D"
+}

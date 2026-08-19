@@ -1,0 +1,114 @@
+[
+  {
+    "stem": "cap_cmim",
+    "title": "MIM capacitor (PDK testcase)",
+    "gds": "/workspace/char/passive/out/layouts/gds/cap_cmim.gds",
+    "png": "/workspace/char/passive/out/layouts/cap_cmim.png",
+    "status": "ok",
+    "png_bytes": 80106
+  },
+  {
+    "stem": "cap_cmomi",
+    "title": "Interdigitated MoM capacitor",
+    "gds": "/workspace/char/passive/out/layouts/gds/cap_cmomi.gds",
+    "png": "/workspace/char/passive/out/layouts/cap_cmomi.png",
+    "status": "ok",
+    "png_bytes": 36629
+  },
+  {
+    "stem": "cap_cmomf",
+    "title": "Finger MoM capacitor (cmomf)",
+    "gds": "/workspace/char/passive/out/layouts/gds/cap_cmomf.gds",
+    "png": "/workspace/char/passive/out/layouts/cap_cmomf.png",
+    "status": "ok",
+    "png_bytes": 77452
+  },
+  {
+    "stem": "rfcmim",
+    "title": "RF MIM capacitor",
+    "gds": "/workspace/char/passive/out/layouts/gds/rfcmim.gds",
+    "png": "/workspace/char/passive/out/layouts/rfcmim.png",
+    "status": "ok",
+    "png_bytes": 115563
+  },
+  {
+    "stem": "sg13_moscap_n",
+    "title": "NMOS MOSCAP",
+    "gds": "/workspace/char/passive/out/layouts/gds/sg13_moscap_n.gds",
+    "png": "/workspace/char/passive/out/layouts/sg13_moscap_n.png",
+    "status": "ok",
+    "png_bytes": 26623
+  },
+  {
+    "stem": "sg13_moscap_p",
+    "title": "PMOS MOSCAP",
+    "gds": "/workspace/char/passive/out/layouts/gds/sg13_moscap_p.gds",
+    "png": "/workspace/char/passive/out/layouts/sg13_moscap_p.png",
+    "status": "ok",
+    "png_bytes": 34090
+  },
+  {
+    "stem": "char_cap_cmim_7x7",
+    "title": "Educational MIM 7\u00d77 \u00b5m",
+    "gds": "/workspace/char/passive/out/layouts/gds/char_cap_cmim_7x7.gds",
+    "png": "/workspace/char/passive/out/layouts/char_cap_cmim_7x7.png",
+    "status": "ok",
+    "png_bytes": 32923
+  },
+  {
+    "stem": "char_cap_cmim_20x20",
+    "title": "Educational MIM 20\u00d720 \u00b5m",
+    "gds": "/workspace/char/passive/out/layouts/gds/char_cap_cmim_20x20.gds",
+    "png": "/workspace/char/passive/out/layouts/char_cap_cmim_20x20.png",
+    "status": "ok",
+    "png_bytes": 38896
+  },
+  {
+    "stem": "L_2n0_twoport",
+    "title": "Canonical 2 nH two-port inductor",
+    "gds": "/workspace/char/passive/out/layouts/gds/L_2n0_twoport.gds",
+    "png": "/workspace/char/passive/out/layouts/L_2n0_twoport.png",
+    "status": "ok",
+    "png_bytes": 27300
+  },
+  {
+    "stem": "inductor_1turn",
+    "title": "PDK 1-turn inductor",
+    "gds": "/workspace/char/passive/out/layouts/gds/inductor_1turn.gds",
+    "png": "/workspace/char/passive/out/layouts/inductor_1turn.png",
+    "status": "ok",
+    "png_bytes": 37648
+  },
+  {
+    "stem": "inductor_2turn_ct",
+    "title": "PDK 2-turn center-tap inductor",
+    "gds": "/workspace/char/passive/out/layouts/gds/inductor_2turn_ct.gds",
+    "png": "/workspace/char/passive/out/layouts/inductor_2turn_ct.png",
+    "status": "ok",
+    "png_bytes": 36667
+  },
+  {
+    "stem": "ind_turn1_em",
+    "title": "Synthesized 1-turn octagon (EM)",
+    "gds": "/workspace/char/passive/out/layouts/gds/ind_turn1_em.gds",
+    "png": "/workspace/char/passive/out/layouts/ind_turn1_em.png",
+    "status": "ok",
+    "png_bytes": 23748
+  },
+  {
+    "stem": "ind_turn2_em",
+    "title": "Synthesized 2-turn octagon (EM)",
+    "gds": "/workspace/char/passive/out/layouts/gds/ind_turn2_em.gds",
+    "png": "/workspace/char/passive/out/layouts/ind_turn2_em.png",
+    "status": "ok",
+    "png_bytes": 26843
+  },
+  {
+    "stem": "inductor_500pH",
+    "title": "500 pH inductor with ports (Palace workflow)",
+    "gds": "/workspace/char/passive/out/layouts/gds/inductor_500pH.gds",
+    "png": "/workspace/char/passive/out/layouts/inductor_500pH.png",
+    "status": "ok",
+    "png_bytes": 35132
+  }
+]

@@ -37,6 +37,7 @@ SKIP_KLAYOUT=0
 SKIP_PDK=0
 SKIP_MODELS=0
 SKIP_PYTHON=0
+WITH_EM=0
 FORCE_REBUILD=0
 
 log()  { printf '\n==> %s\n' "$*"; }
@@ -57,6 +58,7 @@ Options:
   --skip-pdk         Skip PDK clone/update
   --skip-models      Skip Verilog-A / OSDI compilation
   --skip-python      Skip uv venv + requirements
+  --with-em          After analog install, run scripts/install-ihp-em.sh (openEMS / Palace)
   --force-rebuild    Rebuild tools even if present
   -h, --help         Show this help
 EOF
@@ -71,6 +73,7 @@ while [[ $# -gt 0 ]]; do
     --skip-pdk) SKIP_PDK=1 ;;
     --skip-models) SKIP_MODELS=1 ;;
     --skip-python) SKIP_PYTHON=1 ;;
+    --with-em) WITH_EM=1 ;;
     --force-rebuild) FORCE_REBUILD=1 ;;
     -h|--help) usage; exit 0 ;;
     *) die "Unknown option: $1" ;;
@@ -402,6 +405,14 @@ main() {
   write_shell_env
   install_python
   compile_models
+  if [[ "$WITH_EM" -eq 1 ]]; then
+    if [[ -x "$SCRIPT_DIR/install-ihp-em.sh" ]]; then
+      log "Running EM installer (--with-em)"
+      "$SCRIPT_DIR/install-ihp-em.sh"
+    else
+      warn "install-ihp-em.sh not found; skipping EM tier"
+    fi
+  fi
   print_summary
 }
 

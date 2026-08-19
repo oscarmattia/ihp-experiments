@@ -16,7 +16,7 @@ Precomputed lookup tables (LUTs) for IHP SG13G2 so design-space browsing and siz
 | --- | --- |
 | [`mos/`](mos/AGENTS.md) | LV/HV × core/RF CMOS (gm/ID-style LUTs) |
 | [`bjt/`](bjt/AGENTS.md) | SiGe NPN flavors + lateral PNP |
-| [`passive/`](passive/AGENTS.md) | Placeholder for R / L / C (later) |
+| [`passive/`](passive/AGENTS.md) | R / L / C LUTs (ngspice + optional openEMS) |
 | [`common/`](common/AGENTS.md) | Shared `.npz` I/O (`char.common.lut`) |
 | [`run_all.sh`](run_all.sh) | Runs all implemented suites |
 
@@ -38,6 +38,7 @@ Run everything implemented:
 
 ```bash
 ./char/run_all.sh
+./char/run_all.sh --skip-em   # passive inductors: summarize existing .npz only
 ```
 
 Or run a suite directly:
@@ -45,9 +46,11 @@ Or run a suite directly:
 ```bash
 ./char/mos/run_all.sh [--only lv_core lv_rf …]
 ./char/bjt/run_all.sh [--quick] [--device npn13G2 …]
+./char/passive/run_all.sh [--skip-em] [--quick]
 ```
 
-Passive characterization is not wired into `run_all.sh` yet (see [`passive/AGENTS.md`](passive/AGENTS.md)).
+Passive EM tier (openEMS primary on ~16 GB; Palace optional): see
+[`passive/README.md`](passive/README.md) and [docs/ENVIRONMENT.md](../docs/ENVIRONMENT.md).
 
 ## Nested docs
 

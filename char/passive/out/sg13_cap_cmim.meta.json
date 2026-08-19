@@ -1,0 +1,35 @@
+{
+  "format": "ihp-cap-lut-v1",
+  "device": "cap_cmim",
+  "subckt": "cap_cmim",
+  "corner": "cap_typ",
+  "corner_lib": "cornerCAP.lib",
+  "pdk": "ihp-sg13g2",
+  "f_char_hz": 100000000.0,
+  "r_series_ohm": 100000.0,
+  "geometries_um": [
+    {
+      "w": 7.0,
+      "l": 7.0
+    },
+    {
+      "w": 10.0,
+      "l": 10.0
+    },
+    {
+      "w": 20.0,
+      "l": 20.0
+    },
+    {
+      "w": 50.0,
+      "l": 50.0
+    }
+  ],
+  "extraction": "AC high-pass (Vin\u2013C\u2013R) per xschem ac_mim_cap; primary C from -3dB corner (C=1/(2\u03c0f_3dB\u00b7100000\u03a9)); C_at_100MHz from |H(100MHz)|",
+  "signals": {
+    "C": "primary capacitance from RC -3dB corner (F), PDK ac_mim_cap style",
+    "C_3db": "same as C (F)",
+    "C_at_100MHz": "|H|-derived C at 100 MHz (F); may diverge for RF MoM",
+    "C_density_fF_um2": "C/area in fF/\u00b5m\u00b2"
+  }
+}

@@ -45,6 +45,7 @@ source ~/.local/share/ihp-eda/env.sh
 | `PDK_ROOT` | `$IHP_EDA_ROOT/IHP-Open-PDK` (set by `env.sh`) |
 | ngspice | Built with **OSDI**; required for OpenVAF-compiled IHP models |
 | Install / verify | `./scripts/install-ihp-eda.sh`, `./scripts/verify-ihp-eda.sh` |
+| EM (passive L) | `./scripts/install-ihp-em.sh` or `--with-em`; `./scripts/verify-ihp-em.sh` |
 | Details | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) |
 
 ## Git / Cloud Agent

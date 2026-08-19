@@ -1,0 +1,16 @@
+{
+  "format": "ihp-res-lut-v1",
+  "device": "rppd",
+  "model": "rppd",
+  "corner": "res_typ",
+  "pdk": "ihp-sg13g2",
+  "vtest_V": 1.5,
+  "measurement": "DC OP: R = Vtest / |I(Vtest)|, bn tied to 0 V",
+  "axes": {
+    "W": "drawn width (\u00b5m)",
+    "L": "drawn length (\u00b5m)",
+    "TEMP": "simulation temperature (\u00b0C)",
+    "R": "resistance (\u03a9), shape (n_w, n_l, n_temp)"
+  },
+  "shape": "R is (n_w, n_l, n_temp); W, L, TEMP are 1-D axes"
+}

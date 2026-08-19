@@ -6,7 +6,7 @@ Precomputed tables for fast design-space browsing without re-running SPICE.
 | --- | --- |
 | [`mos/`](mos/) | LV/HV × core/RF CMOS (gm/ID-style LUTs) |
 | [`bjt/`](bjt/) | SiGe NPN flavors + PNP (`npn13G2` / `l` / `v`, `pnpMPA`) |
-| [`passive/`](passive/) | Placeholder for R / L / C (later) |
+| [`passive/`](passive/) | R / L / C LUTs (`rsil`/`rppd`/`rhigh`, MIM/MoM/MOSCAP, openEMS inductors) |
 | [`common/`](common/) | Shared `.npz` LUT helpers |
 
 ## Format
@@ -22,4 +22,6 @@ source ~/.local/share/ihp-eda/env.sh
 ./char/run_all.sh
 ```
 
-MOSFET family details and pygmid notes: [`mos/README.md`](mos/README.md). Agent contracts: [`AGENTS.md`](AGENTS.md).
+MOSFET family details and pygmid notes: [`mos/README.md`](mos/README.md).
+Passive R/C/L and EM notes: [`passive/README.md`](passive/README.md).
+Agent contracts: [`AGENTS.md`](AGENTS.md).
