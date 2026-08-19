@@ -15,15 +15,17 @@ _EXP = Path(__file__).resolve().parents[2]
 
 CTLE_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "save v(xu1.e1) v(xu1.e2) v(xu1.em) v(xu1.mgate)\n"
+    "save v(xu1.e1) v(xu1.e2) v(xu1.mgate)\n"
     "save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
-    "save @n.xu1.xtail.nsg13_lv_nmos[ids] @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
+    "save @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
+    "save @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
 )
 CTLE_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "print v(xu1.e1) v(xu1.e2) v(xu1.em) v(xu1.mgate)\n"
+    "print v(xu1.e1) v(xu1.e2) v(xu1.mgate)\n"
     "print @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
-    "print @n.xu1.xtail.nsg13_lv_nmos[ids] @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
+    "print @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
+    "print @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
 )
 
 

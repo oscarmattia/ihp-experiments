@@ -29,7 +29,8 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from char.common.lut import save_lut  # noqa: E402
+from char.common.lut import load_lut, save_lut  # noqa: E402
+from char.passive.ind_pimodel import pi_model_from_s2p, pi_model_summary  # noqa: E402
 from char.passive.ind_validate import validate_ind_lut  # noqa: E402
 
 
@@ -464,6 +465,87 @@ def _jsonable(obj: Any) -> Any:
     return obj
 
 
+def _pimodel_arrays_from_s2p(s2p_path: Path) -> tuple[dict[str, np.ndarray], dict[str, float]]:
+    """Extract pi-model frequency arrays + band-mean scalars from a Touchstone .s2p."""
+    pimodel = pi_model_from_s2p(s2p_path)
+    summary = pi_model_summary(pimodel)
+    arrays = {
+        "L_PI": pimodel["L"].astype(float),
+        "R_SERIES": pimodel["R_SERIES"].astype(float),
+        "C_PORT1": pimodel["C_PORT1"].astype(float),
+        "C_PORT2": pimodel["C_PORT2"].astype(float),
+        "G_PORT1": pimodel["G_PORT1"].astype(float),
+        "G_PORT2": pimodel["G_PORT2"].astype(float),
+    }
+    return arrays, summary
+
+
+def _merge_pimodel_into_lut(
+    out_path: Path,
+    s2p_path: Path | None,
+) -> bool:
+    """Attach pi-model arrays from .s2p into an existing committed .npz (no openEMS re-run)."""
+    if s2p_path is None or not Path(s2p_path).is_file():
+        return False
+    arrays, meta = load_lut(out_path)
+    pimodel = pi_model_from_s2p(Path(s2p_path))
+    pi_summary = pi_model_summary(pimodel)
+    freq = np.asarray(arrays["FREQ"], dtype=float)
+    pi_freq = np.asarray(pimodel["FREQ"], dtype=float)
+    pi_arrays: dict[str, np.ndarray] = {}
+    key_map = {
+        "L_PI": "L",
+        "R_SERIES": "R_SERIES",
+        "C_PORT1": "C_PORT1",
+        "C_PORT2": "C_PORT2",
+        "G_PORT1": "G_PORT1",
+        "G_PORT2": "G_PORT2",
+    }
+    for dst, src in key_map.items():
+        src_arr = np.asarray(pimodel[src], dtype=float)
+        if len(pi_freq) == len(freq) and np.allclose(pi_freq, freq):
+            pi_arrays[dst] = src_arr
+        else:
+            pi_arrays[dst] = np.interp(freq, pi_freq, src_arr)
+    arrays.update(pi_arrays)
+    meta["pimodel"] = _jsonable(pi_summary)
+    meta["pimodel_s2p"] = str(s2p_path)
+    axes = meta.get("axes") or {}
+    axes.update({
+        "L_PI": "2-port pi-model series inductance imag(Z12)/omega (H)",
+        "R_SERIES": "2-port pi-model series resistance real(Z12) (Ohm)",
+        "C_PORT1": "pi-model port-1 shunt capacitance (F)",
+        "C_PORT2": "pi-model port-2 shunt capacitance (F)",
+        "G_PORT1": "pi-model port-1 shunt conductance (S)",
+        "G_PORT2": "pi-model port-2 shunt conductance (S)",
+    })
+    meta["axes"] = axes
+    save_lut(out_path, arrays, meta)
+    (out_path.parent / f"{out_path.stem}.meta.json").write_text(
+        json.dumps(meta, indent=2, sort_keys=True) + "\n"
+    )
+    print(f"  pimodel merged into {out_path.name} from {Path(s2p_path).name}", flush=True)
+    return True
+
+
+def refresh_pimodel_luts(out_dir: Path) -> int:
+    """Re-extract pi-model fields from on-disk .s2p paths referenced in LUT meta."""
+    updated = 0
+    for npz_path in sorted(out_dir.glob("sg13_ind_*.npz")):
+        _, meta = load_lut(npz_path)
+        s2p = None
+        run_log = meta.get("run_log") or {}
+        if isinstance(run_log, dict) and run_log.get("s2p"):
+            s2p = Path(run_log["s2p"])
+        if s2p is None and meta.get("pimodel_s2p"):
+            s2p = Path(meta["pimodel_s2p"])
+        if s2p is None and meta.get("from_s2p"):
+            s2p = out_dir.parent / meta["from_s2p"] if not Path(meta["from_s2p"]).is_absolute() else Path(meta["from_s2p"])
+        if _merge_pimodel_into_lut(npz_path, s2p):
+            updated += 1
+    return updated
+
+
 def _write_case_outputs(
     case: IndCase,
     *,
@@ -501,6 +583,12 @@ def _write_case_outputs(
             "FREQ": "frequency (Hz)",
             "L": "differential series inductance Ldiff (H)",
             "Q": "differential Q factor Qdiff",
+            "L_PI": "2-port pi-model series inductance imag(Z12)/omega (H)",
+            "R_SERIES": "2-port pi-model series resistance real(Z12) (Ohm)",
+            "C_PORT1": "pi-model port-1 shunt capacitance (F)",
+            "C_PORT2": "pi-model port-2 shunt capacitance (F)",
+            "G_PORT1": "pi-model port-1 shunt conductance (S)",
+            "G_PORT2": "pi-model port-2 shunt conductance (S)",
         },
         "em_completed": em_completed,
         "valid": valid,
@@ -510,11 +598,23 @@ def _write_case_outputs(
         meta["skip_reason"] = skip_reason
     meta.update(_jsonable(meta_extra))
 
-    arrays = {
+    arrays: dict[str, np.ndarray] = {
         "FREQ": freq.astype(float),
         "L": l_series.astype(float),
         "Q": q_series.astype(float),
     }
+    s2p_path = None
+    run_log = meta_extra.get("run_log") if isinstance(meta_extra.get("run_log"), dict) else {}
+    if run_log and run_log.get("s2p"):
+        s2p_path = Path(run_log["s2p"])
+    if s2p_path is not None and s2p_path.is_file():
+        try:
+            pi_arrays, pi_summary = _pimodel_arrays_from_s2p(s2p_path)
+            arrays.update(pi_arrays)
+            meta["pimodel"] = _jsonable(pi_summary)
+            meta["pimodel_s2p"] = str(s2p_path)
+        except Exception as exc:
+            meta["pimodel_error"] = str(exc)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"sg13_ind_{case.key}.npz"
     save_lut(out_path, arrays, meta)
@@ -636,11 +736,22 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="PDK root (default: PDK_ROOT env)",
     )
+    p.add_argument(
+        "--refresh-pimodel",
+        action="store_true",
+        help="Re-extract pi-model arrays from existing .s2p into committed .npz LUTs",
+    )
     return p.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.refresh_pimodel:
+        out_dir = args.out_dir
+        n = refresh_pimodel_luts(out_dir)
+        print(f"Refreshed pi-model in {n} LUT file(s)", flush=True)
+        return 0 if n > 0 else 1
+
     pdk_root = args.pdk_root or Path(os.environ.get("PDK_ROOT", ""))
     if not pdk_root or not pdk_root.is_dir():
         raise SystemExit("PDK_ROOT is not set or invalid. Source ihp-eda env.sh first.")

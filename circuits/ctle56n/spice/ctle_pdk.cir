@@ -1,18 +1,19 @@
-* 56G CML CTLE DUT — PDK rppd loads + ideal L and Cs
+* 56G CML CTLE DUT — PDK passives (rppd, rsil, cap_cmomi, EM ind_shunt)
 .include params.inc
+.include '{IND_SHUNT_INC}'
 
 .lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
 .lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
 .lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerCAP.lib' cap_typ
 
 .subckt ctle_dut outp outn inp inn vdd
-L1 vdd nlp1 {LLOAD}
+Xl1 vdd nlp1 0 ind_shunt
 Xrd1 nlp1 outp 0 rppd w={RPPD_W} l={RPPD_L} m=1
-L2 vdd nlp2 {LLOAD}
+Xl2 vdd nlp2 0 ind_shunt
 Xrd2 nlp2 outn 0 rppd w={RPPD_W} l={RPPD_L} m=1
-R1 e1 em {RSHALF}
-R2 em e2 {RSHALF}
-Cdeg e1 e2 {CS}
+Xrdeg e1 e2 0 rsil w={RSIL_W} l={RSIL_L} m=1
+Xcdeg e1 e2 cap_cmomi w={CMOMI_W} l={CMOMI_L} mmin={CMOMI_MMIN} mmax={CMOMI_MMAX} feed=same m=1
 
 XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
 Vs1 s1 0 dc 0
@@ -21,5 +22,6 @@ Vs2 s2 0 dc 0
 
 Iref vdd mgate {ITAIL}
 XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail em mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail1 e1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail2 e2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
 .ends ctle_dut

@@ -9,9 +9,10 @@ HBT differential pair (`npn13G2`) with **shunt-peaked loads** (R_D + ideal L fro
 **emitter degeneration** (R_s + C_s), and an **LV NMOS tail** with 1:1 diode-connected mirror.
 
 Sizing uses characterization LUTs (`char/bjt`, `char/mos`, `char/passive`) at max-f_T HBT bias.
-Load C_L = C_in of one FO1 input. Bessel shunt-peaking **m = L/(R_D² C_L) ≈ 0.32**.
+Load C_L = Miller-aware FO1 VGA input + interconnect (not raw LUT CIN; coil port C excluded).
+Bessel shunt-peaking **m = L/(R_D² C_L) ≈ 0.32**.
 
-The drain inductor **L = 25.29 pH** (2.52928e-11 H) is physically tiny (via / short-trace scale).
+The drain inductor **L = 60.88 pH** (6.08785e-11 H) is physically tiny (via / short-trace scale).
 No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L remains **ideal** in ngspice.
 
 ## Targets
@@ -28,29 +29,29 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 | Emitter multiplier | Nx | 1 | 1 | HBT LUT index |
 | HBT VBE (LUT) | VBE | 0.950 V | 0.950 V | max-fT bias |
 | Input common-mode | VBASE | 1.300 V | 1.300 V | inp/inn DC |
-| Supply | VDD | 1.651 V | 1.651 V | below BVceo ~1.6 V |
-| HBT collector current | Ic | 2.611 mA | 2.609 mA | per side |
-| Tail current | I_tail | 5.756 mA | 5.756 mA | 2×Ic nominal |
+| Supply | VDD | 1.650 V | 1.650 V | below BVceo ~1.6 V |
+| HBT collector current | Ic | 2.815 mA | 2.815 mA | per side |
+| Tail current | I_tail | 2.878 mA | 2.878 mA | Ic per tail (×2 devices) |
 | Transition frequency | f_T | 348.80 GHz | 348.80 GHz | LUT at bias |
 | Transconductance | g_m | 28.51 mS | 28.51 mS |  |
 | Input capacitance | C_in | 10.36 fF | 10.36 fF | HBT CIN |
-| Load capacitance | C_L | 10.36 fF | 10.36 fF | FO1 = C_in |
-| Load resistor | R_D | 87.3 Ω | 2.0×0.5 µm | shunt peak |
-| Emitter degeneration | R_s | 101.0 Ω | 101.0 Ω |  |
-| Degeneration cap | C_s | 157.5 fF | 157.5 fF | ideal or MIM |
-| Drain inductor | L | 25.29 pH | 25.29 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
+| Load capacitance | C_L | 25.13 fF | 25.13 fF | Miller + route (no coil port C) |
+| Load resistor | R_D | 87.0 Ω | 5.0×1.4 µm | shunt peak |
+| Emitter degeneration | R_s | 86.6 Ω | 86.6 Ω |  |
+| Degeneration cap | C_s | 183.7 fF | 183.7 fF | ideal or MIM |
+| Drain inductor | L | 60.88 pH | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
 | Bessel MFD | m | 0.32 | 0.32 | L/(R_D² C_L) |
-| MOS tail W/L/VGS | W/L/VGS | 396/1.0/0.585 V | 396/1.0/0.585 V | LV NMOS + mirror |
-| RPPD load | W/L | ideal R | 2.0×0.5 µm | LUT ≈ R_D/0.88 |
-| DC gain | A_v0 | -1.26 dB | -0.05 dB | −6…0 dB target |
-| Peaking @ 28 GHz | — | 5.61 dB | 5.49 dB | 3–10 dB target |
-| Peak AC gain | G_peak | 4.91 dB | 5.88 dB |  |
-| Peak frequency | f_peak | 48.62 GHz | 44.85 GHz |  |
-| −3 dB bandwidth | f_{−3dB} | 151.52 GHz | 133.28 GHz | after peak |
-| CMRR | — | 12.74 dB | 12.72 dB | > 6 dB |
+| MOS tail W/L/VGS | W/L/VGS | 252/1.0/0.550 V | 252/1.0/0.550 V | LV NMOS + mirror |
+| RPPD load | W/L | ideal R | 5.0×1.4 µm | LUT ≈ R_D/0.88 |
+| DC gain | A_v0 | -0.39 dB | -0.38 dB | −6…0 dB target |
+| Peaking @ 28 GHz | — | 5.56 dB | 5.50 dB | 3–10 dB target |
+| Peak AC gain | G_peak | 5.18 dB | 5.15 dB |  |
+| Peak frequency | f_peak | 29.63 GHz | 31.75 GHz |  |
+| −3 dB bandwidth | f_{−3dB} | 94.65 GHz | 101.45 GHz | after peak |
+| CMRR | — | 21.64 dB | 21.64 dB | > 6 dB |
 | PSRR | — | 120.00 dB | 120.00 dB | > 20 dB (clipped 120 dB) |
-| HBT VCE | V_CE | 1.067 V | 1.035 V |  |
-| MOS tail VDS | V_DS,tail | 0.224 V | 0.223 V |  |
+| HBT VCE | V_CE | 1.057 V | 1.056 V |  |
+| MOS tail VDS | V_DS,tail | 0.349 V | 0.349 V |  |
 
 Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
 Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
@@ -68,24 +69,24 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 
 | Tap | k | h (mV) | h / h_0 | Kept |
 | --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
-| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
-| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
-| **h_0 cursor** | 0 | -155.558 | 1.000 | yes |
-| h_1 post | 1 | 57.372 | -0.3688 | yes |
-| h_2 post | 2 | 5.870 | -0.0377 | yes |
-| h_3 post | 3 | 0.475 | -0.0031 | no |
-| h_4 post | 4 | 0.031 | -0.0002 | no |
-| h_5 post | 5 | -0.006 | 0.0000 | no |
-| h_6 post | 6 | -0.009 | 0.0001 | no |
-| h_7 post | 7 | -0.009 | 0.0001 | no |
-| h_8 post | 8 | -0.009 | 0.0001 | no |
-| h_9 post | 9 | -0.009 | 0.0001 | no |
-| h_10 post | 10 | -0.009 | 0.0001 | no |
+| h_{-3} pre | -3 | 0.000 | -0.0000 | no |
+| h_{-2} pre | -2 | 0.000 | -0.0000 | no |
+| h_{-1} pre | -1 | 0.000 | -0.0000 | no |
+| **h_0 cursor** | 0 | -166.826 | 1.000 | yes |
+| h_1 post | 1 | 45.736 | -0.2742 | yes |
+| h_2 post | 2 | 14.246 | -0.0854 | yes |
+| h_3 post | 3 | 3.592 | -0.0215 | no |
+| h_4 post | 4 | 0.899 | -0.0054 | no |
+| h_5 post | 5 | 0.219 | -0.0013 | no |
+| h_6 post | 6 | 0.047 | -0.0003 | no |
+| h_7 post | 7 | 0.004 | -0.0000 | no |
+| h_8 post | 8 | -0.007 | 0.0000 | no |
+| h_9 post | 9 | -0.010 | 0.0001 | no |
+| h_10 post | 10 | -0.010 | 0.0001 | no |
 
-- Main cursor h_0 = **-155.56 mV** at t = **0.392 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.4065** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.4065** (same taps)
+- Main cursor h_0 = **-166.83 mV** at t = **0.504 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.3595** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.3595** (same taps)
 - Taps with |h| < 2.5% of |cursor| are omitted from the ISI sums.
 
 ### PDK
@@ -98,22 +99,22 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 
 | Tap | k | h (mV) | h / h_0 | Kept |
 | --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
-| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
-| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
-| **h_0 cursor** | 0 | -173.728 | 1.000 | yes |
-| h_1 post | 1 | 62.206 | -0.3581 | yes |
-| h_2 post | 2 | 6.067 | -0.0349 | yes |
-| h_3 post | 3 | 0.488 | -0.0028 | no |
-| h_4 post | 4 | 0.031 | -0.0002 | no |
-| h_5 post | 5 | -0.006 | 0.0000 | no |
-| h_6 post | 6 | -0.009 | 0.0001 | no |
-| h_7 post | 7 | -0.010 | 0.0001 | no |
-| h_8 post | 8 | -0.010 | 0.0001 | no |
-| h_9 post | 9 | -0.010 | 0.0001 | no |
+| h_{-3} pre | -3 | 0.000 | -0.0000 | no |
+| h_{-2} pre | -2 | 0.000 | -0.0000 | no |
+| h_{-1} pre | -1 | 0.000 | -0.0000 | no |
+| **h_0 cursor** | 0 | -166.705 | 1.000 | yes |
+| h_1 post | 1 | 48.665 | -0.2919 | yes |
+| h_2 post | 2 | 12.444 | -0.0746 | yes |
+| h_3 post | 3 | 2.687 | -0.0161 | no |
+| h_4 post | 4 | 0.578 | -0.0035 | no |
+| h_5 post | 5 | 0.120 | -0.0007 | no |
+| h_6 post | 6 | 0.020 | -0.0001 | no |
+| h_7 post | 7 | -0.003 | 0.0000 | no |
+| h_8 post | 8 | -0.008 | 0.0000 | no |
+| h_9 post | 9 | -0.009 | 0.0001 | no |
 | h_10 post | 10 | -0.010 | 0.0001 | no |
 
-- Main cursor h_0 = **-173.73 mV** at t = **0.448 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3930** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3930** (same taps)
+- Main cursor h_0 = **-166.71 mV** at t = **0.504 UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **-0.3666** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **0.3666** (same taps)
 - Taps with |h| < 2.5% of |cursor| are omitted from the ISI sums.

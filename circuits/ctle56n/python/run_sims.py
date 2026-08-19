@@ -22,7 +22,14 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from size_ctle import CtleParams, print_summary, size_ctle, write_params_inc  # noqa: E402
+from size_ctle import (  # noqa: E402
+    CtleParams,
+    DC_GAIN_TARGET_DB,
+    print_summary,
+    read_params_inc,
+    size_ctle,
+    write_params_inc,
+)
 
 from ctlelib import (  # noqa: E402
     DC_GAIN_MAX_DB,
@@ -74,6 +81,41 @@ CMRR_MIN_DB = 6.0
 PSRR_MIN_DB = 20.0
 
 CTLE_DUT_NAME = "ctle_dut"
+_PARAM_INC_RE = re.compile(r"^\.param\s+(\w+)=([\S]+)", re.MULTILINE)
+
+
+def _param_from_inc(inc_path: Path, name: str, default: float = 0.0) -> float:
+    if not inc_path.is_file():
+        return default
+    for key, val in _PARAM_INC_RE.findall(inc_path.read_text()):
+        if key == name:
+            return float(val)
+    return default
+
+
+def _ind_shunt_r_dc_ohm(spice_dir: Path) -> float:
+    inc = spice_dir / "ind_shunt.inc"
+    if not inc.is_file():
+        return 0.0
+    for line in inc.read_text().splitlines():
+        if "R_dc=" in line:
+            m = re.search(r"R_dc=([\d.]+)", line)
+            if m:
+                return float(m.group(1))
+    return 0.0
+
+
+def measure_rd_load_ohm(
+    dc_vals: dict[str, float],
+    ic_a: float,
+    r_coil_ohm: float = 0.0,
+) -> float:
+    """Realized shunt load R from DC OP (subtract coil DC drop on PDK pass)."""
+    vdd = dc_vals.get("v(vdd)", 0.0)
+    vout = dc_vals.get("v(outp)", 0.0)
+    if ic_a <= 0 or math.isnan(ic_a):
+        return float("nan")
+    return (vdd - vout - ic_a * r_coil_ohm) / ic_a
 
 
 def _copy_params_inc(spice_dir: Path, work: Path) -> None:
@@ -82,7 +124,12 @@ def _copy_params_inc(spice_dir: Path, work: Path) -> None:
         shutil.copy(src, work / "params.inc")
 
 
-def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
+def run_pass(
+    pass_name: str,
+    dut_rel: str,
+    spice_dir: Path,
+    extra_params: dict[str, str] | None = None,
+) -> SimMetrics:
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
     pout = pass_out(pass_name)
@@ -94,11 +141,17 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
 
     tb_kw = dict(dut_name=CTLE_DUT_NAME)
 
-    tb_dc = prepare_tb(spice_dir / "tb_dc.cir", dut_cir, work, models, spice_dir, **tb_kw)
+    tb_dc = prepare_tb(
+        spice_dir / "tb_dc.cir", dut_cir, work, models, spice_dir,
+        extra_params=extra_params, **tb_kw,
+    )
     dc_log = run_ngspice(tb_dc, work, "dc.log")
     dc_vals = parse_dc_log(dc_log)
 
-    tb_diff = prepare_tb(spice_dir / "tb_ac_diff.cir", dut_cir, work, models, spice_dir, **tb_kw)
+    tb_diff = prepare_tb(
+        spice_dir / "tb_ac_diff.cir", dut_cir, work, models, spice_dir,
+        extra_params=extra_params, **tb_kw,
+    )
     run_ngspice(tb_diff, work, "ac_diff.log")
     freq, voutp, voutn, vin_p, vin_n = parse_ac_raw(work / "ac_diff.raw")
     vod = voutp - voutn
@@ -109,7 +162,10 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
     peaking_db = interp_db_at(freq, h_db, NYQUIST_HZ) - dc_gain_db
     peak_gain_db, f_peak_hz, f_3db_hz, f3db_at_fmax = compute_ac_peak_metrics(freq, h_db)
 
-    tb_cm = prepare_tb(spice_dir / "tb_ac_cm.cir", dut_cir, work, models, spice_dir, **tb_kw)
+    tb_cm = prepare_tb(
+        spice_dir / "tb_ac_cm.cir", dut_cir, work, models, spice_dir,
+        extra_params=extra_params, **tb_kw,
+    )
     run_ngspice(tb_cm, work, "ac_cm.log")
     freq_cm, voutp_cm, voutn_cm, vin_p_cm, vin_n_cm = parse_ac_raw(work / "ac_cm.raw")
     voc_cm = (voutp_cm + voutn_cm) / 2.0
@@ -118,7 +174,10 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
     acm_db = float(20.0 * np.log10(max(np.abs(h_cm[0]), 1e-30)))
     cmrr_db = dc_gain_db - acm_db
 
-    tb_psrr = prepare_tb(spice_dir / "tb_ac_psrr.cir", dut_cir, work, models, spice_dir, **tb_kw)
+    tb_psrr = prepare_tb(
+        spice_dir / "tb_ac_psrr.cir", dut_cir, work, models, spice_dir,
+        extra_params=extra_params, **tb_kw,
+    )
     run_ngspice(tb_psrr, work, "ac_psrr.log")
     freq_p, voutp_p, voutn_p, vvdd = parse_psrr_raw(work / "ac_psrr.raw")
     vod_p = voutp_p - voutn_p
@@ -130,13 +189,30 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
     psrr_db_curve = np.minimum(psrr_db_curve, PSRR_MAX_DB)
     psrr_db = float(psrr_db_curve[0])
 
-    v_em = dc_vals.get("v(xu1.em)", 0.28)
+    v_e1 = dc_vals.get("v(xu1.e1)", 0.0)
     v_mgate = dc_vals.get("v(xu1.mgate)", 0.85)
     v_c1 = dc_vals.get("v(outp)", 0.0)
-    v_e1 = dc_vals.get("v(xu1.e1)", 0.0)
     vce = v_c1 - v_e1
     ic_a = dc_vals.get("@q.xu1.xq1.qnpn13g2[ic]", float("nan"))
-    id_tail = dc_vals.get("@n.xu1.xtail.nsg13_lv_nmos[ids]", float("nan"))
+    id_tail1 = dc_vals.get("@n.xu1.xtail1.nsg13_lv_nmos[ids]", float("nan"))
+    id_tail2 = dc_vals.get("@n.xu1.xtail2.nsg13_lv_nmos[ids]", float("nan"))
+    id_tail = id_tail1
+    if not math.isnan(id_tail2):
+        id_tail = id_tail1 if math.isnan(id_tail1) else (id_tail1 + id_tail2) / 2.0
+
+    params_inc = work / "params.inc"
+    cl_f = _param_from_inc(params_inc, "CL")
+    if pass_name == "pdk":
+        l_load_h = _param_from_inc(params_inc, "L_EM")
+        r_coil_ohm = _ind_shunt_r_dc_ohm(spice_dir)
+    else:
+        l_load_h = _param_from_inc(params_inc, "LLOAD")
+        r_coil_ohm = 0.0
+    rd_realized = measure_rd_load_ohm(dc_vals, ic_a, r_coil_ohm)
+    if rd_realized > 0 and cl_f > 0 and l_load_h > 0:
+        m_realized = l_load_h / (rd_realized ** 2 * cl_f)
+    else:
+        m_realized = float("nan")
 
     op_path = pout / "op.txt"
     op_path.write_text(dc_log.read_text())
@@ -168,13 +244,15 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
         cmrr_db=cmrr_db,
         psrr_db=psrr_db,
         vce_v=vce,
-        vds_tail_v=v_em,
+        vds_tail_v=v_e1,
         vgs_tail_v=v_mgate,
         ic_a=ic_a,
         id_tail_a=id_tail,
         peak_gain_db=peak_gain_db,
         f_peak_hz=f_peak_hz,
         f_3db_hz=f_3db_hz,
+        rd_realized_ohm=rd_realized,
+        m_realized=m_realized,
     )
 
 
@@ -183,6 +261,7 @@ def run_tran(
     dut_rel: str,
     spice_dir: Path,
     vbase: float,
+    extra_params: dict[str, str] | None = None,
 ) -> None:
     """Run 56G NRZ PRBS9 transient and plot waveforms + eye diagrams."""
     models = pdk_models()
@@ -201,7 +280,7 @@ def run_tran(
         work,
         models,
         spice_dir,
-        extra_params={"TMAX": f"{tmax:.6e}"},
+        extra_params={**(extra_params or {}), "TMAX": f"{tmax:.6e}"},
         dut_name=CTLE_DUT_NAME,
     )
     run_ngspice(tb_tran, work, "tran.log")
@@ -220,6 +299,7 @@ def run_sbr(
     dut_rel: str,
     spice_dir: Path,
     vbase: float,
+    extra_params: dict[str, str] | None = None,
 ) -> SbrResult:
     """Run single-bit response transient and extract pulse-response taps."""
     models = pdk_models()
@@ -238,7 +318,7 @@ def run_sbr(
         work,
         models,
         spice_dir,
-        extra_params={"TMAX": f"{tmax:.6e}"},
+        extra_params={**(extra_params or {}), "TMAX": f"{tmax:.6e}"},
         dut_name=CTLE_DUT_NAME,
     )
     run_ngspice(tb_sbr, work, "sbr.log")
@@ -286,6 +366,8 @@ def iterate_sizing(spice_dir: Path, max_iter: int = 8) -> CtleParams:
             score += (DC_GAIN_MIN_DB - metrics.dc_gain_db) ** 2
         elif metrics.dc_gain_db > DC_GAIN_MAX_DB:
             score += (metrics.dc_gain_db - DC_GAIN_MAX_DB) ** 2
+        else:
+            score += 0.25 * (metrics.dc_gain_db - DC_GAIN_TARGET_DB) ** 2
         if metrics.peaking_db < PEAK_MIN_DB:
             score += (PEAK_MIN_DB - metrics.peaking_db) ** 2
         elif metrics.peaking_db > PEAK_MAX_DB:
@@ -348,6 +430,7 @@ def write_summary(
         ["Cs_F", f"{params.cs_f:.6g}"],
         ["L_H", f"{params.l_h:.6g}"],
         ["CL_F", f"{params.cl_f:.6g}"],
+        ["RPPD_R_ohm", f"{params.rppd_r_ohm:.6g}"],
         ["I_tail_A", f"{params.itail_a:.6g}"],
         ["MOS_W_um", f"{params.mos_w_um:.6g}"],
         ["MOS_L_um", f"{params.mos_l_um:.6g}"],
@@ -364,6 +447,8 @@ def write_summary(
         ["ideal_VGS_tail_V", f"{ideal.vgs_tail_v:.4f}"],
         ["ideal_Ic_A", f"{ideal.ic_a:.6g}"],
         ["ideal_Id_tail_A", f"{ideal.id_tail_a:.6g}"],
+        ["ideal_RD_realized_ohm", f"{ideal.rd_realized_ohm:.4f}"],
+        ["ideal_m", f"{ideal.m_realized:.4f}"],
     ]
     if sbr_ideal:
         rows += _summary_sbr_rows("sbr", sbr_ideal)
@@ -377,6 +462,8 @@ def write_summary(
             ["pdk_CMRR_dB", f"{pdk.cmrr_db:.3f}"],
             ["pdk_PSRR_dB", f"{pdk.psrr_db:.3f}"],
             ["pdk_VCE_V", f"{pdk.vce_v:.4f}"],
+            ["pdk_RD_realized_ohm", f"{pdk.rd_realized_ohm:.4f}"],
+            ["pdk_m", f"{pdk.m_realized:.4f}"],
             ["pdk_targets_ok", targets_ok(pdk)],
         ]
     if sbr_pdk:
@@ -484,11 +571,17 @@ def write_ctle_report(
         row("Input common-mode", "VBASE", f"{params.vbase:.3f} V", f"{params.vbase:.3f} V", "inp/inn DC"),
         row("Supply", "VDD", f"{params.vdd:.3f} V", f"{params.vdd:.3f} V", "below BVceo ~1.6 V"),
         row("HBT collector current", "Ic", _fmt_a(ideal.ic_a), _fmt_a(pdk.ic_a) if pdk else "—", "per side"),
-        row("Tail current", "I_tail", _fmt_a(params.itail_a), _fmt_a(params.itail_a), "2×Ic nominal"),
+        row("Tail current", "I_tail", _fmt_a(params.itail_a), _fmt_a(params.itail_a), "Ic per tail (×2 devices)"),
         row("Transition frequency", "f_T", _fmt_hz(params.ft_hz), _fmt_hz(params.ft_hz), "LUT at bias"),
         row("Transconductance", "g_m", f"{params.gm * 1e3:.2f} mS", f"{params.gm * 1e3:.2f} mS", ""),
         row("Input capacitance", "C_in", f"{params.cin_f * 1e15:.2f} fF", f"{params.cin_f * 1e15:.2f} fF", "HBT CIN"),
-        row("Load capacitance", "C_L", f"{params.cl_f * 1e15:.2f} fF", f"{params.cl_f * 1e15:.2f} fF", "FO1 = C_in"),
+        row(
+            "Load capacitance",
+            "C_L",
+            f"{params.cl_f * 1e15:.2f} fF",
+            f"{params.cl_f * 1e15:.2f} fF",
+            "Miller + route (no coil port C)",
+        ),
         row("Load resistor", "R_D", f"{params.rd_ohm:.1f} Ω", rppd_note if pdk else f"{params.rd_ohm:.1f} Ω", "shunt peak"),
         row("Emitter degeneration", "R_s", f"{params.rs_ohm:.1f} Ω", f"{params.rs_ohm:.1f} Ω", ""),
         row("Degeneration cap", "C_s", f"{params.cs_f * 1e15:.1f} fF", f"{params.cs_f * 1e15:.1f} fF", "ideal or MIM"),
@@ -536,7 +629,8 @@ HBT differential pair (`npn13G2`) with **shunt-peaked loads** (R_D + ideal L fro
 **emitter degeneration** (R_s + C_s), and an **LV NMOS tail** with 1:1 diode-connected mirror.
 
 Sizing uses characterization LUTs (`char/bjt`, `char/mos`, `char/passive`) at max-f_T HBT bias.
-Load C_L = C_in of one FO1 input. Bessel shunt-peaking **m = L/(R_D² C_L) ≈ {m_bessel:.2f}**.
+Load C_L = Miller-aware FO1 VGA input + interconnect (not raw LUT CIN; coil port C excluded).
+Bessel shunt-peaking **m = L/(R_D² C_L) ≈ {m_bessel:.2f}**.
 
 The drain inductor **L = {l_ph:.2f} pH** ({params.l_h:.6g} H) is physically tiny (via / short-trace scale).
 No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L remains **ideal** in ngspice.
@@ -572,25 +666,36 @@ def main() -> None:
     parser.add_argument("--no-pdk", action="store_true", help="Skip PDK passive pass")
     parser.add_argument("--no-tran", action="store_true", help="Skip 56G NRZ PRBS9 and SBR transient")
     parser.add_argument("--force-size", action="store_true", help="Re-run sizer")
-    parser.add_argument("--scale", type=float, default=1.05)
-    parser.add_argument("--peaking-db", type=float, default=7.5)
+    parser.add_argument(
+        "--scale",
+        type=float,
+        default=1.0,
+        help="RD/Rs scale (only with --force-size or iterate loop)",
+    )
+    parser.add_argument(
+        "--peaking-db",
+        type=float,
+        default=7.0,
+        help="Degeneration peaking target dB (only with --force-size or iterate loop)",
+    )
     args = parser.parse_args()
 
     spice_dir = _EXP / "spice"
+    params_inc = spice_dir / "params.inc"
     out_dir = _EXP / "out"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if args.no_iterate:
-        if args.force_size or not (spice_dir / "params.inc").is_file():
+        # Use committed spice/params.inc from size_ctle.py (see run.sh); do not re-size here.
+        if args.force_size or not params_inc.is_file():
             params = size_ctle(scale=args.scale, peaking_db=args.peaking_db)
-            write_params_inc(params, spice_dir / "params.inc")
+            write_params_inc(params, params_inc)
             print_summary(params)
         else:
-            params = size_ctle(scale=args.scale, peaking_db=args.peaking_db)
-            write_params_inc(params, spice_dir / "params.inc")
+            params = read_params_inc(params_inc)
     else:
         params = iterate_sizing(spice_dir)
-        write_params_inc(params, spice_dir / "params.inc")
+        write_params_inc(params, params_inc)
 
     ideal = run_pass("ideal", "ctle_ideal.cir", spice_dir)
     write_pass_metrics(pass_out("ideal") / "metrics.csv", ideal)
@@ -616,9 +721,27 @@ def main() -> None:
             write_pass_metrics(pass_out("ideal") / "metrics.csv", ideal, sbr_ideal)
 
     pdk_metrics = None
+    pdk_extra: dict[str, str] | None = None
+    if not args.no_pdk:
+        pdk_extra = {
+            "IND_SHUNT_INC": str((spice_dir / "ind_shunt.inc").resolve()),
+        }
     if not args.no_pdk:
         try:
-            pdk_metrics = run_pass("pdk", "ctle_pdk.cir", spice_dir)
+            from size_ind import generate_ind_shunt  # noqa: E402
+
+            ind_inc = spice_dir / "ind_shunt.inc"
+            l_target = float(
+                re.search(
+                    r"\.param\s+LLOAD=([\S]+)",
+                    (spice_dir / "params.inc").read_text(),
+                ).group(1)
+            )
+            generate_ind_shunt(l_target, ind_inc)
+            pdk_extra["IND_SHUNT_INC"] = str(ind_inc.resolve())
+            pdk_metrics = run_pass(
+                "pdk", "ctle_pdk.cir", spice_dir, extra_params=pdk_extra
+            )
             write_pass_metrics(pass_out("pdk") / "metrics.csv", pdk_metrics)
             print(
                 f"PDK: DC={pdk_metrics.dc_gain_db:.2f} dB peak={pdk_metrics.peaking_db:.2f} dB "
@@ -626,9 +749,9 @@ def main() -> None:
             )
             if not args.no_tran and vbase is not None:
                 print("Running PDK transient (56G NRZ PRBS9)...")
-                run_tran("pdk", "ctle_pdk.cir", spice_dir, vbase)
+                run_tran("pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra)
                 print("Running PDK single-bit response (1 UI pulse)...")
-                sbr_pdk = run_sbr("pdk", "ctle_pdk.cir", spice_dir, vbase)
+                sbr_pdk = run_sbr("pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra)
                 write_pass_metrics(pass_out("pdk") / "metrics.csv", pdk_metrics, sbr_pdk)
         except RuntimeError as exc:
             print(f"PDK pass failed: {exc}")

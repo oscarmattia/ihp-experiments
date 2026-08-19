@@ -61,6 +61,11 @@ def summarize_case(path: Path) -> dict:
     fstop_hz = meta.get("fstop_hz")
     if fstop_hz is None and len(freq) > 1:
         fstop_hz = float(freq[-1])
+    r28 = np.nan
+    if "R_SERIES" in arrays:
+        idx28 = int(np.argmin(np.abs(freq - 28e9)))
+        r28 = float(arrays["R_SERIES"][idx28])
+    pimodel = meta.get("pimodel") or {}
     return {
         "case": case,
         "nr_r": meta.get("nr_r"),
@@ -70,6 +75,15 @@ def summarize_case(path: Path) -> dict:
         "L_DC_nH": l_low_freq(freq, l_series) * 1e9,
         "L_10GHz_nH": l_at_freq(freq, l_series, 10e9) * 1e9,
         "L_28GHz_nH": l_at_freq(freq, l_series, 28e9) * 1e9,
+        "L_PI_10GHz_nH": (
+            l_at_freq(freq, np.asarray(arrays.get("L_PI", l_series), dtype=float), 10e9) * 1e9
+            if "L_PI" in arrays
+            else np.nan
+        ),
+        "C_port_fF": pimodel.get("C_port_fF", np.nan),
+        "G_port_mS": pimodel.get("G_port_mS", np.nan),
+        "R_sub_ohm": pimodel.get("R_sub_ohm", np.nan),
+        "R_series_28GHz_ohm": r28,
         "Q_peak": q_peak,
         "f_Q_peak_GHz": f_peak / 1e9 if np.isfinite(f_peak) else np.nan,
         "SRF_GHz": srf_ghz(freq, l_series),
@@ -146,6 +160,11 @@ def main() -> int:
         "L_DC_nH",
         "L_10GHz_nH",
         "L_28GHz_nH",
+        "L_PI_10GHz_nH",
+        "C_port_fF",
+        "G_port_mS",
+        "R_sub_ohm",
+        "R_series_28GHz_ohm",
         "Q_peak",
         "f_Q_peak_GHz",
         "SRF_GHz",

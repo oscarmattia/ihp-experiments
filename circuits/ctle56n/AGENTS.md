@@ -31,13 +31,15 @@ Corners: `.lib cornerHBT.lib hbt_typ` + `.lib cornerMOSlv.lib mos_tt`.
 | --- | --- | --- |
 | HBT | `char/bjt/out/sg13_npn13G2.npz` | FT, CIN, GM, IC vs VBE/VCE; bias at max FT |
 | MOS | `char/mos/out/lv_core_n.npz` | Tail W/L for I_tail at VDS ≈ 0.25–0.3 V |
-| R | `char/passive/out/sg13_rppd.npz` | PDK RD sizing (`rppd`, LUT closest to rd/0.88) |
-| C | `char/passive/out/sg13_cap_cmim.npz` | PDK Cs if area ≥ ~7×7 µm (~73 fF); else ideal Cs |
+| R load | `char/passive/out/sg13_rppd.npz` | PDK RD sizing (`rppd`, LUT closest to rd/0.88) |
+| R deg | `char/passive/out/sg13_rsil.npz` | Emitter half-resistance (`rsil`, ngspice OP verify) |
+| C deg | `char/passive/out/sg13_cap_cmomi.npz` | Degeneration cap (`cap_cmomi`, `feed=same`, `mmin=2`) |
+| L shunt | `char/passive/out/sg13_ind_turn1_d*.npz` | EM L(f) for `ind_shunt.inc` via `python/size_ind.py` |
 
 ## Passives
 
 - **First pass:** ideal R, L, C in `spice/ctle_ideal.cir`.
-- **Second pass:** PDK `rppd` + `cap_cmim` in `spice/ctle_pdk.cir`; **L stays ideal** (no ngspice compact inductor; EM `l2n0` ~2 nH is too large).
+- **Second pass:** PDK `rppd` loads, `rsil` degeneration, `cap_cmomi` degeneration cap (`feed=same`, `mmin=2`), and EM-fitted `ind_shunt` subcircuit (`spice/ind_shunt.inc` from `python/size_ind.py`) in `spice/ctle_pdk.cir`. No ngspice compact spiral — small 1-turn TopMetal2 octagons are EM-extracted and lumped-modeled.
 
 ## ngspice `save` requirement
 

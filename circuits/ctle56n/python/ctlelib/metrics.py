@@ -57,6 +57,8 @@ class SimMetrics:
     peak_gain_db: float = float("nan")
     f_peak_hz: float = float("nan")
     f_3db_hz: float = float("nan")
+    rd_realized_ohm: float = float("nan")
+    m_realized: float = float("nan")
 
 
 def sbr_tap_label(k: int) -> str:
@@ -257,6 +259,8 @@ def write_pass_metrics(
         [f"{prefix}_VGS_tail_V", f"{m.vgs_tail_v:.4f}"],
         [f"{prefix}_Ic_A", f"{m.ic_a:.6g}"],
         [f"{prefix}_Id_tail_A", f"{m.id_tail_a:.6g}"],
+        [f"{prefix}_RD_realized_ohm", f"{m.rd_realized_ohm:.4f}"],
+        [f"{prefix}_m", f"{m.m_realized:.4f}"],
     ]
     if sbr:
         rows += [

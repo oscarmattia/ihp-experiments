@@ -15,6 +15,16 @@
   "invalid_reason": null,
   "nr_r": 1,
   "pdk": "ihp-sg13g2",
+  "pimodel": {
+    "C_port1_fF": 5.802121882291311,
+    "C_port2_fF": 5.804315426837238,
+    "C_port_fF": 5.803218654564274,
+    "G_port_mS": 0.1826989823617583,
+    "L_series_nH": 0.06594878529984062,
+    "R_series_ohm": 0.15925808173047948,
+    "R_sub_ohm": 5473.484236600298
+  },
+  "pimodel_s2p": "/workspace/char/passive/out/em_work/turn1_d40/sg13_ind_turn1_d40_data/sg13_ind_turn1_d40.s2p",
   "run_log": {
     "L_at_10GHz_nH": 0.06904380881050802,
     "cells_per_wavelength": 10,
