@@ -71,6 +71,16 @@ The **HBT needs no OSDI** — `npn13G2` is built-in VBIC (`.model … npn level=
 | Geometry | `npn13G2`: `le=0.96u`, `we=0.12u`; `npn13G2l`/`v`: `le=2.50u` |
 | Internal instance | `Qnpn13G2` → probe as `@q.<path>.qnpn13g2[ic]` |
 | VBIC soft limits | `vbe_max=1.6`, `vce_max=1.6`, `vbc_max=5.1` |
+| **Emitter resistance** | `re = 7.13*(4/Nx)` Ω → **28.5 Ω at `Nx=1`** |
+
+**The intrinsic emitter resistance self-degenerates the device and caps stage gain.** At `Nx=1` those
+28.5 Ω sit inside the device in series with every emitter and cannot be shunted by any external element.
+Consequence, confirmed two independent ways: the LUT reports `gm/Ic = 9.90 V⁻¹` against the ideal bipolar
+`1/VT = 38.7 V⁻¹`, a 3.9x reduction that back-solves to 26.1 Ω `[sim]`. So a `Nx=1` stage is already
+degenerated roughly 4:1 before any designed `Rs`, and its maximum gain is
+`gm_i*RD/(1 + gm_i*re)`, not `gm*RD`. `re` scales as `1/Nx`, so gain per stage improves substantially with
+a larger emitter at proportionally more current and input capacitance — a chain-wide sizing decision, not a
+per-stage one.
 
 `vce_max = 1.6 V` is the practical ceiling that sets the CML supply, not a "BVceo ≈ 1.6 V" figure —
 see the correction in [../MEMORY.md](../MEMORY.md).
@@ -239,8 +249,10 @@ metal structure (inductor, strap, pad feed) rather than inferring one from an EM
 
 The ITF dielectrics carry **no loss term** (`ER` only, no conductivity), and the openEMS stackup likewise
 models oxide as `Epsilon=4.1` with no `Kappa`, with loss coming only from metal conductivity and the
-2-5 S/m silicon substrate. So "dielectric loss" is zero by construction in these flows; a fitted shunt
-loss branch is really substrate loss reached through the oxide capacitance.
+2-5 S/m silicon substrate. So **"dielectric loss" is zero by construction** in these flows — do not fit a
+resistor to it. Any residual shunt conductance in an EM fit is substrate coupling, which should be modelled
+by its real mechanism (coupled inductors with parallel resistors, representing induced substrate current
+loops) if and when it matters, not as a lumped port resistor.
 
 ## Netlist recipes
 

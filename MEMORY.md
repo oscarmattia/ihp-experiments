@@ -93,16 +93,25 @@ from a PDK model file, `[est]` when still unverified.
   `C_port2 = imag(Y22+Y12)/w`, and `G_port = real(Y11+Y12)`.
   `char/passive/out/em_work/` is **gitignored**, so persist the extracted parameters into the committed
   `.npz`/`.meta.json` or nothing downstream survives a fresh checkout.
-- **The port loss branch is a capacitor with a PARALLEL resistance, not a series one.** For
-  `turn1_d40` both `C_port` (5.76-5.97 fF) and `G_port` (0.177-0.198 mS) are flat over 20-70 GHz `[EM]`.
-  A series RC cannot do that: flat `real(Y)` needs `wRC >> 1` while flat extracted `C` needs
-  `wRC << 1`. `Cox || Rp` satisfies both, giving `Rp ~ 5.4 kOhm`. Consistent with the EM stackup, which
-  models oxide as `Epsilon=4.1` with **no `Kappa`** (lossless dielectric) — the only loss mechanisms are
-  metal conductivity and the 2-5 S/m silicon substrate.
-- In shunt peaking, the coil's port branches are shunt elements: the VDD-side one sits between two AC
-  grounds, and the load-side `Rp` is in parallel with `RD` (5.4 kOhm against 87 Ohm, negligible). So the
-  port *conductance* barely matters, but the port *capacitance* adds directly to `C_L` and must be in the
-  load budget.
+- **The coil port branch is capacitance ONLY — do not fit a loss resistor.** Both the ITF stack and the
+  openEMS stackup model oxide as permittivity-only (`ER=4.1` / `Epsilon=4.1`, no conductivity term), so
+  **dielectric loss is zero by construction** and fitting a resistor to it would be fitting noise.
+  The residual shunt conductance the S-parameters do show (`G_port` flat at 0.177-0.198 mS over
+  20-70 GHz for `turn1_d40`, i.e. an apparent 5.4 kOhm) is substrate coupling, not dielectric loss.
+  **Deliberately omitted for now** — see the deferred-work note below.
+- In shunt peaking the port branches are shunt elements, which is why omitting the loss term is safe:
+  the VDD-side branch sits between two AC grounds, and any load-side loss resistance appears in parallel
+  with `RD` (5.4 kOhm against 87 Ohm, negligible). The port *capacitance* is what matters — it adds
+  directly to `C_L` and must be in the load budget.
+
+### Deferred: substrate coupling in inductor models
+
+Not modelled today, and intentionally so. If it later proves relevant (larger coils, coils close to
+active circuitry, or a case where measured Q falls well below the metal-loss prediction), model it by its
+actual physical mechanism: **current loops induced in the finite-resistance substrate**, i.e. **coupled
+inductors with parallel resistors** (a transformer from the coil into a lossy substrate loop), not as a
+lumped resistor bolted onto the port capacitance. A series or parallel port resistor is a curve-fitting
+artifact that happens to absorb the effect over a narrow band while misrepresenting the physics.
 - **PDK metal sheet resistance is the authority for the DC branch**, and there are two independent
   sources that agree: `libs.tech/parasitics/itf/sg13g2_typ.itf`
   (`CONDUCTOR TopMetal2 {THICKNESS=3.0 RPSQ=0.011}`) and
