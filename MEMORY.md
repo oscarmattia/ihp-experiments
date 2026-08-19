@@ -149,6 +149,21 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
   `+3.86 / +1.82 / +1.92 / +2.32 dB`. So variable `Rs` is a variable *equalizer*, not a variable *gain*
   stage. **Always quote VGA gain range at the signal frequency, never at DC.** For real gain control use
   current steering (scale `gm`), which keeps the response shape fixed.
+- **Tail-current steering with a dummy pair** is the working VGA architecture here: fixed signal pair plus a
+  dummy pair whose bases sit at the input common mode, both feeding the same shunt-peaked loads, with the
+  tail current steered between them through a **shared tail node** (separate mirrors per branch let both
+  paths draw full current and cap the range at ~1 dB). It gives frequency-flat range (11.2 dB at 28 GHz
+  measured), constant output common mode since total load current is fixed, and unchanged input
+  capacitance so an FO1 relationship survives `[sim]`.
+- **Steering starves the signal pair exactly when the input is largest.** A bipolar pair follows
+  `Iout/Itail = tanh(Vid/(2*VT))`, so at `Vid = +/-50 mV` it is already at 0.748 of full switching against a
+  linear 0.967, and `+/-100 mV` is essentially fully switched. Minimum gain is when the input is biggest, yet
+  tail steering leaves the signal pair at a small fraction of full current there, so its linear range is
+  smallest when most needed. Small-signal AC gain range therefore overstates large-signal range — always
+  cross-check with a transient at the real test amplitude.
+- Because steering sets gain by scaling `gm`, a **fixed** degeneration resistor costs the same gain at every
+  setting and does not reduce the steering range — unlike variable degeneration. That makes fixed `Rs` a
+  clean linearity knob, though its benefit scales with the pair's current and so fades at minimum gain.
 - **The LUT `gm` for these HBTs is already `re`-degenerated.** `gm/Ic = 9.90 1/V` against the intrinsic
   `1/VT = 38.7 1/V` is the tell. Applying `gm/(1 + gm*re)` on top double-counts `re` — it cost one agent a
   3.3 dB error in a gain ceiling and nearly a wrong architecture decision. Stage gain from the LUT `gm` is
