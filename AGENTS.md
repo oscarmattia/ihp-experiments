@@ -2,11 +2,24 @@
 
 Analog IC / IHP SG13G2 experiments repo. This file is the **root** contract for Cursor Cloud Agents.
 
+## Read these first
+
+Start here instead of re-parsing the repo or the PDK tree on every prompt:
+
+| Doc | Contents |
+| --- | --- |
+| [MEMORY.md](MEMORY.md) | ngspice/flow pitfalls, corrections to earlier assumptions, recurring design notes |
+| [docs/PDK.md](docs/PDK.md) | SG13G2 devices, model/corner names, port orders, verified device numbers, PDK traps |
+| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Installed tool versions, paths, activation, install/verify, egress caveats |
+
+Keep all three current: when a sim pitfall, device fact, or tool version changes, update the doc in the
+same PR as the code.
+
 ## Role split
 
 | Role | Who | Responsibilities |
 | --- | --- | --- |
-| **Coordinator** | Cursor Grok (Grok 4.5 / current Grok in Cursor) | Plan and scope work; review diffs; merge decisions; run git/PR/env tools; delegate implementation. |
+| **Coordinator** | The coordinator model assigned for the run (Cursor Grok or Claude Opus 5) | Plan and scope work; review diffs; merge decisions; run git/PR/env tools; delegate implementation. |
 | **Implementers** | **Composer 2.5** sub-agents (`Task` tool with `model: "composer-2.5"` or `composer-2.5-fast`) | Write/edit code, scripts, netlists, and tests from the coordinator’s plan. |
 
 **Rules**
@@ -27,9 +40,9 @@ Analog IC / IHP SG13G2 experiments repo. This file is the **root** contract for 
 | `char/` | Device characterization LUTs (`mos/`, `bjt/`, `passive/`, `common/`) | `char/AGENTS.md` |
 | `circuits/` | Circuit experiments (CTLE, drivers) | `circuits/AGENTS.md` |
 | `scripts/` | IHP EDA install / verify | `scripts/AGENTS.md` |
-| `docs/` | Environment and setup docs | `docs/AGENTS.md` |
+| `docs/` | Environment, setup, and PDK reference docs | `docs/AGENTS.md` |
 | `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |
-| `pdk/` | IHP SG13G2 PDK submodule (upstream; rarely edited here) | — |
+| `pdk/` | Gitignored and empty; the real PDK lives at `$PDK_ROOT` | — |
 
 Read the nested `AGENTS.md` in a directory before changing files there.
 
@@ -47,8 +60,9 @@ source ~/.local/share/ihp-eda/env.sh
 | `PDK_ROOT` | `$IHP_EDA_ROOT/IHP-Open-PDK` (set by `env.sh`) |
 | ngspice | Built with **OSDI**; required for OpenVAF-compiled IHP models |
 | Install / verify | `./scripts/install-ihp-eda.sh`, `./scripts/verify-ihp-eda.sh` |
-| EM (passive L) | `./scripts/install-ihp-em.sh` or `--with-em`; `./scripts/verify-ihp-em.sh` |
-| Details | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) |
+| EM (passive L) | Not installed by default: `./scripts/install-ihp-em.sh` or `--with-em`; `./scripts/verify-ihp-em.sh` |
+| Plotting deps | `matplotlib`/`scipy` are absent on a fresh VM: `uv pip install --python "$IHP_EDA_ROOT/venv/bin/python" matplotlib scipy` |
+| Details | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md), devices in [docs/PDK.md](docs/PDK.md) |
 
 ## Git / Cloud Agent
 

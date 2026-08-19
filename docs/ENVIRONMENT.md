@@ -1,31 +1,78 @@
-# IHP Open PDK — environment plan & setup
+# Environment — tools and setup
 
-This repository targets **analog IC experiments** on IHP’s open **SG13G2** 130 nm BiCMOS PDK.
+Single source of truth for **what is installed, where it lives, how to activate it, and how to fix it**
+on a Cursor Cloud Agent VM or a local box.
 
-Official guide: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/installation.html
+- Device/model knowledge: [PDK.md](PDK.md)
+- Simulator and flow pitfalls: [../MEMORY.md](../MEMORY.md)
 
-## Plan (what we install)
+Target technology: IHP **SG13G2** 130 nm SiGe BiCMOS open PDK.
+Upstream install guide: https://ihp-open-pdk-docs.readthedocs.io/en/latest/install/installation.html
 
-| Layer | Choice | Notes |
-| --- | --- | --- |
-| PDK | `IHP-Open-PDK` **`dev`** branch + submodules | Docs require `dev` for current ngspice examples |
-| Verilog-A → OSDI | **OpenVAF-Reloaded** (`openvaf-r`) | Needs **LLVM 21** runtime (`apt.llvm.org`); GitHub releases |
-| Circuit sim | **ngspice** ≥44 (`ngspice-45.2` default) with `--enable-osdi` | Needs OSDI ≥0.4 for OpenVAF-R; built from GitHub SF mirror |
-| Schematic | **xschem** 3.4.x from source | Then `python3 libs.tech/xschem/install.py` |
-| Layout | **KLayout** (~0.30.x .deb, else Ubuntu apt) | Needs `KLAYOUT_PATH` / `KLAYOUT_HOME` |
-| Python | **uv** venv + PDK `requirements.txt` | Does not replace system Python for Tcl/Tk tools |
-| EM (optional) | **openEMS** + IHP Python workflow | `./scripts/install-ihp-em.sh` or `./scripts/install-ihp-eda.sh --with-em` |
-| EM (optional, large hosts) | **Palace** FEM via Apptainer | Needs **≥32 GB RAM** + `apptainer`; pulled when RAM ≥28 GB and runtime available |
-
-Default install root: `~/.local/share/ihp-eda`  
-(`PDK_ROOT=$IHP_EDA_ROOT/IHP-Open-PDK`, tools under `$IHP_EDA_ROOT/tools`).
-
-## Reinstall (environment died)
+## Activate (do this first, every session)
 
 ```bash
-./scripts/install-ihp-eda.sh
+source ~/.local/share/ihp-eda/env.sh          # analog: PATH, PDK_ROOT, venv
+source ~/.local/share/ihp-eda/em.env.sh       # EM only: openEMS paths (if installed)
+```
+
+`env.sh` exports `IHP_EDA_ROOT`, `IHP_TOOLS_PREFIX`, `PDK_ROOT`, `PDK`, `KLAYOUT_HOME`,
+`KLAYOUT_PATH`, prepends `$IHP_TOOLS_PREFIX/bin` to `PATH`, and activates the venv.
+
+Always use the venv interpreter for PDK work, not system `python3`:
+
+```bash
+$IHP_EDA_ROOT/venv/bin/python <script>
+```
+
+## Layout
+
+| Item | Path |
+| --- | --- |
+| Install root (`IHP_EDA_ROOT`) | `~/.local/share/ihp-eda` |
+| Tool binaries | `$IHP_EDA_ROOT/tools/bin` (`ngspice`, `xschem`, `openvaf-r`, `rawtovcd`) |
+| PDK (`PDK_ROOT`) | `$IHP_EDA_ROOT/IHP-Open-PDK`, `PDK=ihp-sg13g2` |
+| Python venv | `$IHP_EDA_ROOT/venv` (uv-managed) |
+| Build sources | `$IHP_EDA_ROOT/src` |
+| Generated env | `$IHP_EDA_ROOT/env.sh`, `$IHP_EDA_ROOT/em.env.sh` (not committed) |
+| ngspice init | `~/.spiceinit` → PDK `libs.tech/ngspice/.spiceinit` (loads OSDI) |
+
+The repo's `pdk/` path is **gitignored and empty**; `$PDK_ROOT` is the only real PDK checkout.
+
+## What is actually installed (verified on this VM)
+
+| Tool | Version | Notes |
+| --- | --- | --- |
+| ngspice | **45.2**, KLU solver, `--enable-osdi` | built from source; apt ngspice is not OSDI-compatible with IHP models |
+| OpenVAF-Reloaded | `openvaf-r` (reports "unknown") | Verilog-A → OSDI; needs LLVM 21 runtime |
+| xschem | 3.4.6 | schematic capture |
+| KLayout | 0.28.16 (apt fallback) | IHP tests against 0.30.x; the official `.deb` needs `klayout.de` egress |
+| Python | 3.12.3 in `$IHP_EDA_ROOT/venv` | |
+| PDK | branch `dev`, `970a7688` | docs require `dev` for current ngspice examples |
+| openEMS | **not installed by default** | `./scripts/install-ihp-em.sh`; no `em.env.sh` until then |
+| Palace | not installed | needs ≥32 GB RAM + Apptainer |
+
+Host class for these numbers: 4 cores, ~15 GB RAM, 232 GB free.
+
+### Python packages — known gap
+
+The PDK `requirements.txt` installs `flake8 docopt pandas klayout==0.30.5 pyyaml gdstk tqdm termcolor`.
+It does **not** include `matplotlib` or `scipy`, and the venv has no `pip` module. Every plotting script
+in this repo needs matplotlib, so on a fresh VM run:
+
+```bash
+uv pip install --python "$IHP_EDA_ROOT/venv/bin/python" matplotlib scipy
+```
+
+`numpy` arrives transitively via `pandas`. `verify-ihp-eda.sh` does not check for matplotlib, so a fresh
+VM looks "verified" and still fails the first plotting run with `ModuleNotFoundError: matplotlib`.
+
+## Install / reinstall
+
+```bash
+./scripts/install-ihp-eda.sh            # analog tier
 source ~/.local/share/ihp-eda/env.sh
-./scripts/verify-ihp-eda.sh
+./scripts/verify-ihp-eda.sh             # expects MOSFET Id ~ 1.14e-6 A
 ```
 
 Analog + EM in one pass:
@@ -36,62 +83,53 @@ source ~/.local/share/ihp-eda/env.sh
 ./scripts/verify-ihp-em.sh
 ```
 
-EM only (after analog install):
+EM only, after the analog tier:
 
 ```bash
-./scripts/install-ihp-em.sh
+./scripts/install-ihp-em.sh [--skip-palace] [--skip-openems-build] [--force]
 source ~/.local/share/ihp-eda/em.env.sh
 ./scripts/verify-ihp-em.sh
 ```
 
-Cloud Agent `install` should run the same executable so a fresh VM converges without manual steps.
+Installers are idempotent. The Cloud Agent `install` hook should call the same scripts so a fresh VM
+converges without manual steps. The openEMS build clones `openEMS-Project` with submodules and compiles
+VTK/CGAL-dependent C++ — budget a long build on a 4-core host and run it in a background tmux session.
 
-## What’s intentionally out of scope (analog-first)
-
-Not installed by the **analog** installer by default (add later if needed):
-
-- **Xyce** + ADMS (alternate simulator)
-- **Qucs-S** (alternate schematic)
-- **Magic / netgen** (PDK has Magic tech files)
-- **OpenROAD / LibreLane** (digital place-and-route)
-- **GDSFactory / pygmid** beyond whatever lands via `requirements.txt`
-
-### Optional EM tier
-
-For passive RLC / on-chip inductor EM, use the separate EM installer:
-
-- **openEMS** (primary on ~16 GB hosts): Python workflow at
-  `$PDK_ROOT/ihp-sg13g2/libs.tech/openems/openems_ihp_sg13g2/workflow`
-- **Palace** FEM (optional): needs **≥32 GB RAM** and **Apptainer**; image pull is attempted only when `MemTotal` ≥28 GB
-
-Scripts: `./scripts/install-ihp-em.sh`, `./scripts/verify-ihp-em.sh`, or `./scripts/install-ihp-eda.sh --with-em`.
-
-Headless hosts omit the AppCSXCAD Qt viewer (`BUILD_APPCSXCAD=NO`); a no-op stub is installed at
-`$IHP_EDA_ROOT/tools/bin/AppCSXCAD` — see [APPCSXCAD-STUB.md](APPCSXCAD-STUB.md).
-
-## Known gaps / Cloud Agent caveats
-
-1. **Network egress** — several hosts used by upstream docs are often blocked until allowlisted:
-   - `ihp-open-pdk-docs.readthedocs.io` (docs)
-   - `git.code.sf.net` / `downloads.sourceforge.net` (official ngspice git/tarball; installer uses a GitHub mirror instead)
-   - `www.klayout.de` / `klayout.org` (official .deb; falls back to older Ubuntu `klayout`)
-   - `astral.sh` (uv installer; we use GitHub releases)
-   - `datashare.tu-dresden.de` (legacy openvaf; we use OpenVAF-Reloaded)
-   - `apt.llvm.org` (already commonly allowlisted) — required for **LLVM 21** runtime used by `openvaf-r`
-2. **GUI tools** (`xschem`, `klayout`) need a display (`DISPLAY` is usually set on Cloud Agents). Headless work can use `ngspice -b` and KLayout batch (`klayout -b`).
-3. **Apt ngspice** is *not* used as the primary simulator — Ubuntu’s package may lack a proper OSDI-enabled build matching IHP’s models. The installer builds from source with `--enable-osdi`.
-4. **KLayout apt fallback** (0.28.x on Ubuntu 24.04) is older than IHP’s tested 0.30.3; prefer the official .deb once egress allows it.
-
-## Manual activation
+## Running simulations
 
 ```bash
-source scripts/env-ihp.sh
-# or
 source ~/.local/share/ihp-eda/env.sh
+ngspice -b -o run.log deck.cir
 ```
 
-Useful paths after install:
+- OSDI models load from `~/.spiceinit`. If `HOME` is redirected or the sim runs in a sandbox, copy
+  `$PDK_ROOT/$PDK/libs.tech/ngspice/.spiceinit` into the run directory (see
+  `char/passive/ihp_cap_sweep.py::_spiceinit_src`). Without it, `rppd`, `rsil`, `cap_cmomi` fail as
+  unknown models.
+- Model include lines and corner section names: [PDK.md](PDK.md).
+- Repo entry points: `./char/run_all.sh`, `./char/{mos,bjt,passive}/run_all.sh`,
+  `./circuits/ctle56n/run.sh`.
 
-- Examples: `$PDK_ROOT/$PDK/libs.tech/xschem/`
-- Models: `$PDK_ROOT/$PDK/libs.tech/ngspice/`
-- OSDI: `$PDK_ROOT/$PDK/libs.tech/ngspice/osdi/`
+## GUI vs headless
+
+`xschem` and `klayout` need a display; `DISPLAY` is normally set on Cloud Agents. Headless work uses
+`ngspice -b` and `klayout -b`. openEMS is built with `BUILD_APPCSXCAD=NO`; a no-op stub sits at
+`$IHP_EDA_ROOT/tools/bin/AppCSXCAD` — see [APPCSXCAD-STUB.md](APPCSXCAD-STUB.md).
+
+## Network egress caveats
+
+Hosts commonly blocked until allowlisted, and what the installer does instead:
+
+| Host | Used for | Workaround in `scripts/` |
+| --- | --- | --- |
+| `git.code.sf.net`, `downloads.sourceforge.net` | official ngspice | GitHub mirror |
+| `www.klayout.de`, `klayout.org` | KLayout `.deb` 0.30.x | Ubuntu apt 0.28.x fallback |
+| `astral.sh` | uv installer | GitHub release |
+| `datashare.tu-dresden.de` | legacy OpenVAF | OpenVAF-Reloaded |
+| `apt.llvm.org` | LLVM 21 runtime for `openvaf-r` | required, usually allowlisted |
+| `ihp-open-pdk-docs.readthedocs.io` | docs only | — |
+
+## Out of scope (analog-first)
+
+Not installed by default: Xyce + ADMS, Qucs-S, Magic/netgen (PDK ships Magic tech files),
+OpenROAD/LibreLane, GDSFactory, pygmid beyond `requirements.txt`.
