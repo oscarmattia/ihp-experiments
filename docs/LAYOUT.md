@@ -393,8 +393,16 @@ instance list, so every remaining device and all its connectivity is still verif
 
 | | source of devices | source of parasitics |
 | --- | --- | --- |
-| KLayout | LVS extraction | resistance only |
+| KLayout | LVS extraction | none yet; resistance is open work |
 | Magic | LVS extraction | Magic's capacitance network |
+
+Magic supplies capacitance only. `extresist` no longer crashes once the coil is
+black-boxed, and it writes its `.res.ext` files, but `ext2spice extresist on` emits
+no `R` lines into the netlist either flat or hierarchical — the extraction runs and
+the netlist writing drops it. Enabling the pass also moves the capacitance by 11%,
+because `extract do resistance` re-partitions nodes, so a capacitance-only flow
+should leave it off rather than extract both and ignore one. Resistance is therefore
+`klayout.pex` work, deferred; see [../layout/debug_pex/FINDINGS.md](../layout/debug_pex/FINDINGS.md).
 
 Both take **devices from the LVS extraction**, and that is not a preference. Magic
 cannot describe a strapped array: the 25 units share drain and source nets, so it

@@ -449,7 +449,7 @@ def magic_capacitor_lines(
     (~3 fF on the CTLE stage); the compact resistor model already covers them.
     """
     text = Path(pex_netlist).read_text()
-    kept_lines: list[str] = []
+    kept: list[tuple[tuple[str, str], float, str]] = []
     kept_f = 0.0
     dropped_f = 0.0
 
@@ -466,13 +466,27 @@ def magic_capacitor_lines(
         def allowed(net: str) -> bool:
             return net in known_nets or _is_substrate_node(net)
 
-        clean = _FLOATING_COMMENT_RE.sub("", stripped)
         if allowed(net_a) and allowed(net_b):
-            kept_lines.append(clean)
+            # Canonicalise the whole line, not just its sort position. Magic varies
+            # both the order of capacitor lines and the order of the two terminals
+            # within a line between runs, so `C0 mgate inp` and `C0 inp mgate` came
+            # out of identical geometry. A capacitor is symmetric, so sorting its
+            # terminals loses nothing and makes the artifact reproducible.
+            pair = tuple(sorted((net_a, net_b)))
+            kept.append((pair, value_f, f"{match.group(4)}{match.group(5)}"))
             kept_f += value_f
         else:
             dropped_f += value_f
 
+    # Magic emits capacitors in a different order from one run to the next, so two
+    # identical runs produced netlists that differed only in line order. These
+    # netlists are committed artifacts, so they are renumbered in a sorted order:
+    # by net pair, then by value.
+    kept.sort(key=lambda item: (item[0], item[1]))
+    kept_lines = [
+        f"C{index} {pair[0]} {pair[1]} {value_text}"
+        for index, (pair, _, value_text) in enumerate(kept)
+    ]
     return kept_lines, kept_f, dropped_f
 
 

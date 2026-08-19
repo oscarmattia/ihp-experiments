@@ -266,6 +266,36 @@ identical standalone values. The difference is environmental, and the input trun
 run within a few um of the degeneration capacitor, so the suspect is the cap's
 internal finger structure not being mirror-symmetric about the axis.
 
+## Resistance extraction: what works, what does not (deferred, not fixed)
+
+Recorded rather than repaired, by decision. Three measurements on the CTLE
+simulation view.
+
+**The `extresist` segfault is gone.** On the tape-out view it crashed, because the
+coil is one continuous piece of TopMetal2 and its two ports are a DC short. With the
+coil black-boxed, `extract do resistance` / `extresist all` runs to completion on
+every cell and writes `.res.ext` files, and `run_magic_pex(resistance=True)` returns
+`ok=True` with `resistance_extracted=True`. So the guard-ring taps, the other
+DC-shorted structure named in the fallback comment, are not enough to trigger it.
+
+**But no resistance reaches the netlist.** `ext2spice extresist on` emits **zero**
+`R` lines, both flat and hierarchical, even with `rthresh 0`. The `.res.ext` files
+exist, so the extraction pass ran; it is the netlist writing that drops it. That
+looks like an invocation detail in how `extresist` results are handed to
+`ext2spice`, not a fundamental limit, so it is probably fixable.
+
+**Enabling the resistance pass perturbs the capacitance by ~11%.** Flat, same
+geometry, same 39 capacitors: 496.43 fF with `resistance=False` against 549.37 fF
+with `resistance=True`. `extract do resistance` re-partitions nodes at resistive
+elements, which redistributes the capacitance. So a capacitance-only flow should
+leave resistance off rather than extracting both and ignoring one, which is what
+`run_postlayout.py` does.
+
+Consequence for the flows: Magic supplies capacitance only. Resistance has to come
+from `klayout.pex`, which already has the hard part solved — `klayout_wire_resistance`
+in [../common/pex.py](../common/pex.py) needs explicit port points, and a generated
+layout knows every terminal coordinate. That work is open.
+
 ## Method notes worth reusing
 
 - **Compare merged polygons, not bounding boxes.** An early connectivity check

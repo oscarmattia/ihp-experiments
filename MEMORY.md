@@ -397,7 +397,21 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   `cap_cmomi`, which declares neither, so a post-layout netlist has to be filtered against each
   model's own accepted parameter list rather than fed to ngspice raw.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
-  continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction.
+  continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction. With the
+  coil black-boxed the crash goes away and the pass completes on every cell, so the coil is the
+  trigger and the guard-ring taps alone are not `[sim]`.
+- **Magic gives no resistance into the netlist as we invoke it.** `ext2spice extresist on` emits zero
+  `R` lines flat or hierarchical, with `rthresh 0`, even though `extresist` runs and writes
+  `.res.ext` — so it is the netlist writing, not the extraction. Probably a fixable invocation detail;
+  deferred by decision. Resistance therefore comes from `klayout.pex`, which needs explicit port
+  points that a generated layout already knows.
+- **Do not extract resistance if you only want capacitance.** `extract do resistance` re-partitions
+  nodes at resistive elements and moves the capacitance by ~11% — 496.43 fF against 549.37 fF on the
+  same geometry with the same 39 capacitors `[sim]`.
+- **Magic emits capacitors in a nondeterministic order, and their two terminals in a
+  nondeterministic order within a line.** Two identical runs gave netlists differing only in
+  `C0 mgate inp` versus `C0 inp mgate`. Canonicalise the whole line — sort the terminals as well as
+  the lines — before committing an extracted netlist as an artifact.
 - **Magic does not recognise the metal-finger cap as a device**: it extracts the fingers with an
   uncalibrated geometric model and reads ~58% high against `cap_cmomi`. Trust the compact model.
 - **A gdsfactory GDS needs rewriting for Magic.** kfactory stores state in a `$$$CONTEXT_INFO$$$`

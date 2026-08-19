@@ -67,6 +67,11 @@ step "blocks: build + gate" "$PY" layout/blocks/gen_blocks.py "${RENDER_ARGS[@]+
 
 if [[ "$QUICK" -eq 0 ]]; then
   step "ctle stage"       "$PY" layout/blocks/ctle_stage.py "${RENDER_ARGS[@]+"${RENDER_ARGS[@]}"}"
+  # Builds the black-boxed simulation view, gates it on LVS against the reduced
+  # CDL and on the extraction being physical, and writes both post-layout DUT
+  # netlists. Roughly 10 s, so it earns its place in the regression rather than
+  # being left to rot as an opt-in script.
+  step "post-layout netlists" "$PY" layout/blocks/run_postlayout.py
 fi
 
 printf '\n============================================================\n'

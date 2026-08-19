@@ -18,6 +18,8 @@ import json
 import sys
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -98,6 +100,14 @@ def klayout_core_devices(extracted: Path) -> list[str]:
     return [rename_schematic_instances(normalise_element(line)) for line in kept]
 
 
+def _rel(path: Path) -> str:
+    """Repo-relative where possible: this summary is a committed artifact."""
+    try:
+        return str(Path(path).resolve().relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def core_port_list(extracted: Path, instances: list, port_nets: list[str]) -> list[str]:
     """The core's interface: the schematic pins plus the promoted nets.
 
@@ -151,8 +161,8 @@ def build_klayout_flow(
     _prepend_pdk_libs(wrapper_path)
     _inline_core(wrapper_path, core_path)
     summary = {
-        "netlist": str(wrapper_path),
-        "core_netlist": str(core_path),
+        "netlist": _rel(wrapper_path),
+        "core_netlist": _rel(core_path),
         "device_count": len(devices),
         "parasitic_count": 0,
         "capacitance_kept_fF": 0.0,
@@ -210,8 +220,8 @@ def build_magic_flow(
     _inline_core(wrapper_path, core_path)
     summary.update(
         {
-            "netlist": str(wrapper_path),
-            "core_netlist": str(core_path),
+            "netlist": _rel(wrapper_path),
+            "core_netlist": _rel(core_path),
             "device_count": len(devices),
             "parasitic_count": len(cap_lines),
             "capacitance_kept_fF": round(kept_f * 1e15, 4),
@@ -261,8 +271,8 @@ def main() -> int:
     gates_ok = lvs.clean
     summary: dict = {
         "cell": CELL,
-        "simview_gds": str(gds_path),
-        "simview_reduced_cdl": str(reduced_cdl),
+        "simview_gds": _rel(gds_path),
+        "simview_reduced_cdl": _rel(reduced_cdl),
         "flows": {},
         "gates": {
             "lvs_match": lvs.clean,

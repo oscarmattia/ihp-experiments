@@ -21,15 +21,16 @@ from pathlib import Path
 
 from layout.common.devices import kind_of, um
 from layout.common.netlist import write_block_cdl
-from layout.common.paths import repo_root
 from layout.common.sizing import metres, read_params
 from layout.common.spec import DeviceSpec
 
 BLACK_BOX_KINDS: tuple[str, ...] = ("inductor", "cmomi")
 
-_IND_SHUNT_INC = (
-    repo_root() / "circuits" / "ctle56n" / "spice" / "ind_shunt.inc"
-)
+#: The EM-fitted coil model is included by token, not by absolute path, exactly as
+#: ctle_pdk.cir does it. The wrapper is always consumed through prepare_tb, which
+#: substitutes it, and a committed netlist must not carry a path from the machine
+#: that generated it.
+_IND_SHUNT_INC = "{IND_SHUNT_INC}"
 
 
 def is_black_boxed(spec: DeviceSpec) -> bool:
