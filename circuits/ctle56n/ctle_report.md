@@ -118,3 +118,42 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 - Normalized total ISI = Σ h_k / h_0 = **-0.3483** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.3483** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
+
+## Post-layout comparison
+
+Extracted from the laid-out cell, simulated through the same testbenches as the
+schematic because the CTLE is a device-only cell with the same seven pins. Both
+flows take their devices from the LVS extraction; only the Magic flow carries
+interconnect capacitance.
+
+The lumped output load differs between them **by design**: a netlist that carries
+its own extracted routing takes the `CL_MILLER` term only, while one without
+parasitics takes the full `CL`, since otherwise the routing is either counted twice
+or not at all. Each netlist declares which it needs.
+
+| Metric | Schematic (PDK) | devices only | devices + extracted C |
+| --- | --- | --- | --- |
+| _lumped output load_ | full CL | full CL | CL_MILLER |
+| DC gain | -0.24 dB | -0.24 dB | -0.24 dB |
+| Peaking @ 28 GHz | 5.00 dB | 4.93 dB | 5.06 dB |
+| Peak gain | 4.77 dB | 4.70 dB | 4.84 dB |
+| f_peak | 26.71 GHz | 27.34 GHz | 25.81 GHz |
+| f_-3dB | 78.51 GHz | 79.35 GHz | 81.23 GHz |
+| CMRR | 23.09 dB | 23.09 dB | 23.09 dB |
+| V_CE | 0.910 V | 0.910 V | 0.910 V |
+| I_C | 2.888 mA | 2.888 mA | 2.888 mA |
+
+| Flow | Devices | Parasitic C | Kept | Dropped |
+| --- | --- | --- | --- | --- |
+| `klayout` | 8 | 0 | 0.00 fF | 0.00 fF |
+| `magic` | 8 | 30 | 472.77 fF | 3.02 fF |
+
+Extraction gates: LVS against the reduced CDL **match**, capacitance physical **yes**.
+
+Two device kinds are replaced by their compact models rather than extracted: the
+inductor, because the PDK has no ngspice model for it and Magic sees the spiral as a
+DC short, and the metal-finger capacitor, because the extractor's finger geometry is
+not the calibrated model. Their nets are promoted to pins and reconnected outside
+the extracted core.
+
+Plots and waveforms: `out/postlayout_klayout/`, `out/postlayout_magic/`, same file names as the schematic passes.

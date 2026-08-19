@@ -167,6 +167,122 @@ Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; dr
 """
 
 
+#: Post-layout passes, in report order: directory under out/, metric prefix, and
+#: the lumped load each one is simulated with. Which load is correct depends on
+#: whether the netlist carries its own interconnect, so it is stated rather than
+#: left for the reader to infer from numbers that would otherwise look
+#: inconsistent.
+#: (directory under out/, column label, lumped load). stage_postlayout.py prefixes
+#: every metric with the pass name, so the prefix is derived rather than repeated.
+POSTLAYOUT_PASSES = (
+    ("postlayout_klayout", "devices only", "full CL"),
+    ("postlayout_magic", "devices + extracted C", "CL_MILLER"),
+)
+
+#: Where run_postlayout.py records what it built and which gates passed.
+POSTLAYOUT_SUMMARY = Path("layout/blocks/out/postlayout/postlayout_summary.json")
+
+
+def _postlayout_section(exp: Path, pdk: SimMetrics | None) -> str:
+    """Compare the schematic against the extracted layout, when both exist.
+
+    Returns an empty string when no post-layout pass has been run, so the report
+    stays valid for a schematic-only checkout.
+    """
+    out_dir = exp / "out"
+    passes = [
+        (name, label, load, load_sim_metrics(out_dir / name / "metrics.csv", f"{name}_"))
+        for name, label, load in POSTLAYOUT_PASSES
+    ]
+    passes = [entry for entry in passes if entry[3] is not None]
+    if not passes or pdk is None:
+        return ""
+
+    repo_root = exp.parents[1]
+    summary_path = repo_root / POSTLAYOUT_SUMMARY
+    parasitics = ""
+    gates = ""
+    if summary_path.is_file():
+        import json  # noqa: PLC0415
+
+        data = json.loads(summary_path.read_text())
+        flows = data.get("flows", {})
+        rows = []
+        for key in ("klayout", "magic"):
+            flow = flows.get(key)
+            if not flow:
+                continue
+            rows.append(
+                f"| `{key}` | {flow.get('device_count', 0)} | "
+                f"{flow.get('parasitic_count', 0)} | "
+                f"{flow.get('capacitance_kept_fF', 0.0):.2f} fF | "
+                f"{flow.get('capacitance_dropped_fF', 0.0):.2f} fF |"
+            )
+        if rows:
+            parasitics = (
+                "\n| Flow | Devices | Parasitic C | Kept | Dropped |\n"
+                "| --- | --- | --- | --- | --- |\n" + "\n".join(rows) + "\n"
+            )
+        verdicts = data.get("gates", {})
+        gates = (
+            f"\nExtraction gates: LVS against the reduced CDL "
+            f"**{'match' if verdicts.get('lvs_match') else 'MISMATCH'}**, "
+            f"capacitance physical "
+            f"**{'yes' if verdicts.get('pex_physical') else 'NO'}**.\n"
+        )
+
+    header = "| Metric | Schematic (PDK) | " + " | ".join(
+        label for _, label, _, _ in passes
+    ) + " |"
+    divider = "| --- | --- |" + " --- |" * len(passes)
+    loads = "| _lumped output load_ | full CL | " + " | ".join(
+        load for _, _, load, _ in passes
+    ) + " |"
+
+    def line(label: str, fmt, attr: str) -> str:
+        cells = " | ".join(fmt(getattr(metrics, attr)) for _, _, _, metrics in passes)
+        return f"| {label} | {fmt(getattr(pdk, attr))} | {cells} |"
+
+    rows = [
+        line("DC gain", _fmt_db, "dc_gain_db"),
+        line("Peaking @ 28 GHz", _fmt_db, "peaking_db"),
+        line("Peak gain", _fmt_db, "peak_gain_db"),
+        line("f_peak", _fmt_hz, "f_peak_hz"),
+        line("f_-3dB", _fmt_hz, "f_3db_hz"),
+        line("CMRR", _fmt_db, "cmrr_db"),
+        line("V_CE", _fmt_v, "vce_v"),
+        line("I_C", _fmt_a, "ic_a"),
+    ]
+
+    plots = ", ".join(f"`out/{name}/`" for name, _, _, _ in passes)
+    return f"""
+## Post-layout comparison
+
+Extracted from the laid-out cell, simulated through the same testbenches as the
+schematic because the CTLE is a device-only cell with the same seven pins. Both
+flows take their devices from the LVS extraction; only the Magic flow carries
+interconnect capacitance.
+
+The lumped output load differs between them **by design**: a netlist that carries
+its own extracted routing takes the `CL_MILLER` term only, while one without
+parasitics takes the full `CL`, since otherwise the routing is either counted twice
+or not at all. Each netlist declares which it needs.
+
+{header}
+{divider}
+{loads}
+{chr(10).join(rows)}
+{parasitics}{gates}
+Two device kinds are replaced by their compact models rather than extracted: the
+inductor, because the PDK has no ngspice model for it and Magic sees the spiral as a
+DC short, and the metal-finger capacitor, because the extractor's finger geometry is
+not the calibrated model. Their nets are promoted to pins and reconnected outside
+the extracted core.
+
+Plots and waveforms: {plots}, same file names as the schematic passes.
+"""
+
+
 def write_ctle_report(
     path: Path,
     params,
@@ -174,6 +290,7 @@ def write_ctle_report(
     pdk: SimMetrics | None,
     sbr_ideal: SbrResult | None = None,
     sbr_pdk: SbrResult | None = None,
+    exp: Path | None = None,
 ) -> None:
     """Regenerate circuits/ctle56n/ctle_report.md from sizing + sim metrics."""
     m_bessel = params.l_h / (params.rd_ohm**2 * params.cl_f)
@@ -289,6 +406,8 @@ Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk
             body += _sbr_section_body("Ideal", sbr_ideal, "ideal")
         if sbr_pdk:
             body += _sbr_section_body("PDK", sbr_pdk, "pdk")
+    if exp is not None:
+        body += _postlayout_section(exp, pdk)
     path.write_text(body)
 
 
@@ -703,6 +822,7 @@ def generate_all_reports(exp: Path | None = None) -> list[Path]:
                 pdk,
                 load_sbr_from_taps(out_dir / "ideal" / "sbr_taps.csv"),
                 load_sbr_from_taps(out_dir / "pdk" / "sbr_taps.csv"),
+                exp=exp,
             )
             written.append(ctle_path)
 
