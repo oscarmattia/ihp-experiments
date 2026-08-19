@@ -4,7 +4,7 @@
   "netlist": "/workspace/layout/devices/out/pex_run/cmomi_cs/cmomi_cs_pex.spice",
   "ok": true,
   "resistors": 2376,
-  "capacitors": 1378,
+  "capacitors": 162,
   "total_resistance_ohm": 9427.132769,
   "resistor_elements": [
     {
@@ -129,10 +129,12 @@
     }
   ],
   "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
   "note": "",
-  "total_capacitance_f": 5.44413e-13,
+  "total_capacitance_f": 8.09504e-13,
   "per_net_capacitance_f": {
-    "w_n240_n142#": 3.67053e-13,
+    "w_n240_n142#": 6.32144e-13,
     "PLUS": 1.9931e-13,
     "MINUS": 1.99167e-13,
     "MINUS.n318": 5.00157e-14,
@@ -161,9 +163,9 @@
     "unit": "F",
     "ok": true,
     "schematic": 1.708184e-13,
-    "post_layout": 2.691232e-13,
-    "delta": 9.830479999999999e-14,
-    "rel_change": 0.5754930382207069,
-    "rel_change_pct": 57.549303822070684
+    "post_layout": 3.35396e-13,
+    "delta": 1.6457759999999997e-13,
+    "rel_change": 0.9634652941369312,
+    "rel_change_pct": 96.34652941369312
   }
 }

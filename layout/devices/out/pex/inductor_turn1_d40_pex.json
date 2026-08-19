@@ -8,6 +8,8 @@
   "total_resistance_ohm": 0.0,
   "resistor_elements": [],
   "resistance_extracted": false,
+  "physical": true,
+  "negative_capacitors": [],
   "note": "resistance extraction crashed (Magic extresist segfaults on DC-shorted ports); capacitance-only extraction used",
   "total_capacitance_f": 1.37394e-14,
   "per_net_capacitance_f": {

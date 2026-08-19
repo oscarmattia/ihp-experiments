@@ -8,6 +8,8 @@
   "total_resistance_ohm": 0.0,
   "resistor_elements": [],
   "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
   "note": "",
   "total_capacitance_f": 0.0,
   "per_net_capacitance_f": {},

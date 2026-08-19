@@ -27,6 +27,8 @@
     }
   ],
   "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
   "note": "",
   "total_capacitance_f": 9.6356e-16,
   "per_net_capacitance_f": {
