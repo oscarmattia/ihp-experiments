@@ -37,7 +37,22 @@ from a PDK model file, `[est]` when still unverified.
   (`char/bjt/ihp_bjt_sweep.py`).
 - `wrdata` of real transient vectors often emits **time twice**: `time, time, v(a), v(b), …` even with
   `set wr_singlescale`. Parse a 6-column file as `[:,0], [:,2], [:,3], [:,4], [:,5]`. AC magnitude/phase
-  `wrdata` has a different layout — see `parse_ac_raw`.
+  `wrdata` has a different layout — see `parse_ac_raw`. With a **complex scale** (`sp` analysis) it writes
+  `freq, freq, freq_imag` before the data, so 6 requested vectors land in columns 3-8 of 9.
+- **There is no Touchstone n-port device in ngspice 45.2** (grep-verified). The only Touchstone-reading
+  element is the XSPICE `xfer` code model, and it is a **unilateral** transfer block (`in`/`out` ports,
+  `file=` plus `span`/`offset` to pick a column) — a controlled source, not a bidirectional impedance, so
+  it cannot stand in for a passive n-port such as a coil. Xyce/Spectre/ADS/Qucs-S do have real n-port
+  blocks.
+- **ngspice does have `sp` (S-parameter) analysis** (`RFSPICE` build option, present in our build). Declare
+  ports on voltage sources: `V1 p 0 dc 0 ac 1 portnum 1 z0 50`. Use it to validate a lumped model against
+  EM data in S-parameter space rather than via `L(f)`/`Q(f)`: our `ind_shunt` matches the openEMS
+  touchstone to **0.60% mean |S21| error over 1-50 GHz and 0.75% out to 100 GHz**, phase within ~0.3 deg
+  `[sim]`.
+- Prefer the fitted lumped model over a raw n-port even where one is available: transient (PRBS/SBR) needs
+  convolution or rational fitting from S-params, the AC sweep runs to 300 GHz while EM data stops at
+  100 GHz, DC resistance is anchored to the PDK sheet resistance where touchstone `f=0` is degenerate, and
+  a lumped model is parametric so coil choice can co-vary with `RD` and `C_L`.
 - PWL sources: `PWL(` with `+` continuation lines; complementary PRBS on `inp`/`inn`.
 - `.param` geometry (`w`, `l` for MOS, `rppd`, `rsil`, caps) must be in **metres**, not `{W}u` tokens.
 - OSDI loads via `~/.spiceinit`. If a run has a redirected `HOME`, copy the PDK `.spiceinit` into the
