@@ -24,6 +24,11 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from ctlelib.plots import (  # noqa: E402
+    plot_chain_ac_perstg,
+    plot_chain_sbr_perstg,
+    plot_chain_tran_perstg,
+)
 from ctlelib import (  # noqa: E402
     PSRR_MAX_DB,
     SBR_KEEP_FRAC,
@@ -36,7 +41,6 @@ from ctlelib import (  # noqa: E402
     parse_ac_raw,
     parse_dc_log,
     parse_psrr_raw,
-    parse_tran_raw,
     pdk_models,
     plot_ac,
     plot_cmrr,
@@ -53,7 +57,7 @@ from ctlelib import (  # noqa: E402
     write_sbr_taps_csv,
     write_tran_csv,
 )
-from ctlelib.metrics import EYE_SETTLE_UI, EyeMetrics  # noqa: E402
+from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EYE_SETTLE_UI, EyeMetrics  # noqa: E402
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.stim import UI_S, write_prbs_stim, write_sbr_stim  # noqa: E402
 from size_ctle import CtleParams, size_ctle  # noqa: E402
@@ -156,6 +160,27 @@ class ChainMetrics:
     settings: list[GainSettingMetrics] = field(default_factory=list)
     cmrr_db: float = float("nan")
     psrr_db: float = float("nan")
+
+
+def chain_perstg_out() -> Path:
+    d = chain_out() / "chain_perstg"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+@dataclass
+class ChainTranData:
+    time_s: np.ndarray
+    v_outp: np.ndarray
+    v_outn: np.ndarray
+    v_inp: np.ndarray
+    v_inn: np.ndarray
+    v_ctle_inp: np.ndarray
+    v_ctle_inn: np.ndarray
+    v_vga_inp: np.ndarray
+    v_vga_inn: np.ndarray
+    v_drv_inp: np.ndarray
+    v_drv_inn: np.ndarray
 
 
 def chain_out() -> Path:
@@ -417,10 +442,12 @@ Cload_n outn 0 0
 .nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
 
 .control
-save v(outp) v(outn) v(inp) v(inn) v(xu1.drv_inp) v(xu1.drv_inn)
+save v(outp) v(outn) v(inp) v(inn)
+save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)
+save v(xu1.drv_inp) v(xu1.drv_inn)
 tran 0.5p {{TMAX}} 0 1p
 set wr_singlescale
-wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn) v(xu1.drv_inp) v(xu1.drv_inn)
+wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn) v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)
 .endc
 .end
 """
@@ -467,6 +494,7 @@ def _plot_s11(freq: np.ndarray, s11_db: np.ndarray, path: Path) -> None:
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("S11 (dB, 100 Ohm diff ref)")
     ax.set_title("Differential return loss at bond pad (100 Ohm reference)")
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8)
     fig.savefig(path, dpi=120)
@@ -527,39 +555,145 @@ def _ac_gains_from_raw(raw: Path) -> dict[str, np.ndarray]:
     }
 
 
-def _parse_chain_tran_raw(
-    raw: Path,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Parse chain transient: pad out, bond pad in, VGA/driver interface."""
+def _parse_chain_tran_raw(raw: Path) -> ChainTranData:
+    """Parse chain transient wrdata with internal tap nodes when present."""
     rows = np.loadtxt(raw)
     if rows.ndim == 1:
         rows = rows.reshape(1, -1)
     ncol = rows.shape[1]
+    time_s = rows[:, 0]
+
+    def _col(i: int, fallback: np.ndarray) -> np.ndarray:
+        return rows[:, i] if ncol > i else fallback
+
+    if ncol >= 12:
+        # wr_singlescale duplicates time in columns 0 and 1
+        return ChainTranData(
+            time_s=time_s,
+            v_outp=rows[:, 2],
+            v_outn=rows[:, 3],
+            v_inp=rows[:, 4],
+            v_inn=rows[:, 5],
+            v_ctle_inp=rows[:, 6],
+            v_ctle_inn=rows[:, 7],
+            v_vga_inp=rows[:, 8],
+            v_vga_inn=rows[:, 9],
+            v_drv_inp=rows[:, 10],
+            v_drv_inn=rows[:, 11],
+        )
+    if ncol >= 11:
+        return ChainTranData(
+            time_s=time_s,
+            v_outp=rows[:, 1],
+            v_outn=rows[:, 2],
+            v_inp=rows[:, 3],
+            v_inn=rows[:, 4],
+            v_ctle_inp=rows[:, 5],
+            v_ctle_inn=rows[:, 6],
+            v_vga_inp=rows[:, 7],
+            v_vga_inn=rows[:, 8],
+            v_drv_inp=rows[:, 9],
+            v_drv_inn=rows[:, 10],
+        )
     if ncol >= 8:
-        # wrdata: time, [time dup], v(outp), v(outn), v(inp), v(inn), v(drv_inp), v(drv_inn)
-        return (
-            rows[:, 0],
-            rows[:, 2],
-            rows[:, 3],
-            rows[:, 4],
-            rows[:, 5],
-            rows[:, 6],
-            rows[:, 7],
+        z = np.zeros(rows.shape[0])
+        return ChainTranData(
+            time_s=time_s,
+            v_outp=rows[:, 2],
+            v_outn=rows[:, 3],
+            v_inp=rows[:, 4],
+            v_inn=rows[:, 5],
+            v_ctle_inp=rows[:, 4],
+            v_ctle_inn=rows[:, 5],
+            v_vga_inp=z,
+            v_vga_inn=z,
+            v_drv_inp=_col(6, z),
+            v_drv_inn=_col(7, z),
         )
     if ncol >= 7:
-        return (
-            rows[:, 0],
-            rows[:, 1],
-            rows[:, 2],
-            rows[:, 3],
-            rows[:, 4],
-            rows[:, 5],
-            rows[:, 6],
+        z = np.zeros(rows.shape[0])
+        return ChainTranData(
+            time_s=time_s,
+            v_outp=rows[:, 1],
+            v_outn=rows[:, 2],
+            v_inp=rows[:, 3],
+            v_inn=rows[:, 4],
+            v_ctle_inp=rows[:, 3],
+            v_ctle_inn=rows[:, 4],
+            v_vga_inp=z,
+            v_vga_inn=z,
+            v_drv_inp=_col(5, z),
+            v_drv_inn=_col(6, z),
         )
     if ncol >= 5:
         z = np.zeros(rows.shape[0])
-        return rows[:, 0], rows[:, 1], rows[:, 2], rows[:, 3], rows[:, 4], z, z
-    raise RuntimeError(f"{raw}: expected ≥7 columns, got {ncol}")
+        return ChainTranData(
+            time_s=time_s,
+            v_outp=rows[:, 1],
+            v_outn=rows[:, 2],
+            v_inp=rows[:, 3],
+            v_inn=rows[:, 4],
+            v_ctle_inp=rows[:, 3],
+            v_ctle_inn=rows[:, 4],
+            v_vga_inp=z,
+            v_vga_inn=z,
+            v_drv_inp=z,
+            v_drv_inn=z,
+        )
+    raise RuntimeError(f"{raw}: expected ≥5 columns, got {ncol}")
+
+
+def _write_ac_perstg_csv(path: Path, ac: dict[str, np.ndarray]) -> None:
+    freq = ac["freq"]
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(
+            [
+                "freq_Hz",
+                "h_src_dB",
+                "h_pad_dB",
+                "h_term_dB",
+                "h_ctle_dB",
+                "h_vga_dB",
+                "h_driver_dB",
+            ]
+        )
+        for i in range(len(freq)):
+            w.writerow(
+                [
+                    freq[i],
+                    ac["h_src_db"][i],
+                    ac["h_pad_db"][i],
+                    ac["h_term_db"][i],
+                    ac["h_ctle_db"][i],
+                    ac["h_vga_db"][i],
+                    ac["h_driver_db"][i],
+                ]
+            )
+
+
+def _chain_tran_perstg_vod_mv(tr: ChainTranData) -> dict[str, np.ndarray]:
+    return {
+        "term": (tr.v_ctle_inp - tr.v_ctle_inn) * 1e3,
+        "ctle": (tr.v_vga_inp - tr.v_vga_inn) * 1e3,
+        "vga": (tr.v_drv_inp - tr.v_drv_inn) * 1e3,
+        "driver": (tr.v_outp - tr.v_outn) * 1e3,
+    }
+
+
+def _chain_sbr_perstg_stages(tr: ChainTranData) -> dict[str, tuple[np.ndarray, np.ndarray, SbrResult]]:
+    out: dict[str, tuple[np.ndarray, np.ndarray, SbrResult]] = {}
+    for key, vp, vn in (
+        ("term", tr.v_ctle_inp, tr.v_ctle_inn),
+        ("ctle", tr.v_vga_inp, tr.v_vga_inn),
+        ("vga", tr.v_drv_inp, tr.v_drv_inn),
+        ("driver", tr.v_outp, tr.v_outn),
+    ):
+        if np.max(np.abs(vp - vn)) < 1e-15:
+            continue
+        sbr = extract_sbr(tr.time_s, vp, vn)
+        out[key] = (vp, vn, sbr)
+    return out
 
 
 def _pp_mv_from_tran(time_s: np.ndarray, sig: np.ndarray) -> float:
@@ -824,6 +958,7 @@ def run(
 ) -> ChainMetrics:
     spice_dir = _spice_dir()
     pout = out_dir or chain_out()
+    pstg = chain_perstg_out()
     pout.mkdir(parents=True, exist_ok=True)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -944,6 +1079,14 @@ def run(
             h_src_db,
             gd_s,
         )
+        ac_tag = tag if tag != "mid" else "mid"
+        plot_chain_ac_perstg(
+            freq,
+            ac,
+            pstg / f"ac_diff_{ac_tag}.png",
+            title=f"Chain AC per-stage ({label} VCTRL={vctrl:.2f} V)",
+        )
+        _write_ac_perstg_csv(pstg / f"ac_diff_{ac_tag}.csv", ac)
 
         gm = GainSettingMetrics(
             label=label,
@@ -971,34 +1114,42 @@ def run(
                 work, dut_cir, spice_dir, extra, "prbs_stim.inc", f"tran_{tag}.raw"
             )
             run_ngspice(tb_tran, work, f"tran_{tag}.log")
-            time_s, v_outp, v_outn, v_inp, v_inn, v_drvp, v_drvn = _parse_chain_tran_raw(
-                work / f"tran_{tag}.raw"
-            )
+            tr = _parse_chain_tran_raw(work / f"tran_{tag}.raw")
             write_tran_csv(
                 pout / (f"tran_{tag}.csv" if tag != "mid" else "tran.csv"),
-                time_s, v_outp, v_outn, v_inp, v_inn,
+                tr.time_s,
+                tr.v_outp,
+                tr.v_outn,
+                tr.v_inp,
+                tr.v_inn,
             )
-            gm.drive_swing_mv = _pp_mv_from_tran(time_s, v_drvp - v_drvn)
-            gm.pad_swing_mv = _pp_mv_from_tran(time_s, v_outp - v_outn)
+            gm.drive_swing_mv = _pp_mv_from_tran(tr.time_s, tr.v_drv_inp - tr.v_drv_inn)
+            gm.pad_swing_mv = _pp_mv_from_tran(tr.time_s, tr.v_outp - tr.v_outn)
             if tag == "mid":
-                write_eye_csvs(pout, time_s, v_outp, v_outn)
+                write_eye_csvs(pout, tr.time_s, tr.v_outp, tr.v_outn)
             plot_tran_se(
-                time_s, v_outp, v_outn, v_inp, v_inn,
+                tr.time_s, tr.v_outp, tr.v_outn, tr.v_inp, tr.v_inn,
                 pout / (f"tran_se_{tag}.png" if tag != "mid" else "tran_se.png"),
             )
             plot_tran_diff(
-                time_s, v_outp, v_outn, v_inp, v_inn,
+                tr.time_s, tr.v_outp, tr.v_outn, tr.v_inp, tr.v_inn,
                 pout / (f"tran_diff_{tag}.png" if tag != "mid" else "tran_diff.png"),
             )
+            plot_chain_tran_perstg(
+                tr.time_s,
+                _chain_tran_perstg_vod_mv(tr),
+                pstg / f"tran_diff_{tag}.png",
+                title=f"Chain PRBS per-stage ({label} VCTRL={vctrl:.2f} V)",
+            )
             plot_eye_se(
-                time_s, v_outp, v_outn,
+                tr.time_s, tr.v_outp, tr.v_outn,
                 pout / (f"eye_se_{tag}.png" if tag != "mid" else "eye_se.png"),
             )
             plot_eye_diff(
-                time_s, v_outp, v_outn,
+                tr.time_s, tr.v_outp, tr.v_outn,
                 pout / (f"eye_diff_{tag}.png" if tag != "mid" else "eye_diff.png"),
             )
-            eye = extract_eye_metrics(time_s, v_outp, v_outn)
+            eye = extract_eye_metrics(tr.time_s, tr.v_outp, tr.v_outn)
             gm.eye = eye
 
             tmax_sbr = write_sbr_stim(work / "sbr_stim.inc", term.vbase)
@@ -1008,21 +1159,38 @@ def run(
                 work, dut_cir, spice_dir, extra, "sbr_stim.inc", f"sbr_{tag}.raw"
             )
             run_ngspice(tb_sbr, work, f"sbr_{tag}.log")
-            time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / f"sbr_{tag}.raw")
-            sbr = extract_sbr(time_s, v_outp, v_outn)
+            tr_sbr = _parse_chain_tran_raw(work / f"sbr_{tag}.raw")
+            sbr = extract_sbr(tr_sbr.time_s, tr_sbr.v_outp, tr_sbr.v_outn)
             gm.sbr = sbr
             write_tran_csv(
                 pout / (f"sbr_{tag}.csv" if tag != "mid" else "sbr.csv"),
-                time_s, v_outp, v_outn, v_inp, v_inn,
+                tr_sbr.time_s,
+                tr_sbr.v_outp,
+                tr_sbr.v_outn,
+                tr_sbr.v_inp,
+                tr_sbr.v_inn,
             )
             write_sbr_taps_csv(
                 pout / (f"sbr_taps_{tag}.csv" if tag != "mid" else "sbr_taps.csv"),
                 sbr,
             )
             plot_sbr(
-                time_s, v_outp, v_outn, v_inp, v_inn, sbr,
+                tr_sbr.time_s,
+                tr_sbr.v_outp,
+                tr_sbr.v_outn,
+                tr_sbr.v_inp,
+                tr_sbr.v_inn,
+                sbr,
                 pout / (f"sbr_{tag}.png" if tag != "mid" else "sbr.png"),
             )
+            perstg_sbr = _chain_sbr_perstg_stages(tr_sbr)
+            if perstg_sbr:
+                plot_chain_sbr_perstg(
+                    tr_sbr.time_s,
+                    perstg_sbr,
+                    pstg / f"sbr_{tag}.png",
+                    title=f"Chain SBR per-stage ({label} VCTRL={vctrl:.2f} V)",
+                )
 
     # CMRR / PSRR at mid gain
     mid_extra = build_chain_extra(term, vga, driver, v_mid)

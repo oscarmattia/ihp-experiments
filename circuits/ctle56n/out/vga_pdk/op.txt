@@ -12,31 +12,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.356518e+00
-v(outn) = 1.356518e+00
-v(inp) = 1.300000e+00
-v(inn) = 1.300000e+00
+v(outp) = 1.352907e+00
+v(outn) = 1.352907e+00
+v(inp) = 1.350360e+00
+v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.848005e-01
-v(xu1.e2) = 4.848005e-01
-v(xu1.ed1) = 3.561841e-01
-v(xu1.ed2) = 3.561841e-01
-v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.275439e-01
-v(xu1.tx2) = 3.275439e-01
-v(xu1.steerp) = 5.830000e-01
-v(xu1.steern) = 1.157000e+00
+v(xu1.e1) = 5.356793e-01
+v(xu1.e2) = 5.356793e-01
+v(xu1.ed1) = 4.037777e-01
+v(xu1.ed2) = 4.037777e-01
+v(xu1.mgate) = 4.142349e-01
+v(xu1.tx1) = 3.745123e-01
+v(xu1.tx2) = 3.745123e-01
+v(xu1.steerp) = 6.330000e-01
+v(xu1.steern) = 1.207000e+00
 v(xu1.ctrl) = 1.500000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 2.241840e-04
-@q.xu1.xq2.qnpn13g2[ic] = 2.241840e-04
-@q.xu1.xqd1.qnpn13g2[ic] = 2.571666e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 2.571666e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.802521e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.802521e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.244696e-04
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.578048e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.244696e-04
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.578048e-03
+@q.xu1.xq1.qnpn13g2[ic] = 2.198332e-04
+@q.xu1.xq2.qnpn13g2[ic] = 2.198332e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.617473e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.617473e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.844092e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.844092e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.201127e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.623976e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.201127e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.623976e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -53,31 +53,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.354734e+00
-v(outn) = 1.354734e+00
-v(inp) = 1.300000e+00
-v(inn) = 1.300000e+00
+v(outp) = 1.351269e+00
+v(outn) = 1.351269e+00
+v(inp) = 1.350360e+00
+v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.350839e-01
-v(xu1.e2) = 4.350839e-01
-v(xu1.ed1) = 3.764417e-01
-v(xu1.ed2) = 3.764417e-01
-v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.476508e-01
-v(xu1.tx2) = 3.476508e-01
-v(xu1.steerp) = 6.900000e-01
-v(xu1.steern) = 1.050000e+00
+v(xu1.e1) = 4.851349e-01
+v(xu1.e2) = 4.851349e-01
+v(xu1.ed1) = 4.242812e-01
+v(xu1.ed2) = 4.242812e-01
+v(xu1.mgate) = 4.142349e-01
+v(xu1.tx1) = 3.948161e-01
+v(xu1.tx2) = 3.948161e-01
+v(xu1.steerp) = 7.400000e-01
+v(xu1.steern) = 1.101000e+00
 v(xu1.ctrl) = 2.800000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 7.894921e-04
-@q.xu1.xq2.qnpn13g2[ic] = 7.894921e-04
-@q.xu1.xqd1.qnpn13g2[ic] = 2.026838e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 2.026838e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.821883e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.821883e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 7.906795e-04
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.031202e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 7.906795e-04
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.031202e-03
+@q.xu1.xq1.qnpn13g2[ic] = 7.882108e-04
+@q.xu1.xq2.qnpn13g2[ic] = 7.882108e-04
+@q.xu1.xqd1.qnpn13g2[ic] = 2.067901e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 2.067901e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.861759e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.861759e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 7.893920e-04
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 2.072365e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 7.893920e-04
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 2.072365e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -94,31 +94,31 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.353550e+00
-v(outn) = 1.353550e+00
-v(inp) = 1.300000e+00
-v(inn) = 1.300000e+00
+v(outp) = 1.350135e+00
+v(outn) = 1.350135e+00
+v(inp) = 1.350360e+00
+v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.104808e-01
-v(xu1.e2) = 4.104808e-01
-v(xu1.ed1) = 3.944636e-01
-v(xu1.ed2) = 3.944636e-01
-v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.619319e-01
-v(xu1.tx2) = 3.619319e-01
-v(xu1.steerp) = 8.040000e-01
-v(xu1.steern) = 9.360000e-01
+v(xu1.e1) = 4.594752e-01
+v(xu1.e2) = 4.594752e-01
+v(xu1.ed1) = 4.430834e-01
+v(xu1.ed2) = 4.430834e-01
+v(xu1.mgate) = 4.142349e-01
+v(xu1.tx1) = 4.097514e-01
+v(xu1.tx2) = 4.097514e-01
+v(xu1.steerp) = 8.550000e-01
+v(xu1.steern) = 9.860000e-01
 v(xu1.ctrl) = 4.200000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 1.240881e-03
-@q.xu1.xq2.qnpn13g2[ic] = 1.240881e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 1.589039e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 1.589039e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.835093e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.835093e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.243021e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.592071e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.243021e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.592071e-03
+@q.xu1.xq1.qnpn13g2[ic] = 1.256893e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.256893e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.612249e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.612249e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.874385e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.874385e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.259060e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.615324e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.259060e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.615324e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
@@ -135,71 +135,92 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.353968e+00
-v(outn) = 1.353968e+00
-v(inp) = 1.300000e+00
-v(inn) = 1.300000e+00
+v(outp) = 1.350543e+00
+v(outn) = 1.350543e+00
+v(inp) = 1.350360e+00
+v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 3.866303e-01
-v(xu1.e2) = 3.866303e-01
-v(xu1.ed1) = 4.201142e-01
-v(xu1.ed2) = 4.201142e-01
-v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.568202e-01
-v(xu1.tx2) = 3.568202e-01
-v(xu1.steerp) = 9.930000e-01
-v(xu1.steern) = 7.470000e-01
+v(xu1.e1) = 4.348638e-01
+v(xu1.e2) = 4.348638e-01
+v(xu1.ed1) = 4.695738e-01
+v(xu1.ed2) = 4.695738e-01
+v(xu1.mgate) = 4.142349e-01
+v(xu1.tx1) = 4.043000e-01
+v(xu1.tx2) = 4.043000e-01
+v(xu1.steerp) = 1.043000e+00
+v(xu1.steern) = 7.970000e-01
 v(xu1.ctrl) = 6.500000e-01
-@q.xu1.xq1.qnpn13g2[ic] = 1.773594e-03
-@q.xu1.xq2.qnpn13g2[ic] = 1.773594e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 1.051538e-03
-@q.xu1.xqd2.qnpn13g2[ic] = 1.051538e-03
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.830410e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.830410e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.777157e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.053252e-03
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.777157e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.053252e-03
+@q.xu1.xq1.qnpn13g2[ic] = 1.805416e-03
+@q.xu1.xq2.qnpn13g2[ic] = 1.805416e-03
+@q.xu1.xqd1.qnpn13g2[ic] = 1.059039e-03
+@q.xu1.xqd2.qnpn13g2[ic] = 1.059039e-03
+@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.869810e-03
+@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.869810e-03
+@n.xu1.xps1.nsg13_lv_nmos[ids] = 1.809048e-03
+@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.060761e-03
+@n.xu1.xps2.nsg13_lv_nmos[ids] = 1.809048e-03
+@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.060761e-03
 @n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
 Note: Simulation executed from .control section 
 
-=== VCTRL = 1.000 V ===
+=== VCTRL = 1.000 V (OP FAILED) ===
+ngspice failed on tb_dc.cir:
+                          1.35036              1.35036
+xu1.e1                                          nan                  nan
+xu1.e2                                          nan                  nan
+inp                                         1.35036              1.35036
+xu1.xq1.s1                                      nan                  nan
+xu1.xq1.t                                      -nan                 -nan
+xu1.s1                                            0                    0
+inn                                         1.35036              1.35036
+xu1.xq2.s1                                      nan                  nan
+xu1.xq2.t                                      -nan                 -nan
+xu1.s2                                            0                    0
+xu1.ed1                                         nan                  nan
+xu1.xqd1.s1                                     nan                  nan
+xu1.xqd1.t                                     -nan                 -nan
+xu1.sd1                                           0                    0
+xu1.ed2                                         nan                  nan
+xu1.xqd2.s1                                     nan                  nan
+xu1.xqd2.t                                     -nan                 -nan
+xu1.sd2                                           0                    0
+xu1.mgate                                       nan                  nan
+xu1.ctrl                                          1                    1
+xu1.steerp                                     1.33                 1.33
+xu1.steern                                     0.51                 0.51
+xu1.tx1                                         nan                  nan
+xu1.tx2                                         nan                  nan
+l.xu1.xl2.lsk#branch                           -nan                 -nan
+l.xu1.xl2.lp#branch                            -nan                 -nan
+l.xu1.xl1.lsk#branch                           -nan                 -nan
+l.xu1.xl1.lp#branch                            -nan                 -nan
+vn#branch                                       nan                  nan
+vp#branch                                       nan                  nan
+v.xu1.vsn#branch                                nan                  nan
+v.xu1.vsp#branch                                nan                  nan
+v.xu1.vctrl#branch                                0                    0
+v.xu1.vsd2#branch                               nan                  nan
+v.xu1.vsd1#branch                               nan                  nan
+v.xu1.vs2#branch                                nan                  nan
+v.xu1.vs1#branch                                nan                  nan
+v.xu1.vicm#branch                               nan                  nan
+vdd#branch                                     -nan                 -nan
 
-Note: No compatibility mode selected!
+doAnalyses: OP:  Timestep too small; trouble with xu1.xq1:npn13g2_nx_vbic-instance q.xu1.xq1.qnpn13g2
 
 
-Circuit: * dc op testbench — 56g cml ctle
-
-Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
-
-Using SPARSE 1.3 as Direct Linear Solver
-
-No. of Data Rows : 1
+op simulation(s) aborted
 --- DC operating point ---
-v(outp) = 1.356974e+00
-v(outn) = 1.356974e+00
-v(inp) = 1.300000e+00
-v(inn) = 1.300000e+00
-v(vdd) = 1.600000e+00
-v(xu1.e1) = 3.488909e-01
-v(xu1.e2) = 3.488909e-01
-v(xu1.ed1) = 5.725471e-01
-v(xu1.ed2) = 5.725471e-01
-v(xu1.mgate) = 4.112360e-01
-v(xu1.tx1) = 3.229054e-01
-v(xu1.tx2) = 3.229054e-01
-v(xu1.steerp) = 1.280000e+00
-v(xu1.steern) = 4.600000e-01
-v(xu1.ctrl) = 1.000000e+00
-@q.xu1.xq1.qnpn13g2[ic] = 2.780277e-03
-@q.xu1.xq2.qnpn13g2[ic] = 2.780277e-03
-@q.xu1.xqd1.qnpn13g2[ic] = 1.033316e-05
-@q.xu1.xqd2.qnpn13g2[ic] = 1.033316e-05
-@n.xu1.xtail1.nsg13_lv_nmos[ids] = 2.797902e-03
-@n.xu1.xtail2.nsg13_lv_nmos[ids] = 2.797902e-03
-@n.xu1.xps1.nsg13_lv_nmos[ids] = 2.787548e-03
-@n.xu1.xpd1.nsg13_lv_nmos[ids] = 1.034685e-05
-@n.xu1.xps2.nsg13_lv_nmos[ids] = 2.787548e-03
-@n.xu1.xpd2.nsg13_lv_nmos[ids] = 1.034685e-05
-@n.xu1.xmdiode.nsg13_lv_nmos[ids] = 2.878119e-03
-Note: Simulation executed from .control section 
+Warning from checkvalid: vector outp is not available or has zero length.
+Warning from checkvalid: vector xu1.e1 is not available or has zero length.
+Warning from checkvalid: vector xu1.tx1 is not available or has zero length.
+Warning from checkvalid: vector @q.xu1.xq1.qnpn13g2[ic] is not available or has zero length.
+Warning from checkvalid: vector @q.xu1.xqd1.qnpn13g2[ic] is not available or has zero length.
+Warning from checkvalid: vector @n.xu1.xtail1.nsg13_lv_nmos[ids] is not available or has zero length.
+Warning from checkvalid: vector @n.xu1.xps1.nsg13_lv_nmos[ids] is not available or has zero length.
+Warning from checkvalid: vector @n.xu1.xps2.nsg13_lv_nmos[ids] is not available or has zero length.
+Warning from checkvalid: vector @n.xu1.xmdiode.nsg13_lv_nmos[ids] is not available or has zero length.
+Error: incomplete or empty netlist
+       or no ".plot", ".print", or ".fourier" lines in batch mode;
+no simulations run!
+

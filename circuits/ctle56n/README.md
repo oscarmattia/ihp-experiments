@@ -53,8 +53,9 @@ Requires prior LUT generation (`./char/run_all.sh`, or at least the MOS, BJT, an
 
 ## Outputs
 
-`out/summary.csv` aggregates every pass; `ctle_report.md` is an auto-generated narrative. Per-pass
-directories `out/{term,ideal,pdk,vga_ideal,vga_pdk,chain}/` each contain:
+`out/summary.csv` aggregates every pass. Auto-generated markdown reports (`ctle_report.md`, `term_report.md`,
+`vga_report.md`, `driver_report.md`, `chain_report.md`) are built by `python/generate_reports.py` from
+committed `out/` CSVs — no ngspice re-run. Per-pass directories `out/{term,ideal,pdk,vga_ideal,vga_pdk,driver,chain}/` each contain:
 
 | File | Description |
 | --- | --- |

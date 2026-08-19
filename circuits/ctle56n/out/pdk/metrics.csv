@@ -13,11 +13,3 @@ pdk_Ic_A,0.00288839
 pdk_Id_tail_A,0.00289597
 pdk_RD_realized_ohm,86.7149
 pdk_m,0.3511
-pdk_sbr_cursor_mV,-166.9003
-pdk_sbr_isi_norm,-0.383065
-pdk_sbr_isi_abs,0.383065
-pdk_eye_height_mV,101.89
-pdk_eye_width_UI,0.6225
-pdk_eye_width_ps,11.116
-pdk_eye_pp_swing_mV,232.62
-pdk_eye_sample_phase_UI,0.4040

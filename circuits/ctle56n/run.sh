@@ -85,4 +85,7 @@ fi
 echo "=== Summary aggregate ==="
 "$PY" "$CTLE/python/run_sims.py" --aggregate-summary
 
+echo "=== Design reports (from committed out/) ==="
+"$PY" "$CTLE/python/generate_reports.py"
+
 echo "Done. Artifacts under $CTLE/out/"

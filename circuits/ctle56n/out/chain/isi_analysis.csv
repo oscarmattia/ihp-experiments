@@ -27,21 +27,3 @@ vga_standalone_mid,7,-0.0086,5.80622e-05,no,
 vga_standalone_mid,8,-0.0121,8.18928e-05,no,
 vga_standalone_mid,9,-0.0147,9.98239e-05,no,
 vga_standalone_mid,10,-0.0168,0.000113433,no,
-chain_mid,-3,0.0003,-4.99525e-06,no,
-chain_mid,-2,0.0003,-5.84339e-06,no,
-chain_mid,-1,0.0004,-7.20259e-06,no,
-chain_mid,0,-57.6850,1,yes,
-chain_mid,1,12.6172,-0.218726,yes,chain tap
-chain_mid,2,4.0686,-0.0705316,yes,chain tap
-chain_mid,3,0.6798,-0.011785,yes,chain tap
-chain_mid,4,0.0984,-0.00170522,no,
-chain_mid,5,-0.0118,0.000204504,no,
-chain_mid,6,-0.0317,0.000549805,no,
-chain_mid,7,-0.0346,0.000600065,no,
-chain_mid,8,-0.0345,0.000597521,no,
-chain_mid,9,-0.0338,0.000586498,no,
-chain_mid,10,-0.0332,0.000574809,no,
-
-metric,ctle_standalone,chain_mid,comment
-isi_norm,-0.383065,-0.301043,chain ISI vs CTLE-only
-isi_abs,0.383065,0.301043,sum |h_k|/|h_0|
