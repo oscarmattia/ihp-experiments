@@ -1,0 +1,921 @@
+{
+  "ok": true,
+  "failed": [],
+  "blocks": {
+    "hbt_diff_pair": {
+      "name": "hbt_diff_pair",
+      "bbox_um": {
+        "width": 23.08,
+        "height": 11.79,
+        "area": 272.1132
+      },
+      "ports": {
+        "C_A": {
+          "name": "C",
+          "layer": "metal1_pin",
+          "center": [
+            0.0,
+            1.13
+          ],
+          "width": 1.85,
+          "orientation": 90.0
+        },
+        "B_A": {
+          "name": "B",
+          "layer": "metal1_pin",
+          "center": [
+            0.0,
+            -1.14
+          ],
+          "width": 1.95,
+          "orientation": 270.0
+        },
+        "E_A": {
+          "name": "E",
+          "layer": "metal2_pin",
+          "center": [
+            0.0,
+            -0.0075
+          ],
+          "width": 1.555,
+          "orientation": 270.0
+        },
+        "C_B": {
+          "name": "C",
+          "layer": "metal1_pin",
+          "center": [
+            11.7,
+            1.13
+          ],
+          "width": 1.85,
+          "orientation": 90.0
+        },
+        "B_B": {
+          "name": "B",
+          "layer": "metal1_pin",
+          "center": [
+            11.7,
+            -1.14
+          ],
+          "width": 1.95,
+          "orientation": 270.0
+        },
+        "E_B": {
+          "name": "E",
+          "layer": "metal2_pin",
+          "center": [
+            11.7,
+            -0.0075
+          ],
+          "width": 1.555,
+          "orientation": 270.0
+        }
+      },
+      "port_nets": [
+        "outp",
+        "inp",
+        "e1",
+        "outn",
+        "inn",
+        "e2"
+      ],
+      "devices": [
+        {
+          "name": "npn13G2_pair_device_a",
+          "kind": "npn13G2",
+          "nets": {
+            "C": "outp",
+            "B": "inp",
+            "E": "e1",
+            "sub": "sub"
+          }
+        },
+        {
+          "name": "npn13G2_pair_device_b",
+          "kind": "npn13G2",
+          "nets": {
+            "C": "outn",
+            "B": "inn",
+            "E": "e2",
+            "sub": "sub"
+          }
+        }
+      ],
+      "guard_ring": {
+        "kind": "ptap1",
+        "taps": 46,
+        "clearance_um": 1.5,
+        "pitch_um": 1.4,
+        "outer_box_um": [
+          -5.6899999999999995,
+          -5.67,
+          17.39,
+          6.12
+        ],
+        "worst_distance_to_tie_um": 5.055,
+        "latchup_limit_um": 20.0,
+        "within_latchup_limit": true
+      },
+      "symmetry": {
+        "axis_x_um": 5.85,
+        "worst_um": 0.0,
+        "per_terminal": [
+          {
+            "terminal": "C",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          },
+          {
+            "terminal": "B",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          },
+          {
+            "terminal": "E",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          }
+        ]
+      },
+      "notes": [
+        "mirrored about x=5.85 um so both devices see the same inner neighbour"
+      ],
+      "layers": {
+        "activ_drw": 50,
+        "activ_mask": 2,
+        "cont_drw": 188,
+        "emwind_drw": 2,
+        "heattrans_drw": 2,
+        "metal1_drw": 98,
+        "metal1_pin": 50,
+        "metal2_drw": 2,
+        "metal2_pin": 2,
+        "nsd_block": 2,
+        "psd_drw": 48,
+        "substrate_drw": 46,
+        "trans_drw": 2,
+        "via1_drw": 16
+      },
+      "gds": "gds/hbt_diff_pair.gds",
+      "cdl": "cdl/hbt_diff_pair.cdl",
+      "png": "png/hbt_diff_pair.png",
+      "drc": {
+        "cell": "hbt_diff_pair",
+        "gds": "/workspace/layout/blocks/out/gds/hbt_diff_pair.gds",
+        "clean": true,
+        "strictly_clean": true,
+        "total_violations": 0,
+        "real_violations": 0,
+        "by_rule": {},
+        "real_by_rule": {},
+        "context_by_rule": {},
+        "context_rule_reasons": {},
+        "examples": {},
+        "tables": [],
+        "report": "/workspace/layout/blocks/out/drc_run/hbt_diff_pair/hbt_diff_pair_hbt_diff_pair_main.lyrdb",
+        "log": "/workspace/layout/blocks/out/drc_run/hbt_diff_pair/drc_run.log",
+        "error": "",
+        "enforced_context_rules": [
+          "LBE.a",
+          "LU.a",
+          "LU.b"
+        ],
+        "ok": true
+      },
+      "lvs": {
+        "cell": "hbt_diff_pair",
+        "layout": "/workspace/layout/blocks/out/gds/hbt_diff_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/cdl/hbt_diff_pair.cdl",
+        "clean": true,
+        "params_ok": true,
+        "devices_matched": 0,
+        "summary": "2026-08-19 15:10:59 +0000: Memory Usage (142208K) : ERROR : Netlists don't match",
+        "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/hbt_diff_pair/hbt_diff_pair_extracted.cir",
+        "param_checks": [],
+        "log": "/workspace/layout/blocks/out/lvs_run/hbt_diff_pair/lvs_run.log",
+        "error": ""
+      },
+      "pex": {
+        "cell": "hbt_diff_pair",
+        "gds": "/workspace/layout/blocks/out/gds/hbt_diff_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/pex_run/hbt_diff_pair/hbt_diff_pair_pex.spice",
+        "ok": true,
+        "resistors": 0,
+        "capacitors": 15,
+        "total_resistance_ohm": 0.0,
+        "resistor_elements": [],
+        "resistance_extracted": true,
+        "note": "",
+        "total_capacitance_f": 1.79465e-15,
+        "per_net_capacitance_f": {
+          "m1_n70_n157#": 1.27668e-15,
+          "w_n656_n652#": 1.1939800000000001e-15,
+          "w_n203_n494#": 5.679600000000001e-16,
+          "a_n185_196#": 5.626200000000001e-16,
+          "C": -1.2700000000000002e-18,
+          "B": -2.09e-18,
+          "E": -2.61e-18,
+          "ptap1_9/sub": -5.97e-18
+        },
+        "log": "/workspace/layout/blocks/out/pex_run/hbt_diff_pair/magic_pex.log",
+        "error": "",
+        "signal_resistance_ohm": 0
+      }
+    },
+    "rppd_load_pair": {
+      "name": "rppd_load_pair",
+      "bbox_um": {
+        "width": 11.8,
+        "height": 2.62,
+        "area": 30.916
+      },
+      "ports": {
+        "PLUS_A": {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            2.5,
+            -0.28
+          ],
+          "width": 4.96,
+          "orientation": 270.0
+        },
+        "MINUS_A": {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            2.5,
+            1.68
+          ],
+          "width": 4.96,
+          "orientation": 90.0
+        },
+        "PLUS_B": {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            8.9,
+            -0.28
+          ],
+          "width": 4.96,
+          "orientation": 270.0
+        },
+        "MINUS_B": {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            8.9,
+            1.68
+          ],
+          "width": 4.96,
+          "orientation": 90.0
+        }
+      },
+      "port_nets": [
+        "nlp1",
+        "outp",
+        "nlp2",
+        "outn"
+      ],
+      "devices": [
+        {
+          "name": "rppd_load_a",
+          "kind": "rppd",
+          "nets": {
+            "PLUS": "nlp1",
+            "MINUS": "outp",
+            "sub": "sub"
+          }
+        },
+        {
+          "name": "rppd_load_b",
+          "kind": "rppd",
+          "nets": {
+            "PLUS": "nlp2",
+            "MINUS": "outn",
+            "sub": "sub"
+          }
+        }
+      ],
+      "guard_ring": null,
+      "symmetry": {
+        "axis_x_um": 5.7,
+        "worst_um": 0.0,
+        "per_terminal": [
+          {
+            "terminal": "PLUS",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          },
+          {
+            "terminal": "MINUS",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          }
+        ]
+      },
+      "notes": [],
+      "layers": {
+        "cont_drw": 4,
+        "extblock_drw": 6,
+        "gatpoly_drw": 8,
+        "heatres_drw": 2,
+        "metal1_drw": 4,
+        "metal1_pin": 4,
+        "polyres_drw": 2,
+        "psd_drw": 6,
+        "salblock_drw": 2
+      },
+      "gds": "gds/rppd_load_pair.gds",
+      "cdl": "cdl/rppd_load_pair.cdl",
+      "png": "png/rppd_load_pair.png",
+      "drc": {
+        "cell": "rppd_load_pair",
+        "gds": "/workspace/layout/blocks/out/gds/rppd_load_pair.gds",
+        "clean": true,
+        "strictly_clean": true,
+        "total_violations": 0,
+        "real_violations": 0,
+        "by_rule": {},
+        "real_by_rule": {},
+        "context_by_rule": {},
+        "context_rule_reasons": {},
+        "examples": {},
+        "tables": [],
+        "report": "/workspace/layout/blocks/out/drc_run/rppd_load_pair/rppd_load_pair_rppd_load_pair_main.lyrdb",
+        "log": "/workspace/layout/blocks/out/drc_run/rppd_load_pair/drc_run.log",
+        "error": "",
+        "enforced_context_rules": [
+          "LBE.a",
+          "LU.a",
+          "LU.b"
+        ],
+        "ok": true
+      },
+      "lvs": {
+        "cell": "rppd_load_pair",
+        "layout": "/workspace/layout/blocks/out/gds/rppd_load_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/cdl/rppd_load_pair.cdl",
+        "clean": true,
+        "params_ok": true,
+        "devices_matched": 0,
+        "summary": "2026-08-19 15:11:03 +0000: Memory Usage (142256K) : INFO : Congratulations! Netlists match.",
+        "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/rppd_load_pair/rppd_load_pair_extracted.cir",
+        "param_checks": [],
+        "log": "/workspace/layout/blocks/out/lvs_run/rppd_load_pair/lvs_run.log",
+        "error": ""
+      },
+      "pex": {
+        "cell": "rppd_load_pair",
+        "gds": "/workspace/layout/blocks/out/gds/rppd_load_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/pex_run/rppd_load_pair/rppd_load_pair_pex.spice",
+        "ok": true,
+        "resistors": 0,
+        "capacitors": 17,
+        "total_resistance_ohm": 0.0,
+        "resistor_elements": [],
+        "resistance_extracted": true,
+        "note": "",
+        "total_capacitance_f": 5.01473e-15,
+        "per_net_capacitance_f": {
+          "w_0_n86#": 4.200040000000001e-15,
+          "a_0_0#": 2.0817e-15,
+          "a_0_280#": 1.83638e-15,
+          "a_0_n86#": 1.83638e-15,
+          "rppd_load_b_m_0/a_0_0#": 5.885000000000001e-17,
+          "rppd_load_a_n_0/a_0_0#": 5.885000000000001e-17,
+          "PLUS": -2.1370000000000003e-17,
+          "MINUS": -2.1370000000000003e-17
+        },
+        "log": "/workspace/layout/blocks/out/pex_run/rppd_load_pair/magic_pex.log",
+        "error": "",
+        "signal_resistance_ohm": 0
+      }
+    },
+    "degeneration_network": {
+      "name": "degeneration_network",
+      "bbox_um": {
+        "width": 16.67,
+        "height": 12.49,
+        "area": 208.2083
+      },
+      "ports": {
+        "R_PLUS": {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            -0.2
+          ],
+          "width": 0.46,
+          "orientation": 270.0
+        },
+        "R_MINUS": {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            5.2
+          ],
+          "width": 0.46,
+          "orientation": 90.0
+        },
+        "C_PLUS": {
+          "name": "PLUS",
+          "layer": "metal4_pin",
+          "center": [
+            3.93,
+            5.785
+          ],
+          "width": 0.21,
+          "orientation": 180.0
+        },
+        "C_MINUS": {
+          "name": "MINUS",
+          "layer": "metal5_pin",
+          "center": [
+            3.93,
+            5.785
+          ],
+          "width": 0.21,
+          "orientation": 180.0
+        }
+      },
+      "port_nets": [
+        "e1",
+        "e2"
+      ],
+      "devices": [
+        {
+          "name": "rsil_degen",
+          "kind": "rsil",
+          "nets": {
+            "PLUS": "e1",
+            "MINUS": "e2",
+            "sub": "sub"
+          }
+        },
+        {
+          "name": "cmomi_cs",
+          "kind": "cmomi",
+          "nets": {
+            "PLUS": "e1",
+            "MINUS": "e2"
+          }
+        }
+      ],
+      "guard_ring": null,
+      "symmetry": null,
+      "notes": [
+        "Rs and Cs are in parallel between the emitter nodes"
+      ],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 2,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "metal2_drw": 378,
+        "metal3_drw": 378,
+        "metal4_drw": 379,
+        "metal4_pin": 1,
+        "metal5_drw": 379,
+        "metal5_pin": 1,
+        "nometfiller_drw": 1,
+        "polyres_drw": 1,
+        "recog_mom": 1,
+        "res_drw": 1,
+        "via2_drw": 364,
+        "via3_drw": 364,
+        "via4_drw": 364
+      },
+      "gds": "gds/degeneration_network.gds",
+      "cdl": "cdl/degeneration_network.cdl",
+      "png": "png/degeneration_network.png",
+      "drc": {
+        "cell": "degeneration_network",
+        "gds": "/workspace/layout/blocks/out/gds/degeneration_network.gds",
+        "clean": true,
+        "strictly_clean": true,
+        "total_violations": 0,
+        "real_violations": 0,
+        "by_rule": {},
+        "real_by_rule": {},
+        "context_by_rule": {},
+        "context_rule_reasons": {},
+        "examples": {},
+        "tables": [],
+        "report": "/workspace/layout/blocks/out/drc_run/degeneration_network/degeneration_network_degeneration_network_main.lyrdb",
+        "log": "/workspace/layout/blocks/out/drc_run/degeneration_network/drc_run.log",
+        "error": "",
+        "enforced_context_rules": [
+          "LBE.a",
+          "LU.a",
+          "LU.b"
+        ],
+        "ok": true
+      },
+      "lvs": {
+        "cell": "degeneration_network",
+        "layout": "/workspace/layout/blocks/out/gds/degeneration_network.gds",
+        "netlist": "/workspace/layout/blocks/out/cdl/degeneration_network.cdl",
+        "clean": true,
+        "params_ok": true,
+        "devices_matched": 0,
+        "summary": "2026-08-19 15:11:06 +0000: Memory Usage (143188K) : ERROR : Netlists don't match",
+        "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/degeneration_network/degeneration_network_extracted.cir",
+        "param_checks": [],
+        "log": "/workspace/layout/blocks/out/lvs_run/degeneration_network/lvs_run.log",
+        "error": ""
+      },
+      "pex": {
+        "cell": "degeneration_network",
+        "gds": "/workspace/layout/blocks/out/gds/degeneration_network.gds",
+        "netlist": "/workspace/layout/blocks/out/pex_run/degeneration_network/degeneration_network_pex.spice",
+        "ok": true,
+        "resistors": 0,
+        "capacitors": 12,
+        "total_resistance_ohm": 0.0,
+        "resistor_elements": [],
+        "resistance_extracted": true,
+        "note": "",
+        "total_capacitance_f": 1.7849629999999998e-13,
+        "per_net_capacitance_f": {
+          "PLUS": 1.7736360999999998e-13,
+          "MINUS": 1.7736050999999998e-13,
+          "w_0_n70#": 8.7833e-16,
+          "a_0_0#": 7.0259e-16,
+          "rsil_degen_n_0/a_0_0#": 2.4131e-16,
+          "w_0_n142#": 1.8793e-16,
+          "a_0_n70#": 1.2916e-16,
+          "a_0_1000#": 1.2916e-16
+        },
+        "log": "/workspace/layout/blocks/out/pex_run/degeneration_network/magic_pex.log",
+        "error": "",
+        "signal_resistance_ohm": 0
+      }
+    },
+    "nmos_tail_pair": {
+      "name": "nmos_tail_pair",
+      "bbox_um": {
+        "width": 285.28,
+        "height": 7.47,
+        "area": 2131.0416
+      },
+      "ports": {
+        "D_A": {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15,
+            1.215
+          ],
+          "width": 2.43,
+          "orientation": 180.0
+        },
+        "S_A": {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.53,
+            1.215
+          ],
+          "width": 2.43,
+          "orientation": 0.0
+        },
+        "G_A": {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.84,
+            1.215
+          ],
+          "width": 2.79,
+          "orientation": 180.0
+        },
+        "D_B": {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            280.45,
+            1.215
+          ],
+          "width": 2.43,
+          "orientation": 0.0
+        },
+        "S_B": {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            279.07,
+            1.215
+          ],
+          "width": 2.43,
+          "orientation": 180.0
+        },
+        "G_B": {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            279.76,
+            1.215
+          ],
+          "width": 2.79,
+          "orientation": 0.0
+        }
+      },
+      "port_nets": [
+        "e1",
+        "e2",
+        "mgate",
+        "vss"
+      ],
+      "devices": [
+        {
+          "name": "nmos_tail_a",
+          "kind": "nmos_lv",
+          "nets": {
+            "D": "e1",
+            "G": "mgate",
+            "S": "vss",
+            "sub": "sub"
+          }
+        },
+        {
+          "name": "nmos_tail_b",
+          "kind": "nmos_lv",
+          "nets": {
+            "D": "e2",
+            "G": "mgate",
+            "S": "vss",
+            "sub": "sub"
+          }
+        }
+      ],
+      "guard_ring": {
+        "kind": "ptap1",
+        "taps": 416,
+        "clearance_um": 1.5,
+        "pitch_um": 1.4,
+        "outer_box_um": [
+          -2.34,
+          -2.52,
+          282.94,
+          4.949999999999999
+        ],
+        "worst_distance_to_tie_um": 2.895,
+        "latchup_limit_um": 20.0,
+        "within_latchup_limit": true
+      },
+      "symmetry": {
+        "axis_x_um": 140.3,
+        "worst_um": 0.0,
+        "per_terminal": [
+          {
+            "terminal": "D",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          },
+          {
+            "terminal": "S",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          },
+          {
+            "terminal": "G",
+            "dx_um": 0.0,
+            "dy_um": 0.0
+          }
+        ]
+      },
+      "notes": [],
+      "layers": {
+        "activ_drw": 620,
+        "cont_drw": 3078,
+        "gatpoly_drw": 200,
+        "gatpoly_pin": 2,
+        "heattrans_drw": 200,
+        "metal1_drw": 1034,
+        "metal1_pin": 420,
+        "psd_drw": 416,
+        "substrate_drw": 416
+      },
+      "gds": "gds/nmos_tail_pair.gds",
+      "cdl": "cdl/nmos_tail_pair.cdl",
+      "png": "png/nmos_tail_pair.png",
+      "drc": {
+        "cell": "nmos_tail_pair",
+        "gds": "/workspace/layout/blocks/out/gds/nmos_tail_pair.gds",
+        "clean": true,
+        "strictly_clean": true,
+        "total_violations": 0,
+        "real_violations": 0,
+        "by_rule": {},
+        "real_by_rule": {},
+        "context_by_rule": {},
+        "context_rule_reasons": {},
+        "examples": {},
+        "tables": [],
+        "report": "/workspace/layout/blocks/out/drc_run/nmos_tail_pair/nmos_tail_pair_nmos_tail_pair_main.lyrdb",
+        "log": "/workspace/layout/blocks/out/drc_run/nmos_tail_pair/drc_run.log",
+        "error": "",
+        "enforced_context_rules": [
+          "LBE.a",
+          "LU.a",
+          "LU.b"
+        ],
+        "ok": true
+      },
+      "lvs": {
+        "cell": "nmos_tail_pair",
+        "layout": "/workspace/layout/blocks/out/gds/nmos_tail_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/cdl/nmos_tail_pair.cdl",
+        "clean": true,
+        "params_ok": true,
+        "devices_matched": 0,
+        "summary": "2026-08-19 15:11:09 +0000: Memory Usage (143664K) : ERROR : Netlists don't match",
+        "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/nmos_tail_pair/nmos_tail_pair_extracted.cir",
+        "param_checks": [],
+        "log": "/workspace/layout/blocks/out/lvs_run/nmos_tail_pair/lvs_run.log",
+        "error": ""
+      },
+      "pex": {
+        "cell": "nmos_tail_pair",
+        "gds": "/workspace/layout/blocks/out/gds/nmos_tail_pair.gds",
+        "netlist": "/workspace/layout/blocks/out/pex_run/nmos_tail_pair/nmos_tail_pair_pex.spice",
+        "ok": true,
+        "resistors": 0,
+        "capacitors": 1602,
+        "total_resistance_ohm": 0.0,
+        "resistor_elements": [],
+        "resistance_extracted": true,
+        "note": "",
+        "total_capacitance_f": 1.4097802999999885e-13,
+        "per_net_capacitance_f": {
+          "w_n26_n36#": 7.995584000000015e-14,
+          "ptap1_9/sub": 1.8630080000000006e-14,
+          "a_7244_n36#": 1.0055200000000002e-15,
+          "a_26840_n36#": 1.0055200000000002e-15,
+          "a_21044_n36#": 1.0055200000000002e-15,
+          "a_13868_n36#": 1.0055200000000002e-15,
+          "a_620_n36#": 1.0055200000000002e-15,
+          "a_18284_n36#": 1.0055200000000002e-15,
+          "a_26012_n36#": 1.0055200000000002e-15,
+          "a_25736_n36#": 1.0055200000000002e-15,
+          "a_18008_n36#": 1.0055200000000002e-15,
+          "a_6968_n36#": 1.0055200000000002e-15,
+          "a_17180_n36#": 1.0055200000000002e-15,
+          "a_18836_n36#": 1.0055200000000002e-15,
+          "a_11108_n36#": 1.0055200000000002e-15,
+          "a_11384_n36#": 1.0055200000000002e-15,
+          "a_6692_n36#": 1.0055200000000002e-15,
+          "a_24632_n36#": 1.0055200000000002e-15,
+          "a_24356_n36#": 1.0055200000000002e-15,
+          "a_23528_n36#": 1.0055200000000002e-15
+        },
+        "log": "/workspace/layout/blocks/out/pex_run/nmos_tail_pair/magic_pex.log",
+        "error": "",
+        "signal_resistance_ohm": 0
+      }
+    },
+    "shunt_coil": {
+      "name": "shunt_coil",
+      "bbox_um": {
+        "width": 108.02,
+        "height": 109.02,
+        "area": 11776.3404
+      },
+      "ports": {
+        "PLUS": {
+          "name": "PLUS",
+          "layer": "topmetal2_pin",
+          "center": [
+            -3.05,
+            0.0
+          ],
+          "width": 4.0,
+          "orientation": 270.0
+        },
+        "MINUS": {
+          "name": "MINUS",
+          "layer": "topmetal2_pin",
+          "center": [
+            3.05,
+            0.0
+          ],
+          "width": 4.0,
+          "orientation": 270.0
+        }
+      },
+      "port_nets": [
+        "vdd",
+        "nlp1"
+      ],
+      "devices": [
+        {
+          "name": "inductor_turn1_d40",
+          "kind": "inductor",
+          "nets": {
+            "PLUS": "vdd",
+            "MINUS": "nlp1",
+            "sub": "sub"
+          }
+        }
+      ],
+      "guard_ring": null,
+      "symmetry": null,
+      "notes": [
+        "L and Q come from openEMS plus the fitted ind_shunt model; Magic contributes substrate capacitance only",
+        "the nofill/no-RCX keep-out markers extend well beyond the coil metal, which is why the cell is much larger than the coil"
+      ],
+      "layers": {
+        "activ_nofill": 1,
+        "gatpoly_nofill": 1,
+        "ind_drw": 1,
+        "ind_pin": 2,
+        "lbe_drw": 1,
+        "metal1_nofill": 1,
+        "metal2_nofill": 1,
+        "metal3_nofill": 1,
+        "metal4_nofill": 1,
+        "metal5_nofill": 1,
+        "norcx_drw": 1,
+        "pwell_block": 1,
+        "topmetal1_nofill": 1,
+        "topmetal2_drw": 5,
+        "topmetal2_nofill": 1,
+        "topmetal2_pin": 2
+      },
+      "gds": "gds/shunt_coil.gds",
+      "cdl": "cdl/shunt_coil.cdl",
+      "png": "png/shunt_coil.png",
+      "drc": {
+        "cell": "shunt_coil",
+        "gds": "/workspace/layout/blocks/out/gds/shunt_coil.gds",
+        "clean": true,
+        "strictly_clean": false,
+        "total_violations": 8,
+        "real_violations": 0,
+        "by_rule": {
+          "LBE.a": 8
+        },
+        "real_by_rule": {},
+        "context_by_rule": {
+          "LBE.a": 8
+        },
+        "context_rule_reasons": {
+          "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+        },
+        "examples": {
+          "LBE.a": [
+            "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+            "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+            "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+            "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+            "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+          ]
+        },
+        "tables": [],
+        "report": "/workspace/layout/blocks/out/drc_run/shunt_coil/shunt_coil_shunt_coil_main.lyrdb",
+        "log": "/workspace/layout/blocks/out/drc_run/shunt_coil/drc_run.log",
+        "error": "",
+        "enforced_context_rules": [
+          "LU.a",
+          "LU.b"
+        ],
+        "ok": true
+      },
+      "lvs": {
+        "cell": "shunt_coil",
+        "layout": "/workspace/layout/blocks/out/gds/shunt_coil.gds",
+        "netlist": "/workspace/layout/blocks/out/cdl/shunt_coil.cdl",
+        "clean": true,
+        "params_ok": true,
+        "devices_matched": 0,
+        "summary": "2026-08-19 15:11:13 +0000: Memory Usage (143676K) : INFO : Congratulations! Netlists match.",
+        "extracted_netlist": "/workspace/layout/blocks/out/lvs_run/shunt_coil/shunt_coil_extracted.cir",
+        "param_checks": [],
+        "log": "/workspace/layout/blocks/out/lvs_run/shunt_coil/lvs_run.log",
+        "error": ""
+      },
+      "pex": {
+        "cell": "shunt_coil",
+        "gds": "/workspace/layout/blocks/out/gds/shunt_coil.gds",
+        "netlist": "/workspace/layout/blocks/out/pex_run/shunt_coil/shunt_coil_pex.spice",
+        "ok": true,
+        "resistors": 0,
+        "capacitors": 0,
+        "total_resistance_ohm": 0.0,
+        "resistor_elements": [],
+        "resistance_extracted": true,
+        "note": "",
+        "total_capacitance_f": 0.0,
+        "per_net_capacitance_f": {},
+        "log": "/workspace/layout/blocks/out/pex_run/shunt_coil/magic_pex.log",
+        "error": "",
+        "signal_resistance_ohm": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+* hbt_diff_pair — generated from DeviceSpecs; do not edit by hand
+.SUBCKT hbt_diff_pair outp inp e1 outn inn e2
+Q1 outp inp e1 sub npn13G2 le=0.9u we=0.07u m=1
+Q2 outn inn e2 sub npn13G2 le=0.9u we=0.07u m=1
+.ENDS hbt_diff_pair

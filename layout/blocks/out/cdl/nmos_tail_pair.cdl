@@ -1,0 +1,5 @@
+* nmos_tail_pair — generated from DeviceSpecs; do not edit by hand
+.SUBCKT nmos_tail_pair e1 e2 mgate vss
+M1 e1 mgate vss sub sg13_lv_nmos w=243u l=1u ng=100 m=1
+M2 e2 mgate vss sub sg13_lv_nmos w=243u l=1u ng=100 m=1
+.ENDS nmos_tail_pair

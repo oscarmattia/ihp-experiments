@@ -1,0 +1,5 @@
+* rppd_load_pair — generated from DeviceSpecs; do not edit by hand
+.SUBCKT rppd_load_pair nlp1 outp nlp2 outn
+R1 nlp1 outp sub rppd m=1 l=1.4u w=5u
+R2 nlp2 outn sub rppd m=1 l=1.4u w=5u
+.ENDS rppd_load_pair

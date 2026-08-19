@@ -1,0 +1,5 @@
+* degeneration_network — generated from DeviceSpecs; do not edit by hand
+.SUBCKT degeneration_network e1 e2
+R1 e1 e2 sub rsil m=1 l=5u w=0.5u
+C1 e1 e2 cap_cmomi w=12.4252u l=12.4252u
+.ENDS degeneration_network

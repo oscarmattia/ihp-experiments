@@ -1,0 +1,4 @@
+* shunt_coil — generated from DeviceSpecs; do not edit by hand
+.SUBCKT shunt_coil vdd nlp1
+L1 vdd nlp1 sub inductor w=4u s=2.1u d=40u nr_r=1
+.ENDS shunt_coil
