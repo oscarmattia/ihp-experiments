@@ -1,4 +1,14 @@
 * 56G CML CTLE DUT — PDK passives (rppd, rsil, cap_cmomi, EM ind_shunt)
+*
+* Devices only: this subcircuit is the cell that gets laid out, so it contains no
+* independent sources and no probe sources. The mirror reference current is an
+* ideal source and lives in the testbench, which drives the `mgate` pin; `vss` is
+* a pin rather than the global node 0 so the port list matches the layout.
+*
+* Pins and devices here must stay identical to layout/blocks/ctle_stage.py's CDL.
+* layout/common/parity.py checks that on every run; the only permitted difference
+* is `ind_shunt` (an EM-fitted lumped model) standing in for the `inductor` PCell,
+* which has no ngspice model.
 .include params.inc
 .include '{IND_SHUNT_INC}'
 
@@ -7,21 +17,18 @@
 .lib '{PDK_MODELS}/cornerRES.lib' res_typ
 .lib '{PDK_MODELS}/cornerCAP.lib' cap_typ
 
-.subckt ctle_dut outp outn inp inn vdd
-Xl1 vdd nlp1 0 ind_shunt
-Xrd1 nlp1 outp 0 rppd w={RPPD_W} l={RPPD_L} m=1
-Xl2 vdd nlp2 0 ind_shunt
-Xrd2 nlp2 outn 0 rppd w={RPPD_W} l={RPPD_L} m=1
-Xrdeg e1 e2 0 rsil w={RSIL_W} l={RSIL_L} m=1
+.subckt ctle_dut outp outn inp inn vdd vss mgate
+Xl1 vdd nlp1 vss ind_shunt
+Xrd1 nlp1 outp vss rppd w={RPPD_W} l={RPPD_L} m=1
+Xl2 vdd nlp2 vss ind_shunt
+Xrd2 nlp2 outn vss rppd w={RPPD_W} l={RPPD_L} m=1
+Xrdeg e1 e2 vss rsil w={RSIL_W} l={RSIL_L} m=1
 Xcdeg e1 e2 cap_cmomi w={CMOMI_W} l={CMOMI_L} mmin={CMOMI_MMIN} mmax={CMOMI_MMAX} feed=same m=1
 
-XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
-Vs1 s1 0 dc 0
-XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
-Vs2 s2 0 dc 0
+XQ1 outp inp e1 vss npn13G2 Nx={Nx}
+XQ2 outn inn e2 vss npn13G2 Nx={Nx}
 
-Iref vdd mgate {ITAIL}
-XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail1 e1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail2 e2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+XMdiode mgate mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail1 e1 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail2 e2 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
 .ends ctle_dut

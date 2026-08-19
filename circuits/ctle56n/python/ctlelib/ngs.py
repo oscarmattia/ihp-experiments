@@ -15,17 +15,39 @@ _EXP = Path(__file__).resolve().parents[2]
 
 CTLE_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "save v(xu1.e1) v(xu1.e2) v(xu1.mgate)\n"
+    "save v(xu1.e1) v(xu1.e2) v(mgate)\n"
     "save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "save @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
     "save @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
 )
 CTLE_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "print v(xu1.e1) v(xu1.e2) v(xu1.mgate)\n"
+    "print v(xu1.e1) v(xu1.e2) v(mgate)\n"
     "print @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "print @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
     "print @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
+)
+
+#: Port list a DUT presents to a testbench. The CTLE exposes vss and the mirror
+#: gate because its bias current is an ideal source and therefore belongs to the
+#: testbench, not to the cell: a cell that is going to be laid out can only
+#: contain devices. `vss` is wired to the global 0 by the testbench.
+CTLE_DUT_PORTS = "outp outn inp inn vdd 0 mgate"
+
+#: Bias the testbench supplies for the CTLE, replacing the Iref that used to sit
+#: inside the subcircuit.
+CTLE_DUT_BIAS = "Iref vdd mgate {ITAIL}"
+
+#: Convergence hints. mgate is a testbench node for the CTLE, so it is named
+#: without the xu1 prefix; e1/e2 remain internal.
+CTLE_NODESET = ".nodeset v(mgate)={MOS_VGS} v(xu1.e1)=0.28 v(xu1.e2)=0.28"
+
+#: Stages that still carry their own sources keep the pre-existing 5-port
+#: interface and hierarchical nodeset. They need the same treatment as the CTLE
+#: before they can be laid out; see docs/LAYOUT.md.
+LEGACY_DUT_PORTS = "outp outn inp inn vdd"
+LEGACY_NODESET = (
+    ".nodeset v(xu1.mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.e1)=0.28 v(xu1.e2)=0.28"
 )
 
 
@@ -90,8 +112,17 @@ def prepare_tb(
     cl_tb: str | None = None,
     dc_save_lines: str | None = None,
     dc_print_lines: str | None = None,
+    dut_ports: str | None = None,
+    dut_bias: str | None = None,
+    dut_nodeset: str | None = None,
 ) -> Path:
-    text = apply_params(template.read_text(), spice_dir, extra_params)
+    # The port list, the bias lines and the nodeset go in before parameters are
+    # substituted, so tokens inside them (ITAIL, MOS_VGS) resolve too.
+    text = template.read_text()
+    text = text.replace("{DUT_PORTS}", dut_ports if dut_ports is not None else CTLE_DUT_PORTS)
+    text = text.replace("{DUT_BIAS}", dut_bias if dut_bias is not None else CTLE_DUT_BIAS)
+    text = text.replace("{DUT_NODESET}", dut_nodeset if dut_nodeset is not None else CTLE_NODESET)
+    text = apply_params(text, spice_dir, extra_params)
     if cl_tb is None:
         cl_tb = _read_param(spice_dir / "params.inc", "CL")
         if cl_tb is None:

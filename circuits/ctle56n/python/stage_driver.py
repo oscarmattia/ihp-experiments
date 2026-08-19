@@ -54,6 +54,8 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
+    LEGACY_DUT_PORTS,
+    LEGACY_NODESET,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, verify_eye_phase_invariance  # noqa: E402
@@ -427,6 +429,9 @@ def _prepare_driver_tb(
         dut_name=DRIVER_DUT_NAME,
         dc_save_lines=DRIVER_DC_SAVE_LINES,
         dc_print_lines=DRIVER_DC_PRINT_LINES,
+        dut_ports=LEGACY_DUT_PORTS,
+        dut_bias="",
+        dut_nodeset=LEGACY_NODESET,
     )
     text = _inject_floating_load(tb.read_text(), ep.get("RDIFF_TB", "100"))
     tb.write_text(text)
@@ -706,6 +711,9 @@ def run(
         cl_tb="0",
         dc_save_lines=DRIVER_DC_SAVE_LINES,
         dc_print_lines=DRIVER_DC_PRINT_LINES,
+        dut_ports=LEGACY_DUT_PORTS,
+        dut_bias="",
+        dut_nodeset=LEGACY_NODESET,
     )
     run_ngspice(tb_pad, work, "zin_pad.log")
     freq_z, zdiff = _parse_zin_pad_raw(work / "zin_pad.raw")

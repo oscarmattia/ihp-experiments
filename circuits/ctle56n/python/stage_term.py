@@ -48,6 +48,8 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
+    LEGACY_DUT_PORTS,
+    LEGACY_NODESET,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EyeMetrics  # noqa: E402
@@ -470,6 +472,9 @@ def run(
         cl_tb=extra["CL_TB"],
         dc_save_lines=TERM_DC_SAVE_LINES,
         dc_print_lines=TERM_DC_PRINT_LINES,
+        dut_ports=LEGACY_DUT_PORTS,
+        dut_bias="",
+        dut_nodeset=LEGACY_NODESET,
     )
     run_ngspice(tb_zin, work, "zin.log")
     freq_z, zdiff = _parse_zin_raw(work / "zin.raw")

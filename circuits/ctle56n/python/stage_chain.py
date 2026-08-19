@@ -56,6 +56,8 @@ from ctlelib import (  # noqa: E402
     write_eye_csvs,
     write_sbr_taps_csv,
     write_tran_csv,
+    LEGACY_DUT_PORTS,
+    LEGACY_NODESET,
 )
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EYE_SETTLE_UI, EyeMetrics  # noqa: E402
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
@@ -92,7 +94,7 @@ CHAIN_DC_SAVE_LINES = (
     "save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
     "save v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "save v(xu1.xuterm.vtt)\n"
-    "save v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.xuctle.mgate)\n"
+    "save v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.ctle_mgate)\n"
     "save v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
     "save v(xu1.xuvga.mgate) v(xu1.xuvga.tx1) v(xu1.xuvga.tx2)\n"
     "save v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
@@ -111,7 +113,7 @@ CHAIN_DC_PRINT_LINES = (
     "print v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
     "print v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "print v(xu1.xuterm.vtt)\n"
-    "print v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.xuctle.mgate)\n"
+    "print v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.ctle_mgate)\n"
     "print v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
     "print v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
     "print @q.xu1.xuctle.xq1.qnpn13g2[ic] @q.xu1.xuctle.xq2.qnpn13g2[ic]\n"
@@ -278,7 +280,7 @@ def _patch_nodeset(tb_path: Path, term: TermParams, vga: VgaParams, ctle: CtlePa
     text = re.sub(
         r"\.nodeset[^\n]*",
         ".nodeset "
-        f"v(xu1.xuctle.mgate)={term.extra.get('MOS_VGS', '0.55')} "
+        f"v(xu1.ctle_mgate)={term.extra.get('MOS_VGS', '0.55')} "
         f"v(xu1.xuvga.mgate)={vga.mos_vgs:.4g} "
         f"v(xu1.xudrv.mgate)={driver.mos_vgs:.4g} "
         f"v(xu1.xuctle.e1)={tail_vds:.4g} v(xu1.xuctle.e2)={tail_vds:.4g} "
@@ -312,6 +314,9 @@ def _prepare_chain_tb(
         cl_tb=cl_tb,
         dc_save_lines=CHAIN_DC_SAVE_LINES,
         dc_print_lines=CHAIN_DC_PRINT_LINES,
+        dut_ports=LEGACY_DUT_PORTS,
+        dut_bias="",
+        dut_nodeset=LEGACY_NODESET,
     )
     text = _inject_receiver_load(tb.read_text(), extra.get("RDIFF_TB", "100"))
     tb.write_text(text)
@@ -349,7 +354,7 @@ Cload_p outp 0 0
 Cload_n outn 0 0
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
-.nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
+.nodeset v(xu1.ctle_mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
 
 .control
 save v(outp) v(outn) v(inp) v(inn) v(vp) v(vn)
@@ -387,7 +392,7 @@ Vp inp 0 dc {{VBASE}}
 Vn inn 0 dc {{VBASE}}
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
-.nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
+.nodeset v(xu1.ctle_mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
 
 .control
 {CHAIN_DC_SAVE_LINES}
@@ -439,7 +444,7 @@ Cload_p outp 0 0
 Cload_n outn 0 0
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
-.nodeset v(xu1.xuctle.mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
+.nodeset v(xu1.ctle_mgate)={{MOS_VGS}} v(outp)=1.40 v(outn)=1.40
 
 .control
 save v(outp) v(outn) v(inp) v(inn)

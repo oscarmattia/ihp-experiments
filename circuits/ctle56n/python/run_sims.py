@@ -195,7 +195,10 @@ def run_pass(
     psrr_db = float(psrr_db_curve[0])
 
     v_e1 = dc_vals.get("v(xu1.e1)", 0.0)
-    v_mgate = dc_vals.get("v(xu1.mgate)", 0.85)
+    # mgate is a testbench node now that the mirror reference current lives in
+    # the testbench rather than inside the DUT; accept the old hierarchical
+    # name too so a stage that still carries its own Iref keeps working.
+    v_mgate = dc_vals.get("v(mgate)", dc_vals.get("v(xu1.mgate)", 0.85))
     v_c1 = dc_vals.get("v(outp)", 0.0)
     vce = v_c1 - v_e1
     ic_a = dc_vals.get("@q.xu1.xq1.qnpn13g2[ic]", float("nan"))

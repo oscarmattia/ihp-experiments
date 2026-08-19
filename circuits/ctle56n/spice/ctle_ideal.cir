@@ -1,10 +1,15 @@
-* 56G CML CTLE DUT — ideal R/L/C passives
+* 56G CML CTLE DUT — ideal R, L, C first pass
+*
+* Same pin list and same device topology as ctle_pdk.cir: devices only, no
+* independent or probe sources. The mirror reference current is supplied by the
+* testbench through the `mgate` pin, and `vss` is a pin rather than the global
+* node 0.
 .include params.inc
 
 .lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
 .lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
 
-.subckt ctle_dut outp outn inp inn vdd
+.subckt ctle_dut outp outn inp inn vdd vss mgate
 L1 vdd nlp1 {LLOAD}
 RD1 nlp1 outp {RD}
 L2 vdd nlp2 {LLOAD}
@@ -12,13 +17,10 @@ RD2 nlp2 outn {RD}
 Rdeg e1 e2 {RS}
 Cdeg e1 e2 {CS}
 
-XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
-Vs1 s1 0 dc 0
-XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
-Vs2 s2 0 dc 0
+XQ1 outp inp e1 vss npn13G2 Nx={Nx}
+XQ2 outn inn e2 vss npn13G2 Nx={Nx}
 
-Iref vdd mgate {ITAIL}
-XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail1 e1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail2 e2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+XMdiode mgate mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail1 e1 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail2 e2 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
 .ends ctle_dut

@@ -4,8 +4,8 @@
 .include {DUT_CIR}
 
 Vdd vdd 0 dc {VDD}
-XU1 outp outn inp inn vdd {DUT_NAME}
-
+XU1 {DUT_PORTS} {DUT_NAME}
+{DUT_BIAS}
 * Hold driver inputs at VGA output CM (AC ground)
 Vcm_drv cm_drv 0 dc {VBASE}
 Rcm_p cm_drv inp 1e9

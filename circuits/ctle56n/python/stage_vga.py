@@ -66,6 +66,8 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
+    LEGACY_DUT_PORTS,
+    LEGACY_NODESET,
 )
 
 NYQUIST_HZ = 28e9
@@ -215,6 +217,9 @@ def _prepare_vga_tb(
         extra_params=ep,
         cl_tb=ep["CL"],
         **_tb_kw(),
+        dut_ports=LEGACY_DUT_PORTS,
+        dut_bias="",
+        dut_nodeset=LEGACY_NODESET,
     )
     _patch_tb_nodeset(tb, ep)
     return tb

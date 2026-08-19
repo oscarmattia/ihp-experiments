@@ -38,23 +38,22 @@ Xclamp vdd 0 nmoscl_2 m=1
 * ---------------------------------------------------------------------------
 * CTLE (ctle_pdk.cir — shares params.inc tokens)
 * ---------------------------------------------------------------------------
-.subckt ctle_dut outp outn inp inn vdd
-Xl1 vdd nlp1 0 ind_shunt
-Xrd1 nlp1 outp 0 rppd w={RPPD_W} l={RPPD_L} m=1
-Xl2 vdd nlp2 0 ind_shunt
-Xrd2 nlp2 outn 0 rppd w={RPPD_W} l={RPPD_L} m=1
-Xrdeg e1 e2 0 rsil w={RSIL_W} l={RSIL_L} m=1
+* Devices only, matching ctle_pdk.cir: the reference current is supplied by
+* whoever instantiates the stage, here the chain itself.
+.subckt ctle_dut outp outn inp inn vdd vss mgate
+Xl1 vdd nlp1 vss ind_shunt
+Xrd1 nlp1 outp vss rppd w={RPPD_W} l={RPPD_L} m=1
+Xl2 vdd nlp2 vss ind_shunt
+Xrd2 nlp2 outn vss rppd w={RPPD_W} l={RPPD_L} m=1
+Xrdeg e1 e2 vss rsil w={RSIL_W} l={RSIL_L} m=1
 Xcdeg e1 e2 cap_cmomi w={CMOMI_W} l={CMOMI_L} mmin={CMOMI_MMIN} mmax={CMOMI_MMAX} feed=same m=1
 
-XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
-Vs1 s1 0 dc 0
-XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
-Vs2 s2 0 dc 0
+XQ1 outp inp e1 vss npn13G2 Nx={Nx}
+XQ2 outn inn e2 vss npn13G2 Nx={Nx}
 
-Iref vdd mgate {ITAIL}
-XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail1 e1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail2 e2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+XMdiode mgate mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail1 e1 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail2 e2 mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
 .ends ctle_dut
 
 * ---------------------------------------------------------------------------
@@ -125,7 +124,8 @@ Xclamp vdd 0 nmoscl_2 m=1
 * ---------------------------------------------------------------------------
 .subckt chain_dut outp outn inp inn vdd
 Xuterm ctle_inp ctle_inn inp inn vdd term_dut
-Xuctle vga_inp vga_inn ctle_inp ctle_inn vdd ctle_dut
+Iref_ctle vdd ctle_mgate {ITAIL}
+Xuctle vga_inp vga_inn ctle_inp ctle_inn vdd 0 ctle_mgate ctle_dut
 Bvga_vicm vga_vicm 0 V=0.5*(V(vga_inp)+V(vga_inn))
 Xuvga drv_inp drv_inn vga_inp vga_inn vga_vicm vdd vga_chain_dut
 Xudrv outp outn drv_inp drv_inn vdd driver_chain_dut
