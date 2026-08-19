@@ -372,6 +372,16 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   is missing from its `.SUBCKT` line, and building the core from that list silently discarded 137 fF
   of supply capacitance (134.78 fF of it the ring's coupling to `vss`) and left the wrapper connecting
   `ind_shunt` to a `vdd` that was not the layout's. Build the core from the intended interface.
+- **A deck total is not a load on anything.** The CTLE stage's 496 fF is 27% `vdd`–`vss` from the power
+  ring and 30% `mgate`–`vss` from the gate strap across 75 array devices; only **11% touches a signal
+  net**, and an output node carries 15.26 fF `[sim]`. Against the 6.8 fF in `CL_INTERCONNECT` that is
+  2.2x, not the 70x a deck total suggests. Sum the terms touching the node in question.
+- **Routing capacitance per µm is layer-dependent and `ROUTING_CAP_FF_PER_UM` is a mid-range value.**
+  An isolated Metal4 trunk measures **0.085 fF/µm**, half the 0.17 assumed in `size_ctle.py`, because a
+  high metal sits far from the substrate. What blows the budget is length, not the coefficient: the
+  output trunks run 135.6 µm against the 40 µm behind `CL_INTERCONNECT`, which is the price of bringing
+  signals to the cell edge past a 108 µm coil and a power ring. In situ the same wire reads 1.3–1.5x
+  its standalone value, which is the neighbour coupling `[sim]`.
 - **Magic's MOS `as`/`ad`/`ps`/`pd` are unusable for a strapped array.** Parallel units share drain and
   source nets, so it puts the merged node's whole diffusion on one arbitrary instance and gives the
   rest `as=0` — which the model file defines as "calculate it", not "none here", so 24 estimated

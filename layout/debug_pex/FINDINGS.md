@@ -198,6 +198,74 @@ power ring's coupling to `vss` — and left the wrapper connecting `ind_shunt` t
 interface, with the extracted list checked against it so a net that should have been
 promoted surfaces as an error rather than as missing parasitics.
 
+## A total is not a load: where the 493 fF actually goes
+
+Quoting the deck total against `CL_INTERCONNECT` compares unrelated quantities, and
+overstates the problem by more than an order of magnitude.
+`probe_signal_net_caps.py` splits it up.
+
+| | fF | share |
+| --- | --- | --- |
+| between the supply nets and substrate only | 134.78 | 27.1% |
+| touching a signal net (`outp`/`outn`/`inp`/`inn`) | 55.24 | 11.1% |
+| other internal nets (`e1`, `e2`, `mgate`, `nlp`) | 306.42 | 61.7% |
+
+The largest single term is `mgate`-`vss` at 146.54 fF -- the gate strap across 75
+array devices -- followed by `vdd`-`vss` at 134.78 fF, the power ring. Neither loads
+a signal path. `e1` and `e2` carry ~61 fF each, which does matter, but as
+degeneration-node loading rather than output loading.
+
+Per signal node:
+
+| net | extracted | vs the 6.80 fF `CL_INTERCONNECT` allowance |
+| --- | --- | --- |
+| `outp` | 15.264 fF | 2.2x |
+| `outn` | 15.190 fF | 2.2x |
+| `inp` | 11.938 fF | - |
+| `inn` | 12.884 fF | - |
+
+So the routing allowance is out by 2.2x on the outputs, not by the 70x a deck total
+would imply. The testbench still applies `CL` post-layout, so these add to it.
+
+## Standalone wire versus the same wire in situ
+
+The interesting comparison is the drawn trunk against an isolated wire of the same
+layer, width and length, extracted the same way:
+
+| net | metal | w | length | standalone | fF/um | sizing at 0.17 fF/um |
+| --- | --- | --- | --- | --- | --- | --- |
+| `outp`/`outn` | Metal4 | 2.88 um | 135.60 um | 11.550 fF | 0.0852 | 23.05 fF |
+| `inp`/`inn` | Metal4 | 2.88 um | 97.22 um | 8.328 fF | 0.0857 | 16.53 fF |
+
+Two effects pull in opposite directions, and separating them is the point:
+
+- **Metal4 is half as capacitive per um as the sizing assumes**: 0.085 fF/um
+  measured against the 0.17 fF/um in `size_ctle.ROUTING_CAP_FF_PER_UM`. That figure
+  is a mid-range value for this stack; a high metal sits far enough from the
+  substrate to come in well under it.
+- **The drawn length is 3.4x the budget**: 135.6 um against the 40 um behind
+  `CL_INTERCONNECT`. That is the real cost, and it follows directly from bringing
+  `outp`/`outn` out to the top edge past a 108 um coil and a power ring.
+
+Length wins, so the net result is over budget either way.
+
+In situ against standalone gives what the surroundings add:
+
+| net | standalone | in situ | ratio |
+| --- | --- | --- | --- |
+| `outp` | 11.550 fF | 15.264 fF | 1.3x |
+| `outn` | 11.550 fF | 15.190 fF | 1.3x |
+| `inp` | 8.328 fF | 11.938 fF | 1.4x |
+| `inn` | 8.328 fF | 12.884 fF | 1.5x |
+
+Neighbour coupling adds 30-50% over an isolated wire.
+
+One asymmetry worth chasing: `outp` and `outn` match to 0.5%, but `inp` and `inn`
+differ by 7.9% (11.94 against 12.88 fF) despite identical trunk geometry and
+identical standalone values. The difference is environmental, and the input trunks
+run within a few um of the degeneration capacitor, so the suspect is the cap's
+internal finger structure not being mirror-symmetric about the axis.
+
 ## Method notes worth reusing
 
 - **Compare merged polygons, not bounding boxes.** An early connectivity check
@@ -209,3 +277,11 @@ promoted surfaces as an error rather than as missing parasitics.
   line silently skipped the eight capacitors Magic annotates `$ **FLOATING`, which
   undercounted the flat total as 212 fF instead of 700 fF and nearly inverted the
   conclusion about how much capacitance hierarchy was losing.
+- **Never quote a deck total as a load.** It is dominated by whatever has the most
+  area, which on a cell with a power ring is the supply, and on this one is the bias
+  gate strap. Sum the terms touching the node you care about.
+- **Bound a geometry search by shape, not by a tolerance derived from the shape.**
+  Locating trunks with `abs(centre.x - trunk_x) < max(width, 0.5)` matched the
+  degeneration capacitor's 37 um Metal5 plate for four different nets at once,
+  because the tolerance grew with the polygon. Requiring a narrow width first fixed
+  it.
