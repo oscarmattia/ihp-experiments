@@ -179,36 +179,6 @@
           "ohm": 9.1775
         },
         {
-          "name": "R2",
-          "a": "MINUS.n148",
-          "b": "MINUS.n145",
-          "ohm": 9.1775
-        },
-        {
-          "name": "R3",
-          "a": "MINUS.n42",
-          "b": "MINUS.n39",
-          "ohm": 9.1775
-        },
-        {
-          "name": "R4",
-          "a": "MINUS.n362",
-          "b": "MINUS.n359",
-          "ohm": 9.1775
-        },
-        {
-          "name": "R5",
-          "a": "MINUS.n468",
-          "b": "MINUS.n465",
-          "ohm": 9.1775
-        },
-        {
-          "name": "R6",
-          "a": "MINUS.n574",
-          "b": "MINUS.n571",
-          "ohm": 9.1775
-        },
-        {
           "name": "R1196",
           "a": "PLUS.n252",
           "b": "PLUS.n249",
@@ -245,10 +215,34 @@
           "ohm": 9.1775
         },
         {
-          "name": "R7",
-          "a": "MINUS.n686",
-          "b": "MINUS.n685",
-          "ohm": 9.177
+          "name": "R2",
+          "a": "MINUS.n148",
+          "b": "MINUS.n145",
+          "ohm": 9.1775
+        },
+        {
+          "name": "R3",
+          "a": "MINUS.n42",
+          "b": "MINUS.n39",
+          "ohm": 9.1775
+        },
+        {
+          "name": "R4",
+          "a": "MINUS.n362",
+          "b": "MINUS.n359",
+          "ohm": 9.1775
+        },
+        {
+          "name": "R5",
+          "a": "MINUS.n468",
+          "b": "MINUS.n465",
+          "ohm": 9.1775
+        },
+        {
+          "name": "R6",
+          "a": "MINUS.n574",
+          "b": "MINUS.n571",
+          "ohm": 9.1775
         },
         {
           "name": "R1202",
@@ -257,16 +251,10 @@
           "ohm": 9.177
         },
         {
-          "name": "R8",
-          "a": "MINUS.n316",
-          "b": "MINUS.n315",
-          "ohm": 9.089
-        },
-        {
-          "name": "R9",
-          "a": "MINUS.n210",
-          "b": "MINUS.n209",
-          "ohm": 9.089
+          "name": "R7",
+          "a": "MINUS.n686",
+          "b": "MINUS.n685",
+          "ohm": 9.177
         },
         {
           "name": "R10",
@@ -279,6 +267,18 @@
           "a": "MINUS.n424",
           "b": "MINUS.n423",
           "ohm": 9.089
+        },
+        {
+          "name": "R12",
+          "a": "MINUS.n530",
+          "b": "MINUS.n529",
+          "ohm": 9.089
+        },
+        {
+          "name": "R1203",
+          "a": "PLUS.n314",
+          "b": "PLUS.n313",
+          "ohm": 9.089
         }
       ],
       "resistance_extracted": true,
@@ -288,12 +288,12 @@
         "w_n240_n142#": 3.67053e-13,
         "PLUS": 1.9931e-13,
         "MINUS": 1.99167e-13,
-        "PLUS.n682": 5.00157e-14,
         "MINUS.n318": 5.00157e-14,
+        "PLUS.n682": 5.00157e-14,
         "PLUS.n364": 4.63062e-14,
         "MINUS.n688": 4.22584e-14,
-        "PLUS.n365": 3.2259e-14,
         "MINUS.n689": 3.2259e-14,
+        "PLUS.n365": 3.2259e-14,
         "MINUS.n319": 2.92578e-14,
         "PLUS.n683": 2.7404e-14,
         "PLUS.n366": 2.14015e-14,
@@ -375,8 +375,8 @@
       "per_net_capacitance_f": {
         "0": 3.00885e-15,
         "a_68_n36#": 1.53981e-15,
-        "S": 1.05457e-15,
         "D": 1.05457e-15,
+        "S": 1.05457e-15,
         "D.t0": 4.8101e-16,
         "S.t0": 4.8101e-16
       },
@@ -416,8 +416,8 @@
       "note": "resistance extraction crashed (Magic extresist segfaults on DC-shorted ports); capacitance-only extraction used",
       "total_capacitance_f": 6.896e-17,
       "per_net_capacitance_f": {
-        "well": 6.896e-17,
-        "sub": 6.896e-17
+        "sub": 6.896e-17,
+        "well": 6.896e-17
       },
       "log": "/workspace/layout/devices/out/pex_run/ntap1_guard_nores/magic_pex.log",
       "error": ""
@@ -509,8 +509,8 @@
       "total_capacitance_f": 4.9888e-16,
       "per_net_capacitance_f": {
         "0": 3.8466e-16,
-        "S": 1.9608e-16,
         "D": 1.9608e-16,
+        "S": 1.9608e-16,
         "D.t0": 7.496e-17,
         "S.t0": 7.496e-17,
         "a_68_n36#": 7.102e-17
@@ -551,8 +551,8 @@
       "total_capacitance_f": 4.7674e-16,
       "per_net_capacitance_f": {
         "0": 3.7222e-16,
-        "S": 1.8103e-16,
         "D": 1.8103e-16,
+        "S": 1.8103e-16,
         "a_68_n36#": 8.564e-17,
         "D.t0": 6.678e-17,
         "S.t0": 6.678e-17
@@ -593,8 +593,8 @@
       "total_capacitance_f": 4.6121e-16,
       "per_net_capacitance_f": {
         "0": 3.6526e-16,
-        "S": 1.6679e-16,
         "D": 1.6679e-16,
+        "S": 1.6679e-16,
         "a_68_n36#": 1.0568e-16,
         "D.t0": 5.895e-17,
         "S.t0": 5.895e-17
@@ -636,8 +636,8 @@
       "per_net_capacitance_f": {
         "0": 3.8278e-16,
         "a_68_n36#": 1.7336e-16,
-        "S": 1.4369e-16,
         "D": 1.4369e-16,
+        "S": 1.4369e-16,
         "D.t0": 4.577e-17,
         "S.t0": 4.577e-17
       },

@@ -289,7 +289,9 @@ def _summarize_netlist(text: str, result: PexResult) -> None:
                 "ohm": value,
             }
         )
-    result.resistor_elements = sorted(elements, key=lambda e: -e["ohm"])[:20]
+    # Ties are broken on the name so the order does not depend on where Magic
+    # happened to emit each element; these summaries are committed and diffed.
+    result.resistor_elements = sorted(elements, key=lambda e: (-e["ohm"], e["name"]))[:20]
     total_c = 0.0
     count_c = 0
     per_net: dict[str, float] = {}
@@ -312,7 +314,7 @@ def _summarize_netlist(text: str, result: PexResult) -> None:
     result.total_capacitance = float(f"{total_c:.6g}")
     result.per_net_capacitance = {
         net: float(f"{value:.6g}")
-        for net, value in sorted(per_net.items(), key=lambda kv: -kv[1])[:20]
+        for net, value in sorted(per_net.items(), key=lambda kv: (-kv[1], kv[0]))[:20]
     }
 
 

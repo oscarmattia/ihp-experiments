@@ -11,8 +11,8 @@
   "note": "resistance extraction crashed (Magic extresist segfaults on DC-shorted ports); capacitance-only extraction used",
   "total_capacitance_f": 6.896e-17,
   "per_net_capacitance_f": {
-    "well": 6.896e-17,
-    "sub": 6.896e-17
+    "sub": 6.896e-17,
+    "well": 6.896e-17
   },
   "log": "/workspace/layout/devices/out/pex_run/ntap1_guard_nores/magic_pex.log",
   "error": ""

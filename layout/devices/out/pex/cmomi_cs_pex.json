@@ -26,36 +26,6 @@
       "ohm": 9.1775
     },
     {
-      "name": "R2",
-      "a": "MINUS.n148",
-      "b": "MINUS.n145",
-      "ohm": 9.1775
-    },
-    {
-      "name": "R3",
-      "a": "MINUS.n42",
-      "b": "MINUS.n39",
-      "ohm": 9.1775
-    },
-    {
-      "name": "R4",
-      "a": "MINUS.n362",
-      "b": "MINUS.n359",
-      "ohm": 9.1775
-    },
-    {
-      "name": "R5",
-      "a": "MINUS.n468",
-      "b": "MINUS.n465",
-      "ohm": 9.1775
-    },
-    {
-      "name": "R6",
-      "a": "MINUS.n574",
-      "b": "MINUS.n571",
-      "ohm": 9.1775
-    },
-    {
       "name": "R1196",
       "a": "PLUS.n252",
       "b": "PLUS.n249",
@@ -92,10 +62,34 @@
       "ohm": 9.1775
     },
     {
-      "name": "R7",
-      "a": "MINUS.n686",
-      "b": "MINUS.n685",
-      "ohm": 9.177
+      "name": "R2",
+      "a": "MINUS.n148",
+      "b": "MINUS.n145",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R3",
+      "a": "MINUS.n42",
+      "b": "MINUS.n39",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R4",
+      "a": "MINUS.n362",
+      "b": "MINUS.n359",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R5",
+      "a": "MINUS.n468",
+      "b": "MINUS.n465",
+      "ohm": 9.1775
+    },
+    {
+      "name": "R6",
+      "a": "MINUS.n574",
+      "b": "MINUS.n571",
+      "ohm": 9.1775
     },
     {
       "name": "R1202",
@@ -104,16 +98,10 @@
       "ohm": 9.177
     },
     {
-      "name": "R8",
-      "a": "MINUS.n316",
-      "b": "MINUS.n315",
-      "ohm": 9.089
-    },
-    {
-      "name": "R9",
-      "a": "MINUS.n210",
-      "b": "MINUS.n209",
-      "ohm": 9.089
+      "name": "R7",
+      "a": "MINUS.n686",
+      "b": "MINUS.n685",
+      "ohm": 9.177
     },
     {
       "name": "R10",
@@ -126,6 +114,18 @@
       "a": "MINUS.n424",
       "b": "MINUS.n423",
       "ohm": 9.089
+    },
+    {
+      "name": "R12",
+      "a": "MINUS.n530",
+      "b": "MINUS.n529",
+      "ohm": 9.089
+    },
+    {
+      "name": "R1203",
+      "a": "PLUS.n314",
+      "b": "PLUS.n313",
+      "ohm": 9.089
     }
   ],
   "resistance_extracted": true,
@@ -135,12 +135,12 @@
     "w_n240_n142#": 3.67053e-13,
     "PLUS": 1.9931e-13,
     "MINUS": 1.99167e-13,
-    "PLUS.n682": 5.00157e-14,
     "MINUS.n318": 5.00157e-14,
+    "PLUS.n682": 5.00157e-14,
     "PLUS.n364": 4.63062e-14,
     "MINUS.n688": 4.22584e-14,
-    "PLUS.n365": 3.2259e-14,
     "MINUS.n689": 3.2259e-14,
+    "PLUS.n365": 3.2259e-14,
     "MINUS.n319": 2.92578e-14,
     "PLUS.n683": 2.7404e-14,
     "PLUS.n366": 2.14015e-14,
