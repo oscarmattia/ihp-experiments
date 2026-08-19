@@ -93,6 +93,8 @@ class PexResult:
     per_net_capacitance: dict[str, float] = field(default_factory=dict)
     resistor_elements: list[dict] = field(default_factory=list)
     resistance_extracted: bool = True
+    #: Capacitors the extractor reported with a negative value, if any.
+    negative_capacitors: list[dict] = field(default_factory=list)
     note: str = ""
     log: str = ""
     error: str = ""
@@ -100,6 +102,18 @@ class PexResult:
     @property
     def ok(self) -> bool:
         return bool(self.netlist) and not self.error
+
+    @property
+    def physical(self) -> bool:
+        """Whether the result can be simulated as it stands.
+
+        A negative capacitance is not a small error to tolerate: ngspice accepts it
+        without complaint and it silently moves the AC result, so it has to be a
+        gate rather than something a reader is expected to spot. Hierarchical Magic
+        extraction produced nine of them on the CTLE stage, worst -85 fF; see
+        `_magic_script` for why extraction is flattened.
+        """
+        return self.ok and not self.negative_capacitors
 
     def to_dict(self) -> dict:
         return {
@@ -116,6 +130,8 @@ class PexResult:
             "total_resistance_ohm": self.total_resistance,
             "resistor_elements": self.resistor_elements,
             "resistance_extracted": self.resistance_extracted,
+            "physical": self.physical,
+            "negative_capacitors": self.negative_capacitors,
             "note": self.note,
             "total_capacitance_f": self.total_capacitance,
             "per_net_capacitance_f": self.per_net_capacitance,
@@ -130,11 +146,24 @@ class PexResult:
         return path
 
 
-def _magic_script(gds: Path, cell: str, out_spice: Path, resistance: bool) -> str:
+def _magic_script(
+    gds: Path, cell: str, out_spice: Path, resistance: bool, flat: bool = True
+) -> str:
     """Tcl for a headless Magic extraction.
 
     ``ext2spice scale off`` is already set by the PDK magicrc; the thresholds are
     set to 0 here so no parasitic is discarded, which is the point of PEX.
+
+    Extraction is flattened because a hierarchical one produces **negative**
+    substrate capacitance. Measured on the CTLE stage: hierarchical gives 98
+    capacitors totalling 135.07 fF with nine negative terms, worst -85.2 fF, while
+    flat gives 26 totalling 212.71 fF with none. The negatives name the mechanism —
+    the same value repeats once per array instance on the bus rail nodes, so Magic
+    computes a rail's substrate capacitance in the parent and subtracts coupling
+    attributed to the child unit cells until the residual goes negative. So the
+    hierarchical numbers were not merely mislabelled, they were 58 fF short.
+
+    It is not the ``cthresh`` setting: 0, 0.01 and 1 all give identical negatives.
     """
     lines = [
         "crashbackups stop",
@@ -164,6 +193,11 @@ def _magic_script(gds: Path, cell: str, out_spice: Path, resistance: bool) -> st
         "ext2spice rthresh 0",
         "ext2spice subcircuit on",
     ]
+    if flat:
+        # Flattening the netlist also drops the .subckt wrapper, so a caller that
+        # needs an includable subcircuit has to supply the header and the port
+        # list itself. layout/common/simview.py does that.
+        lines.append("ext2spice hierarchy off")
     if resistance:
         lines.append("ext2spice extresist on")
     lines += [
@@ -180,6 +214,7 @@ def run_magic_pex(
     resistance: bool = True,
     timeout: int = 1800,
     retry_without_resistance: bool = True,
+    flat: bool = True,
 ) -> PexResult:
     """Extract R and C with Magic using the PDK extraction tech.
 
@@ -190,12 +225,12 @@ def run_magic_pex(
     ``retry_without_resistance`` falls back to capacitance-only extraction and
     records that it did, rather than reporting the cell as unextractable.
     """
-    result = _run_magic_pex_once(gds, cell, run_dir, resistance, timeout)
+    result = _run_magic_pex_once(gds, cell, run_dir, resistance, timeout, flat)
     if result.ok or not (resistance and retry_without_resistance):
         return result
 
     fallback = _run_magic_pex_once(
-        gds, cell, Path(run_dir).with_name(Path(run_dir).name + "_nores"), False, timeout
+        gds, cell, Path(run_dir).with_name(Path(run_dir).name + "_nores"), False, timeout, flat
     )
     if fallback.ok:
         fallback.resistance_extracted = False
@@ -213,6 +248,7 @@ def _run_magic_pex_once(
     run_dir: Path,
     resistance: bool,
     timeout: int,
+    flat: bool = True,
 ) -> PexResult:
     gds = Path(gds).resolve()
     run_dir = Path(run_dir).resolve()
@@ -233,7 +269,7 @@ def _run_magic_pex_once(
 
     out_spice = run_dir / f"{cell}_pex.spice"
     script = run_dir / "extract.tcl"
-    script.write_text(_magic_script(gds, cell, out_spice, resistance))
+    script.write_text(_magic_script(gds, cell, out_spice, resistance, flat))
 
     env = dict(os.environ)
     env.setdefault("PDK_ROOT", str(pdk_paths().root))
@@ -302,6 +338,14 @@ def _summarize_netlist(text: str, result: PexResult) -> None:
             continue
         total_c += value
         count_c += 1
+        if value < 0:
+            result.negative_capacitors.append(
+                {
+                    "net_a": match.group(2),
+                    "net_b": match.group(3),
+                    "farads": float(f"{value:.6g}"),
+                }
+            )
         for net in (match.group(2), match.group(3)):
             per_net[net] = per_net.get(net, 0.0) + value
     result.resistors = count_r
