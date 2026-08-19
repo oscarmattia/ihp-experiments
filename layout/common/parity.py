@@ -73,10 +73,14 @@ COMPARED_PARAMS: dict[str, tuple[str, ...]] = {
     "inductor": ("w", "s", "d"),
 }
 
-#: Fractional tolerance when comparing geometry. Deliberately tight: the LVS deck
-#: compares MOS w and l with essentially no tolerance, so a difference this
-#: checker waves through is one LVS will reject.
-PARAM_TOL = 1e-4
+#: Fractional tolerance when comparing geometry.
+#:
+#: This has to be tighter than the LVS deck's, or the check waves through
+#: differences LVS will reject. The deck compares MOS w and l essentially exactly —
+#: 242.988 um against a drawn 243.000 um fails, and those are only 4.9e-5 apart, so
+#: a tolerance of 1e-4 misses it. What is left to absorb here is representation
+#: rather than physics, 12.4252u against 1.24252e-05, which needs far less.
+PARAM_TOL = 1e-6
 
 _SI = {
     "t": 1e12, "g": 1e9, "meg": 1e6, "k": 1e3,

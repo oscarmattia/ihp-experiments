@@ -58,15 +58,29 @@ check_versions() {
     fail "klayout version mismatch: versions.txt=$pinned binary=${binary:-none} pip=${pipver:-none}"
   fi
 
-  local magic_pinned magic_have
+  # Magic is the one tool where versions.txt is not the whole constraint.
+  # ihp-sg13g2.tech carries a hard "requires magic-X.Y.Z" and it can be higher
+  # than the pin: at PDK 970a7688 the tech file wants 8.3.617 while versions.txt
+  # says 8.3.589. Below the tech file's floor its version and cifinput sections
+  # fail to load and Magic cannot read a GDS at all, so install-ihp-layout.sh
+  # installs whichever is higher. Requiring equality with versions.txt here
+  # reported that intended state as a failure.
+  local magic_pinned magic_tech magic_floor magic_have
   magic_pinned="$(awk '$1=="magic"{print $2}' "$PDK_ROOT/versions.txt" 2>/dev/null)"
+  magic_tech="$(sed -n 's/^[[:space:]]*requires[[:space:]]\+magic-\([0-9.]\+\).*/\1/p' \
+    "$PDK_ROOT/$PDK/libs.tech/magic/ihp-sg13g2.tech" 2>/dev/null | head -n1)"
+  magic_floor="$(printf '%s\n%s\n' "$magic_pinned" "$magic_tech" | grep -v '^$' | sort -V | tail -n1)"
   magic_have="$(magic --version 2>/dev/null | head -n1)"
-  if [[ -n "$magic_have" && "$magic_have" == "$magic_pinned" ]]; then
-    pass "magic $magic_have (matches versions.txt)"
-  elif [[ -n "$magic_have" ]]; then
-    fail "magic $magic_have but versions.txt pins $magic_pinned"
-  else
+  if [[ -z "$magic_have" ]]; then
     fail "magic not found on PATH"
+  elif [[ "$(printf '%s\n%s\n' "$magic_have" "$magic_floor" | sort -V | tail -n1)" == "$magic_have" ]]; then
+    if [[ "$magic_floor" == "$magic_pinned" ]]; then
+      pass "magic $magic_have (>= versions.txt pin $magic_pinned)"
+    else
+      pass "magic $magic_have (>= $magic_floor required by ihp-sg13g2.tech; versions.txt pins $magic_pinned)"
+    fi
+  else
+    fail "magic $magic_have is below the required $magic_floor (versions.txt $magic_pinned, tech file $magic_tech)"
   fi
 
   if command -v netgen >/dev/null 2>&1; then
