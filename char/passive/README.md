@@ -82,3 +82,40 @@ Via parent orchestrator (MOS + BJT + passives):
 | `res_*.png`, `cap_*.png`, `ind_*_LQ.png` | Summary plots |
 
 Agent contracts: [`AGENTS.md`](AGENTS.md). Shared LUT I/O: [`../common/lut.py`](../common/lut.py).
+
+## Layouts
+
+Batch layout screenshots (GDS → PNG) for passive device geometries used in the
+characterization sweeps. Regenerate with:
+
+```bash
+source ~/.local/share/ihp-eda/env.sh
+./char/passive/run_render_layouts.sh
+```
+
+Outputs land in `char/passive/out/layouts/` (PNG) and `char/passive/out/layouts/gds/` (copied or
+synthesized GDS for reproducibility).
+
+### Capacitors
+
+| Layout | Description |
+| --- | --- |
+| ![MIM](out/layouts/cap_cmim.png) | PDK `cap_cmim` testcase |
+| ![MoM](out/layouts/cap_cmomi.png) | Interdigitated `cap_cmomi` |
+| ![MoM finger](out/layouts/cap_cmomf.png) | Finger `cap_cmomf` |
+| ![RF MIM](out/layouts/rfcmim.png) | RF MIM testcase |
+| ![NMOS MOSCAP](out/layouts/sg13_moscap_n.png) | `sg13_moscap_n` |
+| ![PMOS MOSCAP](out/layouts/sg13_moscap_p.png) | `sg13_moscap_p` |
+| ![MIM 7×7](out/layouts/char_cap_cmim_7x7.png) | Educational MIM 7×7 µm (char LUT size) |
+| ![MIM 20×20](out/layouts/char_cap_cmim_20x20.png) | Educational MIM 20×20 µm (char LUT size) |
+
+### Inductors
+
+| Layout | Description |
+| --- | --- |
+| ![L 2n0](out/layouts/L_2n0_twoport.png) | Canonical `L_2n0_twoport` (openEMS smoke) |
+| ![1-turn PDK](out/layouts/inductor_1turn.png) | PDK 1-turn `inductor.gds` |
+| ![2-turn CT](out/layouts/inductor_2turn_ct.png) | PDK 2-turn center-tap `inductor3.gds` |
+| ![1-turn synth](out/layouts/ind_turn1_em.png) | Synthesized 1-turn octagon (EM `turn1`) |
+| ![2-turn synth](out/layouts/ind_turn2_em.png) | Synthesized 2-turn octagon (EM `turn2`) |
+| ![500 pH](out/layouts/inductor_500pH.png) | Palace workflow 500 pH with ports |
