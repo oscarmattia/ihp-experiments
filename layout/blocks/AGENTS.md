@@ -72,18 +72,36 @@ Symmetric about a single axis. Row order is VDD → L → RD → collector, per
 centred tail pair), the guard ring, the centred degeneration network, the HBT pair,
 the loads, then the coils.
 
-The floorplan is dictated by the coil, not chosen. Its cell is 108 um square and
-its `pwell_block` marker covers all of it, so:
+The coils **face each other**, `M135` left and `R270` right, so each one's pins are
+on the edge nearest the axis with **vdd on top** and `nlp` below it. vdd is then a
+short strap between two adjacent pins, both bodies extend outward, and the channel
+between them carries everything that crosses the coil row. Two rules follow from
+the coil and are not tuning knobs:
 
-- Coils go **R0 and its mirror**, pins on the bottom edge and body extending up
-  into empty area. Rotating them to face each other put the markers over the HBT
-  row and `PWB.f` fired on both devices' substrate ties.
-- The feeds sit ~62 um from the axis, which is what two coils need to clear each
-  other, while the loads stay near the axis. That puts the long horizontal run on
-  `nlp`, where the coil's port capacitance already sits and which stays out of
-  `C_L`; the drawn length is reported against `CL_INTERCONNECT` in `params.inc`.
-- `nlp` crosses on **TopMetal1**, because the vdd strap has to span between the two
-  supply feeds and the loads sit inside that span.
+- **Nothing with a substrate tie may sit inside a coil's footprint.** The
+  `pwell_block` marker covers the whole 108 um cell and `PWB.f` wants 0.24 um to
+  any p-tap, so the pin row sits a full half-height above the HBTs.
+- **Leave a coil pin colinear with its feed.** The deck measures `w`, `s` and `d`
+  from the winding inside `ind_drw`; a perpendicular stub at the pin had both coils
+  extracting as `w=1.5 um, d=45 um` against a drawn 4 um and 40 um. The strap and
+  both `nlp` runs leave at the feed's own width and y and turn only once clear.
+
+The loads stay near the axis rather than under the feeds, so the horizontal run
+lands on `nlp`, where the coil's port capacitance already sits and which stays out
+of `C_L`; the drawn length is reported against `CL_INTERCONNECT` in `params.inc`.
+
+`outp`/`outn` leave at the **top** edge and `inp`/`inn` at the **bottom**, both on
+Metal4, which passes under both ring layers so the grid stays whole. The base taps
+go sideways along the base's own bar: the HBT stacks all three terminals at one x
+with 0.23 um between base Metal1 and emitter Metal2, so stacks dropped below each
+short, and LVS reports the base merged into the emitter.
+
+The ring is **squared about the axis**, 10 um clear of what it encloses, so it is
+equidistant from both coils; the bias diode sets the left half-width and the right
+side widens to match, which is what puts the diode inside. Both supplies tap it on
+the axis — vss down from the source rail, vdd up from the coil strap crossing under
+the inner run on TopMetal1. That connection is not optional and not checkable by
+LVS: no device touches the ring, so a ring that merely shares a label passes.
 
 The guard ring encloses the **NMOS arrays only**, and one via lands inside a tap's
 own Metal1 to make the substrate be `vss` — which is what lets the netlist say the

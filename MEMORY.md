@@ -293,11 +293,26 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   rules against their markers; the coil sits over blocked p-well and wants no ties near it.
 - **Nothing with a substrate tie may sit inside a coil's footprint.** The `inductor` cell is 108 µm
   square and its `pwell_block` marker (46/21) covers all of it, while `PWB.f` wants 0.24 µm between
-  that marker and any p-tap. Rotating the coils to face each other therefore put both HBTs' substrate
-  ties in violation, and the HBT is clean on its own `[sim]`. This is a placement constraint, not
-  something to tune: orient coils so the 108 µm body extends into empty area. It also sets the
-  floorplan width — two coils side by side need their feeds ~62 µm from the axis before their bodies
-  clear each other.
+  that marker and any p-tap. Coils facing each other reach as far down as they reach up, so the pin
+  row has to sit a full half-height (54 µm) above the highest p-tap — the HBTs' substrate ties. Get
+  that wrong and both HBTs report `PWB.f` while being clean on their own `[sim]`.
+- **How you approach a coil pin changes its extracted geometry.** The deck derives `w`, `s` and `d`
+  from the winding inside `ind_drw`, and that marker covers the whole coil cell, so any connection
+  meeting the feed inside it is measured as part of the winding. A perpendicular stub — turning a feed
+  down at the pin — had both coils extracting as **`w=1.5 µm, d=45 µm` against a drawn 4 µm and
+  40 µm** `[sim]`, far outside the deck's 5% inductor tolerance. Leave a coil pin *colinear* with its
+  feed, at the feed's own width and y, and turn only once clear of the marker. Measured in isolation:
+  a single coil at `M135` extracts at 4 µm, and so does a facing pair joined by a colinear strap, so
+  rotation itself is harmless.
+- **The HBT stacks all three terminals at one x.** Collector, emitter and base sit at the same x with
+  only **0.23 µm** between the base's Metal1 bar and the emitter's Metal2 block, so via stacks dropped
+  below each land 1.13 µm apart and short. LVS reports the base merged into the emitter. Take the base
+  out sideways along its own bar and leave the emitter the downward offset.
+- **A power ring with nothing attached is invisible to LVS.** The compare is device-level, so a ring
+  that only shares a *label* with the supply passes: no device touches it, so it never enters the
+  netlist. The CTLE's vdd ring was floating for several revisions. Check ring connectivity
+  geometrically — merge the real polygons, not their bounding boxes, since a coil's octagon bbox
+  swallows everything inside it and makes unrelated nets look connected.
 - **The metal-finger cap's feed is on its edge, not its centre.** `cap_cmomi` with `feed=same` brings
   PLUS on Metal4 and MINUS on Metal5 out at one point on its *left* edge. Approach it from that edge,
   or rotate it so the feed faces the wiring; routing in from another side crosses the finger field and

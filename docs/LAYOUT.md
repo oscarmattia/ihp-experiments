@@ -295,10 +295,11 @@ The CTLE stage assigns metals so that no two structures contend for one layer:
 | Use | Metal | Why |
 | --- | --- | --- |
 | Device source/drain buses | Metal2 | reachable from the PCell's Metal1 in one via |
+| Degeneration legs | Metal4, Metal5 | the capacitor brings p and n out on these two |
 | Differential nets (e1, e2, outp, outn) | Metal5 | top minus two, clear of both ring layers |
-| nlp (coil to load) | TopMetal1 | has to cross under the vdd strap |
-| vdd strap, vss riser, ring horizontals | TopMetal2 | thick RF metal |
-| Ring verticals | TopMetal1 | crossing the other net's horizontals without a short |
+| Signals out to the cell edges | Metal4 | passes under both ring layers, so the grid stays whole |
+| vdd strap, nlp, vss riser, ring horizontals | TopMetal2 | thick RF metal |
+| Ring verticals, vdd riser | TopMetal1 | crossing the other net's horizontals without a short |
 
 `layout/blocks/power_ring.py` draws the ring: two nets side by side, horizontal on
 TopMetal2, vertical on TopMetal1, stitched at the corners with TopVia2. Splitting
@@ -315,6 +316,14 @@ Two constraints that decide the ring's geometry:
   they push a landing pad past the conductor edge and into the spacing to the
   neighbouring net.
 
+Both supplies tap the ring **on the symmetry axis**: vss down from the source rail
+to the inner run, vdd up from the coil strap to the outer one, crossing under the
+inner run on TopMetal1. Do not skip the physical connection — a ring that only
+shares a *label* with the supply passes LVS, because the compare is device-level
+and no device touches the ring. Check it geometrically instead, merging the real
+polygons rather than their bounding boxes: a coil's octagon bounding box swallows
+everything inside it and makes unrelated nets look connected.
+
 The substrate is tied to `vss` by landing **one** via inside a guard-ring tap's own
 Metal1. The taps sit at a pitch, so the ring is not one continuous piece of Metal1
 and is a single net only through the substrate; `add_guard_ring` returns
@@ -324,19 +333,46 @@ the row.
 
 ### The coil dictates the floorplan
 
-The `inductor` cell is 108 um square and its `pwell_block` marker covers all of it,
-while `PWB.f` wants 0.24 um between that marker and any p-tap. So **nothing with a
-substrate tie can sit inside a coil's footprint**, and coils must be oriented with
-their 108 um body extending into empty area — R0 and its mirror keep the pins on
-the bottom edge and the body above. Rotating them to face each other put the
-markers over the HBT row and both devices' substrate ties reported the violation.
+The coils face each other, `M135` on the left and `R270` on the right, which puts
+each one's pins on the edge nearest the axis with PLUS above MINUS. vdd is then a
+short strap between two adjacent pins and each `nlp` leaves directly below its own
+vdd, with both 108 um bodies extending outward and a channel down the middle for
+everything that has to cross the coil row.
 
-It also sets the width: two coils side by side need their feeds about 62 um from
-the symmetry axis before their bodies clear each other. The CTLE keeps its loads
-near the axis instead of under the feeds, so the long horizontal run lands on
-`nlp` — the node between coil and load — where the coil's port capacitance already
-sits and which stays out of `C_L`. The drawn length is reported in the stage
+Two things constrain that, and neither is a tuning knob.
+
+**Nothing with a substrate tie can sit inside a coil's footprint.** The
+`pwell_block` marker covers the whole 108 um cell and `PWB.f` wants 0.24 um between
+it and any p-tap. Facing the coils inward means each body reaches as far down as it
+reaches up, so the pin row sits a full half-height above the HBTs, whose substrate
+ties are the highest p-taps in the cell.
+
+**A coil pin must be left colinear with its feed.** The deck derives `w`, `s` and
+`d` from the winding geometry inside `ind_drw`, so a connection meeting the feed
+inside that marker is measured as part of the winding. Turning `nlp` down at the pin
+had both coils extracting as `w=1.5 um, d=45 um` against a drawn 4 um and 40 um —
+far outside the deck's 5% inductor tolerance. The strap and both `nlp` runs leave at
+the feed's own width and y, and turn only once clear of the marker. Rotation itself
+is harmless: measured in isolation, a single `M135` coil extracts at 4 um, and so
+does a facing pair joined by a colinear strap.
+
+The loads stay near the axis rather than under the feeds, so the horizontal run
+lands on `nlp` — the node between coil and load — where the coil's port capacitance
+already sits and which stays out of `C_L`. The drawn length is reported in the stage
 summary against the `CL_INTERCONNECT` budget in `params.inc`.
+
+### Getting signals out of a ringed cell
+
+The stage cascades, so `outp`/`outn` leave at the top edge and `inp`/`inn` at the
+bottom, both on Metal4: it passes under the ring's TopMetal2 horizontals and its
+TopMetal1 verticals, so the grid never has to be broken to let a signal out. The
+outputs arrive on the Metal5 collector trunk and change to Metal4 above the loads.
+
+The base taps are what make this possible. The HBT stacks collector, emitter and
+base at one x with only 0.23 um between the base's Metal1 bar and the emitter's
+Metal2 block, so via stacks dropped below each land 1.13 um apart and short — LVS
+reports the base merged into the emitter. The base leaves sideways along its own bar
+and the emitter keeps the downward offset.
 
 ### Wide devices
 

@@ -8,18 +8,20 @@ The cell is ``ctle_dut`` — the same name as the subcircuit in
 Floorplan, centred on one vertical axis with the two differential halves as exact
 mirror images:
 
-    ╔═══════════ vdd / vss ring ═══════════╗   TopMetal2 horizontal
-    ║  ═════════ vdd strap ═════════       ║   TopMetal1 vertical
-    ║    coil ◄──┤             ├──► coil   ║   M135 / R270, bodies outboard
-    ║            nlp1        nlp2          ║
-    ║            rppd        rppd          ║   loads, mirrored
-    ║            outp        outn          ║
-    ║             Q1 ───────── Q2          ║   HBT pair, mirrored
-    ║             e1 ── Rs‖Cs ── e2        ║   degeneration, centred
+                 outp     outn                    Metal4, out of the top edge
+    ╔═════════════╪════════╪══════════════╗   ring: TopMetal2 horizontal,
+    ║             └── vdd ──┘              ║   TopMetal1 vertical, tapped on
+    ║   coil ══════╤═╧╤══════════ coil     ║   the axis
+    ║   body     vdd  nlp        body      ║   M135 / R270, pins inboard,
+    ║              └─┐ └─┐                 ║   vdd above nlp, bodies outboard
+    ║              rppd rppd               ║   loads, mirrored
+    ║               Q1 ── Q2               ║   HBT pair, mirrored
+    ║               e1 ─ Rs‖Cs ─ e2        ║   degeneration, centred
     ║   ┌───── guard ring (NMOS only) ──┐  ║
     ║   │  diode │ tail1 │ tail2        │  ║   strapped 243 um arrays
-    ║   └────────────────────────────────┘ ║
-    ╚══════════════════════════════════════╝
+    ║   └───────────────┬────────────────┘ ║
+    ╚═══════════════════╪══════════════════╝   vss taps the ring here
+                  inp   │   inn                Metal4, out of the bottom edge
 
 Vertical order is not cosmetic: MEMORY.md records that shunt peaking must be
 wired VDD -> L -> RD -> collector, and that the coil's port capacitance lands on
