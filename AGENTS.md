@@ -28,6 +28,7 @@ Analog IC / IHP SG13G2 experiments repo. This file is the **root** contract for 
 | `circuits/` | Circuit experiments (CTLE, drivers) | `circuits/AGENTS.md` |
 | `scripts/` | IHP EDA install / verify | `scripts/AGENTS.md` |
 | `docs/` | Environment and setup docs | `docs/AGENTS.md` |
+| `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |
 | `pdk/` | IHP SG13G2 PDK submodule (upstream; rarely edited here) | — |
 
 Read the nested `AGENTS.md` in a directory before changing files there.

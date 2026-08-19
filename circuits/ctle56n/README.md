@@ -11,7 +11,7 @@ HBT CML continuous-time linear equalizer with shunt-peaked loads and emitter deg
 - CMRR **> 6 dB** (Adm/Acm, input common-mode)
 - PSRR **> 20 dB** (|vdd/vod|, VDD supply noise on the differential output)
 - AC sweeps from 1 MHz to **300 GHz**
-- Transient: 56G NRZ PRBS7, **100 mVpp,diff** stimulus
+- Transient: 56G NRZ **PRBS9** (`x^9+x^5+1`), **511 UI**, **100 mVpp,diff** stimulus
 - Bessel shunt-peaking: m = L/(RD² C_L) = 0.32
 
 ## Supply voltage
@@ -33,15 +33,16 @@ Requires prior LUT generation (`./char/run_all.sh` or at least MOS + BJT + passi
 
 Outputs land in `out/`:
 
-- `summary.csv` — DC gain, peaking, CMRR, PSRR (ideal and PDK)
-- `ac_diff.png` — Bode + group delay (28 GHz marked, to 300 GHz)
+- `summary.csv` — DC gain, peaking, G_peak, f_peak, f_{−3dB}, CMRR, PSRR (ideal and PDK)
+- `ac_diff.png` — Bode + group delay (28 GHz, f_peak, f_{−3dB} marked, to 300 GHz)
 - `cmrr.png` — CMRR vs frequency
 - `psrr.png` — PSRR vs frequency (VDD → vod; clipped at 120 dB)
-- `tran_se.png` — single-ended transient (ideal pass)
-- `tran_diff.png` — differential transient (vod, vid)
+- `tran_se.png` — single-ended transient, full 511 UI + 40-UI zoom (ideal pass)
+- `tran_diff.png` — differential transient (vod, vid), full + zoom
 - `eye_se.png` — 2-UI eye (outp/outn)
 - `eye_diff.png` — 2-UI eye (vod)
 - `op.txt` — DC operating point
+- `ctle_report.md` — design narrative + sizing table (auto-generated)
 
 Transient runs on the **ideal** pass only (PDK transient skipped to keep `run.sh --no-iterate` runtime reasonable). Use `--no-tran` to skip.
 

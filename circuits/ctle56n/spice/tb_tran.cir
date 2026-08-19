@@ -1,4 +1,4 @@
-* Transient — 56G NRZ PRBS7 differential stimulus (100 mVpp,diff)
+* Transient — 56G NRZ PRBS9 differential stimulus (100 mVpp,diff)
 .include params.inc
 .include {DUT_CIR}
 .include prbs_stim.inc
