@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from .metrics import (
+    AC_FMAX_HZ,
+    AC_PLOT_FMAX_HZ,
+    AC_PLOT_FMIN_HZ,
     DC_GAIN_MAX_DB,
     DC_GAIN_MIN_DB,
     EYE_PHASE_WINDOW,
@@ -67,6 +70,9 @@ from .stim import (
 
 __all__ = [
     "BIT_RATE_HZ",
+    "AC_FMAX_HZ",
+    "AC_PLOT_FMAX_HZ",
+    "AC_PLOT_FMIN_HZ",
     "CTLE_DC_PRINT_LINES",
     "CTLE_DC_SAVE_LINES",
     "DC_GAIN_MAX_DB",

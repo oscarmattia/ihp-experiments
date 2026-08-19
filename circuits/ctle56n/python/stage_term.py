@@ -50,7 +50,7 @@ from ctlelib import (  # noqa: E402
     write_tran_csv,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
-from ctlelib.metrics import EyeMetrics  # noqa: E402
+from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EyeMetrics  # noqa: E402
 from size_term import (  # noqa: E402
     NYQUIST_HZ,
     RSRC_LEG_OHM,
@@ -301,6 +301,7 @@ def plot_insertion_loss(
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Insertion loss (dB)")
     ax.set_title(f"vod/vid @ output — DC={il_dc:.1f} dB, 28 GHz={il_28:.1f} dB")
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8, loc="lower left")
     fig.savefig(path, dpi=120)
@@ -317,6 +318,7 @@ def plot_s11(freq: np.ndarray, s11_db: np.ndarray, path: Path) -> None:
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("S11 (dB, 100 Ohm diff ref)")
     ax.set_title("Differential return loss at bond pad (100 Ohm reference)")
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8, loc="lower left")
     fig.savefig(path, dpi=120)

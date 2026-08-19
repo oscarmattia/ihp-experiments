@@ -57,7 +57,7 @@ from ctlelib import (  # noqa: E402
     write_sbr_taps_csv,
     write_tran_csv,
 )
-from ctlelib.metrics import EYE_SETTLE_UI, EyeMetrics  # noqa: E402
+from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EYE_SETTLE_UI, EyeMetrics  # noqa: E402
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.stim import UI_S, write_prbs_stim, write_sbr_stim  # noqa: E402
 from size_ctle import CtleParams, size_ctle  # noqa: E402
@@ -494,6 +494,7 @@ def _plot_s11(freq: np.ndarray, s11_db: np.ndarray, path: Path) -> None:
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("S11 (dB, 100 Ohm diff ref)")
     ax.set_title("Differential return loss at bond pad (100 Ohm reference)")
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8)
     fig.savefig(path, dpi=120)

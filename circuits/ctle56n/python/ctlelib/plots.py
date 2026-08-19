@@ -8,6 +8,8 @@ import numpy as np
 
 from .metrics import (
     AC_FMAX_HZ,
+    AC_PLOT_FMAX_HZ,
+    AC_PLOT_FMIN_HZ,
     CMRR_MIN_DB,
     EYE_SETTLE_UI,
     PSRR_MIN_DB,
@@ -339,7 +341,7 @@ def plot_ac(
     )
     ax1.set_ylabel("Gain (dB)")
     ax1.set_title("Differential AC — |vod/vid|")
-    ax1.set_xlim(freq[0], AC_FMAX_HZ)
+    ax1.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax1.grid(True, which="both", alpha=0.3)
     ax1.legend(fontsize=7, loc="lower left")
 
@@ -355,6 +357,7 @@ def plot_ac(
     ax2.axvline(f_3db_hz, color="orange", ls="--", alpha=0.5)
     ax2.set_ylabel("Group delay (ps)")
     ax2.set_xlabel("Frequency (Hz)")
+    ax2.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax2.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
@@ -408,7 +411,7 @@ def plot_chain_ac_perstg(
             label="E2E (source→pad out)",
         )
     ax.axvline(NYQUIST_HZ, color="r", ls=":", alpha=0.6, label="28 GHz")
-    ax.set_xlim(freq[0], AC_FMAX_HZ)
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Gain (dB)")
     ax.set_title(title)
@@ -525,7 +528,7 @@ def plot_cmrr(freq: np.ndarray, cmrr_db: np.ndarray, path: Path) -> None:
     ax.set_ylabel("CMRR (dB)")
     ax.set_xlabel("Frequency (Hz)")
     ax.set_title("CMRR = Adm − Acm (dB)")
-    ax.set_xlim(freq[0], AC_FMAX_HZ)
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="lower left")
     fig.tight_layout()
@@ -543,7 +546,7 @@ def plot_psrr(freq: np.ndarray, psrr_db: np.ndarray, path: Path) -> None:
     ax.set_ylabel("PSRR (dB)")
     ax.set_xlabel("Frequency (Hz)")
     ax.set_title("PSRR = |vdd / vod| (VDD noise → differential out)")
-    ax.set_xlim(freq[0], AC_FMAX_HZ)
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(loc="lower left")
     fig.tight_layout()

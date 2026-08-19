@@ -56,7 +56,7 @@ from ctlelib import (  # noqa: E402
     write_tran_csv,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
-from ctlelib.metrics import verify_eye_phase_invariance  # noqa: E402
+from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, verify_eye_phase_invariance  # noqa: E402
 from ctlelib.stim import (  # noqa: E402
     BIT_RATE_HZ,
     EDGE_S,
@@ -473,6 +473,7 @@ def plot_s11_pad(freq: np.ndarray, s11_db: np.ndarray, path: Path) -> None:
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("Return loss (dB, 100 Ohm diff ref)")
     ax.set_title("Pad return loss (outp-outn, floating 100 Ohm load)")
+    ax.set_xlim(AC_PLOT_FMIN_HZ, AC_PLOT_FMAX_HZ)
     ax.grid(True, which="both", alpha=0.3)
     ax.legend(fontsize=8)
     fig.savefig(path, dpi=120)
