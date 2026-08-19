@@ -367,10 +367,19 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     # Source rails and gate straps tie across all three arrays.
     nmos_left = _snap(min(placement.values()) - 1.0)
     nmos_right = _snap(max(placement.values()) + array_box.width() + 1.0)
-    vss_rail_y = nmos_ports["S_tail1"].center[1]
+
+    # The shared vss rail carries all three devices' current, so it is much wider
+    # than one array's own source rail. It has to grow *downward* from that rail:
+    # centred on it, the extra width reached up into the drain via columns, which
+    # start at the bottom of the active area, and shorted e1 and e2 to vss. LVS
+    # caught it as one merged net with a single 729 um transistor.
     vss_rail_w = _snap(max(em.width_for_a("Metal2", i_supply), route_width("Metal2")))
-    _rect(layout, cell, "Metal2", nmos_left, vss_rail_y - vss_rail_w / 2,
-          nmos_right, vss_rail_y + vss_rail_w / 2)
+    source_rail_top = _snap(
+        nmos_ports["S_tail1"].center[1] + arrays["tail1"].rail_width_um / 2
+    )
+    vss_rail_bottom = _snap(source_rail_top - vss_rail_w)
+    vss_rail_y = _snap(source_rail_top - vss_rail_w / 2)
+    _rect(layout, cell, "Metal2", nmos_left, vss_rail_bottom, nmos_right, source_rail_top)
     em_segments.append(em.Segment("vss.rail", "Metal2", width_um=vss_rail_w,
                                   current_a=i_supply, note="shared source rail"))
 
@@ -384,9 +393,9 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     # tail1. Nothing else is there: each array's bus rails overhang it by the rail
     # width, and the channel is wider than twice that. Routing this over the array
     # instead put Metal2 0.19 um from the drain stubs.
-    channel_x = _snap(
-        (placement["mdiode"] + array_w + placement["tail1"]) / 2.0
-    )
+    diode_right = _snap(placement["mdiode"] + array_box.right)
+    tail1_left = _snap(placement["tail1"] + array_box.left)
+    channel_x = _snap((diode_right + tail1_left) / 2.0)
     gate_tap = _poly_contact(layout, cell, channel_x, gate_y)
     _via_between(layout, cell, channel_x, gate_y, "Metal1", "Metal2", columns=1, rows=1)
 
@@ -396,14 +405,14 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     # hugging the rail's inner edge, clear of tail1's drain rail (net e1) on the
     # other side of the channel.
     diode_rail = nmos_ports["D_mdiode"]
-    link_x = _snap(placement["mdiode"] + array_w + arrays["mdiode"].rail_width_um / 2)
+    link_x = _snap(diode_right - arrays["mdiode"].rail_width_um / 2)
     link_w = route_width("Metal2")
     _rect(layout, cell, "Metal2", link_x - link_w / 2, gate_y,
           link_x + link_w / 2, diode_rail.center[1])
     _rect(layout, cell, "Metal2", min(link_x, channel_x), gate_y - link_w / 2,
           max(link_x, channel_x), gate_y + link_w / 2)
 
-    nmos_box = pya.DBox(nmos_left, _snap(vss_rail_y - vss_rail_w), nmos_right,
+    nmos_box = pya.DBox(nmos_left, vss_rail_bottom, nmos_right,
                         _snap(array_box.top))
     # Guard ring around the NMOS only. Its taps are strapped to the vss rail, so
     # the substrate really is vss and the netlist's bulk connection is true.

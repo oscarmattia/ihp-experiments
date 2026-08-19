@@ -28,6 +28,38 @@ MODEL_ALIASES: dict[str, str] = {
     "ind_shunt": "inductor",
 }
 
+#: Where to recover geometry for an aliased model whose simulation form carries
+#: none. A lumped EM model is a network of R, L and C with no width or diameter on
+#: the element line, so without this the check could only compare that an inductor
+#: exists — not that it is the coil the model was fitted to. The generator writes
+#: the case it solved into the include's header, so that is the thing to read.
+ALIAS_GEOMETRY_INCLUDE: dict[str, str] = {
+    "ind_shunt": "ind_shunt.inc",
+}
+
+_IND_HEADER = re.compile(
+    r"nr_r=(?P<nr_r>[\d.]+)\s+D=(?P<d>[\d.]+)um\s+w=(?P<w>[\d.]+)um\s+s=(?P<s>[\d.]+)um",
+    re.I,
+)
+
+
+def _alias_geometry(model: str, spice_file: Path) -> dict[str, float]:
+    """Geometry for an aliased model, read from the include that generated it."""
+    include = ALIAS_GEOMETRY_INCLUDE.get(model)
+    if not include:
+        return {}
+    path = Path(spice_file).parent / include
+    if not path.is_file():
+        return {}
+    match = _IND_HEADER.search(path.read_text())
+    if not match:
+        return {}
+    return {
+        "w": float(match.group("w")) * 1e-6,
+        "s": float(match.group("s")) * 1e-6,
+        "d": float(match.group("d")) * 1e-6,
+    }
+
 #: Geometry compared per model. Anything not listed is ignored, either because it
 #: is not a size (rfmode, feed) or because the two views legitimately express it
 #: differently (an EM model carries no w/l).
@@ -202,7 +234,9 @@ def _subckt_body(text: str, name: str) -> tuple[list[str], list[str]]:
     return ports, body
 
 
-def _devices_from_spice(body: list[str]) -> tuple[list[Device], list[str]]:
+def _devices_from_spice(
+    body: list[str], spice_file: Path | None = None
+) -> tuple[list[Device], list[str]]:
     """Devices and any independent sources found in a SPICE subcircuit body."""
     devices: list[Device] = []
     sources: list[str] = []
@@ -225,8 +259,16 @@ def _devices_from_spice(body: list[str]) -> tuple[list[Device], list[str]]:
                     break
             if model is None:
                 continue
+            raw_model = model
             model = MODEL_ALIASES.get(model, model)
-            devices.append(Device(model, _params_of(model, tokens)))
+            params = _params_of(model, tokens)
+            if not params and raw_model != model and spice_file is not None:
+                geometry = _alias_geometry(raw_model, spice_file)
+                wanted = COMPARED_PARAMS.get(model, ())
+                params = tuple(
+                    sorted((k, v) for k, v in geometry.items() if k in wanted)
+                )
+            devices.append(Device(model, params))
         elif prefix in ("R", "C", "L"):
             # Ideal element: not a PDK device, so it has no layout counterpart.
             # The ideal netlist is not the layout reference, so treat it as a
@@ -335,7 +377,7 @@ def check_parity(
     result.spice_ports = spice_ports
     result.cdl_ports = cdl_ports
 
-    spice_devices, sources = _devices_from_spice(spice_body)
+    spice_devices, sources = _devices_from_spice(spice_body, spice_file)
     result.sources_in_spice = sources
     cdl_devices = _devices_from_cdl(cdl_body)
 
@@ -348,5 +390,8 @@ def check_parity(
         result.notes.append(
             "permitted substitution(s): "
             + ", ".join(f"{k} -> {v}" for k, v in MODEL_ALIASES.items())
+            + "; geometry for these is read from "
+            + ", ".join(ALIAS_GEOMETRY_INCLUDE.values())
+            + " rather than from the element line, and is still compared"
         )
     return result

@@ -2,9 +2,9 @@
   "subckt": "ctle_dut",
   "spice_file": "circuits/ctle56n/spice/ctle_pdk.cir",
   "cdl_file": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
-  "ok": false,
+  "ok": true,
   "ports_match": true,
-  "devices_match": false,
+  "devices_match": true,
   "spice_ports": [
     "outp",
     "outn",
@@ -25,6 +25,8 @@
   ],
   "matched_devices": [
     "cap_cmomi l=1.24252e-05 w=1.24252e-05",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
     "npn13G2",
     "npn13G2",
     "rppd l=1.4e-06 w=5e-06",
@@ -34,20 +36,14 @@
     "sg13_lv_nmos l=1e-06 w=0.000243",
     "sg13_lv_nmos l=1e-06 w=0.000243"
   ],
-  "only_in_spice": [
-    "inductor",
-    "inductor"
-  ],
-  "only_in_cdl": [
-    "inductor d=4e-05 s=2.1e-06 w=4e-06",
-    "inductor d=4e-05 s=2.1e-06 w=4e-06"
-  ],
+  "only_in_spice": [],
+  "only_in_cdl": [],
   "independent_sources_in_spice": [],
   "model_aliases": {
     "ind_shunt": "inductor"
   },
   "notes": [
-    "permitted substitution(s): ind_shunt -> inductor"
+    "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
   ],
   "error": ""
 }
