@@ -43,7 +43,7 @@ same PR as the code.
 | `scripts/` | IHP EDA install / verify | `scripts/AGENTS.md` |
 | `docs/` | Environment, setup, and PDK reference docs | `docs/AGENTS.md` |
 | `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |
-| `pdk/` | Gitignored and empty; the real PDK lives at `$PDK_ROOT` | — |
+| `pdk/` | Gitignored **symlink** to `$PDK_ROOT`, so PDK files can be read at `pdk/ihp-sg13g2/...` | — |
 | `.cursor/plans/` | Approved multi-stage plans not yet implemented (read before starting related work) | — |
 
 Read the nested `AGENTS.md` in a directory before changing files there.

@@ -28,6 +28,15 @@ check() {
 }
 
 check "PDK_ROOT exists" test -d "${PDK_ROOT:?}/$PDK"
+# The repo-root pdk symlink is a convenience, but a *dangling* one is worse than
+# none: it reads as a real directory until something opens a file through it.
+check "repo pdk symlink resolves to PDK_ROOT" bash -c '
+  link="$(cd "$(dirname "$0")/.." && pwd)/pdk"
+  [[ -L "$link" ]] || { echo "  $link is not a symlink; run install-ihp-eda.sh" >&2; exit 1; }
+  target="$(readlink -f "$link")"
+  [[ "$target" == "$(readlink -f "$PDK_ROOT")" ]] || {
+    echo "  $link -> $target but PDK_ROOT is $PDK_ROOT" >&2; exit 1; }
+' "$0"
 check "openvaf-r on PATH" bash -c 'command -v openvaf-r >/dev/null'
 check "ngspice on PATH" bash -c 'command -v ngspice >/dev/null'
 check "xschem on PATH" bash -c 'command -v xschem >/dev/null'

@@ -37,7 +37,15 @@ $IHP_EDA_ROOT/venv/bin/python <script>
 | Generated env | `$IHP_EDA_ROOT/env.sh`, `$IHP_EDA_ROOT/em.env.sh` (not committed) |
 | ngspice init | `~/.spiceinit` → PDK `libs.tech/ngspice/.spiceinit` (loads OSDI) |
 
-The repo's `pdk/` path is **gitignored and empty**; `$PDK_ROOT` is the only real PDK checkout.
+The repo's `pdk/` path is a **gitignored symlink to `$PDK_ROOT`**, so PDK files can be opened and
+referenced at repo-relative paths — `pdk/ihp-sg13g2/libs.tech/klayout/tech/drc/`,
+`pdk/versions.txt` — without vendoring the upstream tree. `$PDK_ROOT` remains the only real
+checkout, and scripts should keep using `$PDK_ROOT` rather than the link.
+
+It is created by `install-ihp-eda.sh` and not committed, because its target is an absolute path
+under `$HOME` and a committed link would resolve only for whoever created it. `verify-ihp-eda.sh`
+checks that it resolves to `$PDK_ROOT`: a dangling symlink reads as a real directory until
+something opens a file through it.
 
 ## What is actually installed (verified on this VM)
 

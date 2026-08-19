@@ -286,6 +286,24 @@ clone_pdk() {
       https://github.com/IHP-GmbH/IHP-Open-PDK.git "$PDK_ROOT"
   fi
   [[ -d "$PDK_ROOT/$PDK" ]] || die "PDK tree missing at $PDK_ROOT/$PDK"
+  link_pdk_into_repo
+}
+
+link_pdk_into_repo() {
+  # The PDK is installed outside the repo, which makes browsing it from an editor
+  # or referencing a file in it awkward. A symlink at the repo root fixes that
+  # without vendoring 2 GB of upstream tree.
+  #
+  # It is gitignored (/pdk) rather than committed: the target is an absolute path
+  # under $HOME, so a committed link would resolve only for whoever created it.
+  # Recreating it here means it always points at this machine's actual PDK.
+  local link="$REPO_ROOT/pdk"
+  if [[ -e "$link" && ! -L "$link" ]]; then
+    log "Not touching $link: it exists and is not a symlink"
+    return
+  fi
+  ln -sfn "$PDK_ROOT" "$link"
+  log "Linked $link -> $PDK_ROOT"
 }
 
 write_shell_env() {
