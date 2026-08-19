@@ -1,0 +1,28 @@
+{
+  "cell": "nmos_char_l0p5",
+  "layout": "/workspace/layout/devices/out/gds/nmos_char_l0p5.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/nmos_char_l0p5.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:21 +0000: Memory Usage (141632K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/nmos_char_l0p5_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 1e-06,
+      "extracted": 1e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 5e-07,
+      "extracted": 5e-07,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/lvs_run.log",
+  "error": ""
+}

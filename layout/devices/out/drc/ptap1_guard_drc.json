@@ -1,0 +1,17 @@
+{
+  "cell": "ptap1_guard",
+  "gds": "/workspace/layout/devices/out/gds/ptap1_guard.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/ptap1_guard/ptap1_guard_ptap1_guard_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/ptap1_guard/drc_run.log",
+  "error": ""
+}

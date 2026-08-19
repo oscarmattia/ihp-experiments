@@ -50,6 +50,11 @@ class DeviceKind:
     to_pcell: Callable[[dict[str, Any]], dict[str, Any]]
     #: Engineering params -> CDL parameter dict (ordered).
     to_cdl: Callable[[dict[str, Any]], dict[str, str]]
+    #: Engineering params -> values expected back from LVS extraction, in SI
+    #: units. This is not the same as ``to_cdl``: the deck reports MOS width
+    #: per finger, and reports taps as area and perimeter rather than w/l. The
+    #: special key ``area`` is satisfied by the product of extracted w and l.
+    to_extracted: Callable[[dict[str, Any]], dict[str, float]] | None = None
     #: Bulk/substrate node emitted between the signal terminals and the model
     #: name, when the CDL form has one. ``None`` means no bulk node.
     bulk_node: str | None = None
@@ -215,6 +220,48 @@ def _no_cdl(p: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
+# --- expected extraction values --------------------------------------------
+
+
+def _mos_extracted(p: dict[str, Any]) -> dict[str, float]:
+    """The deck reports MOS width per finger, not total."""
+    w, length = _require(p, "w", "l")
+    ng = max(1, int(p.get("ng", 1)))
+    return {"w": w / ng, "l": length}
+
+
+def _res_extracted(p: dict[str, Any]) -> dict[str, float]:
+    w, length = _require(p, "w", "l")
+    return {"w": w, "l": length, "m": float(int(p.get("m", 1)))}
+
+
+def _cap_extracted(p: dict[str, Any]) -> dict[str, float]:
+    """Capacitors are checked on area, which is what sets C.
+
+    The metal-finger cap snaps w and l onto its finger pitch, so neither
+    matches the request exactly while the area — and therefore the capacitance
+    — does.
+    """
+    w, length = _require(p, "w", "l")
+    return {"area": w * length}
+
+
+def _tap_extracted(p: dict[str, Any]) -> dict[str, float]:
+    """Taps come back as area and perimeter rather than w/l."""
+    w = p.get("w", 0.78e-6)
+    length = p.get("l", 0.78e-6)
+    return {"a": w * length}
+
+
+def _ind_extracted(p: dict[str, Any]) -> dict[str, float]:
+    d, w = _require(p, "d", "w")
+    return {"w": w, "s": p.get("s", 2.1e-6), "d": d, "nr_r": float(int(p.get("nr_r", 1)))}
+
+
+def _npn_extracted(p: dict[str, Any]) -> dict[str, float]:
+    return {"le": p.get("le", 0.9e-6), "we": p.get("we", 0.07e-6)}
+
+
 # --- registry --------------------------------------------------------------
 
 DEVICE_KINDS: dict[str, DeviceKind] = {
@@ -226,6 +273,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("D", "G", "S", "sub"),
         to_pcell=_mos_pcell,
         to_cdl=_mos_cdl,
+        to_extracted=_mos_extracted,
         implicit_nets=("sub",),
     ),
     "pmos_lv": DeviceKind(
@@ -236,6 +284,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("D", "G", "S", "sub"),
         to_pcell=_mos_pcell,
         to_cdl=_mos_cdl,
+        to_extracted=_mos_extracted,
         implicit_nets=("sub",),
     ),
     "rppd": DeviceKind(
@@ -246,6 +295,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_res_pcell,
         to_cdl=_res_cdl,
+        to_extracted=_res_extracted,
         bulk_node="sub",
     ),
     "rsil": DeviceKind(
@@ -256,6 +306,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_res_pcell,
         to_cdl=_res_cdl,
+        to_extracted=_res_extracted,
         bulk_node="sub",
     ),
     "rhigh": DeviceKind(
@@ -266,6 +317,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_res_pcell,
         to_cdl=_res_cdl,
+        to_extracted=_res_extracted,
         bulk_node="sub",
     ),
     "cmim": DeviceKind(
@@ -276,6 +328,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_cmim_pcell,
         to_cdl=_cap_cdl,
+        to_extracted=_cap_extracted,
     ),
     "cmomi": DeviceKind(
         key="cmomi",
@@ -285,6 +338,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_cmomi_pcell,
         to_cdl=_cmomi_cdl,
+        to_extracted=_cap_extracted,
     ),
     "npn13G2": DeviceKind(
         key="npn13G2",
@@ -294,6 +348,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("C", "B", "E", "sub"),
         to_pcell=_npn_pcell,
         to_cdl=_npn_cdl,
+        to_extracted=_npn_extracted,
         implicit_nets=("sub",),
     ),
     "inductor": DeviceKind(
@@ -304,6 +359,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "MINUS"),
         to_pcell=_ind_pcell,
         to_cdl=_ind_cdl,
+        to_extracted=_ind_extracted,
         bulk_node="sub",
     ),
     # Taps have one drawn contact; the second CDL node is the well or substrate
@@ -317,6 +373,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "WELL"),
         to_pcell=_tap_pcell,
         to_cdl=_tap_cdl,
+        to_extracted=_tap_extracted,
         implicit_nets=("WELL",),
     ),
     "ptap1": DeviceKind(
@@ -327,6 +384,7 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         terminals=("PLUS", "WELL"),
         to_pcell=_tap_pcell,
         to_cdl=_tap_cdl,
+        to_extracted=_tap_extracted,
         implicit_nets=("WELL",),
     ),
     "via_stack": DeviceKind(

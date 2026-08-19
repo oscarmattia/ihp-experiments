@@ -1,0 +1,295 @@
+{
+  "clean": true,
+  "total_devices": 13,
+  "failed": [],
+  "density_checked": false,
+  "antenna_checked": false,
+  "context_rules_allowed": true,
+  "by_device": {
+    "rppd_load": {
+      "cell": "rppd_load",
+      "gds": "/workspace/layout/devices/out/gds/rppd_load.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/rppd_load/rppd_load_rppd_load_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/rppd_load/drc_run.log",
+      "error": ""
+    },
+    "rsil_degen": {
+      "cell": "rsil_degen",
+      "gds": "/workspace/layout/devices/out/gds/rsil_degen.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/rsil_degen/rsil_degen_rsil_degen_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/rsil_degen/drc_run.log",
+      "error": ""
+    },
+    "cmomi_cs": {
+      "cell": "cmomi_cs",
+      "gds": "/workspace/layout/devices/out/gds/cmomi_cs.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/cmomi_cs/cmomi_cs_cmomi_cs_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/cmomi_cs/drc_run.log",
+      "error": ""
+    },
+    "npn13G2_pair_device": {
+      "cell": "npn13G2_pair_device",
+      "gds": "/workspace/layout/devices/out/gds/npn13G2_pair_device.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/npn13G2_pair_device/npn13G2_pair_device_npn13G2_pair_device_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/npn13G2_pair_device/drc_run.log",
+      "error": ""
+    },
+    "nmos_tail": {
+      "cell": "nmos_tail",
+      "gds": "/workspace/layout/devices/out/gds/nmos_tail.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,2.425;138.3,2.425;138.3,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_tail/nmos_tail_nmos_tail_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_tail/drc_run.log",
+      "error": ""
+    },
+    "inductor_turn1_d40": {
+      "cell": "inductor_turn1_d40",
+      "gds": "/workspace/layout/devices/out/gds/inductor_turn1_d40.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 8,
+      "real_violations": 0,
+      "by_rule": {
+        "LBE.a": 8
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LBE.a": 8
+      },
+      "context_rule_reasons": {
+        "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+      },
+      "examples": {
+        "LBE.a": [
+          "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+          "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+          "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+          "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+          "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/inductor_turn1_d40_inductor_turn1_d40_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/drc_run.log",
+      "error": ""
+    },
+    "ntap1_guard": {
+      "cell": "ntap1_guard",
+      "gds": "/workspace/layout/devices/out/gds/ntap1_guard.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/ntap1_guard/ntap1_guard_ntap1_guard_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/ntap1_guard/drc_run.log",
+      "error": ""
+    },
+    "ptap1_guard": {
+      "cell": "ptap1_guard",
+      "gds": "/workspace/layout/devices/out/gds/ptap1_guard.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/ptap1_guard/ptap1_guard_ptap1_guard_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/ptap1_guard/drc_run.log",
+      "error": ""
+    },
+    "cmim_decap": {
+      "cell": "cmim_decap",
+      "gds": "/workspace/layout/devices/out/gds/cmim_decap.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/cmim_decap/cmim_decap_cmim_decap_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/cmim_decap/drc_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p13": {
+      "cell": "nmos_char_l0p13",
+      "gds": "/workspace/layout/devices/out/gds/nmos_char_l0p13.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,1;0.81,1;0.81,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_char_l0p13/nmos_char_l0p13_nmos_char_l0p13_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_char_l0p13/drc_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p18": {
+      "cell": "nmos_char_l0p18",
+      "gds": "/workspace/layout/devices/out/gds/nmos_char_l0p18.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,1;0.86,1;0.86,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_char_l0p18/nmos_char_l0p18_nmos_char_l0p18_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_char_l0p18/drc_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p25": {
+      "cell": "nmos_char_l0p25",
+      "gds": "/workspace/layout/devices/out/gds/nmos_char_l0p25.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,1;0.93,1;0.93,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_char_l0p25/nmos_char_l0p25_nmos_char_l0p25_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_char_l0p25/drc_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p5": {
+      "cell": "nmos_char_l0p5",
+      "gds": "/workspace/layout/devices/out/gds/nmos_char_l0p5.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,1;1.18,1;1.18,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_char_l0p5/nmos_char_l0p5_nmos_char_l0p5_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_char_l0p5/drc_run.log",
+      "error": ""
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "cell": "inductor_turn1_d40",
+  "layout": "/workspace/layout/devices/out/gds/inductor_turn1_d40.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/inductor_turn1_d40.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:15 +0000: Memory Usage (143584K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/inductor_turn1_d40_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 4e-06,
+      "extracted": 4e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "s",
+      "intended": 2.1e-06,
+      "extracted": 2.1e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "d",
+      "intended": 4e-05,
+      "extracted": 3.9999999999999996e-05,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "nr_r",
+      "intended": 1.0,
+      "extracted": 1.0,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/lvs_run.log",
+  "error": ""
+}

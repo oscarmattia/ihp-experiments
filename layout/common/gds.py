@@ -69,17 +69,30 @@ def stamp_net_labels(
     return skipped
 
 
-def write_gds(layout, cell, path: Path) -> Path:
-    """Write ``cell`` as the top cell of a GDS file."""
+def export_cell(layout, cell, name: str, flatten: bool = False):
+    """Copy ``cell`` into a fresh layout whose single top cell is ``name``.
+
+    A PCell variant is a library proxy, and ``SaveLayoutOptions.select_cell``
+    on a proxy writes an empty file — the PDK DRC runner then reports "No
+    topcell found in layout". Copying the tree into a plain cell materializes
+    the geometry and gives DRC and LVS exactly one, predictably named top cell.
+    """
+    pya = pya_module()
+    out = pya.Layout()
+    out.dbu = layout.dbu
+    target = out.create_cell(name)
+    target.copy_tree(cell)
+    if flatten:
+        target.flatten(-1, True)
+    return out, target
+
+
+def write_gds(layout, cell, path: Path, name: str | None = None, flatten: bool = False) -> Path:
+    """Write ``cell`` as the sole top cell of a GDS file."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    # Writing the whole layout would also emit sibling PCell variants; restrict
-    # the output to the cell and its hierarchy so DRC/LVS see one top cell.
-    options = pya_module().SaveLayoutOptions()
-    options.format = "GDS2"
-    options.select_all_layers()
-    options.select_cell(cell.cell_index())
-    layout.write(str(path), options)
+    out, _ = export_cell(layout, cell, name or path.stem, flatten=flatten)
+    out.write(str(path))
     return path
 
 

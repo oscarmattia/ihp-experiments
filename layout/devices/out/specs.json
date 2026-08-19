@@ -41,11 +41,11 @@
     "name": "nmos_tail",
     "kind": "nmos_lv",
     "params": {
-      "w": 0.000242988195909,
+      "w": 0.000243,
       "l": 1e-06,
-      "ng": 122
+      "ng": 100
     },
-    "note": "CTLE tail/mirror device, W=242.99 um total in 122 fingers of 2.0 um, L=1.00 um"
+    "note": "CTLE tail/mirror device, W=243.000 um total in 100 fingers of 2.430 um, L=1.00 um; sizing asked for 242.988 um (+0.005% on the finger-width grid)"
   },
   {
     "name": "inductor_turn1_d40",

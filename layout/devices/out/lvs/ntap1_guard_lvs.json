@@ -1,0 +1,21 @@
+{
+  "cell": "ntap1_guard",
+  "layout": "/workspace/layout/devices/out/gds/ntap1_guard.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/ntap1_guard.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:16 +0000: Memory Usage (142440K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ntap1_guard/ntap1_guard_extracted.cir",
+  "param_checks": [
+    {
+      "param": "a",
+      "intended": 6.084000000000001e-13,
+      "extracted": 6.084e-13,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/ntap1_guard/lvs_run.log",
+  "error": ""
+}

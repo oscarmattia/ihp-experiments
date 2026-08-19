@@ -1,0 +1,28 @@
+{
+  "cell": "npn13G2_pair_device",
+  "layout": "/workspace/layout/devices/out/gds/npn13G2_pair_device.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/npn13G2_pair_device.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:13 +0000: Memory Usage (141800K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/npn13G2_pair_device_extracted.cir",
+  "param_checks": [
+    {
+      "param": "le",
+      "intended": 9e-07,
+      "extracted": 9.000000000000001e-07,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "we",
+      "intended": 7e-08,
+      "extracted": 7e-08,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/lvs_run.log",
+  "error": ""
+}

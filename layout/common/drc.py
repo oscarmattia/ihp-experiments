@@ -25,10 +25,39 @@ from layout.common.paths import pdk_paths
 #: Examples recorded per failing rule.
 MAX_EXAMPLES = 5
 
+#: Rules an isolated cell cannot satisfy, because they constrain the cell's
+#: surroundings rather than the cell. They are reported separately instead of
+#: being dropped, and they become real gates at block and top level where the
+#: surroundings exist.
+#:
+#: The classification is evidence-based, not assumed: running this same deck on
+#: the PDK's own device layouts under tech/lvs/testing/testcases/unit shows
+#: LU.b at 35 violations for sg13_lv_nmos and 1 for inductor, so a lone device
+#: tripping it is the foundry's own baseline.
+CONTEXT_RULES: dict[str, str] = {
+    "LU.b": (
+        "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone "
+        "device has no tie; guard rings satisfy it at block level."
+    ),
+    "LU.a": (
+        "latch-up: max 20 um from P+Activ in NWell to an nSD-NWell tie. Same "
+        "reasoning as LU.b."
+    ),
+    "LBE.a": (
+        "min 100 um local-back-end width. LBE marks a chip-area module and is "
+        "drawn at top level; a single coil's marker is smaller than the floor."
+    ),
+}
+
 
 @dataclass
 class DrcResult:
-    """Outcome of one DRC run."""
+    """Outcome of one DRC run.
+
+    ``clean`` ignores :data:`CONTEXT_RULES`, which an isolated cell cannot
+    satisfy. ``context_by_rule`` keeps those counts visible so nothing is
+    silently dropped, and ``strictly_clean`` is the unfiltered verdict.
+    """
 
     cell: str
     gds: str
@@ -40,14 +69,38 @@ class DrcResult:
     report: str = ""
     log: str = ""
     error: str = ""
+    allow_context: bool = True
+
+    @property
+    def context_by_rule(self) -> dict[str, int]:
+        return {r: c for r, c in self.by_rule.items() if r in CONTEXT_RULES}
+
+    @property
+    def real_by_rule(self) -> dict[str, int]:
+        return {r: c for r, c in self.by_rule.items() if r not in CONTEXT_RULES}
+
+    @property
+    def real_total(self) -> int:
+        return sum(self.real_by_rule.values())
+
+    @property
+    def strictly_clean(self) -> bool:
+        return self.total == 0 and not self.error
 
     def to_dict(self) -> dict:
         return {
             "cell": self.cell,
             "gds": self.gds,
             "clean": self.clean,
+            "strictly_clean": self.strictly_clean,
             "total_violations": self.total,
+            "real_violations": self.real_total,
             "by_rule": self.by_rule,
+            "real_by_rule": self.real_by_rule,
+            "context_by_rule": self.context_by_rule,
+            "context_rule_reasons": {
+                r: CONTEXT_RULES[r] for r in self.context_by_rule
+            },
             "examples": self.examples,
             "tables": self.tables,
             "report": self.report,
@@ -96,8 +149,13 @@ def run_drc(
     extra_rules: bool = False,
     threads: int = 1,
     timeout: int = 3600,
+    allow_context: bool = True,
 ) -> DrcResult:
-    """Run the PDK DRC deck on ``gds`` and summarize the report."""
+    """Run the PDK DRC deck on ``gds`` and summarize the report.
+
+    ``allow_context=False`` makes :data:`CONTEXT_RULES` count as failures, which
+    is what block and top-level runs want once guard rings exist.
+    """
     paths = pdk_paths()
     gds = Path(gds).resolve()
     run_dir = Path(run_dir).resolve()
@@ -126,7 +184,14 @@ def run_drc(
     for table in tables or []:
         cmd.append(f"--table={table}")
 
-    result = DrcResult(cell=name, gds=str(gds), clean=False, total=-1, tables=tables or [])
+    result = DrcResult(
+        cell=name,
+        gds=str(gds),
+        clean=False,
+        total=-1,
+        tables=tables or [],
+        allow_context=allow_context,
+    )
     try:
         completed = subprocess.run(
             cmd, cwd=run_dir, capture_output=True, text=True, timeout=timeout, check=False
@@ -163,7 +228,7 @@ def run_drc(
     result.by_rule = dict(sorted(by_rule.items()))
     result.examples = {rule: values[:MAX_EXAMPLES] for rule, values in examples.items()}
     result.report = str(reports[0])
-    result.clean = total == 0
+    result.clean = (result.real_total == 0) if allow_context else (total == 0)
     if completed.returncode != 0 and total == 0:
         # A non-zero exit with an empty report means the deck itself failed
         # rather than the layout being clean.

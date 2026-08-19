@@ -1,0 +1,371 @@
+{
+  "clean": true,
+  "total_devices": 13,
+  "failed": [],
+  "by_device": {
+    "rppd_load": {
+      "cell": "rppd_load",
+      "layout": "/workspace/layout/devices/out/gds/rppd_load.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/rppd_load.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:11 +0000: Memory Usage (141864K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rppd_load/rppd_load_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 5e-06,
+          "extracted": 4.9999999999999996e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1.4e-06,
+          "extracted": 1.4e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "m",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/rppd_load/lvs_run.log",
+      "error": ""
+    },
+    "rsil_degen": {
+      "cell": "rsil_degen",
+      "layout": "/workspace/layout/devices/out/gds/rsil_degen.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/rsil_degen.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:11 +0000: Memory Usage (142384K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rsil_degen/rsil_degen_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 5e-07,
+          "extracted": 5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 5e-06,
+          "extracted": 4.9999999999999996e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "m",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/rsil_degen/lvs_run.log",
+      "error": ""
+    },
+    "cmomi_cs": {
+      "cell": "cmomi_cs",
+      "layout": "/workspace/layout/devices/out/gds/cmomi_cs.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/cmomi_cs.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:12 +0000: Memory Usage (141172K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmomi_cs/cmomi_cs_extracted.cir",
+      "param_checks": [
+        {
+          "param": "area",
+          "intended": 1.5438559504e-10,
+          "extracted": 1.559899e-10,
+          "rel_error": 0.010392,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/cmomi_cs/lvs_run.log",
+      "error": ""
+    },
+    "npn13G2_pair_device": {
+      "cell": "npn13G2_pair_device",
+      "layout": "/workspace/layout/devices/out/gds/npn13G2_pair_device.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/npn13G2_pair_device.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:13 +0000: Memory Usage (141800K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/npn13G2_pair_device_extracted.cir",
+      "param_checks": [
+        {
+          "param": "le",
+          "intended": 9e-07,
+          "extracted": 9.000000000000001e-07,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "we",
+          "intended": 7e-08,
+          "extracted": 7e-08,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/lvs_run.log",
+      "error": ""
+    },
+    "nmos_tail": {
+      "cell": "nmos_tail",
+      "layout": "/workspace/layout/devices/out/gds/nmos_tail.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_tail.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:14 +0000: Memory Usage (142732K) : ERROR : Netlists don't match",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_tail/nmos_tail_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 2.43e-06,
+          "extracted": 2.43e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_tail/lvs_run.log",
+      "error": ""
+    },
+    "inductor_turn1_d40": {
+      "cell": "inductor_turn1_d40",
+      "layout": "/workspace/layout/devices/out/gds/inductor_turn1_d40.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/inductor_turn1_d40.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:15 +0000: Memory Usage (143584K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/inductor_turn1_d40_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 4e-06,
+          "extracted": 4e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "s",
+          "intended": 2.1e-06,
+          "extracted": 2.1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "d",
+          "intended": 4e-05,
+          "extracted": 3.9999999999999996e-05,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "nr_r",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/lvs_run.log",
+      "error": ""
+    },
+    "ntap1_guard": {
+      "cell": "ntap1_guard",
+      "layout": "/workspace/layout/devices/out/gds/ntap1_guard.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/ntap1_guard.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:16 +0000: Memory Usage (142440K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ntap1_guard/ntap1_guard_extracted.cir",
+      "param_checks": [
+        {
+          "param": "a",
+          "intended": 6.084000000000001e-13,
+          "extracted": 6.084e-13,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/ntap1_guard/lvs_run.log",
+      "error": ""
+    },
+    "ptap1_guard": {
+      "cell": "ptap1_guard",
+      "layout": "/workspace/layout/devices/out/gds/ptap1_guard.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/ptap1_guard.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:17 +0000: Memory Usage (142080K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ptap1_guard/ptap1_guard_extracted.cir",
+      "param_checks": [
+        {
+          "param": "a",
+          "intended": 6.084000000000001e-13,
+          "extracted": 6.084e-13,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/ptap1_guard/lvs_run.log",
+      "error": ""
+    },
+    "cmim_decap": {
+      "cell": "cmim_decap",
+      "layout": "/workspace/layout/devices/out/gds/cmim_decap.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/cmim_decap.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:17 +0000: Memory Usage (141844K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmim_decap/cmim_decap_extracted.cir",
+      "param_checks": [
+        {
+          "param": "area",
+          "intended": 1.0000000000000002e-10,
+          "extracted": 9.999999999999998e-11,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/cmim_decap/lvs_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p13": {
+      "cell": "nmos_char_l0p13",
+      "layout": "/workspace/layout/devices/out/gds/nmos_char_l0p13.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_char_l0p13.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:18 +0000: Memory Usage (141832K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p13/nmos_char_l0p13_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1.3e-07,
+          "extracted": 1.3e-07,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p13/lvs_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p18": {
+      "cell": "nmos_char_l0p18",
+      "layout": "/workspace/layout/devices/out/gds/nmos_char_l0p18.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_char_l0p18.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:19 +0000: Memory Usage (141504K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p18/nmos_char_l0p18_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1.8e-07,
+          "extracted": 1.8e-07,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p18/lvs_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p25": {
+      "cell": "nmos_char_l0p25",
+      "layout": "/workspace/layout/devices/out/gds/nmos_char_l0p25.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_char_l0p25.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:20 +0000: Memory Usage (141388K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p25/nmos_char_l0p25_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 2.5e-07,
+          "extracted": 2.5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p25/lvs_run.log",
+      "error": ""
+    },
+    "nmos_char_l0p5": {
+      "cell": "nmos_char_l0p5",
+      "layout": "/workspace/layout/devices/out/gds/nmos_char_l0p5.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_char_l0p5.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "2026-08-19 14:42:21 +0000: Memory Usage (141632K) : INFO : Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/nmos_char_l0p5_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 5e-07,
+          "extracted": 5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_char_l0p5/lvs_run.log",
+      "error": ""
+    }
+  }
+}

@@ -62,7 +62,7 @@
       },
       "gds": "gds/rppd_load.gds",
       "cdl": "cdl/rppd_load.cdl",
-      "png": null
+      "png": "png/rppd_load.png"
     },
     {
       "name": "rsil_degen",
@@ -125,7 +125,7 @@
       },
       "gds": "gds/rsil_degen.gds",
       "cdl": "cdl/rsil_degen.cdl",
-      "png": null
+      "png": "png/rsil_degen.png"
     },
     {
       "name": "cmomi_cs",
@@ -194,7 +194,7 @@
       },
       "gds": "gds/cmomi_cs.gds",
       "cdl": "cdl/cmomi_cs.cdl",
-      "png": null
+      "png": "png/cmomi_cs.png"
     },
     {
       "name": "npn13G2_pair_device",
@@ -272,35 +272,35 @@
       },
       "gds": "gds/npn13G2_pair_device.gds",
       "cdl": "cdl/npn13G2_pair_device.cdl",
-      "png": null
+      "png": "png/npn13G2_pair_device.png"
     },
     {
       "name": "nmos_tail",
       "kind": "nmos_lv",
       "pcell": "nmos",
       "spice_model": "sg13_lv_nmos",
-      "note": "CTLE tail/mirror device, W=242.99 um total in 122 fingers of 2.0 um, L=1.00 um",
+      "note": "CTLE tail/mirror device, W=243.000 um total in 100 fingers of 2.430 um, L=1.00 um; sizing asked for 242.988 um (+0.005% on the finger-width grid)",
       "params": {
-        "w": 0.000242988195909,
+        "w": 0.000243,
         "l": 1e-06,
-        "ng": 122
+        "ng": 100
       },
       "pcell_params": {
-        "w": "242.988u",
+        "w": "243u",
         "l": "1u",
-        "ng": "122",
+        "ng": "100",
         "m": "1"
       },
       "cdl_params": {
-        "w": "242.988u",
+        "w": "243u",
         "l": "1u",
-        "ng": "122",
+        "ng": "100",
         "m": "1"
       },
       "bbox_um": {
         "width": 138.3,
-        "height": 2.785,
-        "area": 385.1655
+        "height": 2.79,
+        "area": 385.857
       },
       "terminals": [
         {
@@ -308,9 +308,9 @@
           "layer": "metal1_pin",
           "center": [
             0.15000000000000002,
-            1.2125000000000001
+            1.215
           ],
-          "width": 2.425,
+          "width": 2.43,
           "orientation": 180.0
         },
         {
@@ -318,9 +318,9 @@
           "layer": "metal1_pin",
           "center": [
             1.53,
-            1.2125000000000001
+            1.215
           ],
-          "width": 2.425,
+          "width": 2.43,
           "orientation": 0.0
         },
         {
@@ -328,9 +328,9 @@
           "layer": "gatpoly_pin",
           "center": [
             0.8400000000000001,
-            1.2125
+            1.2149999999999999
           ],
-          "width": 2.785,
+          "width": 2.79,
           "orientation": 180.0
         }
       ],
@@ -348,7 +348,7 @@
       },
       "gds": "gds/nmos_tail.gds",
       "cdl": "cdl/nmos_tail.cdl",
-      "png": null
+      "png": "png/nmos_tail.png"
     },
     {
       "name": "inductor_turn1_d40",
@@ -422,7 +422,7 @@
       },
       "gds": "gds/inductor_turn1_d40.gds",
       "cdl": "cdl/inductor_turn1_d40.cdl",
-      "png": null
+      "png": "png/inductor_turn1_d40.png"
     },
     {
       "name": "ntap1_guard",
@@ -473,7 +473,7 @@
       },
       "gds": "gds/ntap1_guard.gds",
       "cdl": "cdl/ntap1_guard.cdl",
-      "png": null
+      "png": "png/ntap1_guard.png"
     },
     {
       "name": "ptap1_guard",
@@ -523,7 +523,7 @@
       },
       "gds": "gds/ptap1_guard.gds",
       "cdl": "cdl/ptap1_guard.cdl",
-      "png": null
+      "png": "png/ptap1_guard.png"
     },
     {
       "name": "cmim_decap",
@@ -581,7 +581,7 @@
       },
       "gds": "gds/cmim_decap.gds",
       "cdl": "cdl/cmim_decap.cdl",
-      "png": null
+      "png": "png/cmim_decap.png"
     },
     {
       "name": "nmos_char_l0p13",
@@ -657,7 +657,7 @@
       },
       "gds": "gds/nmos_char_l0p13.gds",
       "cdl": "cdl/nmos_char_l0p13.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p13.png"
     },
     {
       "name": "nmos_char_l0p18",
@@ -733,7 +733,7 @@
       },
       "gds": "gds/nmos_char_l0p18.gds",
       "cdl": "cdl/nmos_char_l0p18.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p18.png"
     },
     {
       "name": "nmos_char_l0p25",
@@ -809,7 +809,7 @@
       },
       "gds": "gds/nmos_char_l0p25.gds",
       "cdl": "cdl/nmos_char_l0p25.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p25.png"
     },
     {
       "name": "nmos_char_l0p5",
@@ -885,7 +885,7 @@
       },
       "gds": "gds/nmos_char_l0p5.gds",
       "cdl": "cdl/nmos_char_l0p5.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p5.png"
     }
   ],
   "failures": []

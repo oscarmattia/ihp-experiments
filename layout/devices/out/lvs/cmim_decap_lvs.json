@@ -1,0 +1,21 @@
+{
+  "cell": "cmim_decap",
+  "layout": "/workspace/layout/devices/out/gds/cmim_decap.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/cmim_decap.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:17 +0000: Memory Usage (141844K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmim_decap/cmim_decap_extracted.cir",
+  "param_checks": [
+    {
+      "param": "area",
+      "intended": 1.0000000000000002e-10,
+      "extracted": 9.999999999999998e-11,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/cmim_decap/lvs_run.log",
+  "error": ""
+}

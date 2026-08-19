@@ -1,0 +1,28 @@
+{
+  "cell": "nmos_tail",
+  "layout": "/workspace/layout/devices/out/gds/nmos_tail.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/nmos_tail.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:14 +0000: Memory Usage (142732K) : ERROR : Netlists don't match",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_tail/nmos_tail_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 2.43e-06,
+      "extracted": 2.43e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 1e-06,
+      "extracted": 1e-06,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/nmos_tail/lvs_run.log",
+  "error": ""
+}

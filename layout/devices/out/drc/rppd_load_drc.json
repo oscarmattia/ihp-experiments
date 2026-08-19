@@ -1,0 +1,17 @@
+{
+  "cell": "rppd_load",
+  "gds": "/workspace/layout/devices/out/gds/rppd_load.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/rppd_load/rppd_load_rppd_load_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/rppd_load/drc_run.log",
+  "error": ""
+}

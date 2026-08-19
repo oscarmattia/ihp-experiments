@@ -173,43 +173,73 @@ def check_extracted_params(
         return False, [{"error": f"missing extracted netlist {path}"}]
 
     kind = kind_of(spec)
-    wanted = {key: parse_si(value) for key, value in kind.to_cdl(spec.params).items()}
+    if kind.to_extracted is not None:
+        wanted = {key.lower(): value for key, value in kind.to_extracted(spec.params).items()}
+    else:
+        wanted = {
+            key.lower(): parse_si(value) for key, value in kind.to_cdl(spec.params).items()
+        }
     text = path.read_text()
 
-    checks: list[dict] = []
-    ok = True
+    device_line = None
     for line in text.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith(("*", ".")):
             continue
-        if kind.spice_model not in stripped:
-            continue
-        found = dict(
-            (key, parse_si(value))
-            for key, _, value in (
-                token.partition("=") for token in stripped.split() if "=" in token
-            )
-        )
-        for key, want in wanted.items():
-            if want is None or key not in found or found[key] is None:
-                continue
-            got = found[key]
-            rel = abs(got - want) / abs(want) if want else abs(got)
-            passed = rel <= tol
-            ok = ok and passed
-            checks.append(
-                {
-                    "param": key,
-                    "intended": want,
-                    "extracted": got,
-                    "rel_error": round(rel, 6),
-                    "ok": passed,
-                }
-            )
-        break
+        if kind.spice_model in stripped:
+            device_line = stripped
+            break
 
-    if not checks:
+    if device_line is None:
+        return False, [{"error": f"no {kind.spice_model} device found in {path.name}"}]
+
+    # The deck writes MOS geometry uppercase (L=0.13u W=1u) and passive
+    # geometry lowercase (w=5u l=1.4u), so match case-insensitively.
+    found: dict[str, float | None] = {}
+    for token in device_line.split():
+        if "=" not in token:
+            continue
+        key, _, value = token.partition("=")
+        found[key.strip().lower()] = parse_si(value)
+
+    # "area" is not reported directly; derive it from the extracted w and l so
+    # capacitors can be checked on the quantity that sets their capacitance.
+    if "area" in wanted and found.get("w") is not None and found.get("l") is not None:
+        found["area"] = found["w"] * found["l"]
+
+    checks: list[dict] = []
+    ok = True
+    for key, want in wanted.items():
+        if want is None:
+            continue
+        got = found.get(key)
+        if got is None:
+            # Not every CDL parameter is reported back: the deck omits ng and
+            # folds multiplicity into the device count. Record it as skipped
+            # rather than failing on a parameter it never claims to extract.
+            checks.append({"param": key, "intended": want, "extracted": None, "skipped": True})
+            continue
+        rel = abs(got - want) / abs(want) if want else abs(got)
+        passed = rel <= tol
+        ok = ok and passed
+        checks.append(
+            {
+                "param": key,
+                "intended": want,
+                "extracted": got,
+                "rel_error": round(rel, 6),
+                "ok": passed,
+            }
+        )
+
+    compared = [c for c in checks if not c.get("skipped")]
+    if not compared:
         return False, [
-            {"error": f"no {kind.spice_model} device found in {path.name}"}
+            {
+                "error": (
+                    f"{kind.spice_model} found in {path.name} but none of "
+                    f"{sorted(wanted)} were reported; extracted keys: {sorted(found)}"
+                )
+            }
         ]
     return ok, checks

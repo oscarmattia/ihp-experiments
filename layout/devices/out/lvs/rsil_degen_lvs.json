@@ -1,0 +1,35 @@
+{
+  "cell": "rsil_degen",
+  "layout": "/workspace/layout/devices/out/gds/rsil_degen.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/rsil_degen.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:11 +0000: Memory Usage (142384K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rsil_degen/rsil_degen_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 5e-07,
+      "extracted": 5e-07,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 5e-06,
+      "extracted": 4.9999999999999996e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "m",
+      "intended": 1.0,
+      "extracted": 1.0,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/rsil_degen/lvs_run.log",
+  "error": ""
+}

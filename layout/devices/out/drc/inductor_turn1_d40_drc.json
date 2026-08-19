@@ -1,0 +1,31 @@
+{
+  "cell": "inductor_turn1_d40",
+  "gds": "/workspace/layout/devices/out/gds/inductor_turn1_d40.gds",
+  "clean": true,
+  "strictly_clean": false,
+  "total_violations": 8,
+  "real_violations": 0,
+  "by_rule": {
+    "LBE.a": 8
+  },
+  "real_by_rule": {},
+  "context_by_rule": {
+    "LBE.a": 8
+  },
+  "context_rule_reasons": {
+    "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+  },
+  "examples": {
+    "LBE.a": [
+      "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+      "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+      "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+      "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+      "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+    ]
+  },
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/inductor_turn1_d40_inductor_turn1_d40_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/drc_run.log",
+  "error": ""
+}

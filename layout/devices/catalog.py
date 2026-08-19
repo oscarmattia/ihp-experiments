@@ -20,23 +20,44 @@ from layout.common.spec import DeviceSpec
 #: narrow enough that the cell stays roughly square.
 TAIL_FINGER_W = 2.0e-6
 
+#: The nmos PCell silently clamps ``ng`` here. Asking for more fingers leaves
+#: the drawn geometry at 100 while the implied total width grows, so the device
+#: ends up narrower than requested with no error: at ng=122 and w=242.988u the
+#: PCell draws 100 fingers of 2.425u, i.e. 242.5u.
+MOS_MAX_NG = 100
+
+#: Per-finger width snaps to this grid, so a total width that does not divide
+#: onto it is silently rounded down. Choosing the total to land on the grid
+#: keeps drawn width equal to requested width.
+MOS_W_GRID = 5e-9
+
 #: EM-characterized shunt-peaking coil. MEMORY.md records ~66 pH at 28 GHz for a
 #: 1-turn TopMetal2 octagon at this geometry, which is what ``ind_shunt.inc``
 #: was fitted from and what ctle_pdk.cir instantiates.
 COIL = {"d": 40.0e-6, "w": 4.0e-6, "s": 2.1e-6, "nr_r": 1}
 
 
-def _fingers(total_w: float, finger_w: float) -> int:
-    return max(1, int(math.ceil(total_w / finger_w)))
+def plan_fingers(
+    total_w: float, finger_w: float = TAIL_FINGER_W, max_ng: int = MOS_MAX_NG
+) -> tuple[int, float]:
+    """Pick a finger count and an achievable total width.
+
+    Returns ``(ng, drawable_total_w)``. The total is adjusted onto the PCell's
+    finger-width grid so the device the PCell draws is exactly the device asked
+    for, rather than a silently rounded-down one.
+    """
+    ng = min(max_ng, max(1, int(math.ceil(total_w / finger_w))))
+    per_finger = round(total_w / ng / MOS_W_GRID) * MOS_W_GRID
+    return ng, per_finger * ng
 
 
 def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
     """Devices instantiated by the CTLE stage, at their sized geometry."""
     p = params or read_params()
 
-    tail_w = metres(p, "MOS_W")
+    target_w = metres(p, "MOS_W")
     tail_l = metres(p, "MOS_L")
-    ng = _fingers(tail_w, TAIL_FINGER_W)
+    ng, tail_w = plan_fingers(target_w)
 
     return [
         DeviceSpec(
@@ -79,8 +100,10 @@ def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
             kind="nmos_lv",
             params={"w": tail_w, "l": tail_l, "ng": ng},
             note=(
-                f"CTLE tail/mirror device, W={tail_w * 1e6:.2f} um total in {ng} "
-                f"fingers of {TAIL_FINGER_W * 1e6:.1f} um, L={tail_l * 1e6:.2f} um"
+                f"CTLE tail/mirror device, W={tail_w * 1e6:.3f} um total in {ng} "
+                f"fingers of {tail_w / ng * 1e6:.3f} um, L={tail_l * 1e6:.2f} um; "
+                f"sizing asked for {target_w * 1e6:.3f} um "
+                f"({(tail_w / target_w - 1) * 100:+.3f}% on the finger-width grid)"
             ),
         ),
         DeviceSpec(

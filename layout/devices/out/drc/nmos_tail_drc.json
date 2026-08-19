@@ -1,0 +1,27 @@
+{
+  "cell": "nmos_tail",
+  "gds": "/workspace/layout/devices/out/gds/nmos_tail.gds",
+  "clean": true,
+  "strictly_clean": false,
+  "total_violations": 1,
+  "real_violations": 0,
+  "by_rule": {
+    "LU.b": 1
+  },
+  "real_by_rule": {},
+  "context_by_rule": {
+    "LU.b": 1
+  },
+  "context_rule_reasons": {
+    "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+  },
+  "examples": {
+    "LU.b": [
+      "polygon: (0,0;0,2.425;138.3,2.425;138.3,0)"
+    ]
+  },
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/nmos_tail/nmos_tail_nmos_tail_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/nmos_tail/drc_run.log",
+  "error": ""
+}

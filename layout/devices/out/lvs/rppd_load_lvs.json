@@ -1,0 +1,35 @@
+{
+  "cell": "rppd_load",
+  "layout": "/workspace/layout/devices/out/gds/rppd_load.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/rppd_load.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "2026-08-19 14:42:11 +0000: Memory Usage (141864K) : INFO : Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rppd_load/rppd_load_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 5e-06,
+      "extracted": 4.9999999999999996e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 1.4e-06,
+      "extracted": 1.4e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "m",
+      "intended": 1.0,
+      "extracted": 1.0,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/rppd_load/lvs_run.log",
+  "error": ""
+}
