@@ -95,9 +95,16 @@ def run_lvs(
     topcell: str | None = None,
     implicit_nets: str = "sub,sub!",
     ignore_top_ports: bool = True,
+    disable_tap_extraction: bool = False,
     timeout: int = 3600,
 ) -> LvsResult:
-    """Run the PDK LVS deck on ``gds`` against ``cdl``."""
+    """Run the PDK LVS deck on ``gds`` against ``cdl``.
+
+    ``disable_tap_extraction`` is for cells with guard rings. Ring taps are
+    layout-only: they exist to satisfy latch-up, not as schematic devices, so the
+    deck extracts hundreds of ntap1/ptap1 devices that no netlist declares and
+    the compare cannot match. The PDK provides this switch for exactly that case.
+    """
     paths = pdk_paths()
     gds = Path(gds).resolve()
     cdl = Path(cdl).resolve()
@@ -124,6 +131,8 @@ def run_lvs(
         # runner is documented and invoked with this flag; matching that keeps
         # us on the supported path.
         cmd.append("--ignore_top_ports_mismatch")
+    if disable_tap_extraction:
+        cmd.append("--disable_tap_extraction")
 
     result = LvsResult(cell=topcell or gds.stem, layout=str(gds), netlist=str(cdl))
     try:
@@ -135,28 +144,41 @@ def run_lvs(
         return result
 
     log_path = run_dir / "lvs_run.log"
+    combined = f"{completed.stdout}\n{completed.stderr}"
     log_path.write_text(
         f"$ {' '.join(cmd)}\n\n--- stdout ---\n{completed.stdout}\n--- stderr ---\n{completed.stderr}\n"
     )
     result.log = str(log_path)
-    result.clean = completed.returncode == 0
 
-    stdout = completed.stdout
-    for marker in ("Congratulations", "LVS Check Passed", "LVS Check Failed", "ERROR"):
-        for line in stdout.splitlines():
+    # The verdict has to come from the report, not the exit status: run_lvs.py
+    # exits 0 even when the compare fails, so trusting the return code reports
+    # a mismatched netlist as clean.
+    matched = "Netlists match" in combined
+    mismatched = "Netlists don't match" in combined
+    result.clean = matched and not mismatched
+
+    for marker in ("Congratulations", "Netlists don't match", "LVS Check Failed", "ERROR"):
+        for line in combined.splitlines():
             if marker in line:
                 result.summary = line.strip()
                 break
         if result.summary:
             break
     if not result.summary:
-        result.summary = f"run_lvs.py exited {completed.returncode}"
+        result.summary = (
+            f"run_lvs.py exited {completed.returncode} with no compare verdict in its output"
+        )
 
     extracted = sorted(run_dir.rglob("*_extracted.cir"))
     if extracted:
         result.extracted_netlist = str(extracted[0])
     if not result.clean and not result.error:
-        result.error = f"run_lvs.py exited {completed.returncode}; see {log_path}"
+        if mismatched:
+            result.error = f"LVS compare failed: netlists do not match; see {log_path}"
+        else:
+            result.error = (
+                f"no LVS verdict found (run_lvs.py exited {completed.returncode}); see {log_path}"
+            )
     return result
 
 

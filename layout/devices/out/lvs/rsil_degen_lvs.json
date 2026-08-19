@@ -5,7 +5,7 @@
   "clean": true,
   "params_ok": true,
   "devices_matched": 0,
-  "summary": "2026-08-19 14:42:11 +0000: Memory Usage (142384K) : INFO : Congratulations! Netlists match.",
+  "summary": "2026-08-19 15:15:31 +0000: Memory Usage (141948K) : INFO : Congratulations! Netlists match.",
   "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rsil_degen/rsil_degen_extracted.cir",
   "param_checks": [
     {

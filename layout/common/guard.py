@@ -9,6 +9,7 @@ foundry's.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 from layout.common.devices import build
@@ -25,6 +26,13 @@ DEFAULT_CLEARANCE = 1.5
 #: A ring closer than this on all four sides satisfies the rule for anything it
 #: encloses that is not itself wider than the limit.
 LATCHUP_MAX_DISTANCE = 20.0
+
+#: Manufacturing grid in um. Anything drawn off it trips the offgrid checks.
+GRID = 0.005
+
+
+def _snap(value: float) -> float:
+    return round(round(value / GRID) * GRID, 6)
 
 
 @dataclass(frozen=True)
@@ -61,31 +69,50 @@ def add_guard_ring(
     layout.cell(tap_index).copy_tree(tap_cell)
     tap_box = layout.cell(tap_index).dbbox()
 
-    left = inner_box.left - ring.clearance - tap_box.width()
-    right = inner_box.right + ring.clearance
-    bottom = inner_box.bottom - ring.clearance - tap_box.height()
-    top = inner_box.top + ring.clearance
+    left = _snap(inner_box.left - ring.clearance - tap_box.width())
+    right = _snap(inner_box.right + ring.clearance)
+    bottom = _snap(inner_box.bottom - ring.clearance - tap_box.height())
+    top = _snap(inner_box.top + ring.clearance)
 
+    # Tile on an exact integer grid rather than stepping until the edge is
+    # passed. Stepping left the last tap of a row overshooting onto the side
+    # column when the span was not a whole number of pitches, and overlapping
+    # taps break contact and Metal1 spacing.
+    pitch = max(ring.pitch, tap_box.width() + 0.3, tap_box.height() + 0.3)
+
+    def positions(start: float, end: float) -> list[float]:
+        """Evenly spaced, grid-snapped tap positions from start to end.
+
+        Snapping is not optional: distributing evenly produced coordinates off
+        the 5 nm manufacturing grid and every tap then reported an offgrid
+        violation on activ, cont, metal1, psd and substrate.
+        """
+        span = end - start
+        if span <= 0:
+            return [_snap(start)]
+        n = max(1, int(math.floor(span / pitch)))
+        step = span / n
+        return sorted({_snap(start + i * step) for i in range(n + 1)})
+
+    xs = positions(left, right)
+    ys = positions(bottom, top)
+
+    placed: set[tuple[float, float]] = set()
     count = 0
-    x = left
-    while x <= right:
+    for x in xs:
         for y in (bottom, top):
-            cell.insert(
-                pya.DCellInstArray(tap_index, pya.DTrans(pya.DVector(x - tap_box.left, y - tap_box.bottom)))
-            )
-            count += 1
-        x += ring.pitch
+            placed.add((round(x, 4), round(y, 4)))
+    for y in ys[1:-1]:
+        for x in (left, right):
+            placed.add((round(x, 4), round(y, 4)))
 
-    y = bottom + ring.pitch
-    while y < top:
-        for x_edge in (left, right):
-            cell.insert(
-                pya.DCellInstArray(
-                    tap_index, pya.DTrans(pya.DVector(x_edge - tap_box.left, y - tap_box.bottom))
-                )
+    for x, y in sorted(placed):
+        cell.insert(
+            pya.DCellInstArray(
+                tap_index, pya.DTrans(pya.DVector(x - tap_box.left, y - tap_box.bottom))
             )
-            count += 1
-        y += ring.pitch
+        )
+        count += 1
 
     outer = pya.DBox(left, bottom, right + tap_box.width(), top + tap_box.height())
     # Worst case for LU.b is the point inside the ring furthest from any tie.

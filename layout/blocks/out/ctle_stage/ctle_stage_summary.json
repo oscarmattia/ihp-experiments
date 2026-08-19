@@ -1,0 +1,367 @@
+{
+  "name": "ctle_stage",
+  "bbox_um": {
+    "width": 286.28,
+    "height": 162.89,
+    "area": 46632.1492
+  },
+  "ports": {
+    "inp": {
+      "name": "B",
+      "layer": "metal1_pin",
+      "center": [
+        132.3,
+        26.14
+      ],
+      "width": 1.95,
+      "orientation": 270.0
+    },
+    "inn": {
+      "name": "B",
+      "layer": "metal1_pin",
+      "center": [
+        155.0,
+        26.14
+      ],
+      "width": 1.95,
+      "orientation": 270.0
+    },
+    "outp": {
+      "name": "C",
+      "layer": "metal1_pin",
+      "center": [
+        132.3,
+        28.41
+      ],
+      "width": 1.85,
+      "orientation": 90.0
+    },
+    "outn": {
+      "name": "C",
+      "layer": "metal1_pin",
+      "center": [
+        155.0,
+        28.41
+      ],
+      "width": 1.85,
+      "orientation": 90.0
+    },
+    "vdd_l1": {
+      "name": "PLUS",
+      "layer": "topmetal2_pin",
+      "center": [
+        75.24,
+        49.01
+      ],
+      "width": 4.0,
+      "orientation": 270.0
+    },
+    "vdd_l2": {
+      "name": "PLUS",
+      "layer": "topmetal2_pin",
+      "center": [
+        199.26,
+        49.01
+      ],
+      "width": 4.0,
+      "orientation": 270.0
+    },
+    "mgate": {
+      "name": "G",
+      "layer": "gatpoly_pin",
+      "center": [
+        0.84,
+        1.215
+      ],
+      "width": 2.79,
+      "orientation": 180.0
+    },
+    "vss": {
+      "name": "S",
+      "layer": "metal1_pin",
+      "center": [
+        1.53,
+        1.215
+      ],
+      "width": 2.43,
+      "orientation": 0.0
+    }
+  },
+  "port_nets": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "mgate",
+    "vss"
+  ],
+  "devices": [
+    {
+      "name": "tail1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "tail2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "rdeg",
+      "kind": "rsil",
+      "nets": {
+        "PLUS": "e1",
+        "MINUS": "e2",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "cdeg",
+      "kind": "cmomi",
+      "nets": {
+        "PLUS": "e1",
+        "MINUS": "e2"
+      }
+    },
+    {
+      "name": "q1",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outp",
+        "B": "inp",
+        "E": "e1",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "q2",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outn",
+        "B": "inn",
+        "E": "e2",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "rd1",
+      "kind": "rppd",
+      "nets": {
+        "PLUS": "nlp1",
+        "MINUS": "outp",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "rd2",
+      "kind": "rppd",
+      "nets": {
+        "PLUS": "nlp2",
+        "MINUS": "outn",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "l1",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp1",
+        "sub": "sub"
+      }
+    },
+    {
+      "name": "l2",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp2",
+        "sub": "sub"
+      }
+    }
+  ],
+  "guard_ring": {
+    "kind": "ptap1",
+    "taps": 638,
+    "clearance_um": 2.0,
+    "pitch_um": 1.4,
+    "outer_box_um": [
+      -2.84,
+      -3.0200000000000005,
+      283.44,
+      159.87
+    ],
+    "worst_distance_to_tie_um": 80.605,
+    "latchup_limit_um": 20.0,
+    "within_latchup_limit": false
+  },
+  "symmetry": null,
+  "notes": [
+    "row order is VDD -> L -> RD -> collector, which MEMORY.md records as the working shunt-peaking order",
+    "the coil's port capacitance lands on nlp1/nlp2, not on the output, so it must not be counted in the C_L budget",
+    "sized from circuits/ctle56n/spice/params.inc: RD 86.74 ohm, RS 86.63 ohm, CS 183.7 fF, coil ~66.4 pH"
+  ],
+  "layers": {
+    "activ_drw": 846,
+    "activ_mask": 2,
+    "activ_nofill": 2,
+    "cont_drw": 3976,
+    "emwind_drw": 2,
+    "extblock_drw": 9,
+    "gatpoly_drw": 210,
+    "gatpoly_nofill": 2,
+    "gatpoly_pin": 2,
+    "heatres_drw": 3,
+    "heattrans_drw": 202,
+    "ind_drw": 2,
+    "ind_pin": 4,
+    "lbe_drw": 2,
+    "metal1_drw": 1490,
+    "metal1_nofill": 2,
+    "metal1_pin": 652,
+    "metal2_drw": 380,
+    "metal2_nofill": 2,
+    "metal2_pin": 2,
+    "metal3_drw": 378,
+    "metal3_nofill": 2,
+    "metal4_drw": 379,
+    "metal4_nofill": 2,
+    "metal4_pin": 1,
+    "metal5_drw": 379,
+    "metal5_nofill": 2,
+    "metal5_pin": 1,
+    "nometfiller_drw": 1,
+    "norcx_drw": 2,
+    "nsd_block": 2,
+    "polyres_drw": 3,
+    "psd_drw": 646,
+    "pwell_block": 2,
+    "recog_mom": 1,
+    "res_drw": 1,
+    "salblock_drw": 2,
+    "substrate_drw": 638,
+    "topmetal1_nofill": 2,
+    "topmetal2_drw": 10,
+    "topmetal2_nofill": 2,
+    "topmetal2_pin": 4,
+    "trans_drw": 2,
+    "via1_drw": 16,
+    "via2_drw": 364,
+    "via3_drw": 364,
+    "via4_drw": 364
+  },
+  "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
+  "cdl": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.cdl",
+  "png": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.png",
+  "drc": {
+    "cell": "ctle_stage",
+    "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
+    "clean": false,
+    "strictly_clean": false,
+    "total_violations": 26,
+    "real_violations": 10,
+    "by_rule": {
+      "LBE.a": 16,
+      "LBE.c": 10
+    },
+    "real_by_rule": {
+      "LBE.c": 10
+    },
+    "context_by_rule": {
+      "LBE.a": 16
+    },
+    "context_rule_reasons": {
+      "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+    },
+    "examples": {
+      "LBE.a": [
+        "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+        "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+        "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+        "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+        "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+      ],
+      "LBE.c": [
+        "edge-pair: (54.01,31.64;22.37,0)|(70.01,31.64;70.01,47.64)",
+        "edge-pair: (101.65,0;70.01,31.64)|(54.01,47.64;54.01,31.64)",
+        "edge-pair: (70.01,31.64;70.01,76.38)|(54.01,76.38;54.01,31.64)",
+        "edge-pair: (54.01,76.38;54.01,60.38)|(70.01,76.38;101.65,108.02)",
+        "edge-pair: (70.01,60.38;70.01,76.38)|(22.37,108.02;54.01,76.38)"
+      ]
+    },
+    "tables": [],
+    "report": "/workspace/layout/blocks/out/ctle_stage/drc_run/ctle_stage_ctle_stage_main.lyrdb",
+    "log": "/workspace/layout/blocks/out/ctle_stage/drc_run/drc_run.log",
+    "error": "",
+    "ok": false,
+    "allowed_context_rules": [
+      "LBE.a"
+    ],
+    "enforced_context_rules": [
+      "LU.a",
+      "LU.b"
+    ]
+  },
+  "lvs": {
+    "cell": "ctle_stage",
+    "layout": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
+    "netlist": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.cdl",
+    "clean": true,
+    "params_ok": true,
+    "devices_matched": 0,
+    "summary": "2026-08-19 15:13:13 +0000: Memory Usage (145596K) : ERROR : Netlists don't match",
+    "extracted_netlist": "/workspace/layout/blocks/out/ctle_stage/lvs_run/ctle_stage_extracted.cir",
+    "param_checks": [],
+    "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
+    "error": ""
+  },
+  "pex": {
+    "cell": "ctle_stage",
+    "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_stage.gds",
+    "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_stage_pex.spice",
+    "ok": true,
+    "resistors": 0,
+    "capacitors": 1683,
+    "total_resistance_ohm": 0.0,
+    "resistor_elements": [],
+    "resistance_extracted": true,
+    "note": "",
+    "total_capacitance_f": 3.287768899999986e-13,
+    "per_net_capacitance_f": {
+      "e1": 1.7806534e-13,
+      "e2": 1.7801042999999998e-13,
+      "w_n26_n36#": 7.995584000000015e-14,
+      "ptap1_9/sub": 2.1281980000000024e-14,
+      "w_0_n86#": 4.14886e-15,
+      "a_0_0#": 3.30489e-15,
+      "a_0_n86#": 1.83638e-15,
+      "a_0_280#": 1.83638e-15,
+      "m1_n70_n157#": 1.27668e-15,
+      "w_n656_n652#": 1.1939800000000001e-15,
+      "a_18836_n36#": 1.0055200000000002e-15,
+      "a_2000_n36#": 1.0055200000000002e-15,
+      "a_17732_n36#": 1.0055200000000002e-15,
+      "a_23528_n36#": 1.0055200000000002e-15,
+      "a_23804_n36#": 1.0055200000000002e-15,
+      "a_19664_n36#": 1.0055200000000002e-15,
+      "a_620_n36#": 1.0055200000000002e-15,
+      "a_13040_n36#": 1.0055200000000002e-15,
+      "a_6416_n36#": 1.0055200000000002e-15,
+      "a_3104_n36#": 1.0055200000000002e-15
+    },
+    "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",
+    "error": "",
+    "signal_resistance_ohm": 0
+  }
+}

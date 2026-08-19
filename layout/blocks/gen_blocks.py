@@ -109,8 +109,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         entry["drc"]["ok"] = drc_ok
 
+        # Guard-ring taps are layout-only, so the deck must not extract them
+        # as devices the netlist would have to declare.
         lvs = run_lvs(
-            gds=gds, cdl=cdl, run_dir=args.out / "lvs_run" / name, topcell=name
+            gds=gds,
+            cdl=cdl,
+            run_dir=args.out / "lvs_run" / name,
+            topcell=name,
+            disable_tap_extraction=block.guard is not None,
         )
         entry["lvs"] = lvs.to_dict()
 

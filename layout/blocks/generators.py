@@ -20,6 +20,7 @@ from typing import Any
 from layout.common.devices import build, kind_of
 from layout.common.gds import layer_summary, stamp_net_labels, write_gds
 from layout.common.guard import RingSpec, add_guard_ring
+from layout.common.layers import layer_map
 from layout.common.pdk import new_layout, pya_module
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
@@ -229,6 +230,17 @@ def degeneration_network(res_spec: DeviceSpec, cap_spec: DeviceSpec, gap: float 
     ports = {f"R_{t.name}": t for t in res}
     ports.update({f"C_{t.name}": t for t in cap})
 
+    # Connect the resistor to the capacitor. The metal-finger cap brings its two
+    # terminals out stacked on Metal4 and Metal5 at the same point (feed=same),
+    # while the resistor's are Metal1, so each side needs a via stack up from
+    # Metal1 and then a run on the cap's own metal. Without these the block holds
+    # two isolated two-terminal devices and LVS correctly refuses to match a
+    # netlist that puts them in parallel.
+    by_name = {t.name: t for t in res}
+    cap_by_name = {t.name: t for t in cap}
+    _connect_metal1_to(layout, cell, by_name["PLUS"], cap_by_name["PLUS"], "Metal4")
+    _connect_metal1_to(layout, cell, by_name["MINUS"], cap_by_name["MINUS"], "Metal5")
+
     block = Block(
         name="degeneration_network",
         layout=layout,
@@ -239,48 +251,157 @@ def degeneration_network(res_spec: DeviceSpec, cap_spec: DeviceSpec, gap: float 
             (cap_spec, {"PLUS": "e1", "MINUS": "e2"}),
         ],
         port_nets=["e1", "e2"],
-        notes=["Rs and Cs are in parallel between the emitter nodes"],
+        notes=[
+            "Rs and Cs are in parallel between the emitter nodes",
+            "the cap's terminals are stacked on Metal4 and Metal5 (feed=same), "
+            "so each side is joined with a via_stack up from the resistor's "
+            "Metal1 and a run on the cap's metal",
+        ],
     )
     stamp_net_labels(layout, cell, list(ports.values()))
     return block
 
 
-def tail_pair(spec: DeviceSpec, gap: float = 4.0) -> Block:
-    """The two tail devices, mirrored and guard-ringed.
+def _connect_metal1_to(layout, cell, m1_terminal: Terminal, target: Terminal, metal: str) -> None:
+    """Join a Metal1 terminal to a terminal on a higher metal.
 
-    The current topology uses two tails, one per emitter node, rather than one
-    shared tail; ``ctle_pdk.cir`` instantiates Xtail1 and Xtail2. They are
-    mirrored rather than translated so each sees the same inner neighbour, which
-    is what the differential pair needs from them.
+    A via stack is placed at the Metal1 terminal and an L-shaped run on the
+    target metal carries the connection across. gdsfactory's router is not used
+    here because this is a deliberate layer change, which it refuses by design.
     """
+    pya = pya_module()
+    lm = layer_map()
+
+    via = DeviceSpec(
+        name=f"via_m1_{metal.lower()}",
+        kind="via_stack",
+        params={"b_layer": "Metal1", "t_layer": metal, "columns": 2, "rows": 2},
+    )
+    via_layout, via_cell = build(via)
+    index = layout.add_cell(f"{via.name}_{m1_terminal.name}")
+    layout.cell(index).copy_tree(via_cell)
+    via_box = via_cell.dbbox()
+
+    x0, y0 = m1_terminal.center
+    cell.insert(
+        pya.DCellInstArray(
+            index,
+            pya.DTrans(pya.DVector(x0 - via_box.center().x, y0 - via_box.center().y)),
+        )
+    )
+
+    ld = lm[f"{metal.lower()}_drw"]
+    layer_index = layout.layer(ld[0], ld[1])
+    x1, y1 = target.center
+    width = 0.6
+    # Horizontal leg from the via across to the target's x, then a vertical leg.
+    cell.shapes(layer_index).insert(
+        pya.DBox(min(x0, x1) - width / 2, y0 - width / 2, max(x0, x1) + width / 2, y0 + width / 2)
+    )
+    cell.shapes(layer_index).insert(
+        pya.DBox(x1 - width / 2, min(y0, y1) - width / 2, x1 + width / 2, max(y0, y1) + width / 2)
+    )
+
+
+def tail_pair(spec: DeviceSpec, gap: float = 6.0) -> Block:
+    """The two tail devices as strapped arrays, guard-ringed.
+
+    The topology uses two tails, one per emitter node, rather than one shared
+    tail; ``ctle_pdk.cir`` instantiates Xtail1 and Xtail2.
+
+    Each tail is an array rather than a single PCell instance because the foundry
+    ``nmos`` PCell provides no source/drain strapping and silently caps a single
+    finger at about 10 um of width — see :mod:`layout.blocks.mos_array`, which
+    also carries the measurements behind that. The array is what makes the
+    sized 243 um tail extract as one 243 um device.
+    """
+    from layout.blocks.mos_array import build_mos_array
+
+    pya = pya_module()
     layout = new_layout()
     cell = layout.create_cell("nmos_tail_pair")
-    pitch = mirror_pitch(spec, gap)
 
-    a = spec.with_name(f"{spec.name}_a")
-    b = spec.with_name(f"{spec.name}_b")
-    left = _place(layout, cell, a, 0.0, 0.0)
-    right = _place(layout, cell, b, pitch, 0.0, mirror=True)
+    total_w = spec.params["w"]
+    length = spec.params["l"]
 
-    ports = {f"{t.name}_A": t for t in left}
-    ports.update({f"{t.name}_B": t for t in right})
+    array_a = build_mos_array("tail1", total_w, length)
+    array_b = build_mos_array("tail2", total_w, length)
+    array_box = array_a.cell.dbbox()  # type: ignore[attr-defined]
+    pitch = array_box.width() + gap
+
+    ports: dict[str, Terminal] = {}
+    instances: list[tuple[DeviceSpec, dict[str, str]]] = []
+    for tag, array, dx, drain_net in (
+        ("A", array_a, 0.0, "e1"),
+        ("B", array_b, pitch, "e2"),
+    ):
+        index = layout.add_cell(f"{array.name}_cell")
+        layout.cell(index).copy_tree(array.cell)
+        trans = pya.DTrans(pya.DVector(dx, 0.0))
+        cell.insert(pya.DCellInstArray(index, trans))
+        for name, terminal in array.ports.items():
+            point = trans * pya.DPoint(*terminal.center)
+            placed = Terminal(
+                name=f"{name}_{tag}",
+                layer=terminal.layer,
+                center=(round(point.x, 6), round(point.y, 6)),
+                width=terminal.width,
+                orientation=terminal.orientation,
+            )
+            ports[placed.name] = placed
+        nets = {"D": drain_net, "G": "mgate", "S": "vss", "sub": "sub"}
+        instances += [
+            (array.unit.with_name(f"{array.name}_u{i}"), dict(nets))
+            for i in range(array.units)
+        ]
+
+    # Tie the two arrays' source rails and gate straps together. Both arrays are
+    # identical and sit at the same y, so a single spanning shape on each layer
+    # does it; without this the block has two isolated vss nets and two isolated
+    # gates, and LVS rightly refuses to match a netlist that shares them.
+    lm = layer_map()
+    span_left = min(t.center[0] for t in ports.values()) - 1.0
+    span_right = max(t.center[0] for t in ports.values()) + 1.0
+
+    source_y = ports["S_A"].center[1]
+    m2 = lm["metal2_drw"]
+    cell.shapes(layout.layer(m2[0], m2[1])).insert(
+        pya.DBox(span_left, source_y - 0.5, span_right, source_y + 0.5)
+    )
+
+    gate_y = ports["G_A"].center[1]
+    poly = lm["gatpoly_drw"]
+    cell.shapes(layout.layer(poly[0], poly[1])).insert(
+        pya.DBox(span_left, gate_y - 0.3, span_right, gate_y + 0.3)
+    )
 
     block = Block(
         name="nmos_tail_pair",
         layout=layout,
         cell=cell,
         ports=ports,
-        instances=[
-            (a, {"D": "e1", "G": "mgate", "S": "vss", "sub": "sub"}),
-            (b, {"D": "e2", "G": "mgate", "S": "vss", "sub": "sub"}),
-        ],
+        instances=instances,
         port_nets=["e1", "e2", "mgate", "vss"],
-        symmetry=_symmetry_error(left, right, pitch / 2.0),
+        notes=[
+            f"each tail is {array_a.units} single-finger units of "
+            f"{array_a.unit.params['w'] * 1e6:.2f} um strapped on Metal2 with "
+            f"{array_a.vias} vias, totalling {array_a.total_w * 1e6:.1f} um",
+            "the nmos PCell provides no finger strapping and caps a single "
+            "finger near 10 um, so a wide device must be built as an array",
+        ],
     )
     # The tails are the reason LU.b appears at device level: a lone NMOS has no
     # p-well tie. A ring around both satisfies it for the block.
     block.guard = add_guard_ring(layout, cell, cell.dbbox(), RingSpec(kind="ptap1"))
-    stamp_net_labels(layout, cell, list(ports.values()))
+    stamp_net_labels(
+        layout,
+        cell,
+        list(ports.values()),
+        {
+            "D_A": "e1", "S_A": "vss", "G_A": "mgate",
+            "D_B": "e2", "S_B": "vss", "G_B": "mgate",
+        },
+    )
     return block
 
 

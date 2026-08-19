@@ -1,0 +1,13 @@
+* ctle_stage — generated from DeviceSpecs; do not edit by hand
+.SUBCKT ctle_stage outp outn inp inn vdd mgate vss
+M1 e1 mgate vss sub sg13_lv_nmos w=243u l=1u ng=100 m=1
+M2 e2 mgate vss sub sg13_lv_nmos w=243u l=1u ng=100 m=1
+R1 e1 e2 sub rsil m=1 l=5u w=0.5u
+C1 e1 e2 cap_cmomi w=12.4252u l=12.4252u
+Q1 outp inp e1 sub npn13G2 le=0.9u we=0.07u m=1
+Q2 outn inn e2 sub npn13G2 le=0.9u we=0.07u m=1
+R2 nlp1 outp sub rppd m=1 l=1.4u w=5u
+R3 nlp2 outn sub rppd m=1 l=1.4u w=5u
+L1 vdd nlp1 sub inductor w=4u s=2.1u d=40u nr_r=1
+L2 vdd nlp2 sub inductor w=4u s=2.1u d=40u nr_r=1
+.ENDS ctle_stage
