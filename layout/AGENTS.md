@@ -36,6 +36,7 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
 | `devices/` | single-device catalog and its gates ([`AGENTS.md`](devices/AGENTS.md)) |
 | `blocks/` | matched device groups and the CTLE stage ([`AGENTS.md`](blocks/AGENTS.md)) |
 | `spike_routing.py` | the PCell-plus-gdsfactory routing proof, also run by verify |
+| `debug_pex/` | extraction investigations: [FINDINGS.md](debug_pex/FINDINGS.md) plus runnable probes |
 | `run_all.sh` | regenerate everything and diff against committed goldens |
 
 ### `common/` modules
@@ -96,6 +97,12 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
   view against the reduced CDL.
 - **Magic extracts flat.** See `pex._magic_script`: hierarchical extraction produced
   negative capacitance. `PexResult.physical` is the gate for that.
+- **Keep extraction investigations, do not throw them away.** When an extraction
+  result looks wrong, bisect it with a throwaway cell rather than reasoning about
+  the layout, then leave the probe behind in `debug_pex/` with what it measured.
+  Both probes there run against a scratch directory and write nothing into the
+  repo, and the settings probe takes its geometry from git so a concurrent
+  regeneration cannot change the answer mid-experiment.
 - **Every gate returns JSON.** `drc.py`, `lvs.py` and `pex.py` reduce tool output
   to a verdict plus counts, so an agent never scrapes a log.
 - **Judge LVS on the report, not the exit code.** `run_lvs.py` exits 0 even when
