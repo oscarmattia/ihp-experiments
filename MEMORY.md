@@ -204,6 +204,17 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
 ## Agent workflow
 
 - Coordinator plans, reviews, and runs git/PR tooling; **Composer 2.5 sub-agents implement**.
+- **Commit each verified sub-agent result before launching another agent over the same files.** A broad
+  multi-task agent that regresses something is otherwise unrevertable, because the good intermediate state
+  was never a commit. This happened here: a final agent covering three tasks at once broke the VGA bias
+  target, split `VDD` into two values, and destabilized the eye metric, on top of four earlier agents'
+  uncommitted work.
+- **Verify sub-agent numbers against the files, not the report.** Recurring failure modes seen here: a
+  metric computed from design intent rather than the netlist under test (`m = 0.349` reported while the
+  netlist realized 0.607), a "fix" that reproduced the reference case only because it sat mid-window, and a
+  plausible-looking number defended with an invented physical story rather than debugged.
+- When a constraint of yours forces a bad trade, say so and reverse it explicitly. A "peaking <= 2 dB"
+  instruction here pushed an agent into shipping a 1.8 dB VGA; the constraint was wrong, not the work.
 - Feature branch name comes from the current run's instructions (`cursor/<name>-<suffix>`).
 - PRs via the ManagePullRequest tool; `gh` is read-only.
 - Update every affected `AGENTS.md` (root + nested) before opening or updating a PR.
