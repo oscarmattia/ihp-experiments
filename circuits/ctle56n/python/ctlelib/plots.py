@@ -344,7 +344,12 @@ def plot_ac(
     ax1.legend(fontsize=7, loc="lower left")
 
     gd_ps = gd_s * 1e12
-    ax2.semilogx(freq, gd_ps, "g-", lw=1.5)
+    gd_valid = np.isfinite(gd_ps) & (freq >= 100e6)
+    if np.any(gd_valid):
+        ax2.semilogx(freq[gd_valid], gd_ps[gd_valid], "g-", lw=1.5)
+        y = gd_ps[gd_valid]
+        y_margin = max(0.5, 0.12 * (float(np.max(y)) - float(np.min(y))))
+        ax2.set_ylim(float(np.min(y)) - y_margin, float(np.max(y)) + y_margin)
     ax2.axvline(NYQUIST_HZ, color="r", ls="--", alpha=0.7)
     ax2.axvline(f_peak_hz, color="g", ls="--", alpha=0.5)
     ax2.axvline(f_3db_hz, color="orange", ls="--", alpha=0.5)
@@ -353,6 +358,161 @@ def plot_ac(
     ax2.grid(True, which="both", alpha=0.3)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
+CHAIN_STAGE_COLORS = {
+    "term": "#666666",
+    "ctle": "#1f77b4",
+    "vga": "#ff7f0e",
+    "driver": "#9467bd",
+    "e2e_src": "#000000",
+    "e2e_pad": "#2ca02c",
+}
+
+
+def plot_chain_ac_perstg(
+    freq: np.ndarray,
+    stage_db: dict[str, np.ndarray],
+    path: Path,
+    *,
+    title: str = "Chain AC — per-stage incremental gain",
+) -> None:
+    """Overlay term/CTLE/VGA/driver incremental |H| (dB) from chain AC wrdata."""
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    order = [
+        ("term", "term (pad→CTLE in)"),
+        ("ctle", "CTLE (CTLE in→VGA in)"),
+        ("vga", "VGA (VGA in→drv in)"),
+        ("driver", "driver (drv in→pad out)"),
+    ]
+    for key, label in order:
+        db_key = f"h_{key}_db"
+        if db_key in stage_db:
+            ax.semilogx(
+                freq,
+                stage_db[db_key],
+                lw=1.3,
+                color=CHAIN_STAGE_COLORS[key],
+                label=label,
+            )
+    if "h_src_db" in stage_db:
+        ax.semilogx(
+            freq,
+            stage_db["h_src_db"],
+            "k--",
+            lw=1.0,
+            alpha=0.7,
+            label="E2E (source→pad out)",
+        )
+    ax.axvline(NYQUIST_HZ, color="r", ls=":", alpha=0.6, label="28 GHz")
+    ax.set_xlim(freq[0], AC_FMAX_HZ)
+    ax.set_xlabel("Frequency (Hz)")
+    ax.set_ylabel("Gain (dB)")
+    ax.set_title(title)
+    ax.grid(True, which="both", alpha=0.3)
+    ax.legend(fontsize=7, loc="lower left")
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
+def plot_chain_tran_perstg(
+    time_s: np.ndarray,
+    stage_vod_mv: dict[str, np.ndarray],
+    path: Path,
+    *,
+    title: str = "Chain PRBS — per-stage differential",
+) -> None:
+    """Overlay differential waveforms at each chain tap (zoomed post-settle)."""
+    import matplotlib.pyplot as plt
+
+    zoom = _tran_zoom_mask(time_s)
+    t_ns = time_s[zoom] * 1e9
+    fig, ax = plt.subplots(figsize=(10, 5))
+    order = [
+        ("term", "CTLE in (post-term)"),
+        ("ctle", "VGA in (CTLE out)"),
+        ("vga", "drv in (VGA out)"),
+        ("driver", "pad out"),
+    ]
+    for key, label in order:
+        if key not in stage_vod_mv:
+            continue
+        sig = stage_vod_mv[key][zoom]
+        ax.plot(
+            t_ns,
+            sig,
+            lw=1.0,
+            color=CHAIN_STAGE_COLORS.get(key, CHAIN_STAGE_COLORS.get("ctle", "#1f77b4")),
+            label=label,
+        )
+    ax.set_xlabel("Time (ns)")
+    ax.set_ylabel("vod (mV)")
+    ax.set_title(title)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=8, loc="lower left")
+    fig.tight_layout()
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
+def plot_chain_sbr_perstg(
+    time_s: np.ndarray,
+    stages: dict[str, tuple[np.ndarray, np.ndarray, SbrResult]],
+    path: Path,
+    *,
+    title: str = "Chain SBR — per-stage single-bit response",
+) -> None:
+    """Grid of SBR waveforms at each chain tap."""
+    import matplotlib.pyplot as plt
+
+    from .stim import SBR_SETTLE_UI
+
+    names = [k for k in ("term", "ctle", "vga", "driver") if k in stages]
+    if not names:
+        return
+    fig, axes = plt.subplots(len(names), 1, figsize=(10, 2.8 * len(names)), sharex=True)
+    if len(names) == 1:
+        axes = [axes]
+    labels = {
+        "term": "CTLE in (post-term)",
+        "ctle": "VGA in (CTLE out)",
+        "vga": "drv in (VGA out)",
+        "driver": "pad out (outp−outn)",
+    }
+    for ax, name in zip(axes, names):
+        v_outp, v_outn, sbr = stages[name]
+        vod = v_outp - v_outn
+        t_base_lo = SBR_BASELINE_UI_LO * UI_S
+        t_base_hi = SBR_BASELINE_UI_HI * UI_S
+        base_mask = (time_s >= t_base_lo) & (time_s <= t_base_hi)
+        baseline = float(np.mean(vod[base_mask]))
+        vod_ac = (vod - baseline) * 1e3
+        t_cursor = sbr.t_cursor_s
+        x_ui = (time_s - t_cursor) / UI_S
+        x_lo, x_hi = -SBR_PRE - 2, SBR_POST + 4
+        mask = (x_ui >= x_lo) & (x_ui <= x_hi)
+        ax.plot(x_ui[mask], vod_ac[mask], color=CHAIN_STAGE_COLORS.get(name, "b"), lw=1.1)
+        h0 = sbr.cursor_mV
+        for k, h_mV, kept in sbr.taps:
+            if not kept:
+                continue
+            color = "green" if k == 0 else ("purple" if k < 0 else "teal")
+            ax.plot(k, h_mV, "o", color=color, ms=5 if k == 0 else 4, zorder=5)
+        ax.axvline(0, color="k", ls="--", alpha=0.35)
+        ax.set_ylabel("mV")
+        ax.set_title(
+            f"{labels.get(name, name)}  h₀={h0:.1f} mV  ISI={sbr.isi_norm:.3f}",
+            fontsize=9,
+        )
+        ax.grid(True, alpha=0.3)
+    axes[-1].set_xlabel("Time (UI relative to cursor)")
+    fig.suptitle(title, fontsize=10, y=1.01)
+    fig.tight_layout()
+    fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
 

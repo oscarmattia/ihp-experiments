@@ -113,11 +113,17 @@ def compute_ac_peak_metrics(
     return peak_gain_db, f_peak_hz, f_3db_hz, f3db_at_fmax
 
 
-def group_delay_s(freq: np.ndarray, h: np.ndarray) -> np.ndarray:
+def group_delay_s(
+    freq: np.ndarray,
+    h: np.ndarray,
+    f_min_hz: float = 100e6,
+) -> np.ndarray:
+    """Group delay from unwrapped AC phase; NaN below *f_min_hz* (log-sweep LF artifact)."""
     phase = np.unwrap(np.angle(h))
     omega = 2.0 * np.pi * freq
-    d_phase = np.gradient(phase, omega)
-    return -d_phase
+    gd = -np.gradient(phase, omega)
+    gd[freq < f_min_hz] = np.nan
+    return gd
 
 
 def extract_sbr(
