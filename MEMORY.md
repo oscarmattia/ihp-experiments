@@ -90,9 +90,24 @@ from a PDK model file, `[est]` when still unverified.
   SUBGND plane and the feed.
 - **Extract the inductor pi-model from the EM Touchstone file, not from `L(f)`/`Q(f)` alone.** With
   `Y = (1/Z0)(I+S)^-1(I-S)`: series `Z = -1/Y12`, `C_port1 = imag(Y11+Y12)/w`,
-  `C_port2 = imag(Y22+Y12)/w`, and `G_port = real(Y11+Y12)` sets the substrate branch.
+  `C_port2 = imag(Y22+Y12)/w`, and `G_port = real(Y11+Y12)`.
   `char/passive/out/em_work/` is **gitignored**, so persist the extracted parameters into the committed
   `.npz`/`.meta.json` or nothing downstream survives a fresh checkout.
+- **The port loss branch is a capacitor with a PARALLEL resistance, not a series one.** For
+  `turn1_d40` both `C_port` (5.76-5.97 fF) and `G_port` (0.177-0.198 mS) are flat over 20-70 GHz `[EM]`.
+  A series RC cannot do that: flat `real(Y)` needs `wRC >> 1` while flat extracted `C` needs
+  `wRC << 1`. `Cox || Rp` satisfies both, giving `Rp ~ 5.4 kOhm`. Consistent with the EM stackup, which
+  models oxide as `Epsilon=4.1` with **no `Kappa`** (lossless dielectric) — the only loss mechanisms are
+  metal conductivity and the 2-5 S/m silicon substrate.
+- In shunt peaking, the coil's port branches are shunt elements: the VDD-side one sits between two AC
+  grounds, and the load-side `Rp` is in parallel with `RD` (5.4 kOhm against 87 Ohm, negligible). So the
+  port *conductance* barely matters, but the port *capacitance* adds directly to `C_L` and must be in the
+  load budget.
+- **PDK metal sheet resistance is the authority for the DC branch**, and there are two independent
+  sources that agree: `libs.tech/parasitics/itf/sg13g2_typ.itf`
+  (`CONDUCTOR TopMetal2 {THICKNESS=3.0 RPSQ=0.011}`) and
+  `libs.tech/klayout/tech/lvs/rule_decks/res_extraction.lvs` (`RSH_RES_TOPMETAL2 = 0.011`). The ITF also
+  has every layer thickness and `ER`, which is the right place to look for stack geometry.
 - **The openEMS series resistance carries a systematic de-embedding offset** of about −0.4 Ω for these
   small coils: `Re{Z_series}` goes *negative* below ~15 GHz (−0.32 Ω at 5 GHz) `[EM]`. That is why `Q(f)`
   is unusable at low frequency. Anchor `R(f->0)` to a physically computed `R_dc` and take only the

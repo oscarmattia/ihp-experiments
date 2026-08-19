@@ -24,6 +24,8 @@ empty** — the installed tree above is the only PDK.
 | openEMS workflow | `openems/openems_ihp_sg13g2/workflow/` |
 | Inductor synthesis | `palace/more_examples/inductor_synthesis_no_external_library/` |
 | Magic extract deck (parasitic caps) | `magic/ihp-sg13g2-extract.tech` |
+| Layer stack: thickness, `ER`, sheet R | `parasitics/itf/sg13g2_typ.itf` |
+| Metal sheet resistance (LVS) | `klayout/tech/lvs/rule_decks/res_extraction.lvs` |
 | KLayout LVS/DRC decks | `klayout/tech/` |
 
 PDK checkout on this machine: branch `dev`, `970a7688`.
@@ -219,9 +221,26 @@ Two further traps when budgeting with these:
   estimates and reserve these area values for genuinely plate-like structures (pads, wide straps,
   coil metal over substrate).
 
-### Metal resistors
+### Metal resistors and the metal stack
 
-`res_metal1` … `res_topmetal2` are layout/LVS only — no ngspice subckt.
+`res_metal1` … `res_topmetal2` are layout/LVS only — no ngspice subckt. But the **sheet resistances are
+documented and authoritative**, and two independent decks agree `[model]`:
+
+| Layer | `RPSQ` (Ω/sq) | Thickness (µm) |
+| --- | --- | --- |
+| `Metal1` | 0.110 | 0.420 |
+| `Metal2`…`Metal5` | 0.088 | 0.490 |
+| `TopMetal1` | 0.018 | 2.0 |
+| `TopMetal2` | 0.011 | 3.0 |
+
+Sources: `parasitics/itf/sg13g2_typ.itf` (also every dielectric thickness and `ER`, mostly 4.1) and
+`klayout/tech/lvs/rule_decks/res_extraction.lvs`. Use these for the DC resistance of any hand-built
+metal structure (inductor, strap, pad feed) rather than inferring one from an EM material property.
+
+The ITF dielectrics carry **no loss term** (`ER` only, no conductivity), and the openEMS stackup likewise
+models oxide as `Epsilon=4.1` with no `Kappa`, with loss coming only from metal conductivity and the
+2-5 S/m silicon substrate. So "dielectric loss" is zero by construction in these flows; a fitted shunt
+loss branch is really substrate loss reached through the oxide capacitance.
 
 ## Netlist recipes
 
