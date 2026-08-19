@@ -32,21 +32,27 @@ source ~/.local/share/ihp-eda/env.sh
 
 Requires prior LUT generation (`./char/run_all.sh` or at least MOS + BJT + passive R/C sweeps).
 
-Outputs land in `out/`:
+Outputs land under `out/`:
 
-- `summary.csv` — DC gain, peaking, G_peak, f_peak, f_{−3dB}, CMRR, PSRR (ideal and PDK)
-- `ac_diff.png` — Bode + group delay (28 GHz, f_peak, f_{−3dB} marked, to 300 GHz)
-- `cmrr.png` — CMRR vs frequency
-- `psrr.png` — PSRR vs frequency (VDD → vod; clipped at 120 dB)
-- `tran_se.png` — single-ended transient, full 511 UI + 40-UI zoom (ideal pass)
-- `tran_diff.png` — differential transient (vod, vid), full + zoom
-- `eye_se.png` — 2-UI eye (outp/outn)
-- `eye_diff.png` — 2-UI eye (vod)
-- `sbr.png` — single-bit pulse response (vod_ac, tap markers, ISI summary; ideal pass)
-- `op.txt` — DC operating point
+- `summary.csv` — combined DC gain, peaking, G_peak, f_peak, f_{−3dB}, CMRR, PSRR (ideal and PDK)
 - `ctle_report.md` — design narrative + sizing table (auto-generated)
 
-Transient runs on the **ideal** pass only (PDK transient skipped to keep `run.sh --no-iterate` runtime reasonable). Use `--no-tran` to skip PRBS and SBR.
+Per-pass directories `out/ideal/` and `out/pdk/` (same file set in each):
+
+| File | Description |
+| --- | --- |
+| `op.txt` | DC operating point |
+| `metrics.csv` | Per-pass metrics (+ SBR when run) |
+| `ac_diff.png`, `ac_diff.csv` | Bode + group delay (28 GHz, f_peak, f_{−3dB}) |
+| `cmrr.png`, `psrr.png` | CMRR / PSRR vs frequency |
+| `tran_se.png`, `tran_diff.png` | PRBS transient (full 511 UI + 40-UI zoom) |
+| `tran.csv` | Full transient waveform |
+| `eye_se.png`, `eye_diff.png` | 2-UI eye diagrams |
+| `eye_se.csv`, `eye_diff.csv` | Folded post-settle eye samples (t_ui 0–2) |
+| `sbr.png`, `sbr.csv`, `sbr_taps.csv` | Single-bit pulse response |
+| `work/` | ngspice scratch (gitignored) |
+
+Both **ideal** and **PDK** passes run PRBS transient, SBR, and AC plots. Use `--no-tran` to skip PRBS and SBR for both passes.
 
 Device currents in DC OP require explicit `save` lines in the testbench (see AGENTS.md).
 

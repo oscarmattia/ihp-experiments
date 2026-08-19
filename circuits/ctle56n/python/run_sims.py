@@ -482,10 +482,118 @@ def group_delay_s(freq: np.ndarray, h: np.ndarray) -> np.ndarray:
     return -d_phase
 
 
-def run_pass(pass_name: str, dut_rel: str, spice_dir: Path, out_dir: Path) -> SimMetrics:
+def pass_out(pass_name: str) -> Path:
+    """Per-pass output directory: out/ideal or out/pdk."""
+    return _EXP / "out" / pass_name
+
+
+def write_tran_csv(
+    path: Path,
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+    v_inp: np.ndarray,
+    v_inn: np.ndarray,
+) -> None:
+    vod = v_outp - v_outn
+    vid = v_inp - v_inn
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["time_s", "v_outp", "v_outn", "v_inp", "v_inn", "vod", "vid"])
+        for i in range(len(time_s)):
+            w.writerow([
+                time_s[i], v_outp[i], v_outn[i], v_inp[i], v_inn[i], vod[i], vid[i],
+            ])
+
+
+def write_ac_diff_csv(
+    path: Path,
+    freq: np.ndarray,
+    h_db: np.ndarray,
+    gd_s: np.ndarray,
+) -> None:
+    gd_ps = gd_s * 1e12
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["freq_Hz", "gain_dB", "gd_ps"])
+        for i in range(len(freq)):
+            w.writerow([freq[i], h_db[i], gd_ps[i]])
+
+
+def write_eye_csvs(
+    pass_dir: Path,
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+) -> None:
+    """Dump post-settle samples folded into 0–2 UI for eye CSVs."""
+    t0 = EYE_SETTLE_UI * UI_S
+    mask = time_s >= t0
+    t_rel = time_s[mask] - t0
+    period = 2.0 * UI_S
+    t_ui = np.mod(t_rel, period) / UI_S
+    vod_mV = (v_outp[mask] - v_outn[mask]) * 1e3
+
+    with (pass_dir / "eye_diff.csv").open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["t_ui", "vod_mV"])
+        for t, v in zip(t_ui, vod_mV):
+            w.writerow([t, v])
+
+    with (pass_dir / "eye_se.csv").open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["t_ui", "v_outp", "v_outn"])
+        for t, p, n in zip(t_ui, v_outp[mask], v_outn[mask]):
+            w.writerow([t, p, n])
+
+
+def write_sbr_taps_csv(path: Path, sbr: SbrResult) -> None:
+    h0 = sbr.cursor_mV
+    with path.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["k", "h_mV", "h_over_h0", "kept"])
+        for k, h_mV, kept in sbr.taps:
+            ratio = h_mV / h0 if h0 != 0 else ""
+            w.writerow([k, h_mV, ratio, "yes" if kept else "no"])
+
+
+def write_pass_metrics(
+    path: Path,
+    m: SimMetrics,
+    sbr: SbrResult | None = None,
+) -> None:
+    prefix = m.pass_name
+    rows: list[list[str]] = [
+        ["parameter", "value"],
+        [f"{prefix}_dc_gain_dB", f"{m.dc_gain_db:.3f}"],
+        [f"{prefix}_peaking_28G_dB", f"{m.peaking_db:.3f}"],
+        [f"{prefix}_G_peak_dB", f"{m.peak_gain_db:.3f}"],
+        [f"{prefix}_f_peak_Hz", f"{m.f_peak_hz:.6g}"],
+        [f"{prefix}_f_3dB_Hz", f"{m.f_3db_hz:.6g}"],
+        [f"{prefix}_CMRR_dB", f"{m.cmrr_db:.3f}"],
+        [f"{prefix}_PSRR_dB", f"{m.psrr_db:.3f}"],
+        [f"{prefix}_VCE_V", f"{m.vce_v:.4f}"],
+        [f"{prefix}_VDS_tail_V", f"{m.vds_tail_v:.4f}"],
+        [f"{prefix}_VGS_tail_V", f"{m.vgs_tail_v:.4f}"],
+        [f"{prefix}_Ic_A", f"{m.ic_a:.6g}"],
+        [f"{prefix}_Id_tail_A", f"{m.id_tail_a:.6g}"],
+    ]
+    if sbr:
+        rows += [
+            [f"{prefix}_sbr_cursor_mV", f"{sbr.cursor_mV:.4f}"],
+            [f"{prefix}_sbr_isi_norm", f"{sbr.isi_norm:.6g}"],
+            [f"{prefix}_sbr_isi_abs", f"{sbr.isi_abs:.6g}"],
+        ]
+    with path.open("w", newline="") as f:
+        csv.writer(f).writerows(rows)
+
+
+def run_pass(pass_name: str, dut_rel: str, spice_dir: Path) -> SimMetrics:
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
-    work = out_dir / f"work_{pass_name}"
+    pout = pass_out(pass_name)
+    pout.mkdir(parents=True, exist_ok=True)
+    work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
 
     # Copy params.inc and cs.inc into work
@@ -542,27 +650,28 @@ def run_pass(pass_name: str, dut_rel: str, spice_dir: Path, out_dir: Path) -> Si
     ic_a = dc_vals.get("@q.xu1.xq1.qnpn13g2[ic]", float("nan"))
     id_tail = dc_vals.get("@n.xu1.xtail.nsg13_lv_nmos[ids]", float("nan"))
 
-    op_path = out_dir / f"op_{pass_name}.txt"
+    op_path = pout / "op.txt"
     op_path.write_text(dc_log.read_text())
 
-    if pass_name == "ideal":
-        _plot_ac(
-            freq,
-            h_db,
-            group_delay_s(freq, h_diff),
-            out_dir / "ac_diff.png",
-            peak_gain_db=peak_gain_db,
-            f_peak_hz=f_peak_hz,
-            f_3db_hz=f_3db_hz,
-            f3db_at_fmax=f3db_at_fmax,
-            dc_gain_db=dc_gain_db,
-            peaking_db=peaking_db,
-        )
-        cmrr_curve = 20.0 * np.log10(np.maximum(np.abs(h_diff), 1e-30)) - (
-            20.0 * np.log10(np.maximum(np.abs(h_cm), 1e-30))
-        )
-        _plot_cmrr(freq_cm, cmrr_curve, out_dir / "cmrr.png")
-        _plot_psrr(freq_p, psrr_db_curve, out_dir / "psrr.png")
+    gd_s = group_delay_s(freq, h_diff)
+    _plot_ac(
+        freq,
+        h_db,
+        gd_s,
+        pout / "ac_diff.png",
+        peak_gain_db=peak_gain_db,
+        f_peak_hz=f_peak_hz,
+        f_3db_hz=f_3db_hz,
+        f3db_at_fmax=f3db_at_fmax,
+        dc_gain_db=dc_gain_db,
+        peaking_db=peaking_db,
+    )
+    write_ac_diff_csv(pout / "ac_diff.csv", freq, h_db, gd_s)
+    cmrr_curve = 20.0 * np.log10(np.maximum(np.abs(h_diff), 1e-30)) - (
+        20.0 * np.log10(np.maximum(np.abs(h_cm), 1e-30))
+    )
+    _plot_cmrr(freq_cm, cmrr_curve, pout / "cmrr.png")
+    _plot_psrr(freq_p, psrr_db_curve, pout / "psrr.png")
 
     return SimMetrics(
         pass_name=pass_name,
@@ -585,13 +694,14 @@ def run_tran(
     pass_name: str,
     dut_rel: str,
     spice_dir: Path,
-    out_dir: Path,
     vbase: float,
 ) -> None:
     """Run 56G NRZ PRBS9 transient and plot waveforms + eye diagrams."""
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
-    work = out_dir / f"work_{pass_name}"
+    pout = pass_out(pass_name)
+    pout.mkdir(parents=True, exist_ok=True)
+    work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
 
     for inc in ("params.inc", "cs.inc"):
@@ -611,24 +721,26 @@ def run_tran(
     run_ngspice(tb_tran, work, "tran.log")
     time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / "tran.raw")
 
-    if pass_name == "ideal":
-        _plot_tran_se(time_s, v_outp, v_outn, v_inp, v_inn, out_dir / "tran_se.png")
-        _plot_tran_diff(time_s, v_outp, v_outn, v_inp, v_inn, out_dir / "tran_diff.png")
-        _plot_eye_se(time_s, v_outp, v_outn, out_dir / "eye_se.png")
-        _plot_eye_diff(time_s, v_outp, v_outn, out_dir / "eye_diff.png")
+    write_tran_csv(pout / "tran.csv", time_s, v_outp, v_outn, v_inp, v_inn)
+    write_eye_csvs(pout, time_s, v_outp, v_outn)
+    _plot_tran_se(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_se.png")
+    _plot_tran_diff(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_diff.png")
+    _plot_eye_se(time_s, v_outp, v_outn, pout / "eye_se.png")
+    _plot_eye_diff(time_s, v_outp, v_outn, pout / "eye_diff.png")
 
 
 def run_sbr(
     pass_name: str,
     dut_rel: str,
     spice_dir: Path,
-    out_dir: Path,
     vbase: float,
 ) -> SbrResult:
     """Run single-bit response transient and extract pulse-response taps."""
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
-    work = out_dir / f"work_{pass_name}"
+    pout = pass_out(pass_name)
+    pout.mkdir(parents=True, exist_ok=True)
+    work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
 
     for inc in ("params.inc", "cs.inc"):
@@ -649,8 +761,9 @@ def run_sbr(
     time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / "sbr.raw")
     sbr = extract_sbr(time_s, v_outp, v_outn)
 
-    if pass_name == "ideal":
-        _plot_sbr(time_s, v_outp, v_outn, v_inp, v_inn, sbr, out_dir / "sbr.png")
+    write_tran_csv(pout / "sbr.csv", time_s, v_outp, v_outn, v_inp, v_inn)
+    write_sbr_taps_csv(pout / "sbr_taps.csv", sbr)
+    _plot_sbr(time_s, v_outp, v_outn, v_inp, v_inn, sbr, pout / "sbr.png")
 
     return sbr
 
@@ -1057,7 +1170,7 @@ def iterate_sizing(spice_dir: Path, max_iter: int = 8) -> CtleParams:
     best_score = float("inf")
     best_metrics: SimMetrics | None = None
 
-    out_dir = _EXP / "out"
+    out_dir = pass_out("ideal")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for i in range(max_iter):
@@ -1068,7 +1181,7 @@ def iterate_sizing(spice_dir: Path, max_iter: int = 8) -> CtleParams:
         print_summary(params)
 
         try:
-            metrics = run_pass("ideal", "ctle_ideal.cir", spice_dir, out_dir)
+            metrics = run_pass("ideal", "ctle_ideal.cir", spice_dir)
         except RuntimeError as exc:
             print(f"  sim error at scale={scale}: {exc}")
             continue
@@ -1109,12 +1222,29 @@ def iterate_sizing(spice_dir: Path, max_iter: int = 8) -> CtleParams:
     return best_params
 
 
+def _summary_sbr_rows(prefix: str, sbr: SbrResult) -> list[list[str]]:
+    rows = [
+        [f"{prefix}_sbr_cursor_mV", f"{sbr.cursor_mV:.4f}"],
+        [f"{prefix}_sbr_isi_norm", f"{sbr.isi_norm:.6g}"],
+        [f"{prefix}_sbr_isi_abs", f"{sbr.isi_abs:.6g}"],
+    ]
+    for k in range(-SBR_PRE, SBR_POST + 1):
+        entry = next((t for t in sbr.taps if t[0] == k), None)
+        if entry is None:
+            continue
+        _, h_mV, kept = entry
+        val = f"{h_mV:.4f}" if kept else ""
+        rows.append([f"{prefix}_sbr_h{k}_mV", val])
+    return rows
+
+
 def write_summary(
     path: Path,
     params: CtleParams,
     ideal: SimMetrics,
     pdk: SimMetrics | None,
-    sbr: SbrResult | None = None,
+    sbr_ideal: SbrResult | None = None,
+    sbr_pdk: SbrResult | None = None,
 ) -> None:
     rows = [
         ["parameter", "value"],
@@ -1148,19 +1278,8 @@ def write_summary(
         ["ideal_Ic_A", f"{ideal.ic_a:.6g}"],
         ["ideal_Id_tail_A", f"{ideal.id_tail_a:.6g}"],
     ]
-    if sbr:
-        rows += [
-            ["sbr_cursor_mV", f"{sbr.cursor_mV:.4f}"],
-            ["sbr_isi_norm", f"{sbr.isi_norm:.6g}"],
-            ["sbr_isi_abs", f"{sbr.isi_abs:.6g}"],
-        ]
-        for k in range(-SBR_PRE, SBR_POST + 1):
-            entry = next((t for t in sbr.taps if t[0] == k), None)
-            if entry is None:
-                continue
-            _, h_mV, kept = entry
-            val = f"{h_mV:.4f}" if kept else ""
-            rows.append([f"sbr_h{k}_mV", val])
+    if sbr_ideal:
+        rows += _summary_sbr_rows("sbr", sbr_ideal)
     if pdk:
         rows += [
             ["pdk_dc_gain_dB", f"{pdk.dc_gain_db:.3f}"],
@@ -1173,6 +1292,8 @@ def write_summary(
             ["pdk_VCE_V", f"{pdk.vce_v:.4f}"],
             ["pdk_targets_ok", targets_ok(pdk)],
         ]
+    if sbr_pdk:
+        rows += _summary_sbr_rows("pdk_sbr", sbr_pdk)
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
 
@@ -1199,12 +1320,48 @@ def _fmt_a(val: float) -> str:
     return "—" if math.isnan(val) else f"{val * 1e3:.3f} mA"
 
 
+def _sbr_section_body(title: str, sbr: SbrResult, out_subdir: str) -> str:
+    sbr_rows: list[str] = []
+    h0 = sbr.cursor_mV
+    for k, h_mV, kept in sbr.taps:
+        label = _sbr_tap_label(k)
+        ratio = h_mV / h0 if h0 != 0 else float("nan")
+        kept_str = "yes" if kept else "no"
+        if k == 0:
+            sbr_rows.append(
+                f"| **{label}** | {k} | {h_mV:.3f} | 1.000 | {kept_str} |"
+            )
+        else:
+            sbr_rows.append(
+                f"| {label} | {k} | {h_mV:.3f} | {ratio:.4f} | {kept_str} |"
+            )
+    return f"""
+### {title}
+
+Waveforms: `out/{out_subdir}/sbr.png`, `out/{out_subdir}/sbr.csv`, `out/{out_subdir}/sbr_taps.csv`.
+
+Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **{SBR_SETTLE_UI} UI** settle at logic 0.
+Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; drop taps with
+|h| < **{SBR_KEEP_FRAC * 100:.1f}%** of |cursor| (h_0 always kept).
+
+| Tap | k | h (mV) | h / h_0 | Kept |
+| --- | --- | --- | --- | --- |
+{chr(10).join(sbr_rows)}
+
+- Main cursor h_0 = **{sbr.cursor_mV:.2f} mV** at t = **{sbr.t_cursor_ui:.3f} UI** after pulse start
+- Normalized total ISI = Σ h_k / h_0 = **{sbr.isi_norm:.4f}** (k≠0, kept taps only)
+- Σ|h_k|/|h_0| = **{sbr.isi_abs:.4f}** (same taps)
+- Taps with |h| < {SBR_KEEP_FRAC * 100:.1f}% of |cursor| are omitted from the ISI sums.
+"""
+
+
 def write_ctle_report(
     path: Path,
     params: CtleParams,
     ideal: SimMetrics,
     pdk: SimMetrics | None,
-    sbr: SbrResult | None = None,
+    sbr_ideal: SbrResult | None = None,
+    sbr_pdk: SbrResult | None = None,
 ) -> None:
     """Regenerate circuits/ctle56n/ctle_report.md from sizing + sim metrics."""
     m_bessel = params.l_h / (params.rd_ohm**2 * params.cl_f)
@@ -1308,39 +1465,17 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 
 {table_header}
 {chr(10).join(rows)}
+
+Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
+Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
+Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk/metrics.csv`.
 """
-    if sbr:
-        sbr_rows: list[str] = []
-        h0 = sbr.cursor_mV
-        for k, h_mV, kept in sbr.taps:
-            label = _sbr_tap_label(k)
-            ratio = h_mV / h0 if h0 != 0 else float("nan")
-            kept_str = "yes" if kept else "no"
-            if k == 0:
-                sbr_rows.append(
-                    f"| **{label}** | {k} | {h_mV:.3f} | 1.000 | {kept_str} |"
-                )
-            else:
-                sbr_rows.append(
-                    f"| {label} | {k} | {h_mV:.3f} | {ratio:.4f} | {kept_str} |"
-                )
-        kept_isi = [h for k, h, kept in sbr.taps if kept and k != 0]
-        body += f"""
-## Single-bit response
-
-Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **{SBR_SETTLE_UI} UI** settle at logic 0.
-Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; drop taps with
-|h| < **{SBR_KEEP_FRAC * 100:.1f}%** of |cursor| (h_0 always kept).
-
-| Tap | k | h (mV) | h / h_0 | Kept |
-| --- | --- | --- | --- | --- |
-{chr(10).join(sbr_rows)}
-
-- Main cursor h_0 = **{sbr.cursor_mV:.2f} mV** at t = **{sbr.t_cursor_ui:.3f} UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **{sbr.isi_norm:.4f}** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **{sbr.isi_abs:.4f}** (same taps)
-- Taps with |h| < {SBR_KEEP_FRAC * 100:.1f}% of |cursor| are omitted from the ISI sums.
-"""
+    if sbr_ideal or sbr_pdk:
+        body += "\n## Single-bit response\n"
+        if sbr_ideal:
+            body += _sbr_section_body("Ideal", sbr_ideal, "ideal")
+        if sbr_pdk:
+            body += _sbr_section_body("PDK", sbr_pdk, "pdk")
     path.write_text(body)
 
 
@@ -1370,13 +1505,16 @@ def main() -> None:
         params = iterate_sizing(spice_dir)
         write_params_inc(params, spice_dir / "params.inc")
 
-    ideal = run_pass("ideal", "ctle_ideal.cir", spice_dir, out_dir)
+    ideal = run_pass("ideal", "ctle_ideal.cir", spice_dir)
+    write_pass_metrics(pass_out("ideal") / "metrics.csv", ideal)
     print(
         f"Ideal: DC={ideal.dc_gain_db:.2f} dB peak={ideal.peaking_db:.2f} dB "
         f"CMRR={ideal.cmrr_db:.2f} dB PSRR={ideal.psrr_db:.2f} dB"
     )
 
-    sbr_result: SbrResult | None = None
+    sbr_ideal: SbrResult | None = None
+    sbr_pdk: SbrResult | None = None
+    vbase: float | None = None
     if not args.no_tran:
         vbase_m = re.search(
             r"\.param\s+VBASE=([\S]+)",
@@ -1385,33 +1523,35 @@ def main() -> None:
         if vbase_m:
             vbase = float(vbase_m.group(1))
             print("Running ideal transient (56G NRZ PRBS9)...")
-            run_tran("ideal", "ctle_ideal.cir", spice_dir, out_dir, vbase)
+            run_tran("ideal", "ctle_ideal.cir", spice_dir, vbase)
             print("Running ideal single-bit response (1 UI pulse)...")
-            sbr_result = run_sbr("ideal", "ctle_ideal.cir", spice_dir, out_dir, vbase)
+            sbr_ideal = run_sbr("ideal", "ctle_ideal.cir", spice_dir, vbase)
+            write_pass_metrics(pass_out("ideal") / "metrics.csv", ideal, sbr_ideal)
 
     pdk_metrics = None
     if not args.no_pdk:
         try:
-            pdk_metrics = run_pass("pdk", "ctle_pdk.cir", spice_dir, out_dir)
+            pdk_metrics = run_pass("pdk", "ctle_pdk.cir", spice_dir)
+            write_pass_metrics(pass_out("pdk") / "metrics.csv", pdk_metrics)
             print(
                 f"PDK: DC={pdk_metrics.dc_gain_db:.2f} dB peak={pdk_metrics.peaking_db:.2f} dB "
                 f"CMRR={pdk_metrics.cmrr_db:.2f} dB PSRR={pdk_metrics.psrr_db:.2f} dB"
             )
+            if not args.no_tran and vbase is not None:
+                print("Running PDK transient (56G NRZ PRBS9)...")
+                run_tran("pdk", "ctle_pdk.cir", spice_dir, vbase)
+                print("Running PDK single-bit response (1 UI pulse)...")
+                sbr_pdk = run_sbr("pdk", "ctle_pdk.cir", spice_dir, vbase)
+                write_pass_metrics(pass_out("pdk") / "metrics.csv", pdk_metrics, sbr_pdk)
         except RuntimeError as exc:
             print(f"PDK pass failed: {exc}")
 
-    # Merge OP files
-    op_main = out_dir / "op.txt"
-    parts = []
-    for name in ("ideal", "pdk"):
-        p = out_dir / f"op_{name}.txt"
-        if p.is_file():
-            parts.append(f"=== {name} ===\n" + p.read_text())
-    if parts:
-        op_main.write_text("\n".join(parts))
-
-    write_summary(out_dir / "summary.csv", params, ideal, pdk_metrics, sbr_result)
-    write_ctle_report(_EXP / "ctle_report.md", params, ideal, pdk_metrics, sbr_result)
+    write_summary(
+        out_dir / "summary.csv", params, ideal, pdk_metrics, sbr_ideal, sbr_pdk
+    )
+    write_ctle_report(
+        _EXP / "ctle_report.md", params, ideal, pdk_metrics, sbr_ideal, sbr_pdk
+    )
     print(f"Wrote {out_dir / 'summary.csv'}")
     print(f"Wrote {_EXP / 'ctle_report.md'}")
 
