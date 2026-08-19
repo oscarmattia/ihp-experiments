@@ -219,6 +219,21 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **Never transcribe a DRC limit.** `layout/common/rules.py` reads the PDK's own
   `rule_decks/sg13g2_tech_default.json`. A hand-written table had TopMetal1 at 1.50 µm against the
   1.64 µm minimum (`TM1_a`), and the deck only caught it once a route used that metal `[model]`.
+- **Electromigration limits exist in exactly one place and there is no signoff check for them.**
+  `libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef` carries `DCCURRENTDENSITY AVERAGE`; the DRC decks, the
+  ITF and the Magic tech files carry none. `layout/common/em.py` reads it, so no limit is transcribed,
+  and the stage checks every drawn conductor itself. Values `[sim]`: Metal1 1 mA/µm, Metal2–Metal5
+  2 mA/µm, TopMetal1 15 mA/µm, TopMetal2 16 mA/µm, Via1–Via4 0.4 mA/cut, TopVia1 1.4 mA/cut,
+  TopVia2 10 mA/cut.
+- **`Cont` has no current limit in the PDK.** It has a resistance but no `DCCURRENTDENSITY`, so MOS
+  source/drain contact electromigration is not checkable from open PDK data. The closest analogue is
+  the resistor PCells' `ikspec` (0.11–0.30 mA per contact), which is not stated for MOS contacts; if it
+  applied it would be the binding constraint on a wide tail. `em.UNCHECKABLE` records this rather than
+  letting silence pass for a verified limit.
+- **On the top metals, minimum width beats electromigration by an order of magnitude.** 8.7 mA needs
+  0.54 µm of TopMetal2 against a 2 µm minimum, so the power ring is width-limited, not EM-limited. The
+  thin-metal buses are the opposite: `mos_array`'s old hand-picked 1.0 µm rail was 45% under what
+  2.9 mA needs.
 - **`run_lvs.py` exits 0 even when netlists do not match.** Judge the compare on "Netlists match" in
   the report, never on the return code. Trusting the exit status reported four mismatched blocks and
   one mismatched device as clean.
@@ -246,6 +261,18 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **Extraction semantics differ from the CDL.** The deck reports MOS width **per finger** and taps as
   area and perimeter rather than `w`/`l`. Compare capacitors on **area**, which is what sets `C`; the
   metal-finger cap snaps `w` and `l` onto its finger pitch and neither matches the request.
+- **A strapped array is one device to the extractor, so the CDL carries one device.** Measured against
+  the deck on the real 25-unit 243 µm tail `[sim]`: one `w=243u ng=1 m=1` **matches**, one
+  `w=9.72u m=25` matches, 25 explicit 9.72 µm devices match, and one `w=242.988u` **fails**. So no
+  layout-specific netlist restructuring is needed — but the width has to be drawable, because the deck
+  compares MOS `W` and `L` with essentially no tolerance. `rule_decks/custom_devices.lvs` relaxes only
+  inductors (5% on `w`/`s`/`d`) and diodes (1% on `A`/`P`). `size_ctle.snap_drawable_mos_w` puts the
+  schematic on the array grid so the two agree; `layout/common/parity.py` fails if they drift.
+- **LVS never checks the CDL against the schematic.** It compares layout against CDL, so a device
+  missing from *both* is invisible — the bias diode was absent from the layout for several revisions.
+  `layout/common/parity.py` closes that loop. `ind_shunt` → `inductor` is the one permitted
+  substitution, and even there the geometry is compared: `size_ind.py` writes the case it solved into
+  `ind_shunt.inc`'s header, so `w`, `s` and `d` are read from there rather than waved through.
 - **A gate strap must clear active.** Poly over active is a transistor: a strap flush against the
   active edge merged 25 array units into one 241 µm device with gate, drain and source shorted. Keep
   `Gat_d` = 0.07 µm of clearance and strap inside the gate's overhang band.
@@ -264,6 +291,36 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   rings make them pass at block level.
 - **No substrate ring around an inductor.** Wrapping the coils tripped p-well block and contact-bar
   rules against their markers; the coil sits over blocked p-well and wants no ties near it.
+- **Nothing with a substrate tie may sit inside a coil's footprint.** The `inductor` cell is 108 µm
+  square and its `pwell_block` marker (46/21) covers all of it, while `PWB.f` wants 0.24 µm between
+  that marker and any p-tap. Rotating the coils to face each other therefore put both HBTs' substrate
+  ties in violation, and the HBT is clean on its own `[sim]`. This is a placement constraint, not
+  something to tune: orient coils so the 108 µm body extends into empty area. It also sets the
+  floorplan width — two coils side by side need their feeds ~62 µm from the axis before their bodies
+  clear each other.
+- **The metal-finger cap's feed is on its edge, not its centre.** `cap_cmomi` with `feed=same` brings
+  PLUS on Metal4 and MINUS on Metal5 out at one point on its *left* edge. Approach it from that edge,
+  or rotate it so the feed faces the wiring; routing in from another side crosses the finger field and
+  reports Metal4 and Metal5 spacing violations.
+- **The `nmos` PCell has no gate contact at all.** The gate is bare poly with 0.18 µm of overhang past
+  active and nothing above it, so a gate net cannot leave the device without a hand-drawn contact:
+  Cont at exactly 0.16 µm (`Cnt.a` is a maximum as well as a minimum), 0.07 µm of poly around it
+  (`Cnt.d`) and 0.05 µm of Metal1 (`M1.c1`). Metal drawn near the strap without a Cont looks connected
+  and is not — LVS reported the bias device with an unnamed drain net.
+- **A shared supply rail has to grow away from the devices, not be centred on them.** An EM-sized vss
+  rail is several times wider than one array's own source rail; centred on it, the extra width reached
+  into the drain via columns, which start at the bottom of the active area. LVS reported e1, e2 and vss
+  as one net with a single 729 µm transistor `[sim]`.
+- **Guard-ring taps are not one piece of metal.** They sit at a pitch, so the ring is a single net only
+  through the substrate. To make the substrate be `vss`, land one via *inside* a tap's own Metal1;
+  a strap drawn along the ring edge leaves a 0.1 µm sliver against the tap pads and reports Metal1 and
+  contact spacing all along the row. `add_guard_ring` returns `tap_centres_um` for this.
+- **Top vias are single large-area cuts.** `via_stack` draws one TopVia1 or TopVia2 cut per instance;
+  the row and column parameters only multiply the thin-metal vias lower in a stack. More cuts means
+  more instances, which in turn sets a minimum conductor width — that, not electromigration, is what
+  decides the power ring's width.
+- **An EM-derived width is a computed number and lands off-grid.** Snap widths and the offsets derived
+  from them, or a rail reports `metal2_drw_Offgrid`.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
   continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction.
 - **Magic does not recognise the metal-finger cap as a device**: it extracts the fingers with an

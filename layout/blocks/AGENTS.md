@@ -11,8 +11,9 @@ changes.
 | --- | --- |
 | `generators.py` | the five sub-blocks, each returning a `Block` |
 | `mos_array.py` | strapped single-finger MOS arrays, for any wide device |
+| `power_ring.py` | vdd/vss ring: TopMetal2 horizontal, TopMetal1 vertical |
 | `gen_blocks.py` | build all blocks and gate them on DRC, LVS and PEX |
-| `ctle_stage.py` | the full stage: symmetric placement plus interconnect |
+| `ctle_stage.py` | the full stage: symmetric placement, power grid, interconnect |
 
 ## Blocks
 
@@ -49,36 +50,67 @@ allowance, for `LBE.a` alone.
 - **Place via stacks on a stub outside the device.** A stack's landing pads are
   wider than a pin; dropping one on a pin pushes contact and via spacing rules
   against the device's own geometry.
+- **Wire widths come from `common/em.py`.** Every drawn power and bus conductor is
+  sized from the technology LEF at the operating-point current, at a 2x derate, and
+  the block carries `em_segments` so the gate can check it. Snap the result: an EM
+  width is a computed number and lands off-grid.
+- **A shared supply rail grows away from the devices.** Centred on an array's own
+  source rail, the extra width reaches into the drain via columns and shorts the
+  drains to the rail.
+- **One device per array in the CDL.** The extractor merges drawn parallel units
+  into a single device of the total width, so `MosArray.total_spec` is the netlist
+  form — and it is the same form the schematic uses.
 
 ## CTLE stage
 
-Symmetric about a single axis, with every row centred on it and the two halves
-exact mirror images. The coils are rotated to face each other (`M135` on the left,
-`R270` on the right), which puts both supply feeds at the same height so **vdd is
-one straight TopMetal2 strap**, with the nlp feeds below it running straight down
-to the loads. Row order is VDD → L → RD → collector, per `MEMORY.md`.
+Cell name is **`ctle_dut`**, the same as the subcircuit in
+`circuits/ctle56n/spice/ctle_pdk.cir`, because it is meant to be the same cell.
+Pins are `outp outn inp inn vdd vss mgate`, in that order.
 
-The guard ring covers the active rows only and stops below the coils: a substrate
-ring around an inductor is wrong on its own terms, and wrapping the coils tripped
-p-well block and contact-bar rules against their markers.
+Symmetric about a single axis. Row order is VDD → L → RD → collector, per
+`MEMORY.md`. Bottom to top: the three MOS arrays (bias diode to the left of the
+centred tail pair), the guard ring, the centred degeneration network, the HBT pair,
+the loads, then the coils.
 
-### Current state and what remains
+The floorplan is dictated by the coil, not chosen. Its cell is 108 um square and
+its `pwell_block` marker covers all of it, so:
 
-Placement, the supply strap and the nlp nets are done, and every net in the
-extracted netlist is electrically distinct — the earlier shorts are gone.
+- Coils go **R0 and its mirror**, pins on the bottom edge and body extending up
+  into empty area. Rotating them to face each other put the markers over the HBT
+  row and `PWB.f` fired on both devices' substrate ties.
+- The feeds sit ~62 um from the axis, which is what two coils need to clear each
+  other, while the loads stay near the axis. That puts the long horizontal run on
+  `nlp`, where the coil's port capacitance already sits and which stays out of
+  `C_L`; the drawn length is reported against `CL_INTERCONNECT` in `params.inc`.
+- `nlp` crosses on **TopMetal1**, because the vdd strap has to span between the two
+  supply feeds and the loads sit inside that span.
 
-Two things are still open, both narrow:
+The guard ring encloses the **NMOS arrays only**, and one via lands inside a tap's
+own Metal1 to make the substrate be `vss` — which is what lets the netlist say the
+MOS bulk is `vss`. A substrate ring around an inductor is wrong on its own terms.
 
-1. **DRC**: `CntB.h1` and `PWB.f` violations remain, from the guard-ring taps
-   interacting with neighbouring wells rather than from the signal routing.
-   Neither responds to ring clearance, so the tap arrangement itself needs work.
-2. **LVS**: the compare does not match yet. `inp`/`inn` are not routed out to the
-   boundary, so the base nets have no path to a port.
+Degeneration is centred: the resistor is `R270` so p faces left and n right, and
+the capacitor is `R90` so its `feed=same` terminals come out of its bottom edge.
+`feed=same` stays (MEMORY.md: `feed=double` self-resonates at 30–47 GHz), so p and
+n are separated by metal — Metal4 to the resistor's left terminal, Metal5 to its
+right — rather than by orientation.
 
-The differential nets are hand-drawn trunks with stubs. That works but every
-change risks a new interaction, and each of the shorts fixed so far was found by
-the deck rather than by inspection. The better structure is
-`gf.routing.route_bundle_electrical`, already proven against this PDK in
-`../spike_routing.py`: import the placement, add Metal3 ports at the via-stack
-landings, and hand it the device boxes as obstacles so collisions are checked
-rather than hoped for.
+### Gates
+
+Five, all reported as JSON next to the layout:
+
+| Gate | Result | File |
+| --- | --- | --- |
+| parity | 11 devices match, ports match | `parity.json` |
+| EM | every conductor within its LEF limit | `em.json` |
+| DRC | clean apart from `LBE.a`/`LBE.c` | `drc_run/` |
+| LVS | netlists match | `lvs_run/` |
+| PEX | 95 C totalling 141.6 fF | `pex_run/` |
+
+Parity runs **first**: there is no point asking whether the layout matches a
+netlist that does not match the schematic. `LBE.a` and `LBE.c` are chip-area
+back-end markers on the coils and are the only rules an isolated stage is allowed
+to trip; every other context rule, latch-up included, is enforced.
+
+Magic extracts capacitance only here, because `extresist` segfaults on DC-shorted
+ports and a coil is one continuous piece of TopMetal2.

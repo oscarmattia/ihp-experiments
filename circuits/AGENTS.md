@@ -45,7 +45,18 @@ Python scripts assume the caller has already sourced `env.sh` (`PDK_ROOT`, `ngsp
   inductor model, so coils go through openEMS plus a fitted model, verified against the EM S-parameters.
 - **Size PDK resistors by ngspice `op` measurement**, not from sheet resistance or a scaled LUT lookup.
 - Multi-stage experiments give every stage the **same subcircuit port interface** so one set of testbench
-  templates serves all of them, and keep stage token namespaces prefixed to avoid collisions.
+  templates serves all of them, and keep stage token namespaces prefixed to avoid collisions. Testbenches
+  carry `{DUT_PORTS}`, `{DUT_BIAS}` and `{DUT_NODESET}` tokens, so a stage that has been converted to a
+  device-only netlist and one that has not can share the same templates.
+- **A stage that is going to be laid out contains devices only.** Ideal sources belong to whatever
+  instantiates it — the testbench standalone, the chain when cascaded — and `vss` is a pin rather than the
+  global node `0`, so the port list matches the layout. `ctle_pdk.cir` and `ctle_ideal.cir` are converted
+  (`outp outn inp inn vdd vss mgate`); `vga_*`, `driver_pdk` and `term_pdk` still hold their own sources
+  and need the same treatment before they can be laid out. `layout/common/parity.py` checks the CTLE's
+  devices and pins against the layout on every run.
+- **Emit drawable geometry.** The LVS deck compares MOS `W` and `L` with essentially no tolerance and a
+  wide MOS is drawn as an array of 5 nm-snapped single-finger units, so `size_ctle.snap_drawable_mos_w`
+  puts the sized width on that grid. A width that only exists in the schematic is a mismatch later.
 - Generated parameters: `spice/params.inc` and `spice/ind_shunt.inc` (both committed).
 - Results: `out/summary.csv`, per-pass `metrics.csv`, plots, `op.txt`; commit summaries and PNGs, not raw
   `.raw` logs.

@@ -22,8 +22,24 @@ sizing/simulation/measurement codebase, which is why they live together.
 | VGA | `vga_dut` | `spice/vga_ideal.cir`, `spice/vga_pdk.cir` | `python/size_vga.py` | `python/stage_vga.py` |
 | Chain | `chain_dut` | `spice/chain_pdk.cir` | reuses all three | `python/stage_chain.py` |
 
-Every stage presents the **same 5-port interface** `(outp outn inp inn vdd)`, which is what lets one set
-of `tb_*.cir` templates serve all of them via `prepare_tb(dut_name=...)`.
+The `tb_*.cir` templates serve every stage, but the interface is now per-stage rather than universal.
+`prepare_tb` substitutes `{DUT_PORTS}`, `{DUT_BIAS}` and `{DUT_NODESET}`, defaulting to the CTLE's values;
+the other stages pass `LEGACY_DUT_PORTS` and `LEGACY_NODESET` for the interface they have always had.
+
+| Stage | Ports | Sources |
+| --- | --- | --- |
+| CTLE | `outp outn inp inn vdd vss mgate` | none — devices only |
+| VGA, driver, termination, chain | `outp outn inp inn vdd` | still hold their own |
+
+The CTLE is converted because it is the stage being laid out, and **a cell that gets laid out can only
+contain devices**: its `Iref` is an ideal source and belongs to whoever instantiates it, which is the
+testbench standalone and `chain_pdk.cir` when cascaded. `Vs1`/`Vs2` are gone — they were 0 V sources
+tying the HBT substrate to ground and nothing measured through them, since the flow probes
+device-internal nodes. `vss` is a pin rather than the global `0` so the port list matches the layout, and
+`layout/common/parity.py` fails the layout build if the two ever diverge.
+
+The other stages need the same treatment before they can be laid out; their sources are more involved
+(the VGA also carries `Vicm`, `Vctrl`, `Vsp` and `Vsn`).
 
 ## Targets
 
@@ -62,6 +78,10 @@ of `tb_*.cir` templates serve all of them via `prepare_tb(dut_name=...)`.
   wrong level and skews the steering.
 - `Nx = 1` for both the CTLE and VGA — the FO1 relationship depends on them matching. Note the HBT's
   intrinsic `re = 7.13·(4/Nx) Ω` (28.5 Ω at `Nx=1`) self-degenerates the device ~4:1 and caps stage gain.
+- **The tail width has to be drawable.** `size_ctle.snap_drawable_mos_w` rounds it onto the array grid,
+  because a wide MOS is laid out as single-finger units whose width snaps to 5 nm and the LVS deck compares
+  MOS `W` and `L` with essentially no tolerance — 242.988 µm against a drawn 243.000 µm is a mismatch. The
+  snap moved the width by 0.005%, which moved `pdk_RD_realized_ohm` by 0.2 mΩ and nothing else.
 
 ## LUT inputs
 
