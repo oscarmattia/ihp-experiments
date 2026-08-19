@@ -1,57 +1,57 @@
 {
   "name": "ctle_dut",
   "bbox_um": {
-    "width": 298.21,
-    "height": 235.075,
-    "area": 70101.7158
+    "width": 344.5,
+    "height": 243.065,
+    "area": 83735.8925
   },
   "ports": {
     "inp": {
-      "name": "B",
-      "layer": "metal1_pin",
+      "name": "inp",
+      "layer": "metal4_drw",
       "center": [
-        130.97,
-        52.47
+        133.17,
+        -44.655
       ],
-      "width": 1.95,
+      "width": 2.88,
       "orientation": 270.0
     },
     "inn": {
-      "name": "B",
-      "layer": "metal1_pin",
+      "name": "inn",
+      "layer": "metal4_drw",
       "center": [
-        153.67,
-        52.47
+        151.47,
+        -44.655
       ],
-      "width": 1.95,
+      "width": 2.88,
       "orientation": 270.0
     },
     "outp": {
-      "name": "C",
-      "layer": "metal1_pin",
+      "name": "outp",
+      "layer": "metal4_drw",
       "center": [
-        130.97,
-        54.74
+        125.32,
+        198.41
       ],
-      "width": 1.85,
+      "width": 2.88,
       "orientation": 90.0
     },
     "outn": {
-      "name": "C",
-      "layer": "metal1_pin",
+      "name": "outn",
+      "layer": "metal4_drw",
       "center": [
-        153.67,
-        54.74
+        159.32,
+        198.41
       ],
-      "width": 1.85,
+      "width": 2.88,
       "orientation": 90.0
     },
     "vdd": {
       "name": "vdd_top",
       "layer": "topmetal2_drw",
       "center": [
-        125.175,
-        199.42
+        142.32,
+        189.41
       ],
       "width": 6.0,
       "orientation": 90.0
@@ -60,8 +60,8 @@
       "name": "vss_top",
       "layer": "topmetal2_drw",
       "center": [
-        125.175,
-        190.42
+        142.32,
+        180.41
       ],
       "width": 6.0,
       "orientation": 90.0
@@ -1636,17 +1636,25 @@
         156.82
       ],
       "coil_feeds": [
-        86.42,
-        198.22
+        120.32,
+        164.32
+      ],
+      "out_trunks": [
+        125.32,
+        159.32
+      ],
+      "in_trunks": [
+        133.17,
+        151.47
       ]
     }
   },
   "power_ring": {
     "outer_box_um": [
-      -23.93,
-      -32.655,
-      274.28,
-      202.42
+      -29.93,
+      -38.655,
+      314.57,
+      192.41
     ],
     "widths_um": {
       "vss": 6.0,
@@ -1662,8 +1670,8 @@
           "name": "vss_top",
           "layer": "topmetal2_drw",
           "center": [
-            125.175,
-            190.42
+            142.32,
+            180.41
           ],
           "width": 6.0,
           "orientation": 90.0
@@ -1672,8 +1680,8 @@
           "name": "vss_bottom",
           "layer": "topmetal2_drw",
           "center": [
-            125.175,
-            -20.655
+            142.32,
+            -26.655
           ],
           "width": 6.0,
           "orientation": 270.0
@@ -1682,8 +1690,8 @@
           "name": "vss_left",
           "layer": "topmetal1_drw",
           "center": [
-            -11.93,
-            84.88
+            -17.93,
+            76.88
           ],
           "width": 6.0,
           "orientation": 180.0
@@ -1692,8 +1700,8 @@
           "name": "vss_right",
           "layer": "topmetal1_drw",
           "center": [
-            262.28,
-            84.88
+            302.57,
+            76.88
           ],
           "width": 6.0,
           "orientation": 0.0
@@ -1704,8 +1712,8 @@
           "name": "vdd_top",
           "layer": "topmetal2_drw",
           "center": [
-            125.175,
-            199.42
+            142.32,
+            189.41
           ],
           "width": 6.0,
           "orientation": 90.0
@@ -1714,8 +1722,8 @@
           "name": "vdd_bottom",
           "layer": "topmetal2_drw",
           "center": [
-            125.175,
-            -29.655
+            142.32,
+            -35.655
           ],
           "width": 6.0,
           "orientation": 270.0
@@ -1724,8 +1732,8 @@
           "name": "vdd_left",
           "layer": "topmetal1_drw",
           "center": [
-            -20.93,
-            84.88
+            -26.93,
+            76.88
           ],
           "width": 6.0,
           "orientation": 180.0
@@ -1734,8 +1742,8 @@
           "name": "vdd_right",
           "layer": "topmetal1_drw",
           "center": [
-            271.28,
-            84.88
+            311.57,
+            76.88
           ],
           "width": 6.0,
           "orientation": 0.0
@@ -1753,8 +1761,11 @@
     "guard ring encloses the NMOS only and its taps are strapped to the vss rail, so the substrate really is vss",
     "coils rotated to face each other, so vdd is one straight TopMetal2 strap with the nlp feeds below it dropping onto the loads",
     "wire widths from the technology LEF at the operating point: 2.88 mA per tail, 8.63 mA supply",
-    "coil feeds sit 62 um from the axis because the inductor cell is 108 um square; the loads stay near the axis so the long run lands on nlp, which is outside C_L, rather than on the output",
-    "drawn nlp interconnect 128.0 um per side against the 6.80 fF budget in params.inc"
+    "coils face each other with vdd on top, so the supply is a short strap between two adjacent pins and each nlp leaves directly below its own vdd; their bodies extend outward and the channel between them is 42.0 um wide",
+    "the coil pin row sits 54.0 um above the HBTs so the pwell-block markers clear their substrate ties",
+    "outputs leave at the top edge on Metal5 and inputs at the bottom on Metal4, both passing under the ring rather than breaking it",
+    "ring squared about the axis at half-width 147.2 um and 10 um clearance, so it is equidistant from both coils; the bias diode sets the left side and the right widens to match",
+    "drawn nlp interconnect 102.6 um per side against the 6.80 fF budget in params.inc"
   ],
   "layers": {
     "activ_drw": 581,
@@ -1771,18 +1782,18 @@
     "ind_drw": 2,
     "ind_pin": 4,
     "lbe_drw": 2,
-    "metal1_drw": 1037,
+    "metal1_drw": 1041,
     "metal1_nofill": 2,
     "metal1_pin": 512,
-    "metal2_drw": 711,
+    "metal2_drw": 713,
     "metal2_nofill": 2,
     "metal2_pin": 2,
-    "metal3_drw": 393,
+    "metal3_drw": 395,
     "metal3_nofill": 2,
-    "metal4_drw": 397,
+    "metal4_drw": 405,
     "metal4_nofill": 2,
     "metal4_pin": 1,
-    "metal5_drw": 410,
+    "metal5_drw": 412,
     "metal5_nofill": 2,
     "metal5_pin": 1,
     "nometfiller_drw": 1,
@@ -1795,18 +1806,18 @@
     "res_drw": 1,
     "salblock_drw": 2,
     "substrate_drw": 352,
-    "topmetal1_drw": 45,
+    "topmetal1_drw": 42,
     "topmetal1_nofill": 2,
-    "topmetal2_drw": 55,
+    "topmetal2_drw": 57,
     "topmetal2_nofill": 2,
     "topmetal2_pin": 4,
     "topvia1_drw": 3,
-    "topvia2_drw": 35,
+    "topvia2_drw": 37,
     "trans_drw": 2,
-    "via1_drw": 3658,
-    "via2_drw": 429,
-    "via3_drw": 429,
-    "via4_drw": 425
+    "via1_drw": 3660,
+    "via2_drw": 431,
+    "via3_drw": 431,
+    "via4_drw": 433
   },
   "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
   "cdl": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
@@ -2040,62 +2051,36 @@
         "kind": "ROUTING",
         "current_a": 0.00863436,
         "note": "between the coil supply feeds",
-        "width_um": 3.0,
+        "width_um": 4.0,
         "min_width_um": 0.5396,
-        "capacity_a": 0.048,
-        "utilisation": 0.1799,
+        "capacity_a": 0.064,
+        "utilisation": 0.1349,
         "checkable": true,
         "ok": true
       },
       {
         "net": "nlp1",
-        "layer": "TopMetal1",
-        "kind": "ROUTING",
-        "current_a": 0.00287812,
-        "note": "coil feed across to the load",
-        "width_um": 2.46,
-        "min_width_um": 0.1919,
-        "capacity_a": 0.036899999999999995,
-        "utilisation": 0.078,
-        "checkable": true,
-        "ok": true
-      },
-      {
-        "net": "nlp1.drop",
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.00287812,
-        "note": "coil feed down to the crossing metal",
-        "width_um": 3.0,
+        "note": "coil feed continued inward, then down to the load",
+        "width_um": 4.0,
         "min_width_um": 0.1799,
-        "capacity_a": 0.048,
-        "utilisation": 0.06,
+        "capacity_a": 0.064,
+        "utilisation": 0.045,
         "checkable": true,
         "ok": true
       },
       {
         "net": "nlp2",
-        "layer": "TopMetal1",
-        "kind": "ROUTING",
-        "current_a": 0.00287812,
-        "note": "coil feed across to the load",
-        "width_um": 2.46,
-        "min_width_um": 0.1919,
-        "capacity_a": 0.036899999999999995,
-        "utilisation": 0.078,
-        "checkable": true,
-        "ok": true
-      },
-      {
-        "net": "nlp2.drop",
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.00287812,
-        "note": "coil feed down to the crossing metal",
-        "width_um": 3.0,
+        "note": "coil feed continued inward, then down to the load",
+        "width_um": 4.0,
         "min_width_um": 0.1799,
-        "capacity_a": 0.048,
-        "utilisation": 0.06,
+        "capacity_a": 0.064,
+        "utilisation": 0.045,
         "checkable": true,
         "ok": true
       },
@@ -2234,11 +2219,76 @@
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.00863436,
-        "note": "source rail up to the ring",
-        "width_um": 3.0,
+        "note": "source rail down to the ring, on the axis",
+        "width_um": 4.0,
         "min_width_um": 0.5396,
-        "capacity_a": 0.048,
-        "utilisation": 0.1799,
+        "capacity_a": 0.064,
+        "utilisation": 0.1349,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vdd.riser",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "coil strap up to the ring, crossing under the vss run",
+        "width_um": 4.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.06,
+        "utilisation": 0.1439,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outp",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outn",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
         "checkable": true,
         "ok": true
       }
@@ -2277,11 +2327,11 @@
         "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
       ],
       "LBE.c": [
-        "edge-pair: (-22.37,0;-54.01,31.64)|(-63.89,41.52;-63.89,31.64)",
-        "edge-pair: (-63.89,31.64;-95.53,0)|(-54.01,31.64;-54.01,41.52)",
-        "edge-pair: (-54.01,31.64;-54.01,76.38)|(-63.89,76.38;-63.89,31.64)",
-        "edge-pair: (-54.01,66.5;-54.01,76.38)|(-95.53,108.02;-63.89,76.38)",
-        "edge-pair: (-63.89,76.38;-63.89,66.5)|(-54.01,76.38;-22.37,108.02)"
+        "edge-pair: (-22.37,-44;21.63,-44)|(-22.37,0;-54.01,31.64)",
+        "edge-pair: (-54.01,-75.64;-22.37,-44)|(21.63,0;-22.37,0)",
+        "edge-pair: (-21.63,-44;22.37,-44)|(54.01,31.64;22.37,0)",
+        "edge-pair: (-22.37,-44;22.37,-44)|(22.37,0;-22.37,0)",
+        "edge-pair: (22.37,-44;54.01,-75.64)|(22.37,0;-21.63,0)"
       ]
     },
     "tables": [],
@@ -2306,7 +2356,7 @@
     "clean": true,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "2026-08-19 19:35:05 +0000: Memory Usage (145792K) : INFO : Congratulations! Netlists match.",
+    "summary": "2026-08-19 19:59:00 +0000: Memory Usage (145140K) : INFO : Congratulations! Netlists match.",
     "extracted_netlist": "/workspace/layout/blocks/out/ctle_stage/lvs_run/ctle_dut_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
@@ -2318,20 +2368,24 @@
     "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_dut_pex.spice",
     "ok": true,
     "resistors": 0,
-    "capacitors": 95,
+    "capacitors": 100,
     "total_resistance_ohm": 0.0,
     "resistor_elements": [],
     "resistance_extracted": true,
     "note": "",
-    "total_capacitance_f": 1.4159906999999993e-13,
+    "total_capacitance_f": 1.8915636000000002e-13,
     "per_net_capacitance_f": {
-      "e1": 1.4012258999999996e-13,
-      "e2": 1.3960817999999997e-13,
-      "vdd": 1.3147868e-13,
+      "e2": 1.413256e-13,
+      "e1": 1.4094690999999998e-13,
+      "vdd": 1.4078959999999997e-13,
+      "vss": 4.922430999999996e-14,
       "a_n576_1960#": 4.2925830000000006e-14,
       "m2_n576_2380#": 1.276667999999999e-14,
+      "inn": 1.2432270000000002e-14,
       "m2_n576_n1012#": 1.1656440000000001e-14,
-      "vss": 8.355719999999977e-15,
+      "inp": 1.151095e-14,
+      "outp": 1.0477950000000001e-14,
+      "outn": 1.0451880000000001e-14,
       "w_n26_n36#": 5.8320900000000005e-15,
       "a_0_0#": 5.793800000000002e-15,
       "a_68_n36#": 4.61943e-15,
@@ -2339,12 +2393,8 @@
       "a_268_0#": 3.0095100000000003e-15,
       "a_0_n86#": 1.83638e-15,
       "a_0_280#": 1.83638e-15,
-      "outp": 1.5129000000000002e-15,
-      "outn": 1.5129000000000002e-15,
       "m1_n70_n157#": 1.27668e-15,
-      "w_n656_n652#": 1.1939800000000001e-15,
-      "w_0_n70#": 8.7833e-16,
-      "w_n203_n494#": 5.679600000000001e-16
+      "w_n656_n652#": 1.1939800000000001e-15
     },
     "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",
     "error": "",

@@ -70,39 +70,63 @@ PORT_NETS = ["outp", "outn", "inp", "inn", "vdd", "vss", "mgate"]
 #: Vertical gap between floorplan rows, in um.
 ROW_GAP = 8.0
 
-#: Half-separation of the coil feeds from the symmetry axis, in um.
+#: Gap between the two coils' pin columns, in um.
 #:
-#: Set by the coil, not by choice: the inductor PCell's cell is 108 um square, so
-#: two of them side by side need their feeds this far apart before their bodies
-#: clear each other. Everything else in the stage is far narrower than that.
-FEED_DX = 62.0
+#: The coils face each other: each one's pins are on the edge nearest the axis and
+#: its 108 um body extends outward, so vdd is a short strap between two adjacent
+#: pins instead of a run across the cell. The gap has to leave a channel wide
+#: enough for everything that crosses the coil row vertically — the nlp drops, the
+#: output trunks and the vdd riser — since the coil bodies block everything else.
+COIL_PIN_GAP = 44.0
 
-#: Half-separation of the load resistors, and of the HBT pair, from the axis.
+#: Clearance from the highest p-tap to the bottom of a coil's body, in um.
 #:
-#: The loads stay near the axis rather than under the coil feeds, which puts the
-#: long horizontal run on nlp — the node between the coil and the load — instead
-#: of on the output. That is the right node to lengthen: MEMORY.md records that
-#: the coil's port capacitance lands on nlp rather than in the output load, so it
-#: stays out of C_L, and the same is true of the interconnect.
+#: The coil's pwell-block marker covers its whole 108 um cell and PWB.f wants
+#: 0.24 um between that marker and any p-tap, so a coil whose body reaches down
+#: over the HBT row puts both substrate ties in violation. Facing the coils inward
+#: means their bodies extend down as far as they extend up, so the pin row has to
+#: sit a full half-height above the HBTs.
+PWB_TAP_CLEARANCE = 2.0
+
+#: Half-separations from the axis, in um: loads, HBT pair, output trunks. All of
+#: them stay inside the channel between the coil bodies, so nothing has to cross a
+#: spiral.
 LOAD_DX = 12.0
 HBT_DX = 8.0
+OUT_TRUNK_DX = 17.0
 
-#: Drop from the coil feed row to the vdd strap, in um. The coil cell's own
-#: geometry starts 1 um below its pins and TopMetal2 wants 2 um of space, so the
-#: strap has to clear the coil by more than its own half-width.
-VDD_STRAP_DROP = 6.0
-
-#: Drop from the coil feed row to the horizontal part of the nlp runs, in um.
-NLP_ROW_DROP = 14.0
-
-#: Metal the nlp runs cross the cell on.
+#: Sideways offset of the base via from the base pin, in um.
 #:
-#: TopMetal1 rather than TopMetal2, because the vdd strap has to span the gap
-#: between the two coil supply feeds and the loads sit inside that span: an nlp run
-#: on TopMetal2 has nowhere to pass. TopMetal1 goes under the strap with no
-#: spacing rule between them, is thick enough to be lossless here, and is
-#: otherwise only used by the ring's vertical runs out at the cell edge.
-NLP_METAL = "TopMetal1"
+#: The HBT stacks collector, emitter and base at one x, with only 0.23 um between
+#: the base's Metal1 bar and the emitter's Metal2 block. Via stacks dropped below
+#: each of them land 1.13 um apart and short, which LVS reported as the base merged
+#: into the emitter. The base therefore leaves sideways along its own bar and the
+#: emitter keeps the downward offset.
+BASE_VIA_DX = 2.2
+
+#: Metal the signals leave the cell on, at both edges.
+#:
+#: Metal4 passes under the ring's TopMetal2 and TopMetal1 runs and under the coils,
+#: so a signal can reach an edge without breaking the grid. The degeneration
+#: capacitor and its Metal4 leg are the only other Metal4 in the stage and both sit
+#: within a few um of the axis, well inside the trunk positions.
+PORT_METAL = "Metal4"
+
+#: How far a signal port sits outside the ring, in um.
+PORT_REACH = 6.0
+
+#: Metal the inputs run on from the base tap down to the bottom edge. Same as
+#: PORT_METAL, so no via is needed on the way out.
+IN_METAL = PORT_METAL
+
+#: Drop from the coil pin row to the horizontal part of the nlp runs, in um. Below
+#: the pin row, so the nlp jogs and the vdd strap never share a y on TopMetal2.
+NLP_ROW_DROP = 8.0
+
+#: Clearance from the enclosed geometry to the power ring, in um. The plan asks for
+#: at least 10; the ring box is also squared about the axis, so the ring ends up
+#: further than this from the coils and equidistant from both.
+RING_CLEARANCE = 10.0
 
 #: Gap between adjacent MOS arrays, in um. Wide enough that the two arrays' bus
 #: rails, which overhang their array by the rail width, leave a clear channel
@@ -263,8 +287,12 @@ def _poly_contact(layout, cell, x: float, y: float, cuts: int = GATE_CONT_CUTS) 
 
 
 def _trunk_net(layout, cell, terminals: list[Terminal], trunk_x: float, metal: str,
-               width: float | None = None) -> None:
-    """Vertical trunk on ``metal`` plus a horizontal stub per terminal."""
+               width: float | None = None) -> tuple[float, float]:
+    """Vertical trunk on ``metal`` plus a horizontal stub per terminal.
+
+    Returns the trunk's ``(bottom, top)``, so a caller can carry the net onward
+    from where it ends rather than guessing.
+    """
     w = width if width is not None else route_width(metal)
     trunk_x = _snap(trunk_x)
     points = [_via_up(layout, cell, t, metal) for t in terminals]
@@ -272,6 +300,7 @@ def _trunk_net(layout, cell, terminals: list[Terminal], trunk_x: float, metal: s
     _rect(layout, cell, metal, trunk_x - w / 2, min(ys), trunk_x + w / 2, max(ys))
     for x, y in points:
         _rect(layout, cell, metal, min(x, trunk_x), y - w / 2, max(x, trunk_x), y + w / 2)
+    return (min(ys), max(ys))
 
 
 def _vertical_net(layout, cell, terminals: list[Terminal], metal: str,
@@ -510,66 +539,80 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
     ]
     load_top = _snap(rd_box.top)
 
-    # --- coils, feeds facing inward with the bodies extending upward -------
-    # Orientation matters for more than tidiness. The coil cell is 108 um square
-    # and its pwell-block marker covers all of it, and PWB.f wants 0.24 um between
-    # that marker and any p-tap. Rotating the coils to face each other put those
-    # markers over the HBT row, whose substrate tie then reported the violation on
-    # both devices. R0 and its mirror keep the pins on the bottom edge and the
-    # body above, where there is nothing to conflict with.
-    coil_pin_dx = _snap(abs(derive_terminals(coil, *build(coil))[0].center[0]))
-    row_y = _snap(load_top + ROW_GAP)
+    # --- coils, facing each other with vdd on top --------------------------
+    # M135 and R270 put each coil's two pins on the edge nearest the axis, stacked
+    # vertically with PLUS above MINUS, and send the 108 um body outward. So vdd is
+    # a short strap between two adjacent pins and each nlp leaves directly below
+    # its own vdd, which is what keeps the coil row's routing simple.
+    #
+    # The price is that the body now extends as far down as it does up, and its
+    # pwell-block marker covers all of it while PWB.f wants 0.24 um to any p-tap.
+    # The pin row therefore sits a full half-height above the HBTs, whose substrate
+    # ties are the highest ones in the cell. Everything between them and the coils
+    # is either p-tap free or inside the channel between the two bodies.
+    _, coil_probe = build(coil)
+    coil_half_h = _snap(coil_probe.dbbox().width() / 2.0)
+    row_y = _snap(max(load_top + ROW_GAP, hbt_top + coil_half_h + PWB_TAP_CLEARANCE))
     l1 = coil.with_name("l1")
     l2 = coil.with_name("l2")
-    l1_t, l1_box = _place(layout, cell, l1, _snap(axis - FEED_DX + coil_pin_dx), row_y, "M90")
-    l2_t, l2_box = _place(layout, cell, l2, _snap(axis + FEED_DX - coil_pin_dx), row_y)
+    l1_t, l1_box = _place(layout, cell, l1, _snap(axis - COIL_PIN_GAP / 2), row_y, "M135")
+    l2_t, l2_box = _place(layout, cell, l2, _snap(axis + COIL_PIN_GAP / 2), row_y, "R270")
     instances += [
         (l1, {"PLUS": "vdd", "MINUS": "nlp1", "sub": "vss"}),
         (l2, {"PLUS": "vdd", "MINUS": "nlp2", "sub": "vss"}),
     ]
+    # The clear channel between the two bodies. Every vertical crossing of the coil
+    # row has to stay inside it.
+    channel = (_snap(l1_box.right), _snap(l2_box.left))
 
-    # --- vdd strap between the coil supply feeds ---------------------------
-    # Drawn below the pin row: the coil's own geometry starts 1 um under its pins,
-    # so a strap at the pin y would run into both spirals.
-    strap_w = _snap(max(em.width_for_a("TopMetal2", i_supply), route_width("TopMetal2")))
-    vdd_y = _snap(row_y - VDD_STRAP_DROP)
+    # --- vdd strap across the top of the coil pins -------------------------
+    # Drawn at the feed's own width and y, so it is a straight continuation of both
+    # feeds. The deck derives the coil's w, s and d from the winding geometry inside
+    # the ind_drw marker, and the marker covers the whole coil cell: a strap of a
+    # different width meets the feed inside it and is measured as part of the
+    # winding. A 3 um strap on a 4 um feed had the coils extracting as w=1.5 um,
+    # d=45 um against the drawn 4 um and 40 um.
+    strap_w = _snap(l1_t["PLUS"].width)
+    vdd_y = l1_t["PLUS"].center[1]
     _rect(layout, cell, "TopMetal2",
-          l1_t["PLUS"].center[0] - strap_w / 2, vdd_y - strap_w / 2,
-          l2_t["PLUS"].center[0] + strap_w / 2, vdd_y + strap_w / 2)
-    for pin in (l1_t["PLUS"], l2_t["PLUS"]):
-        _rect(layout, cell, "TopMetal2",
-              pin.center[0] - strap_w / 2, vdd_y, pin.center[0] + strap_w / 2, pin.center[1])
+          l1_t["PLUS"].center[0], vdd_y - strap_w / 2,
+          l2_t["PLUS"].center[0], vdd_y + strap_w / 2)
     em_segments.append(em.Segment("vdd.strap", "TopMetal2", width_um=strap_w,
                                   current_a=i_supply, note="between the coil supply feeds"))
 
-    # --- nlp nets: down from the coil feed, then inward to the load --------
-    # The coil feed drops on TopMetal2, transitions to TopMetal1 below the vdd
-    # strap, and crosses to the load there. The load then climbs to TopMetal1 to
-    # meet it, so nothing but the coil's own feed is on TopMetal2 in this band.
-    nlp_w = _snap(max(em.width_for_a(NLP_METAL, i_tail), route_width(NLP_METAL)))
-    drop_w = _snap(max(em.width_for_a("TopMetal2", i_tail), route_width("TopMetal2")))
-    nlp_y = _snap(row_y - NLP_ROW_DROP)
+    # --- nlp nets: feed continued inward, then down to the load ------------
+    # The horizontal part leaves the pin at the feed's own width and y, for the same
+    # reason the vdd strap does: it is a straight continuation of the feed, so the
+    # winding measurement inside ind_drw is unchanged. Turning down at the pin
+    # instead adds a stub perpendicular to the feed *inside* the marker, and the
+    # deck then measured both coils as w=1.5 um, d=45 um against the drawn 4 um and
+    # 40 um. Extracted geometry, not just connectivity, depends on how a coil is
+    # approached.
+    #
+    # The turn happens at the load's own x, which is well clear of both markers, so
+    # the two runs end 2 * LOAD_DX apart on different x. Drawn as two long
+    # horizontal runs at one shared y they read as a single broken conductor even
+    # though the deck saw two nets.
+    nlp_w = _snap(l1_t["MINUS"].width)
     interconnect_um = 0.0
-    for coil_pin, load_pin, name in (
-        (l1_t["MINUS"], rd1_t[upper.name], "nlp1"),
-        (l2_t["MINUS"], rd2_t[upper.name], "nlp2"),
+    for coil_pin, load_pin, name, turn_x in (
+        (l1_t["MINUS"], rd1_t[upper.name], "nlp1", _snap(axis - LOAD_DX)),
+        (l2_t["MINUS"], rd2_t[upper.name], "nlp2", _snap(axis + LOAD_DX)),
     ):
-        feed_x = coil_pin.center[0]
-        land_x, land_y = _via_up(layout, cell, load_pin, NLP_METAL)
-        _rect(layout, cell, "TopMetal2", feed_x - drop_w / 2, nlp_y,
-              feed_x + drop_w / 2, coil_pin.center[1])
-        _via_between(layout, cell, feed_x, nlp_y, NLP_METAL, "TopMetal2")
-        _rect(layout, cell, NLP_METAL, min(feed_x, land_x), nlp_y - nlp_w / 2,
-              max(feed_x, land_x), nlp_y + nlp_w / 2)
-        _rect(layout, cell, NLP_METAL, land_x - nlp_w / 2, min(nlp_y, land_y),
-              land_x + nlp_w / 2, max(nlp_y, land_y))
-        interconnect_um += abs(feed_x - land_x) + abs(coil_pin.center[1] - nlp_y)
-        em_segments += [
-            em.Segment(name, NLP_METAL, width_um=nlp_w, current_a=i_tail,
-                       note="coil feed across to the load"),
-            em.Segment(f"{name}.drop", "TopMetal2", width_um=drop_w, current_a=i_tail,
-                       note="coil feed down to the crossing metal"),
-        ]
+        feed_x, feed_y = coil_pin.center
+        land_x, land_y = _via_up(layout, cell, load_pin, "TopMetal2")
+        _rect(layout, cell, "TopMetal2", min(feed_x, turn_x), feed_y - nlp_w / 2,
+              max(feed_x, turn_x), feed_y + nlp_w / 2)
+        _rect(layout, cell, "TopMetal2", turn_x - nlp_w / 2, min(feed_y, land_y),
+              turn_x + nlp_w / 2, max(feed_y, land_y))
+        if abs(turn_x - land_x) > 1e-6:
+            _rect(layout, cell, "TopMetal2", min(turn_x, land_x), land_y - nlp_w / 2,
+                  max(turn_x, land_x), land_y + nlp_w / 2)
+        interconnect_um += abs(feed_x - turn_x) + abs(feed_y - land_y)
+        em_segments.append(
+            em.Segment(name, "TopMetal2", width_um=nlp_w, current_a=i_tail,
+                       note="coil feed continued inward, then down to the load")
+        )
 
     # --- differential nets on Metal5, trunks placed symmetrically ----------
     sig_w = _snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
@@ -578,47 +621,119 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
                trunk_x=axis - trunk_out, metal=ROUTE_METAL, width=sig_w)
     _trunk_net(layout, cell, [q2_t["E"], nmos_ports["D_tail2"], rdeg_t["MINUS"]],
                trunk_x=axis + trunk_out, metal=ROUTE_METAL, width=sig_w)
-    _trunk_net(layout, cell, [q1_t["C"], rd1_t[lower.name]],
-               trunk_x=q1_t["C"].center[0], metal=ROUTE_METAL, width=sig_w)
-    _trunk_net(layout, cell, [q2_t["C"], rd2_t[lower.name]],
-               trunk_x=q2_t["C"].center[0], metal=ROUTE_METAL, width=sig_w)
+    # The output trunks run outboard of the loads rather than through them: the
+    # load's own via stack up to nlp includes Metal5, so a trunk sharing that x
+    # would short the output to nlp.
+    out_trunk_top = {
+        "outp": _trunk_net(layout, cell, [q1_t["C"], rd1_t[lower.name]],
+                           trunk_x=axis - OUT_TRUNK_DX, metal=ROUTE_METAL, width=sig_w)[1],
+        "outn": _trunk_net(layout, cell, [q2_t["C"], rd2_t[lower.name]],
+                           trunk_x=axis + OUT_TRUNK_DX, metal=ROUTE_METAL, width=sig_w)[1],
+    }
     em_segments += [
         em.Segment(net, ROUTE_METAL, width_um=sig_w, current_a=i_tail, note="emitter/collector run")
         for net in ("e1", "e2", "outp", "outn")
     ]
 
-    # --- power ring, and vss up to the top metal ---------------------------
+    # --- base taps, offset sideways along the base bar ---------------------
+    # Inboard on each device, so the two inputs come down either side of the axis
+    # and stay symmetric.
+    in_trunk_x: dict[str, float] = {}
+    for base, sign, name in ((q1_t["B"], +1.0, "inp"), (q2_t["B"], -1.0, "inn")):
+        bx, by = base.center
+        vx = _snap(bx + sign * BASE_VIA_DX)
+        stub_h = _snap(base.width if base.width < 1.0 else route_width("Metal1"))
+        _rect(layout, cell, "Metal1", min(bx, vx), by - stub_h / 2, max(bx, vx), by + stub_h / 2)
+        _via_between(layout, cell, vx, by, "Metal1", IN_METAL, columns=1, rows=1)
+        in_trunk_x[name] = vx
+
+    # --- power ring ---------------------------------------------------------
+    # Squared about the axis so the ring is the same distance from each coil. The
+    # bias diode hangs off the left of the NMOS row, so it is the left side that
+    # sets the half-width and the right side that widens to match.
+    devices_box = cell.dbbox()
+    ring_half = _snap(max(axis - devices_box.left, devices_box.right - axis))
     ring = add_power_ring(
-        layout, cell, cell.dbbox(),
+        layout, cell,
+        pya.DBox(_snap(axis - ring_half), devices_box.bottom,
+                 _snap(axis + ring_half), devices_box.top),
         currents={"vss": i_supply, "vdd": i_supply},
+        clearance=RING_CLEARANCE,
     )
-    # vss climbs from the Metal2 source rail to the ring's inner TopMetal2 run.
-    vss_tap_x = _snap(nmos_left + vss_rail_w)
-    _via_between(layout, cell, vss_tap_x, vss_rail_y, "Metal2", "TopMetal2",
-                 columns=3, rows=3)
-    vss_ring_y = ring.ports["vss"][1].center[1]
-    _rect(layout, cell, "TopMetal2",
-          vss_tap_x - strap_w / 2, min(vss_ring_y, vss_rail_y),
-          vss_tap_x + strap_w / 2, max(vss_ring_y, vss_rail_y))
     em_segments += ring.em_segments
-    em_segments.append(
+
+    # --- supply connections, both on the symmetry axis ---------------------
+    # vss goes down from the source rail to the inner ring run, vdd up from the
+    # coil strap to the outer one. Being on the axis makes each one symmetric with
+    # respect to the two halves it feeds.
+    #
+    # vdd has to cross the inner vss run to reach the outer vdd run, so it makes
+    # that crossing on TopMetal1, which the ring uses only for its vertical sides
+    # out at the cell edge. Without a physical connection the ring is a floating
+    # conductor that happens to share a label, and LVS cannot see that: no device
+    # touches the ring, so it never appears in the compare.
+    vss_ring_y = ring.ports["vss"][1].center[1]
+    _via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
+    _rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
+          axis + strap_w / 2, vss_rail_y)
+
+    vdd_ring_y = ring.ports["vdd"][0].center[1]
+    _via_between(layout, cell, axis, vdd_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
+    _rect(layout, cell, "TopMetal1", axis - strap_w / 2, vdd_y, axis + strap_w / 2, vdd_ring_y)
+    _via_between(layout, cell, axis, vdd_ring_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
+
+    em_segments += [
         em.Segment("vss.riser", "TopMetal2", width_um=strap_w, current_a=i_supply,
-                   note="source rail up to the ring")
-    )
+                   note="source rail down to the ring, on the axis"),
+        em.Segment("vdd.riser", "TopMetal1", width_um=strap_w, current_a=i_supply,
+                   note="coil strap up to the ring, crossing under the vss run"),
+    ]
+
+    # --- signal ports, outside the ring ------------------------------------
+    # The stage is meant to cascade, so the outputs leave at the top edge towards
+    # the next stage and the inputs at the bottom towards the previous one. Both
+    # cross under the ring's TopMetal2 runs rather than breaking the grid: the
+    # outputs on Metal5, which also carries them past the coils, and the inputs on
+    # Metal3, which nothing else in the stage uses.
+    ring_box = ring.outer_box
+    port_top = _snap(ring_box[3] + PORT_REACH)
+    port_bottom = _snap(ring_box[1] - PORT_REACH)
+    signal_ports: dict[str, Terminal] = {}
+    for name, x, y_from, y_to, orientation in (
+        ("outp", axis - OUT_TRUNK_DX, out_trunk_top["outp"], port_top, 90.0),
+        ("outn", axis + OUT_TRUNK_DX, out_trunk_top["outn"], port_top, 90.0),
+        ("inp", in_trunk_x["inp"], q1_t["B"].center[1], port_bottom, 270.0),
+        ("inn", in_trunk_x["inn"], q2_t["B"].center[1], port_bottom, 270.0),
+    ):
+        x = _snap(x)
+        # The outputs arrive on the Metal5 collector trunk and change to Metal4 at
+        # the top of it; the inputs are already on Metal4 from the base tap.
+        if name.startswith("out"):
+            _via_between(layout, cell, x, y_from, PORT_METAL, ROUTE_METAL)
+        _rect(layout, cell, PORT_METAL, x - sig_w / 2, min(y_from, y_to),
+              x + sig_w / 2, max(y_from, y_to))
+        signal_ports[name] = Terminal(
+            name=name, layer=f"{PORT_METAL.lower()}_drw",
+            center=(x, y_to), width=sig_w, orientation=orientation,
+        )
+        em_segments.append(
+            em.Segment(name, PORT_METAL, width_um=sig_w, current_a=0.0,
+                       note="signal trunk out of the cell edge")
+        )
 
     ports = {
-        "inp": q1_t["B"],
-        "inn": q2_t["B"],
-        "outp": q1_t["C"],
-        "outn": q2_t["C"],
+        "inp": signal_ports["inp"],
+        "inn": signal_ports["inn"],
+        "outp": signal_ports["outp"],
+        "outn": signal_ports["outn"],
         "vdd": ring.ports["vdd"][0],
         "vss": ring.ports["vss"][0],
         "mgate": gate_tap,
     }
 
     for terminal, net in (
-        (q1_t["B"], "inp"), (q2_t["B"], "inn"),
-        (q1_t["C"], "outp"), (q2_t["C"], "outn"),
+        (signal_ports["inp"], "inp"), (signal_ports["inn"], "inn"),
+        (signal_ports["outp"], "outp"), (signal_ports["outn"], "outn"),
         (q1_t["E"], "e1"), (q2_t["E"], "e2"),
         (rd1_t[upper.name], "nlp1"), (rd2_t[upper.name], "nlp2"),
         (l1_t["PLUS"], "vdd"), (l2_t["PLUS"], "vdd"),
@@ -642,6 +757,8 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
                 "hbt": [q_left, q_right],
                 "loads": [rd_left, rd_right],
                 "coil_feeds": [l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]],
+                "out_trunks": [_snap(axis - OUT_TRUNK_DX), _snap(axis + OUT_TRUNK_DX)],
+                "in_trunks": [in_trunk_x["inp"], in_trunk_x["inn"]],
             },
         },
         notes=[
@@ -654,9 +771,18 @@ def build_ctle_stage(params: dict[str, float] | None = None) -> Block:
             "strap with the nlp feeds below it dropping onto the loads",
             f"wire widths from the technology LEF at the operating point: "
             f"{i_tail * 1e3:.2f} mA per tail, {i_supply * 1e3:.2f} mA supply",
-            f"coil feeds sit {FEED_DX:.0f} um from the axis because the inductor "
-            "cell is 108 um square; the loads stay near the axis so the long run "
-            "lands on nlp, which is outside C_L, rather than on the output",
+            "coils face each other with vdd on top, so the supply is a short strap "
+            "between two adjacent pins and each nlp leaves directly below its own "
+            f"vdd; their bodies extend outward and the channel between them is "
+            f"{channel[1] - channel[0]:.1f} um wide",
+            f"the coil pin row sits {coil_half_h:.1f} um above the HBTs so the "
+            "pwell-block markers clear their substrate ties",
+            f"outputs leave at the top edge on {ROUTE_METAL} and inputs at the "
+            f"bottom on {IN_METAL}, both passing under the ring rather than "
+            "breaking it",
+            f"ring squared about the axis at half-width {ring_half:.1f} um and "
+            f"{RING_CLEARANCE:.0f} um clearance, so it is equidistant from both "
+            "coils; the bias diode sets the left side and the right widens to match",
             f"drawn nlp interconnect {interconnect_um:.1f} um per side against the "
             f"{float(p.get('CL_INTERCONNECT', 0.0)) * 1e15:.2f} fF budget in params.inc",
         ],
