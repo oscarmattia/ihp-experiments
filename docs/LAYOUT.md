@@ -411,3 +411,16 @@ Outputs land under `layout/devices/out/`: `gds/`, `cdl/`, `png/`,
 `manifest.json`, `specs.json`, and per-device `drc/` and `lvs/` JSON plus
 `drc_summary.json` / `lvs_summary.json`. Tool scratch directories
 (`drc_run/`, `lvs_run/`, `pex_run/`) are gitignored.
+
+`run_all.sh` is reproducible: a full regeneration reproduces every committed
+artifact byte for byte, so `git status` afterwards *is* the diff. Three things had
+to be fixed for that to hold, and all three are the kind that quietly returns:
+
+- GDS carries a modification and access date in **every structure**, so an
+  identical re-run rewrote 176 bytes across the CTLE stage's 44 cells. Written with
+  `gds2_write_timestamps` off via `gds.deterministic_save_options()`. Confirmed by
+  XOR over all 56 layers that only the dates had changed.
+- The stored LVS verdict included the deck's wall-clock time and resident size.
+- Magic's capacitance sums depend on the order it emits elements, so the last digits
+  moved and equal-valued entries swapped places. Rounded to six significant figures
+  with sort ties broken on name.

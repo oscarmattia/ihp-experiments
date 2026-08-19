@@ -90,6 +90,14 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
   and enforced at block level. Pass `allow_context=False` once guard rings exist.
 - Tool scratch directories (`drc_run/`, `lvs_run/`, `pex_run/`) are gitignored;
   GDS, CDL, PNG and JSON summaries are committed.
+- **`run_all.sh` leaves the tree clean.** A full regeneration reproduces every
+  committed artifact byte for byte, so `git status` after it *is* the diff — any
+  output means something really changed. Keeping that true needs three things, all
+  of which had to be fixed once: GDS is written with `gds2_write_timestamps` off
+  (every structure carries a date, which rewrote 176 bytes across the stage's 44
+  cells), the stored LVS verdict has the deck's timestamp and memory figure
+  stripped, and PEX values are rounded with sort ties broken on name, since Magic's
+  sums depend on the order it emits elements.
 
 ## Run it
 
