@@ -17,6 +17,7 @@ Factual notes for Cloud Agents (not a user README). Update when new PDK/sim pitf
 - Nested-dc `wrdata` **freezes** small-signal gm/caps — BJT fT uses a separate OP+AC pass (`char/bjt/ihp_bjt_sweep.py`).
 - `wrdata` of real transient vectors often emits **time twice**: `time, time, v(outp), v(outn), …` even with `set wr_singlescale`. Parse 6-col as `[:,0], [:,2], [:,3], [:,4], [:,5]`. AC mag/phase wrdata has a different layout (see `parse_ac_raw`).
 - PWL sources: use `PWL(` with `+` continuation lines; complementary PRBS on inp/inn.
+- SBR pulse-response cursor: max |vod_ac| in first 3 UI after isolated 1-bit; sample taps every UI.
 - `.param` MOS `w`/`l` and `rppd` `w`/`l` must be **meters** (not `{W}u` tokens).
 - Load order for shunt peaking: **VDD → L → RD → collector** (not RD then L to VDD in a way that kills DC gain).
 - PSRR of a matched differential pair can be numerically infinite (`vod≈0`); clip to ~120 dB.

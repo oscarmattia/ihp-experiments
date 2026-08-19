@@ -12,6 +12,7 @@ HBT CML continuous-time linear equalizer with shunt-peaked loads and emitter deg
 - PSRR **> 20 dB** (|vdd/vod|, VDD supply noise on the differential output)
 - AC sweeps from 1 MHz to **300 GHz**
 - Transient: 56G NRZ **PRBS9** (`x^9+x^5+1`), **511 UI**, **100 mVpp,diff** stimulus
+- **Single-bit response (SBR):** isolated **1 UI** pulse (32 UI settle + 1 UI high + 24 UI low), 3 pre / 10 post cursors, 2.5% tap truncation, normalized total ISI
 - Bessel shunt-peaking: m = L/(RD² C_L) = 0.32
 
 ## Supply voltage
@@ -41,10 +42,11 @@ Outputs land in `out/`:
 - `tran_diff.png` — differential transient (vod, vid), full + zoom
 - `eye_se.png` — 2-UI eye (outp/outn)
 - `eye_diff.png` — 2-UI eye (vod)
+- `sbr.png` — single-bit pulse response (vod_ac, tap markers, ISI summary; ideal pass)
 - `op.txt` — DC operating point
 - `ctle_report.md` — design narrative + sizing table (auto-generated)
 
-Transient runs on the **ideal** pass only (PDK transient skipped to keep `run.sh --no-iterate` runtime reasonable). Use `--no-tran` to skip.
+Transient runs on the **ideal** pass only (PDK transient skipped to keep `run.sh --no-iterate` runtime reasonable). Use `--no-tran` to skip PRBS and SBR.
 
 Device currents in DC OP require explicit `save` lines in the testbench (see AGENTS.md).
 

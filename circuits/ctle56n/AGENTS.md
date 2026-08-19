@@ -17,7 +17,7 @@
 | Fan-out | **FO1**: C_L = CIN of one npn13G2 input at max-fT bias |
 | CMRR | **> 6 dB** at low frequency (`Adm/Acm`, input common-mode) |
 | PSRR | **> 20 dB** at low frequency (`|vdd/vod|`, VDD noise → differential out) |
-| Analyses | DC OP + AC differential (to **300 GHz**), CM, PSRR + transient 56G NRZ PRBS9 |
+| Analyses | DC OP + AC differential (to **300 GHz**), CM, PSRR + transient 56G NRZ PRBS9 + **SBR** (1 UI pulse) |
 
 ## Topology
 
@@ -47,8 +47,18 @@ Device currents are **not** available for `print`/`wrdata` unless listed explici
 
 - PRBS9 (`x^9+x^5+1`), **511 bits** (one full period), 100 mVpp,diff (±50 mV vid), ~4.5 ps edges
 - Stimulus generated at runtime into `work_*/prbs_stim.inc` (not committed)
-- Ideal pass only by default (`--no-tran` to skip); PDK transient skipped to keep runtime reasonable
+- Ideal pass only by default (`--no-tran` skips PRBS **and** SBR); PDK transient skipped to keep runtime reasonable
 - Plots: `tran_se.png`, `tran_diff.png` (full span + 40-UI zoom), `eye_se.png`, `eye_diff.png`
+
+## Single-bit response (SBR)
+
+- **1 UI** isolated NRZ pulse after **32 UI** settle at logic 0, then **24 UI** at 0 (57 UI total)
+- Same swing as PRBS: **100 mVpp,diff** (±50 mV vid), ~4.5 ps edges
+- Stimulus generated at runtime into `work_*/sbr_stim.inc`
+- Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with |h| < **2.5%** of |cursor|
+- **Normalized total ISI** = Σ h_k / h_0 (k≠0, kept taps, signed); also report Σ|h_k|/|h_0|
+- Cursor = max |vod_ac| in first **3 UI** after pulse start (baseline-subtracted vod)
+- Plot: `out/sbr.png`; section in `ctle_report.md` after sizing table
 
 ## AC plots
 
@@ -65,7 +75,7 @@ Device currents are **not** available for `print`/`wrdata` unless listed explici
 | `python/size_ctle.py` | LUT sizing → `spice/params.inc` |
 | `python/run_sims.py` | ngspice DC/AC/tran, plots, `out/summary.csv`, `ctle_report.md` |
 | `spice/ctle_ideal.cir` / `ctle_pdk.cir` | DUT subcircuits |
-| `spice/tb_dc.cir`, `tb_ac_diff.cir`, `tb_ac_cm.cir`, `tb_ac_psrr.cir`, `tb_tran.cir` | Testbenches |
+| `spice/tb_dc.cir`, `tb_ac_diff.cir`, `tb_ac_cm.cir`, `tb_ac_psrr.cir`, `tb_tran.cir`, `tb_sbr.cir` | Testbenches |
 | `run.sh` | Source env + size + sims |
 | `out/` | Results (commit `summary.csv`, PNG, `op.txt`, `ctle_report.md`) |
 
@@ -82,7 +92,7 @@ Or:
 source ~/.local/share/ihp-eda/env.sh
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/size_ctle.py
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/run_sims.py
-$IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/run_sims.py --no-tran   # skip transient
+$IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/run_sims.py --no-tran   # skip PRBS + SBR transient
 ```
 
 `run_sims.py` runs ideal pass first, iterates RD/Rs/Cs/L if targets miss, then PDK passives. PSRR is clipped to 120 dB when `vod≈0` (matched differential).
