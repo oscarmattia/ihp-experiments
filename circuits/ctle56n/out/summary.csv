@@ -31,3 +31,14 @@ ideal_Ic_A,0.00288839
 ideal_Id_tail_A,0.00289597
 ideal_RD_realized_ohm,87.0000
 ideal_m,0.3200
+pdk_dc_gain_dB,-0.236
+pdk_peaking_28G_dB,5.390
+pdk_G_peak_dB,5.189
+pdk_f_peak_Hz,3.21178e+10
+pdk_f_3dB_Hz,1.00985e+11
+pdk_CMRR_dB,23.093
+pdk_PSRR_dB,120.000
+pdk_VCE_V,0.9100
+pdk_RD_realized_ohm,86.7149
+pdk_m,0.3511
+pdk_targets_ok,True

@@ -13,14 +13,3 @@ vga_pdk_Ic_A,0.00125689
 vga_pdk_Id_tail_A,0.00574877
 vga_pdk_RD_realized_ohm,nan
 vga_pdk_m,nan
-vga_pdk_eye_height_mV,145.90
-vga_pdk_eye_width_UI,0.5050
-vga_pdk_eye_width_ps,9.018
-vga_pdk_eye_pp_swing_mV,154.63
-vga_pdk_eye_sample_phase_UI,0.4219
-eye_phase_invariance_ok,yes
-eye_phase_invariance,height_err/pp=0.0000 (tol 0.02) width_err=0.0000 (tol 0.05)
-vga_usable_vctrl_max,0.6500
-vga_vce_cross_vctrl,0.1500
-vga_vctrl_max_op_ok,no
-vga_vce_floor_V,0.900

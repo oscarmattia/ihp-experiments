@@ -24,34 +24,34 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 
 ## Sizing summary
 
-| Parameter | Symbol | Value | Notes |
-| --- | --- | --- | --- |
-| Emitter multiplier | Nx | 1 | HBT LUT index |
-| HBT VBE (LUT) | VBE | 0.950 V | max-fT bias |
-| Input common-mode | VBASE | 1.396 V | inp/inn DC |
-| Supply | VDD | 1.600 V | below BVceo ~1.6 V |
-| HBT collector current | Ic | 2.888 mA | per side |
-| Tail current | I_tail | 2.878 mA | Ic per tail (×2 devices) |
-| Transition frequency | f_T | 348.80 GHz | LUT at bias |
-| Transconductance | g_m | 28.51 mS |  |
-| Input capacitance | C_in | 10.36 fF | HBT CIN |
-| Load capacitance | C_L | 25.13 fF | Miller + route (no coil port C) |
-| Load resistor | R_D | 87.0 Ω | shunt peak |
-| Emitter degeneration | R_s | 86.6 Ω |  |
-| Degeneration cap | C_s | 183.7 fF | ideal or MIM |
-| Drain inductor | L | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
-| Bessel MFD | m | 0.32 | L/(R_D² C_L) |
-| MOS tail W/L/VGS | W/L/VGS | 243/1.0/0.550 V | LV NMOS + mirror |
-| RPPD load | W/L | ideal R | LUT ≈ R_D/0.88 |
-| DC gain | A_v0 | -0.25 dB | −6…0 dB target |
-| Peaking @ 28 GHz | — | 5.46 dB | 3–10 dB target |
-| Peak AC gain | G_peak | 5.22 dB |  |
-| Peak frequency | f_peak | 29.97 GHz |  |
-| −3 dB bandwidth | f_{−3dB} | 94.22 GHz | after peak |
-| CMRR | — | 23.09 dB | > 6 dB |
-| PSRR | — | 120.00 dB | > 20 dB (clipped 120 dB) |
-| HBT VCE | V_CE | 0.910 V |  |
-| MOS tail VDS | V_DS,tail | 0.438 V |  |
+| Parameter | Symbol | Ideal | PDK | Notes |
+| --- | --- | --- | --- | --- |
+| Emitter multiplier | Nx | 1 | 1 | HBT LUT index |
+| HBT VBE (LUT) | VBE | 0.950 V | 0.950 V | max-fT bias |
+| Input common-mode | VBASE | 1.396 V | 1.396 V | inp/inn DC |
+| Supply | VDD | 1.600 V | 1.600 V | below BVceo ~1.6 V |
+| HBT collector current | Ic | 2.888 mA | 2.888 mA | per side |
+| Tail current | I_tail | 2.878 mA | 2.878 mA | Ic per tail (×2 devices) |
+| Transition frequency | f_T | 348.80 GHz | 348.80 GHz | LUT at bias |
+| Transconductance | g_m | 28.51 mS | 28.51 mS |  |
+| Input capacitance | C_in | 10.36 fF | 10.36 fF | HBT CIN |
+| Load capacitance | C_L | 25.13 fF | 25.13 fF | Miller + route (no coil port C) |
+| Load resistor | R_D | 87.0 Ω | 5.0×1.4 µm | shunt peak |
+| Emitter degeneration | R_s | 86.6 Ω | 86.6 Ω |  |
+| Degeneration cap | C_s | 183.7 fF | 183.7 fF | ideal or MIM |
+| Drain inductor | L | 60.88 pH | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
+| Bessel MFD | m | 0.32 | 0.32 | L/(R_D² C_L) |
+| MOS tail W/L/VGS | W/L/VGS | 243/1.0/0.550 V | 243/1.0/0.550 V | LV NMOS + mirror |
+| RPPD load | W/L | ideal R | 5.0×1.4 µm | LUT ≈ R_D/0.88 |
+| DC gain | A_v0 | -0.25 dB | -0.24 dB | −6…0 dB target |
+| Peaking @ 28 GHz | — | 5.46 dB | 5.39 dB | 3–10 dB target |
+| Peak AC gain | G_peak | 5.22 dB | 5.19 dB |  |
+| Peak frequency | f_peak | 29.97 GHz | 32.12 GHz |  |
+| −3 dB bandwidth | f_{−3dB} | 94.22 GHz | 100.99 GHz | after peak |
+| CMRR | — | 23.09 dB | 23.09 dB | > 6 dB |
+| PSRR | — | 120.00 dB | 120.00 dB | > 20 dB (clipped 120 dB) |
+| HBT VCE | V_CE | 0.910 V | 0.910 V |  |
+| MOS tail VDS | V_DS,tail | 0.438 V | 0.438 V |  |
 
 Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
 Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
