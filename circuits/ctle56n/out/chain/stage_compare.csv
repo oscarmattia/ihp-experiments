@@ -1,0 +1,6 @@
+stage,metric,chain_28G_dB,standalone_28G_dB,delta_dB
+term_IL,gain_28GHz,-0.000,6.673,-6.673
+ctle,gain_28GHz,5.185,5.145,0.040
+vga_mid,gain_28GHz,2.028,-0.994,3.022
+chain_e2e_pad,gain_28GHz,7.213,nan,nan
+chain_e2e_src,gain_28GHz,0.490,nan,nan

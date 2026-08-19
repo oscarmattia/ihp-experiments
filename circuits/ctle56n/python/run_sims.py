@@ -45,8 +45,11 @@ from ctlelib import (  # noqa: E402
     SBR_SETTLE_UI,
     SimMetrics,
     SbrResult,
+    EyeMetrics,
     compute_ac_peak_metrics,
+    compute_eye_metrics,
     extract_sbr,
+    eye_metrics_rows,
     group_delay_s,
     interp_db_at,
     parse_ac_raw,
@@ -262,7 +265,7 @@ def run_tran(
     spice_dir: Path,
     vbase: float,
     extra_params: dict[str, str] | None = None,
-) -> None:
+) -> EyeMetrics:
     """Run 56G NRZ PRBS9 transient and plot waveforms + eye diagrams."""
     models = pdk_models()
     dut_cir = spice_dir / dut_rel
@@ -292,6 +295,7 @@ def run_tran(
     plot_tran_diff(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_diff.png")
     plot_eye_se(time_s, v_outp, v_outn, pout / "eye_se.png")
     plot_eye_diff(time_s, v_outp, v_outn, pout / "eye_diff.png")
+    return compute_eye_metrics(time_s, v_outp, v_outn)
 
 
 def run_sbr(
@@ -414,6 +418,9 @@ def write_summary(
     pdk: SimMetrics | None,
     sbr_ideal: SbrResult | None = None,
     sbr_pdk: SbrResult | None = None,
+    eye_ideal: EyeMetrics | None = None,
+    eye_pdk: EyeMetrics | None = None,
+    extra_rows: list[list[str]] | None = None,
 ) -> None:
     rows = [
         ["parameter", "value"],
@@ -452,6 +459,8 @@ def write_summary(
     ]
     if sbr_ideal:
         rows += _summary_sbr_rows("sbr", sbr_ideal)
+    if eye_ideal:
+        rows += eye_metrics_rows("ideal", eye_ideal)
     if pdk:
         rows += [
             ["pdk_dc_gain_dB", f"{pdk.dc_gain_db:.3f}"],
@@ -468,6 +477,10 @@ def write_summary(
         ]
     if sbr_pdk:
         rows += _summary_sbr_rows("pdk_sbr", sbr_pdk)
+    if eye_pdk:
+        rows += eye_metrics_rows("pdk", eye_pdk)
+    if extra_rows:
+        rows += extra_rows
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
 
@@ -516,7 +529,7 @@ Waveforms: `out/{out_subdir}/sbr.png`, `out/{out_subdir}/sbr.csv`, `out/{out_sub
 
 Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **{SBR_SETTLE_UI} UI** settle at logic 0.
 Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; drop taps with
-|h| < **{SBR_KEEP_FRAC * 100:.1f}%** of |cursor| (h_0 always kept).
+|h| < **{SBR_KEEP_FRAC * 100:.2g}%** of |cursor| (h_0 always kept).
 
 | Tap | k | h (mV) | h / h_0 | Kept |
 | --- | --- | --- | --- | --- |
@@ -525,7 +538,7 @@ Sample **{SBR_PRE} pre-cursors + cursor + {SBR_POST} post-cursors** every UI; dr
 - Main cursor h_0 = **{sbr.cursor_mV:.2f} mV** at t = **{sbr.t_cursor_ui:.3f} UI** after pulse start
 - Normalized total ISI = Σ h_k / h_0 = **{sbr.isi_norm:.4f}** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **{sbr.isi_abs:.4f}** (same taps)
-- Taps with |h| < {SBR_KEEP_FRAC * 100:.1f}% of |cursor| are omitted from the ISI sums.
+- Taps with |h| < {SBR_KEEP_FRAC * 100:.2g}% of |cursor| are omitted from the ISI sums.
 """
 
 
@@ -660,12 +673,65 @@ Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk
     path.write_text(body)
 
 
+def _read_pass_metrics(path: Path) -> list[tuple[str, str]]:
+    if not path.is_file():
+        return []
+    rows: list[tuple[str, str]] = []
+    with path.open(newline="") as f:
+        reader = csv.reader(f)
+        next(reader, None)
+        for row in reader:
+            if len(row) >= 2:
+                rows.append((row[0], row[1]))
+    return rows
+
+
+def aggregate_front_end_summary(exp: Path) -> None:
+    """Append term/VGA pass metrics to out/summary.csv after stage runs."""
+    summary_path = exp / "out" / "summary.csv"
+    if not summary_path.is_file():
+        print(f"No CTLE summary at {summary_path}; skipping front-end aggregate")
+        return
+
+    existing: list[list[str]] = []
+    with summary_path.open(newline="") as f:
+        reader = csv.reader(f)
+        header = next(reader, None)
+        if header:
+            existing.append(header)
+        for row in reader:
+            existing.append(row)
+
+    seen = {row[0] for row in existing[1:] if row}
+    extra_passes = [
+        ("term", exp / "out" / "term" / "metrics.csv"),
+        ("vga_ideal", exp / "out" / "vga_ideal" / "metrics.csv"),
+        ("vga_pdk", exp / "out" / "vga_pdk" / "metrics.csv"),
+    ]
+    for prefix, mpath in extra_passes:
+        for key, val in _read_pass_metrics(mpath):
+            out_key = key if key.startswith(f"{prefix}_") else f"{prefix}_{key}"
+            if out_key in seen:
+                continue
+            existing.append([out_key, val])
+            seen.add(out_key)
+
+    with summary_path.open("w", newline="") as f:
+        csv.writer(f).writerows(existing)
+    print(f"Updated front-end summary: {summary_path}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-iterate", action="store_true", help="Skip iteration loop")
     parser.add_argument("--no-pdk", action="store_true", help="Skip PDK passive pass")
     parser.add_argument("--no-tran", action="store_true", help="Skip 56G NRZ PRBS9 and SBR transient")
     parser.add_argument("--force-size", action="store_true", help="Re-run sizer")
+    parser.add_argument(
+        "--aggregate-summary",
+        action="store_true",
+        help="Merge term/VGA metrics.csv into out/summary.csv and exit",
+    )
     parser.add_argument(
         "--scale",
         type=float,
@@ -679,6 +745,10 @@ def main() -> None:
         help="Degeneration peaking target dB (only with --force-size or iterate loop)",
     )
     args = parser.parse_args()
+
+    if args.aggregate_summary:
+        aggregate_front_end_summary(_EXP)
+        return
 
     spice_dir = _EXP / "spice"
     params_inc = spice_dir / "params.inc"
@@ -706,6 +776,8 @@ def main() -> None:
 
     sbr_ideal: SbrResult | None = None
     sbr_pdk: SbrResult | None = None
+    eye_ideal: EyeMetrics | None = None
+    eye_pdk: EyeMetrics | None = None
     vbase: float | None = None
     if not args.no_tran:
         vbase_m = re.search(
@@ -715,10 +787,12 @@ def main() -> None:
         if vbase_m:
             vbase = float(vbase_m.group(1))
             print("Running ideal transient (56G NRZ PRBS9)...")
-            run_tran("ideal", "ctle_ideal.cir", spice_dir, vbase)
+            eye_ideal = run_tran("ideal", "ctle_ideal.cir", spice_dir, vbase)
             print("Running ideal single-bit response (1 UI pulse)...")
             sbr_ideal = run_sbr("ideal", "ctle_ideal.cir", spice_dir, vbase)
-            write_pass_metrics(pass_out("ideal") / "metrics.csv", ideal, sbr_ideal)
+            write_pass_metrics(
+                pass_out("ideal") / "metrics.csv", ideal, sbr_ideal, eye_ideal
+            )
 
     pdk_metrics = None
     pdk_extra: dict[str, str] | None = None
@@ -749,15 +823,28 @@ def main() -> None:
             )
             if not args.no_tran and vbase is not None:
                 print("Running PDK transient (56G NRZ PRBS9)...")
-                run_tran("pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra)
+                eye_pdk = run_tran(
+                    "pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra
+                )
                 print("Running PDK single-bit response (1 UI pulse)...")
-                sbr_pdk = run_sbr("pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra)
-                write_pass_metrics(pass_out("pdk") / "metrics.csv", pdk_metrics, sbr_pdk)
+                sbr_pdk = run_sbr(
+                    "pdk", "ctle_pdk.cir", spice_dir, vbase, extra_params=pdk_extra
+                )
+                write_pass_metrics(
+                    pass_out("pdk") / "metrics.csv", pdk_metrics, sbr_pdk, eye_pdk
+                )
         except RuntimeError as exc:
             print(f"PDK pass failed: {exc}")
 
     write_summary(
-        out_dir / "summary.csv", params, ideal, pdk_metrics, sbr_ideal, sbr_pdk
+        out_dir / "summary.csv",
+        params,
+        ideal,
+        pdk_metrics,
+        sbr_ideal,
+        sbr_pdk,
+        eye_ideal,
+        eye_pdk,
     )
     write_ctle_report(
         _EXP / "ctle_report.md", params, ideal, pdk_metrics, sbr_ideal, sbr_pdk

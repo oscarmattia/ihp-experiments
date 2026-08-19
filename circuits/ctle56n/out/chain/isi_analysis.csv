@@ -1,0 +1,47 @@
+stage,k,h_mV,h_over_h0,kept,note
+ctle_standalone,-3,0.0000,-4.1573e-17,no,
+ctle_standalone,-2,0.0000,-4.1573e-17,no,
+ctle_standalone,-1,0.0000,-4.1573e-17,no,
+ctle_standalone,0,-166.9088,1,yes,
+ctle_standalone,1,49.4720,-0.296401,yes,
+ctle_standalone,2,12.0734,-0.0723353,yes,
+ctle_standalone,3,2.4812,-0.0148655,yes,
+ctle_standalone,4,0.5074,-0.00304022,no,
+ctle_standalone,5,0.0997,-0.000597193,no,
+ctle_standalone,6,0.0148,-8.88846e-05,no,
+ctle_standalone,7,-0.0032,1.94119e-05,no,
+ctle_standalone,8,-0.0074,4.42158e-05,no,
+ctle_standalone,9,-0.0085,5.10715e-05,no,
+ctle_standalone,10,-0.0090,5.36649e-05,no,
+vga_standalone_mid,-3,0.0000,-0,no,
+vga_standalone_mid,-2,0.0000,-0,no,
+vga_standalone_mid,-1,0.1427,-0.00143111,no,
+vga_standalone_mid,0,-99.7319,1,yes,
+vga_standalone_mid,1,-0.8979,0.0090034,yes,
+vga_standalone_mid,2,0.2199,-0.00220487,no,
+vga_standalone_mid,3,0.0676,-0.000677482,no,
+vga_standalone_mid,4,0.0211,-0.000212007,no,
+vga_standalone_mid,5,0.0054,-5.39217e-05,no,
+vga_standalone_mid,6,-0.0010,9.56421e-06,no,
+vga_standalone_mid,7,-0.0040,3.96463e-05,no,
+vga_standalone_mid,8,-0.0056,5.62408e-05,no,
+vga_standalone_mid,9,-0.0066,6.61846e-05,no,
+vga_standalone_mid,10,-0.0072,7.26763e-05,no,
+chain_mid,-3,-0.0001,-1.29481e-06,no,
+chain_mid,-2,-0.0002,-1.4834e-06,no,
+chain_mid,-1,-0.0002,-1.67199e-06,no,
+chain_mid,0,106.0483,1,yes,
+chain_mid,1,-19.8328,-0.187017,yes,chain tap
+chain_mid,2,-7.4440,-0.0701947,yes,chain tap
+chain_mid,3,-1.4949,-0.0140966,yes,chain tap
+chain_mid,4,-0.2755,-0.00259752,no,
+chain_mid,5,-0.0345,-0.000325298,no,
+chain_mid,6,0.0124,0.000117344,no,
+chain_mid,7,0.0211,0.00019852,no,
+chain_mid,8,0.0221,0.000208798,no,
+chain_mid,9,0.0218,0.000205861,no,
+chain_mid,10,0.0213,0.000201133,no,
+
+metric,ctle_standalone,chain_mid,comment
+isi_norm,-0.383602,-0.271308,chain ISI vs CTLE-only
+isi_abs,0.383602,0.271308,sum |h_k|/|h_0|

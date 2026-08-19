@@ -1,0 +1,15 @@
+quantity,value,sized_for,note
+VDD,1.6500,shared,chain rail
+vcm_pad,1.3740,1.3740,bond pad CM
+vtt,1.3740,1.3740,on-chip termination CM (CTLE input target)
+ctle_in_CM,1.3740,1.3740,CTLE base CM post-term
+ctle_VDS_tail,0.4189,0.4240,emitter VDS
+ctle_Vout_CM,1.3996,1.6240,CTLE collector CM → VGA input
+ctle_Ic,0.00287341,,per HBT
+ctle_VCE,0.9783,,signal HBT
+vga_VBASE,1.6240,1.6240,dummy-pair + input CM reference
+vga_Vout_CM,1.3973,,VGA output
+vga_Ic_signal,0.00122776,,avg signal pair @ mid VCTRL
+vga_Ic_dummy,0.00167435,,avg dummy pair @ mid VCTRL
+vga_VCE_signal,0.8872,,
+vga_VCE_dummy,0.9077,,

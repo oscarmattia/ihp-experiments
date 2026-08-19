@@ -26,8 +26,10 @@ C_shunt_diff_fF,39.3
 C_extracted_diff_fF,45.5
 f_Zin_3dB_Hz,3.49408e+10
 sbr_cursor_mV,50.0627
-sbr_isi_norm_2p5pct,0
-sbr_isi_abs_2p5pct,0
-sbr_isi_norm_0p5pct,0
-sbr_isi_abs_0p5pct,0
-sbr_kept_taps_0p5pct,1
+sbr_isi_norm,0
+sbr_isi_abs,0
+term_eye_height_mV,50.13
+term_eye_width_UI,0.5200
+term_eye_width_ps,9.286
+term_eye_pp_swing_mV,50.13
+term_eye_sample_phase_UI,0.3113

@@ -24,8 +24,9 @@ from char.common.lut import load_lut  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from size_ind import DEFAULT_OUT, generate_ind_shunt  # noqa: E402
+from size_term import VDD_DEFAULT_V  # noqa: E402
 
-NYQUIST_HZ = 28e9
+VDD_V = VDD_DEFAULT_V  # single 1.65 V rail for term, CTLE, VGA, and chain
 F_Z_HZ = 10e9  # degeneration zero — below Nyquist for ~6 dB peaking at 28 GHz
 MFD = 0.32
 RPPD_RSH = 260.0  # Ω/sq typ (cornerRES.lib)
@@ -102,6 +103,7 @@ class CtleParams:
     cap_l_um: float = 0.0
     cs_ideal: bool = True
     vbase: float = 0.0
+    vout_cm: float = 0.0
     scale: float = 1.0
     peaking_db: float = 7.0
     rd_min_ohm: float = 0.0
@@ -525,6 +527,8 @@ def compute_elements(
     re: float,
     scale: float = 1.0,
     peaking_db_target: float = 7.0,
+    tail_vds_v: float = TAIL_VDS_V,
+    vce_target_v: float = 1.05,
 ) -> tuple[float, float, float, float, float, float]:
     """Return RD, Rs, Cs, L, VDD, RD_min.
 
@@ -555,28 +559,48 @@ def compute_elements(
 
     cs = 1.0 / (2.0 * math.pi * F_Z_HZ * rs)
     l_h = MFD * rd ** 2 * cl_f
-    target_vce = 1.05
-    vdd = target_vce + ic * rd + TAIL_VDS_V
-    vdd = max(1.35, min(vdd, 1.70))
+    vdd = vce_target_v + ic * rd + tail_vds_v
+    vdd = max(1.35, min(vdd, VDD_V))
     return rd, rs, cs, l_h, vdd, rd_min
+
+
+def ctle_collector_cm(vdd_v: float, ic_a: float, rd_ohm: float) -> float:
+    """CTLE output common mode from realized bias: VDD − Ic·RD."""
+    return vdd_v - ic_a * rd_ohm
 
 
 def size_ctle(
     nx_idx: int = 0,
     scale: float = 1.0,
     peaking_db: float = 7.0,
+    vbase_input: float | None = None,
 ) -> CtleParams:
     paths = _repo_paths()
-    vbe, ic, gm, ft, cbe, cbc, cin_lut, _ = hbt_caps_at_bias(paths["bjt"], nx_idx=nx_idx)
+    vbe, ic, gm, ft, cbe, cbc, cin_lut, vce_lut = hbt_caps_at_bias(
+        paths["bjt"], nx_idx=nx_idx
+    )
     nx = int(load_lut(paths["bjt"])[0]["Nx"][nx_idx])
     re = hbt_re_ohm(nx)
     cl_f, cl_miller, cl_ic = budget_cl_f(cbe, cbc, FO1_AV_MILLER)
 
+    if vbase_input is None:
+        vbase_input = vbe + TAIL_VDS_V
+    tail_vds = vbase_input - vbe
+
     rd, rs, cs, l_h, vdd, rd_min = compute_elements(
-        gm, cl_f, ic, re, scale=scale, peaking_db_target=peaking_db
+        gm,
+        cl_f,
+        ic,
+        re,
+        scale=scale,
+        peaking_db_target=peaking_db,
+        tail_vds_v=tail_vds,
+        vce_target_v=vce_lut,
     )
     itail = ic  # per tail device (two tails, each sources Ic)
-    mos_w, mos_m, mos_vgs, mos_l = size_mos_tail(paths["mos"], itail)
+    mos_w, mos_m, mos_vgs, mos_l = size_mos_tail(
+        paths["mos"], itail, vds_target=tail_vds
+    )
     rppd_w, rppd_l, rppd_r = size_rppd(paths["rppd"], rd, lut_scale=1.0)
     rsil_w, rsil_l, rsil_r = size_rsil(rs, paths["rsil"])
     rs_actual = rsil_r
@@ -587,7 +611,8 @@ def size_ctle(
     m_bessel = l_h / (rd ** 2 * cl_f)
     m_ideal = m_bessel
     m_pdk = ind_model.l_band_h / (rppd_r ** 2 * cl_f)
-    vbase = vbe + TAIL_VDS_V
+    vbase = vbase_input
+    vout_cm = ctle_collector_cm(vdd, ic, rppd_r)
 
     return CtleParams(
         nx=nx,
@@ -628,6 +653,7 @@ def size_ctle(
         cap_l_um=cmomi_l,
         cs_ideal=False,
         vbase=vbase,
+        vout_cm=vout_cm,
         scale=scale,
         peaking_db=peaking_db,
         rd_min_ohm=rd_min,
@@ -719,6 +745,7 @@ def write_params_inc(params: CtleParams, path: Path) -> None:
         f".param Nx={params.nx}",
         f".param VBE={params.vbe:.6g}",
         f".param VBASE={params.vbase:.6g}",
+        f".param VOUT_CM={params.vout_cm:.6g}",
         f".param VDD={params.vdd:.6g}",
         f".param RD={params.rd_ohm:.6g}",
         f".param RS={params.rs_ohm:.6g}",
@@ -793,6 +820,7 @@ def print_summary(params: CtleParams) -> None:
     )
     print(
         f"  VDD={params.vdd:.3f} V  VBASE={params.vbase:.3f} V  "
+        f"Vout_CM(est)={params.vout_cm:.3f} V  "
         f"VDS_tail(est)={vds_tail:.3f} V  I_tail(per dev)={params.itail_a:.4e} A"
     )
     print(
@@ -835,7 +863,17 @@ def main() -> None:
     if not os.environ.get("PDK_ROOT"):
         print("Warning: PDK_ROOT not set — assume env.sh was sourced for SPICE runs.")
 
-    params = size_ctle(nx_idx=args.nx_idx, scale=args.scale, peaking_db=args.peaking_db)
+    from size_term import size_term  # noqa: E402
+
+    term = size_term()
+    print(f"  Termination vtt={term.vbase:.4f} V (target ~1.40 V)")
+
+    params = size_ctle(
+        nx_idx=args.nx_idx,
+        scale=args.scale,
+        peaking_db=args.peaking_db,
+        vbase_input=term.vbase,
+    )
     write_params_inc(params, args.out)
     print_summary(params)
     if args.json:

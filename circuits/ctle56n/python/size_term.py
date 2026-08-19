@@ -128,9 +128,9 @@ def pick_rppd_pair(
                     vtt_est = vdd * r_bot / (r_top + r_bot)
                     idiv_est = vdd / (r_top + r_bot)
                     err = (
-                        abs(vtt_est - vtt) / vtt
+                        10.0 * abs(vtt_est - vtt) / vtt
                         + abs(idiv_est - idiv) / idiv
-                        + 0.05 * abs(r_top - r_top_target) / r_top_target
+                        + 0.02 * abs(r_top - r_top_target) / r_top_target
                     )
                     if err < best_err:
                         best_err = err

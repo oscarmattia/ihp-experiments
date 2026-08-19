@@ -25,6 +25,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from ctlelib import (  # noqa: E402
     SbrResult,
     compute_ac_peak_metrics,
+    compute_eye_metrics,
+    extract_sbr,
+    eye_metrics_rows,
     group_delay_s,
     interp_db_at,
     parse_ac_raw,
@@ -46,6 +49,7 @@ from ctlelib import (  # noqa: E402
     write_tran_csv,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
+from ctlelib.metrics import EyeMetrics  # noqa: E402
 from size_term import (  # noqa: E402
     NYQUIST_HZ,
     RSRC_LEG_OHM,
@@ -59,23 +63,11 @@ from size_term import (  # noqa: E402
 )
 
 TERM_DUT_NAME = "term_dut"
-SBR_KEEP_025 = 0.025
-SBR_KEEP_005 = 0.005
-
-
 TERM_DC_SAVE_LINES = "save v(outp) v(outn) v(inp) v(inn) v(vdd) v(xu1.vtt)"
 TERM_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd) v(xu1.vtt)\n"
     "print (v(vdd)-v(xu1.vtt))/273.7"
 )
-def _write_sbr_taps_extra(path: Path, sbr: SbrResult) -> None:
-    h0 = sbr.cursor_mV
-    with path.open("w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["k", "h_mV", "h_over_h0", "kept"])
-        for k, h_mV, kept in sbr.taps:
-            ratio = h_mV / h0 if h0 != 0 else ""
-            w.writerow([k, h_mV, ratio, "yes" if kept else "no"])
 
 
 @dataclass
@@ -97,7 +89,7 @@ class TermMetrics:
     c_extracted_diff_ff: float
     f_zin_3db_hz: float
     sbr: SbrResult | None = None
-    sbr_05: SbrResult | None = None
+    eye: EyeMetrics | None = None
 
 
 def term_out() -> Path:
@@ -291,58 +283,6 @@ def _estimate_c_diff_from_z(
     return c_diff, f_3db
 
 
-def extract_sbr_keep(
-    time_s: np.ndarray,
-    v_outp: np.ndarray,
-    v_outn: np.ndarray,
-    keep_frac: float,
-) -> SbrResult:
-    """SBR tap extraction with configurable keep threshold."""
-    from ctlelib.metrics import SBR_BASELINE_UI_HI, SBR_BASELINE_UI_LO, SBR_POST, SBR_PRE
-    from ctlelib.stim import SBR_SETTLE_UI, UI_S
-
-    vod = v_outp - v_outn
-    t_base_lo = SBR_BASELINE_UI_LO * UI_S
-    t_base_hi = SBR_BASELINE_UI_HI * UI_S
-    base_mask = (time_s >= t_base_lo) & (time_s <= t_base_hi)
-    baseline = float(np.mean(vod[base_mask]))
-    vod_ac = vod - baseline
-
-    t_pulse_start = SBR_SETTLE_UI * UI_S
-    search_mask = (time_s >= t_pulse_start) & (time_s <= t_pulse_start + 3 * UI_S)
-    vod_search = vod_ac[search_mask]
-    time_search = time_s[search_mask]
-    peak_idx = int(np.argmax(np.abs(vod_search)))
-    t_cursor = float(time_search[peak_idx])
-
-    taps_raw: dict[int, float] = {}
-    for k in range(-SBR_PRE, SBR_POST + 1):
-        taps_raw[k] = float(np.interp(t_cursor + k * UI_S, time_s, vod_ac)) * 1e3
-
-    h0_mV = taps_raw[0]
-    threshold = keep_frac * abs(h0_mV)
-    taps: list[tuple[int, float, bool]] = []
-    for k in range(-SBR_PRE, SBR_POST + 1):
-        h_mV = taps_raw[k]
-        kept = k == 0 or abs(h_mV) >= threshold
-        taps.append((k, h_mV, kept))
-
-    isi_sum = sum(h for k, h, kept in taps if kept and k != 0)
-    isi_abs_sum = sum(abs(h) for k, h, kept in taps if kept and k != 0)
-    isi_norm = isi_sum / h0_mV if h0_mV != 0 else float("nan")
-    isi_abs = isi_abs_sum / abs(h0_mV) if h0_mV != 0 else float("nan")
-
-    return SbrResult(
-        taps=taps,
-        cursor_mV=h0_mV,
-        isi_norm=isi_norm,
-        isi_abs=isi_abs,
-        t_cursor_s=t_cursor,
-        t_cursor_ui=(t_cursor - t_pulse_start) / UI_S,
-        t_pulse_start_s=t_pulse_start,
-    )
-
-
 def plot_insertion_loss(
     freq: np.ndarray,
     h_db: np.ndarray,
@@ -421,15 +361,11 @@ def write_metrics_csv(path: Path, params: TermParams, m: TermMetrics) -> None:
     if m.sbr:
         rows += [
             ["sbr_cursor_mV", f"{m.sbr.cursor_mV:.4f}"],
-            ["sbr_isi_norm_2p5pct", f"{m.sbr.isi_norm:.6g}"],
-            ["sbr_isi_abs_2p5pct", f"{m.sbr.isi_abs:.6g}"],
+            ["sbr_isi_norm", f"{m.sbr.isi_norm:.6g}"],
+            ["sbr_isi_abs", f"{m.sbr.isi_abs:.6g}"],
         ]
-    if m.sbr_05:
-        rows += [
-            ["sbr_isi_norm_0p5pct", f"{m.sbr_05.isi_norm:.6g}"],
-            ["sbr_isi_abs_0p5pct", f"{m.sbr_05.isi_abs:.6g}"],
-            ["sbr_kept_taps_0p5pct", str(sum(1 for _, _, k in m.sbr_05.taps if k))],
-        ]
+    if m.eye:
+        rows += eye_metrics_rows("term", m.eye)
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
 
@@ -546,7 +482,7 @@ def run(
 
     # --- Transient + SBR ---
     sbr_result: SbrResult | None = None
-    sbr_05: SbrResult | None = None
+    eye_result: EyeMetrics | None = None
     if not no_tran:
         tmax = write_prbs_stim(work / "prbs_stim.inc", params.vbase)
         _patch_stim_source(work / "prbs_stim.inc")
@@ -560,6 +496,7 @@ def run(
         plot_tran_diff(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_diff.png")
         plot_eye_se(time_s, v_outp, v_outn, pout / "eye_se.png")
         plot_eye_diff(time_s, v_outp, v_outn, pout / "eye_diff.png")
+        eye_result = compute_eye_metrics(time_s, v_outp, v_outn)
 
         tmax_sbr = write_sbr_stim(work / "sbr_stim.inc", params.vbase)
         _patch_stim_source(work / "sbr_stim.inc")
@@ -567,11 +504,9 @@ def run(
         tb_sbr = _write_tran_tb(work, dut_local, spice_dir, extra_sbr, "sbr_stim.inc", "sbr.raw")
         run_ngspice(tb_sbr, work, "sbr.log")
         time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / "sbr.raw")
-        sbr_result = extract_sbr_keep(time_s, v_outp, v_outn, SBR_KEEP_025)
-        sbr_05 = extract_sbr_keep(time_s, v_outp, v_outn, SBR_KEEP_005)
+        sbr_result = extract_sbr(time_s, v_outp, v_outn)
         write_tran_csv(pout / "sbr.csv", time_s, v_outp, v_outn, v_inp, v_inn)
         write_sbr_taps_csv(pout / "sbr_taps.csv", sbr_result)
-        _write_sbr_taps_extra(pout / "sbr_taps_0p5pct.csv", sbr_05)
         plot_sbr(time_s, v_outp, v_outn, v_inp, v_inn, sbr_result, pout / "sbr.png")
 
     metrics = TermMetrics(
@@ -592,7 +527,7 @@ def run(
         c_extracted_diff_ff=c_extracted_ff,
         f_zin_3db_hz=f_zin_3db,
         sbr=sbr_result,
-        sbr_05=sbr_05,
+        eye=eye_result,
     )
     write_metrics_csv(pout / "metrics.csv", params, metrics)
 
@@ -622,7 +557,13 @@ def run(
     if sbr_result:
         print(
             f"  SBR cursor={sbr_result.cursor_mV:.2f} mV  "
-            f"ISI@2.5%={sbr_result.isi_norm:.4f}  ISI@0.5%={sbr_05.isi_norm if sbr_05 else 'n/a'}"
+            f"ISI norm={sbr_result.isi_norm:.4f}"
+        )
+    if eye_result:
+        print(
+            f"  Eye height={eye_result.height_mV:.1f} mV  "
+            f"width={eye_result.width_ui:.3f} UI ({eye_result.width_ps:.1f} ps)  "
+            f"pp={eye_result.pp_swing_mV:.1f} mV"
         )
     print(f"  Artifacts: {pout}/")
     return params, metrics

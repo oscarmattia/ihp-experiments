@@ -1,0 +1,45 @@
+* 56G CML VGA DUT — ideal R/L, tail-current steering (signal + dummy pair)
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+
+.subckt vga_dut outp outn inp inn vdd
+L1 vdd nlp1 {LLOAD}
+RD1 nlp1 outp {RD}
+L2 vdd nlp2 {LLOAD}
+RD2 nlp2 outn {RD}
+
+* Input CM reference for dummy bases (VBASE = CTLE output CM when cascaded)
+Vicm vicm 0 dc {VBASE}
+
+* Signal pair — FO1 input (inp/inn), fixed emitter degeneration
+Rs e1 e2 {RS}
+XQ1 outp inp e1 s1 npn13G2 Nx={Nx}
+Vs1 s1 0 dc 0
+XQ2 outn inn e2 s2 npn13G2 Nx={Nx}
+Vs2 s2 0 dc 0
+
+* Dummy pair — same shunt-peaked loads, bases at CM
+XQd1 outp vicm ed1 sd1 npn13G2 Nx={Nx}
+Vsd1 sd1 0 dc 0
+XQd2 outn vicm ed2 sd2 npn13G2 Nx={Nx}
+Vsd2 sd2 0 dc 0
+
+* Tail mirror reference (LV NMOS, same style as CTLE)
+Iref vdd mgate {ITAIL}
+XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+
+* Steering gates (complementary): route tail current signal vs dummy emitters
+Vctrl ctrl 0 dc {VCTRL}
+Vsp steerp 0 dc {VCTRL_P}
+Vsn steern 0 dc {VCTRL_N}
+
+* Side 1: one mirrored tail per half; pass devices steer emitter current signal vs dummy
+Xtail1 tx1 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xps1 e1 steerp tx1 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+Xpd1 ed1 steern tx1 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+
+* Side 2
+Xtail2 tx2 mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xps2 e2 steerp tx2 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+Xpd2 ed2 steern tx2 0 sg13_lv_nmos w={STEER_W_m} l={STEER_L_m} ng=1 m=1 rfmode=0
+.ends vga_dut

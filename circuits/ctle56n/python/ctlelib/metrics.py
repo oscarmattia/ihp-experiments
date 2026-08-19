@@ -24,7 +24,9 @@ EYE_SETTLE_UI = 16
 
 SBR_PRE = 3
 SBR_POST = 10
-SBR_KEEP_FRAC = 0.025
+SBR_KEEP_FRAC = 0.005
+EYE_PHASE_WINDOW = 0.02
+EYE_WIDTH_OPEN_FRAC = 0.30
 SBR_BASELINE_UI_LO = 16
 SBR_BASELINE_UI_HI = 30
 
@@ -40,6 +42,17 @@ class SbrResult:
     t_cursor_s: float
     t_cursor_ui: float
     t_pulse_start_s: float
+
+
+@dataclass
+class EyeMetrics:
+    """Differential eye metrics from post-settle PRBS transient."""
+
+    height_mV: float
+    width_ui: float
+    width_ps: float
+    pp_swing_mV: float
+    sample_phase_ui: float
 
 
 @dataclass
@@ -202,6 +215,245 @@ def write_ac_diff_csv(
             w.writerow([freq[i], h_db[i], gd_ps[i]])
 
 
+def _fold_1ui_traces(
+    time_s: np.ndarray,
+    vod: np.ndarray,
+    settle_ui: int = EYE_SETTLE_UI,
+    n_pts: int = 400,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return (phase_ui, traces) with one UI period per row."""
+    t0 = settle_ui * UI_S
+    mask = time_s >= t0
+    t_rel = time_s[mask] - t0
+    sig = vod[mask]
+    if t_rel.size < 4:
+        return np.linspace(0.0, 1.0, n_pts, endpoint=False), np.empty((0, n_pts))
+
+    period = UI_S
+    t_fold = np.linspace(0.0, period, n_pts)
+    phases = t_fold / UI_S
+    n_ui = int((t_rel[-1] - t_rel[0]) / period)
+    traces: list[np.ndarray] = []
+    for k in range(n_ui):
+        t_start = k * period
+        seg_mask = (t_rel >= t_start) & (t_rel < t_start + period)
+        if int(np.sum(seg_mask)) < 4:
+            continue
+        t_seg = t_rel[seg_mask] - t_start
+        s_seg = sig[seg_mask]
+        traces.append(np.interp(t_fold, t_seg, s_seg))
+    if not traces:
+        return phases, np.empty((0, n_pts))
+    return phases, np.asarray(traces)
+
+
+def _vertical_opening_at_phase_mv(
+    t_ui: np.ndarray,
+    vod_v: np.ndarray,
+    phases: np.ndarray,
+    window_ui: float = EYE_PHASE_WINDOW,
+) -> np.ndarray:
+    """Vertical opening at 0 V from dense 1-UI-folded samples."""
+    heights = np.zeros(len(phases))
+    for i, phi in enumerate(phases):
+        delta = np.abs(t_ui - phi)
+        delta = np.minimum(delta, 1.0 - delta)
+        wmask = delta <= window_ui
+        if not np.any(wmask):
+            continue
+        samples = vod_v[wmask]
+        above = samples[samples >= 0.0]
+        below = samples[samples < 0.0]
+        if above.size and below.size:
+            heights[i] = (float(np.min(above)) - float(np.max(below))) * 1e3
+    return heights
+
+
+def _vertical_opening_profile_mv(
+    traces: np.ndarray,
+    phases: np.ndarray,
+    window_ui: float = EYE_PHASE_WINDOW,
+) -> np.ndarray:
+    """Vertical opening at 0 V: min(above 0) − max(below 0) in ±window_ui."""
+    heights = np.zeros(len(phases))
+    for i, phi in enumerate(phases):
+        delta = np.abs(phases - phi)
+        delta = np.minimum(delta, 1.0 - delta)
+        wmask = delta <= window_ui
+        if not np.any(wmask):
+            continue
+        samples = traces[:, wmask].ravel()
+        above = samples[samples >= 0.0]
+        below = samples[samples < 0.0]
+        if above.size and below.size:
+            heights[i] = (float(np.min(above)) - float(np.max(below))) * 1e3
+    return heights
+
+
+def _roll_traces_to_centre(
+    traces: np.ndarray,
+    phases: np.ndarray,
+    centre_ui: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Roll 1-UI folded traces so ``centre_ui`` maps to phase 0."""
+    n_pts = len(phases)
+    shift_idx = int(round(centre_ui * n_pts)) % n_pts
+    rolled = np.roll(traces, -shift_idx, axis=1)
+    centered_phases = np.mod(phases - centre_ui + 0.5, 1.0) - 0.5
+    order = np.argsort(centered_phases)
+    return centered_phases[order], rolled[:, order]
+
+
+def _trace_zero_crossings_ui(traces: np.ndarray, phases: np.ndarray) -> list[float]:
+    crossings: list[float] = []
+    for tr in traces:
+        for i in range(len(phases) - 1):
+            y0, y1 = float(tr[i]), float(tr[i + 1])
+            if y0 == 0.0:
+                crossings.append(float(phases[i]))
+            if y0 * y1 < 0.0:
+                frac = abs(y0) / (abs(y0) + abs(y1))
+                crossings.append(float(phases[i] + frac * (phases[i + 1] - phases[i])))
+    return crossings
+
+
+def _eye_width_centered_ui(
+    phases: np.ndarray,
+    heights_mV: np.ndarray,
+) -> float:
+    """Horizontal opening at 0 V from threshold crossings symmetric about ph = 0.
+
+    ``phases`` must be centred on the optimal sample instant (ph = 0 at the eye
+    centre). Width is measured only from the centred contour — no UI-boundary clip.
+    """
+    h_peak = float(np.max(heights_mV))
+    if h_peak <= 0.0:
+        return 0.0
+
+    thresh = EYE_WIDTH_OPEN_FRAC * h_peak
+    idx0 = int(np.argmin(np.abs(phases)))
+
+    left = float(phases[0])
+    for i in range(idx0, -1, -1):
+        if heights_mV[i] < thresh:
+            left = float(phases[min(i + 1, idx0)])
+            break
+
+    right = float(phases[-1])
+    for i in range(idx0, len(phases)):
+        if heights_mV[i] < thresh:
+            right = float(phases[i])
+            break
+
+    width_ui = right - left
+    if width_ui >= 1.0:
+        raise ValueError(
+            f"Eye width {width_ui:.4f} UI >= 1 UI "
+            f"(left={left:.4f}, right={right:.4f}, centre phase=0)"
+        )
+    return width_ui
+
+
+def compute_eye_metrics(
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+) -> EyeMetrics:
+    """Eye height/width/pp swing from post-settle differential PRBS transient.
+
+    Phase-invariant: roll settled samples so the optimal sample sits at ph = 0 before
+    height and width are extracted. Ideal-vs-PDK passes that differ only in passives
+    must agree in width (same channel); height may differ slightly with realized RD.
+    """
+    vod = v_outp - v_outn
+    t0 = EYE_SETTLE_UI * UI_S
+    settled_mask = time_s >= t0
+    if not np.any(settled_mask):
+        raise ValueError("No post-settle samples for eye metrics")
+
+    settled = vod[settled_mask]
+    pp_swing_mV = float((np.max(settled) - np.min(settled)) * 1e3)
+
+    tm = np.mod(time_s[settled_mask] - t0, UI_S) / UI_S
+    vod_settled = settled
+
+    scan_phases = np.linspace(0.0, 1.0, 800, endpoint=False)
+    centered_phases = np.linspace(-0.5, 0.5, 800, endpoint=False)
+    idx0 = int(np.argmin(np.abs(centered_phases)))
+
+    heights_scan_mV = np.zeros(len(scan_phases))
+    for i, centre_ui in enumerate(scan_phases):
+        ph = np.mod(tm - centre_ui + 0.5, 1.0) - 0.5
+        heights_at_centre = _vertical_opening_at_phase_mv(
+            ph, vod_settled, centered_phases,
+        )
+        heights_scan_mV[i] = heights_at_centre[idx0]
+
+    # Every candidate centre is scored on a rolled axis — no seam exclusion.
+    centre_idx = int(np.argmax(heights_scan_mV))
+    centre_ui = float(scan_phases[centre_idx])
+    height_mV = float(heights_scan_mV[centre_idx])
+
+    ph = np.mod(tm - centre_ui + 0.5, 1.0) - 0.5
+    heights_centered_mV = _vertical_opening_at_phase_mv(
+        ph, vod_settled, centered_phases,
+    )
+
+    if height_mV > pp_swing_mV:
+        height_mV = pp_swing_mV
+
+    width_ui = _eye_width_centered_ui(centered_phases, heights_centered_mV)
+    width_ps = width_ui * UI_S * 1e12
+
+    return EyeMetrics(
+        height_mV=height_mV,
+        width_ui=width_ui,
+        width_ps=width_ps,
+        pp_swing_mV=pp_swing_mV,
+        sample_phase_ui=centre_ui,
+    )
+
+
+def verify_eye_phase_invariance(
+    time_s: np.ndarray,
+    v_outp: np.ndarray,
+    v_outn: np.ndarray,
+    n_offsets: int = 24,
+    height_tol_frac_pp: float = 0.02,
+    width_tol_frac: float = 0.05,
+) -> tuple[bool, str, float, float]:
+    """Sweep artificial time offsets over one UI; height/width must stay stable.
+
+    Returns (ok, summary, max_height_err_frac_pp, max_width_err_frac).
+    """
+    base = compute_eye_metrics(time_s, v_outp, v_outn)
+    max_h_err = 0.0
+    max_w_err = 0.0
+    for i in range(1, n_offsets):
+        dt = i * UI_S / n_offsets
+        eye = compute_eye_metrics(time_s + dt, v_outp, v_outn)
+        if base.pp_swing_mV > 1e-6:
+            max_h_err = max(max_h_err, abs(eye.height_mV - base.height_mV) / base.pp_swing_mV)
+        if base.width_ui > 1e-6:
+            max_w_err = max(max_w_err, abs(eye.width_ui - base.width_ui) / base.width_ui)
+    ok = max_h_err <= height_tol_frac_pp and max_w_err <= width_tol_frac
+    summary = (
+        f"height_err/pp={max_h_err:.4f} (tol {height_tol_frac_pp}) "
+        f"width_err={max_w_err:.4f} (tol {width_tol_frac})"
+    )
+    return ok, summary, max_h_err, max_w_err
+
+
+def eye_metrics_rows(prefix: str, eye: EyeMetrics) -> list[list[str]]:
+    return [
+        [f"{prefix}_eye_height_mV", f"{eye.height_mV:.2f}"],
+        [f"{prefix}_eye_width_UI", f"{eye.width_ui:.4f}"],
+        [f"{prefix}_eye_width_ps", f"{eye.width_ps:.3f}"],
+        [f"{prefix}_eye_pp_swing_mV", f"{eye.pp_swing_mV:.2f}"],
+        [f"{prefix}_eye_sample_phase_UI", f"{eye.sample_phase_ui:.4f}"],
+    ]
+
+
 def write_eye_csvs(
     pass_dir: Path,
     time_s: np.ndarray,
@@ -243,6 +495,7 @@ def write_pass_metrics(
     path: Path,
     m: SimMetrics,
     sbr: SbrResult | None = None,
+    eye: EyeMetrics | None = None,
 ) -> None:
     prefix = m.pass_name
     rows: list[list[str]] = [
@@ -268,6 +521,8 @@ def write_pass_metrics(
             [f"{prefix}_sbr_isi_norm", f"{sbr.isi_norm:.6g}"],
             [f"{prefix}_sbr_isi_abs", f"{sbr.isi_abs:.6g}"],
         ]
+    if eye:
+        rows += eye_metrics_rows(prefix, eye)
     with path.open("w", newline="") as f:
         csv.writer(f).writerows(rows)
 
