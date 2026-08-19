@@ -127,6 +127,15 @@ def add_guard_ring(
         "clearance_um": ring.clearance,
         "pitch_um": ring.pitch,
         "outer_box_um": [outer.left, outer.bottom, outer.right, outer.top],
+        # Taps sit at a pitch rather than abutting, so the ring is not one
+        # continuous piece of Metal1; the taps are one net only through the
+        # substrate itself. A caller that needs the substrate tied to a supply
+        # has to land a via on a tap, and these are the centres to land on.
+        "tap_centres_um": [
+            [_snap(x - tap_box.left + tap_box.center().x), _snap(y - tap_box.bottom + tap_box.center().y)]
+            for x, y in sorted(placed)
+        ],
+        "tap_size_um": [round(tap_box.width(), 4), round(tap_box.height(), 4)],
         "worst_distance_to_tie_um": round(worst_distance, 3),
         "latchup_limit_um": LATCHUP_MAX_DISTANCE,
         "within_latchup_limit": worst_distance <= LATCHUP_MAX_DISTANCE,

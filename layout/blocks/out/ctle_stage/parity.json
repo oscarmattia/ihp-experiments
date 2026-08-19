@@ -1,0 +1,53 @@
+{
+  "subckt": "ctle_dut",
+  "spice_file": "circuits/ctle56n/spice/ctle_pdk.cir",
+  "cdl_file": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
+  "ok": false,
+  "ports_match": true,
+  "devices_match": false,
+  "spice_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "cdl_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "matched_devices": [
+    "cap_cmomi l=1.24252e-05 w=1.24252e-05",
+    "npn13G2",
+    "npn13G2",
+    "rppd l=1.4e-06 w=5e-06",
+    "rppd l=1.4e-06 w=5e-06",
+    "rsil l=5e-06 w=5e-07",
+    "sg13_lv_nmos l=1e-06 w=0.000243",
+    "sg13_lv_nmos l=1e-06 w=0.000243",
+    "sg13_lv_nmos l=1e-06 w=0.000243"
+  ],
+  "only_in_spice": [
+    "inductor",
+    "inductor"
+  ],
+  "only_in_cdl": [
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06"
+  ],
+  "independent_sources_in_spice": [],
+  "model_aliases": {
+    "ind_shunt": "inductor"
+  },
+  "notes": [
+    "permitted substitution(s): ind_shunt -> inductor"
+  ],
+  "error": ""
+}

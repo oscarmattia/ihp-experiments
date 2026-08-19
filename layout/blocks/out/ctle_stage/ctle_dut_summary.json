@@ -1,0 +1,2326 @@
+{
+  "name": "ctle_dut",
+  "bbox_um": {
+    "width": 298.21,
+    "height": 236.515,
+    "area": 70531.1382
+  },
+  "ports": {
+    "inp": {
+      "name": "B",
+      "layer": "metal1_pin",
+      "center": [
+        130.97,
+        52.47
+      ],
+      "width": 1.95,
+      "orientation": 270.0
+    },
+    "inn": {
+      "name": "B",
+      "layer": "metal1_pin",
+      "center": [
+        153.67,
+        52.47
+      ],
+      "width": 1.95,
+      "orientation": 270.0
+    },
+    "outp": {
+      "name": "C",
+      "layer": "metal1_pin",
+      "center": [
+        130.97,
+        54.74
+      ],
+      "width": 1.85,
+      "orientation": 90.0
+    },
+    "outn": {
+      "name": "C",
+      "layer": "metal1_pin",
+      "center": [
+        153.67,
+        54.74
+      ],
+      "width": 1.85,
+      "orientation": 90.0
+    },
+    "vdd": {
+      "name": "vdd_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        125.175,
+        199.42
+      ],
+      "width": 6.0,
+      "orientation": 90.0
+    },
+    "vss": {
+      "name": "vss_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        125.175,
+        190.42
+      ],
+      "width": 6.0,
+      "orientation": 90.0
+    },
+    "mgate": {
+      "name": "gate_contact",
+      "layer": "metal1_drw",
+      "center": [
+        68.16,
+        10.1
+      ],
+      "width": 0.34,
+      "orientation": 90.0
+    }
+  },
+  "port_nets": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "devices": [
+    {
+      "name": "mdiode",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "mgate",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "tail1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "tail2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "e2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rdeg",
+      "kind": "rsil",
+      "nets": {
+        "PLUS": "e1",
+        "MINUS": "e2",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "cdeg",
+      "kind": "cmomi",
+      "nets": {
+        "PLUS": "e1",
+        "MINUS": "e2"
+      }
+    },
+    {
+      "name": "q1",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outp",
+        "B": "inp",
+        "E": "e1",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "q2",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outn",
+        "B": "inn",
+        "E": "e2",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rd1",
+      "kind": "rppd",
+      "nets": {
+        "MINUS": "nlp1",
+        "PLUS": "outp",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rd2",
+      "kind": "rppd",
+      "nets": {
+        "MINUS": "nlp2",
+        "PLUS": "outn",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "l1",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp1",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "l2",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp2",
+        "sub": "vss"
+      }
+    }
+  ],
+  "guard_ring": {
+    "kind": "ptap1",
+    "taps": 354,
+    "clearance_um": 2.0,
+    "pitch_um": 1.4,
+    "outer_box_um": [
+      -3.84,
+      -15.095,
+      214.32,
+      17.62
+    ],
+    "tap_centres_um": [
+      [
+        -3.42,
+        -14.675
+      ],
+      [
+        -3.42,
+        -13.225
+      ],
+      [
+        -3.42,
+        -11.775
+      ],
+      [
+        -3.42,
+        -10.33
+      ],
+      [
+        -3.42,
+        -8.88
+      ],
+      [
+        -3.42,
+        -7.43
+      ],
+      [
+        -3.42,
+        -5.98
+      ],
+      [
+        -3.42,
+        -4.535
+      ],
+      [
+        -3.42,
+        -3.085
+      ],
+      [
+        -3.42,
+        -1.635
+      ],
+      [
+        -3.42,
+        -0.185
+      ],
+      [
+        -3.42,
+        1.265
+      ],
+      [
+        -3.42,
+        2.71
+      ],
+      [
+        -3.42,
+        4.16
+      ],
+      [
+        -3.42,
+        5.61
+      ],
+      [
+        -3.42,
+        7.06
+      ],
+      [
+        -3.42,
+        8.505
+      ],
+      [
+        -3.42,
+        9.955
+      ],
+      [
+        -3.42,
+        11.405
+      ],
+      [
+        -3.42,
+        12.855
+      ],
+      [
+        -3.42,
+        14.3
+      ],
+      [
+        -3.42,
+        15.75
+      ],
+      [
+        -3.42,
+        17.2
+      ],
+      [
+        -2.02,
+        -14.675
+      ],
+      [
+        -2.02,
+        17.2
+      ],
+      [
+        -0.615,
+        -14.675
+      ],
+      [
+        -0.615,
+        17.2
+      ],
+      [
+        0.785,
+        -14.675
+      ],
+      [
+        0.785,
+        17.2
+      ],
+      [
+        2.19,
+        -14.675
+      ],
+      [
+        2.19,
+        17.2
+      ],
+      [
+        3.59,
+        -14.675
+      ],
+      [
+        3.59,
+        17.2
+      ],
+      [
+        4.99,
+        -14.675
+      ],
+      [
+        4.99,
+        17.2
+      ],
+      [
+        6.395,
+        -14.675
+      ],
+      [
+        6.395,
+        17.2
+      ],
+      [
+        7.795,
+        -14.675
+      ],
+      [
+        7.795,
+        17.2
+      ],
+      [
+        9.2,
+        -14.675
+      ],
+      [
+        9.2,
+        17.2
+      ],
+      [
+        10.6,
+        -14.675
+      ],
+      [
+        10.6,
+        17.2
+      ],
+      [
+        12.005,
+        -14.675
+      ],
+      [
+        12.005,
+        17.2
+      ],
+      [
+        13.405,
+        -14.675
+      ],
+      [
+        13.405,
+        17.2
+      ],
+      [
+        14.805,
+        -14.675
+      ],
+      [
+        14.805,
+        17.2
+      ],
+      [
+        16.21,
+        -14.675
+      ],
+      [
+        16.21,
+        17.2
+      ],
+      [
+        17.61,
+        -14.675
+      ],
+      [
+        17.61,
+        17.2
+      ],
+      [
+        19.015,
+        -14.675
+      ],
+      [
+        19.015,
+        17.2
+      ],
+      [
+        20.415,
+        -14.675
+      ],
+      [
+        20.415,
+        17.2
+      ],
+      [
+        21.815,
+        -14.675
+      ],
+      [
+        21.815,
+        17.2
+      ],
+      [
+        23.22,
+        -14.675
+      ],
+      [
+        23.22,
+        17.2
+      ],
+      [
+        24.62,
+        -14.675
+      ],
+      [
+        24.62,
+        17.2
+      ],
+      [
+        26.025,
+        -14.675
+      ],
+      [
+        26.025,
+        17.2
+      ],
+      [
+        27.425,
+        -14.675
+      ],
+      [
+        27.425,
+        17.2
+      ],
+      [
+        28.825,
+        -14.675
+      ],
+      [
+        28.825,
+        17.2
+      ],
+      [
+        30.23,
+        -14.675
+      ],
+      [
+        30.23,
+        17.2
+      ],
+      [
+        31.63,
+        -14.675
+      ],
+      [
+        31.63,
+        17.2
+      ],
+      [
+        33.035,
+        -14.675
+      ],
+      [
+        33.035,
+        17.2
+      ],
+      [
+        34.435,
+        -14.675
+      ],
+      [
+        34.435,
+        17.2
+      ],
+      [
+        35.84,
+        -14.675
+      ],
+      [
+        35.84,
+        17.2
+      ],
+      [
+        37.24,
+        -14.675
+      ],
+      [
+        37.24,
+        17.2
+      ],
+      [
+        38.64,
+        -14.675
+      ],
+      [
+        38.64,
+        17.2
+      ],
+      [
+        40.045,
+        -14.675
+      ],
+      [
+        40.045,
+        17.2
+      ],
+      [
+        41.445,
+        -14.675
+      ],
+      [
+        41.445,
+        17.2
+      ],
+      [
+        42.85,
+        -14.675
+      ],
+      [
+        42.85,
+        17.2
+      ],
+      [
+        44.25,
+        -14.675
+      ],
+      [
+        44.25,
+        17.2
+      ],
+      [
+        45.65,
+        -14.675
+      ],
+      [
+        45.65,
+        17.2
+      ],
+      [
+        47.055,
+        -14.675
+      ],
+      [
+        47.055,
+        17.2
+      ],
+      [
+        48.455,
+        -14.675
+      ],
+      [
+        48.455,
+        17.2
+      ],
+      [
+        49.86,
+        -14.675
+      ],
+      [
+        49.86,
+        17.2
+      ],
+      [
+        51.26,
+        -14.675
+      ],
+      [
+        51.26,
+        17.2
+      ],
+      [
+        52.665,
+        -14.675
+      ],
+      [
+        52.665,
+        17.2
+      ],
+      [
+        54.065,
+        -14.675
+      ],
+      [
+        54.065,
+        17.2
+      ],
+      [
+        55.465,
+        -14.675
+      ],
+      [
+        55.465,
+        17.2
+      ],
+      [
+        56.87,
+        -14.675
+      ],
+      [
+        56.87,
+        17.2
+      ],
+      [
+        58.27,
+        -14.675
+      ],
+      [
+        58.27,
+        17.2
+      ],
+      [
+        59.675,
+        -14.675
+      ],
+      [
+        59.675,
+        17.2
+      ],
+      [
+        61.075,
+        -14.675
+      ],
+      [
+        61.075,
+        17.2
+      ],
+      [
+        62.475,
+        -14.675
+      ],
+      [
+        62.475,
+        17.2
+      ],
+      [
+        63.88,
+        -14.675
+      ],
+      [
+        63.88,
+        17.2
+      ],
+      [
+        65.28,
+        -14.675
+      ],
+      [
+        65.28,
+        17.2
+      ],
+      [
+        66.685,
+        -14.675
+      ],
+      [
+        66.685,
+        17.2
+      ],
+      [
+        68.085,
+        -14.675
+      ],
+      [
+        68.085,
+        17.2
+      ],
+      [
+        69.485,
+        -14.675
+      ],
+      [
+        69.485,
+        17.2
+      ],
+      [
+        70.89,
+        -14.675
+      ],
+      [
+        70.89,
+        17.2
+      ],
+      [
+        72.29,
+        -14.675
+      ],
+      [
+        72.29,
+        17.2
+      ],
+      [
+        73.695,
+        -14.675
+      ],
+      [
+        73.695,
+        17.2
+      ],
+      [
+        75.095,
+        -14.675
+      ],
+      [
+        75.095,
+        17.2
+      ],
+      [
+        76.5,
+        -14.675
+      ],
+      [
+        76.5,
+        17.2
+      ],
+      [
+        77.9,
+        -14.675
+      ],
+      [
+        77.9,
+        17.2
+      ],
+      [
+        79.3,
+        -14.675
+      ],
+      [
+        79.3,
+        17.2
+      ],
+      [
+        80.705,
+        -14.675
+      ],
+      [
+        80.705,
+        17.2
+      ],
+      [
+        82.105,
+        -14.675
+      ],
+      [
+        82.105,
+        17.2
+      ],
+      [
+        83.51,
+        -14.675
+      ],
+      [
+        83.51,
+        17.2
+      ],
+      [
+        84.91,
+        -14.675
+      ],
+      [
+        84.91,
+        17.2
+      ],
+      [
+        86.31,
+        -14.675
+      ],
+      [
+        86.31,
+        17.2
+      ],
+      [
+        87.715,
+        -14.675
+      ],
+      [
+        87.715,
+        17.2
+      ],
+      [
+        89.115,
+        -14.675
+      ],
+      [
+        89.115,
+        17.2
+      ],
+      [
+        90.52,
+        -14.675
+      ],
+      [
+        90.52,
+        17.2
+      ],
+      [
+        91.92,
+        -14.675
+      ],
+      [
+        91.92,
+        17.2
+      ],
+      [
+        93.32,
+        -14.675
+      ],
+      [
+        93.32,
+        17.2
+      ],
+      [
+        94.725,
+        -14.675
+      ],
+      [
+        94.725,
+        17.2
+      ],
+      [
+        96.125,
+        -14.675
+      ],
+      [
+        96.125,
+        17.2
+      ],
+      [
+        97.53,
+        -14.675
+      ],
+      [
+        97.53,
+        17.2
+      ],
+      [
+        98.93,
+        -14.675
+      ],
+      [
+        98.93,
+        17.2
+      ],
+      [
+        100.335,
+        -14.675
+      ],
+      [
+        100.335,
+        17.2
+      ],
+      [
+        101.735,
+        -14.675
+      ],
+      [
+        101.735,
+        17.2
+      ],
+      [
+        103.135,
+        -14.675
+      ],
+      [
+        103.135,
+        17.2
+      ],
+      [
+        104.54,
+        -14.675
+      ],
+      [
+        104.54,
+        17.2
+      ],
+      [
+        105.94,
+        -14.675
+      ],
+      [
+        105.94,
+        17.2
+      ],
+      [
+        107.345,
+        -14.675
+      ],
+      [
+        107.345,
+        17.2
+      ],
+      [
+        108.745,
+        -14.675
+      ],
+      [
+        108.745,
+        17.2
+      ],
+      [
+        110.145,
+        -14.675
+      ],
+      [
+        110.145,
+        17.2
+      ],
+      [
+        111.55,
+        -14.675
+      ],
+      [
+        111.55,
+        17.2
+      ],
+      [
+        112.95,
+        -14.675
+      ],
+      [
+        112.95,
+        17.2
+      ],
+      [
+        114.355,
+        -14.675
+      ],
+      [
+        114.355,
+        17.2
+      ],
+      [
+        115.755,
+        -14.675
+      ],
+      [
+        115.755,
+        17.2
+      ],
+      [
+        117.16,
+        -14.675
+      ],
+      [
+        117.16,
+        17.2
+      ],
+      [
+        118.56,
+        -14.675
+      ],
+      [
+        118.56,
+        17.2
+      ],
+      [
+        119.96,
+        -14.675
+      ],
+      [
+        119.96,
+        17.2
+      ],
+      [
+        121.365,
+        -14.675
+      ],
+      [
+        121.365,
+        17.2
+      ],
+      [
+        122.765,
+        -14.675
+      ],
+      [
+        122.765,
+        17.2
+      ],
+      [
+        124.17,
+        -14.675
+      ],
+      [
+        124.17,
+        17.2
+      ],
+      [
+        125.57,
+        -14.675
+      ],
+      [
+        125.57,
+        17.2
+      ],
+      [
+        126.97,
+        -14.675
+      ],
+      [
+        126.97,
+        17.2
+      ],
+      [
+        128.375,
+        -14.675
+      ],
+      [
+        128.375,
+        17.2
+      ],
+      [
+        129.775,
+        -14.675
+      ],
+      [
+        129.775,
+        17.2
+      ],
+      [
+        131.18,
+        -14.675
+      ],
+      [
+        131.18,
+        17.2
+      ],
+      [
+        132.58,
+        -14.675
+      ],
+      [
+        132.58,
+        17.2
+      ],
+      [
+        133.98,
+        -14.675
+      ],
+      [
+        133.98,
+        17.2
+      ],
+      [
+        135.385,
+        -14.675
+      ],
+      [
+        135.385,
+        17.2
+      ],
+      [
+        136.785,
+        -14.675
+      ],
+      [
+        136.785,
+        17.2
+      ],
+      [
+        138.19,
+        -14.675
+      ],
+      [
+        138.19,
+        17.2
+      ],
+      [
+        139.59,
+        -14.675
+      ],
+      [
+        139.59,
+        17.2
+      ],
+      [
+        140.995,
+        -14.675
+      ],
+      [
+        140.995,
+        17.2
+      ],
+      [
+        142.395,
+        -14.675
+      ],
+      [
+        142.395,
+        17.2
+      ],
+      [
+        143.795,
+        -14.675
+      ],
+      [
+        143.795,
+        17.2
+      ],
+      [
+        145.2,
+        -14.675
+      ],
+      [
+        145.2,
+        17.2
+      ],
+      [
+        146.6,
+        -14.675
+      ],
+      [
+        146.6,
+        17.2
+      ],
+      [
+        148.005,
+        -14.675
+      ],
+      [
+        148.005,
+        17.2
+      ],
+      [
+        149.405,
+        -14.675
+      ],
+      [
+        149.405,
+        17.2
+      ],
+      [
+        150.805,
+        -14.675
+      ],
+      [
+        150.805,
+        17.2
+      ],
+      [
+        152.21,
+        -14.675
+      ],
+      [
+        152.21,
+        17.2
+      ],
+      [
+        153.61,
+        -14.675
+      ],
+      [
+        153.61,
+        17.2
+      ],
+      [
+        155.015,
+        -14.675
+      ],
+      [
+        155.015,
+        17.2
+      ],
+      [
+        156.415,
+        -14.675
+      ],
+      [
+        156.415,
+        17.2
+      ],
+      [
+        157.815,
+        -14.675
+      ],
+      [
+        157.815,
+        17.2
+      ],
+      [
+        159.22,
+        -14.675
+      ],
+      [
+        159.22,
+        17.2
+      ],
+      [
+        160.62,
+        -14.675
+      ],
+      [
+        160.62,
+        17.2
+      ],
+      [
+        162.025,
+        -14.675
+      ],
+      [
+        162.025,
+        17.2
+      ],
+      [
+        163.425,
+        -14.675
+      ],
+      [
+        163.425,
+        17.2
+      ],
+      [
+        164.83,
+        -14.675
+      ],
+      [
+        164.83,
+        17.2
+      ],
+      [
+        166.23,
+        -14.675
+      ],
+      [
+        166.23,
+        17.2
+      ],
+      [
+        167.63,
+        -14.675
+      ],
+      [
+        167.63,
+        17.2
+      ],
+      [
+        169.035,
+        -14.675
+      ],
+      [
+        169.035,
+        17.2
+      ],
+      [
+        170.435,
+        -14.675
+      ],
+      [
+        170.435,
+        17.2
+      ],
+      [
+        171.84,
+        -14.675
+      ],
+      [
+        171.84,
+        17.2
+      ],
+      [
+        173.24,
+        -14.675
+      ],
+      [
+        173.24,
+        17.2
+      ],
+      [
+        174.64,
+        -14.675
+      ],
+      [
+        174.64,
+        17.2
+      ],
+      [
+        176.045,
+        -14.675
+      ],
+      [
+        176.045,
+        17.2
+      ],
+      [
+        177.445,
+        -14.675
+      ],
+      [
+        177.445,
+        17.2
+      ],
+      [
+        178.85,
+        -14.675
+      ],
+      [
+        178.85,
+        17.2
+      ],
+      [
+        180.25,
+        -14.675
+      ],
+      [
+        180.25,
+        17.2
+      ],
+      [
+        181.655,
+        -14.675
+      ],
+      [
+        181.655,
+        17.2
+      ],
+      [
+        183.055,
+        -14.675
+      ],
+      [
+        183.055,
+        17.2
+      ],
+      [
+        184.455,
+        -14.675
+      ],
+      [
+        184.455,
+        17.2
+      ],
+      [
+        185.86,
+        -14.675
+      ],
+      [
+        185.86,
+        17.2
+      ],
+      [
+        187.26,
+        -14.675
+      ],
+      [
+        187.26,
+        17.2
+      ],
+      [
+        188.665,
+        -14.675
+      ],
+      [
+        188.665,
+        17.2
+      ],
+      [
+        190.065,
+        -14.675
+      ],
+      [
+        190.065,
+        17.2
+      ],
+      [
+        191.465,
+        -14.675
+      ],
+      [
+        191.465,
+        17.2
+      ],
+      [
+        192.87,
+        -14.675
+      ],
+      [
+        192.87,
+        17.2
+      ],
+      [
+        194.27,
+        -14.675
+      ],
+      [
+        194.27,
+        17.2
+      ],
+      [
+        195.675,
+        -14.675
+      ],
+      [
+        195.675,
+        17.2
+      ],
+      [
+        197.075,
+        -14.675
+      ],
+      [
+        197.075,
+        17.2
+      ],
+      [
+        198.475,
+        -14.675
+      ],
+      [
+        198.475,
+        17.2
+      ],
+      [
+        199.88,
+        -14.675
+      ],
+      [
+        199.88,
+        17.2
+      ],
+      [
+        201.28,
+        -14.675
+      ],
+      [
+        201.28,
+        17.2
+      ],
+      [
+        202.685,
+        -14.675
+      ],
+      [
+        202.685,
+        17.2
+      ],
+      [
+        204.085,
+        -14.675
+      ],
+      [
+        204.085,
+        17.2
+      ],
+      [
+        205.49,
+        -14.675
+      ],
+      [
+        205.49,
+        17.2
+      ],
+      [
+        206.89,
+        -14.675
+      ],
+      [
+        206.89,
+        17.2
+      ],
+      [
+        208.29,
+        -14.675
+      ],
+      [
+        208.29,
+        17.2
+      ],
+      [
+        209.695,
+        -14.675
+      ],
+      [
+        209.695,
+        17.2
+      ],
+      [
+        211.095,
+        -14.675
+      ],
+      [
+        211.095,
+        17.2
+      ],
+      [
+        212.5,
+        -14.675
+      ],
+      [
+        212.5,
+        17.2
+      ],
+      [
+        213.9,
+        -14.675
+      ],
+      [
+        213.9,
+        -13.225
+      ],
+      [
+        213.9,
+        -11.775
+      ],
+      [
+        213.9,
+        -10.33
+      ],
+      [
+        213.9,
+        -8.88
+      ],
+      [
+        213.9,
+        -7.43
+      ],
+      [
+        213.9,
+        -5.98
+      ],
+      [
+        213.9,
+        -4.535
+      ],
+      [
+        213.9,
+        -3.085
+      ],
+      [
+        213.9,
+        -1.635
+      ],
+      [
+        213.9,
+        -0.185
+      ],
+      [
+        213.9,
+        1.265
+      ],
+      [
+        213.9,
+        2.71
+      ],
+      [
+        213.9,
+        4.16
+      ],
+      [
+        213.9,
+        5.61
+      ],
+      [
+        213.9,
+        7.06
+      ],
+      [
+        213.9,
+        8.505
+      ],
+      [
+        213.9,
+        9.955
+      ],
+      [
+        213.9,
+        11.405
+      ],
+      [
+        213.9,
+        12.855
+      ],
+      [
+        213.9,
+        14.3
+      ],
+      [
+        213.9,
+        15.75
+      ],
+      [
+        213.9,
+        17.2
+      ]
+    ],
+    "tap_size_um": [
+      0.84,
+      0.84
+    ],
+    "worst_distance_to_tie_um": 15.518,
+    "latchup_limit_um": 20.0,
+    "within_latchup_limit": true
+  },
+  "symmetry": {
+    "axis_x_um": 142.32,
+    "pairs": {
+      "tails": [
+        74.16,
+        148.32
+      ],
+      "hbt": [
+        130.97,
+        153.67
+      ],
+      "loads": [
+        127.82,
+        156.82
+      ],
+      "coil_feeds": [
+        86.42,
+        198.22
+      ]
+    }
+  },
+  "power_ring": {
+    "outer_box_um": [
+      -23.93,
+      -34.095,
+      274.28,
+      202.42
+    ],
+    "widths_um": {
+      "vss": 6.0,
+      "vdd": 6.0
+    },
+    "h_metal": "TopMetal2",
+    "v_metal": "TopMetal1",
+    "corner_via": "TopVia2",
+    "corner_vias_per_corner": 4,
+    "ports": {
+      "vss": [
+        {
+          "name": "vss_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            125.175,
+            190.42
+          ],
+          "width": 6.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vss_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            125.175,
+            -22.095
+          ],
+          "width": 6.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vss_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -11.93,
+            84.16
+          ],
+          "width": 6.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vss_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            262.28,
+            84.16
+          ],
+          "width": 6.0,
+          "orientation": 0.0
+        }
+      ],
+      "vdd": [
+        {
+          "name": "vdd_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            125.175,
+            199.42
+          ],
+          "width": 6.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vdd_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            125.175,
+            -31.095
+          ],
+          "width": 6.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vdd_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -20.93,
+            84.16
+          ],
+          "width": 6.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vdd_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            271.28,
+            84.16
+          ],
+          "width": 6.0,
+          "orientation": 0.0
+        }
+      ]
+    },
+    "notes": [
+      "TopMetal2 horizontal, TopMetal1 vertical, TopVia2 stitched 4 cut(s) per corner",
+      "ring width is set by the PDK minimum width, not by electromigration: 8.63 mA needs only 0.540 um of TopMetal2"
+    ]
+  },
+  "notes": [
+    "cell name is ctle_dut, shared with the schematic subcircuit",
+    "tails mirrored about x=142.32 um; the bias diode sits to their left, outside the symmetric core because it carries no signal",
+    "guard ring encloses the NMOS only and its taps are strapped to the vss rail, so the substrate really is vss",
+    "coils rotated to face each other, so vdd is one straight TopMetal2 strap with the nlp feeds below it dropping onto the loads",
+    "wire widths from the technology LEF at the operating point: 2.88 mA per tail, 8.63 mA supply",
+    "coil feeds sit 62 um from the axis because the inductor cell is 108 um square; the loads stay near the axis so the long run lands on nlp, which is outside C_L, rather than on the output",
+    "drawn nlp interconnect 128.0 um per side against the 6.80 fF budget in params.inc"
+  ],
+  "layers": {
+    "activ_drw": 583,
+    "activ_mask": 2,
+    "activ_nofill": 2,
+    "cont_drw": 5630,
+    "emwind_drw": 2,
+    "extblock_drw": 9,
+    "gatpoly_drw": 90,
+    "gatpoly_nofill": 2,
+    "gatpoly_pin": 75,
+    "heatres_drw": 3,
+    "heattrans_drw": 77,
+    "ind_drw": 2,
+    "ind_pin": 4,
+    "lbe_drw": 2,
+    "metal1_drw": 1041,
+    "metal1_nofill": 2,
+    "metal1_pin": 514,
+    "metal2_drw": 711,
+    "metal2_nofill": 2,
+    "metal2_pin": 2,
+    "metal3_drw": 393,
+    "metal3_nofill": 2,
+    "metal4_drw": 397,
+    "metal4_nofill": 2,
+    "metal4_pin": 1,
+    "metal5_drw": 410,
+    "metal5_nofill": 2,
+    "metal5_pin": 1,
+    "nometfiller_drw": 1,
+    "norcx_drw": 2,
+    "nsd_block": 2,
+    "polyres_drw": 3,
+    "psd_drw": 362,
+    "pwell_block": 2,
+    "recog_mom": 1,
+    "res_drw": 1,
+    "salblock_drw": 2,
+    "substrate_drw": 354,
+    "topmetal1_drw": 45,
+    "topmetal1_nofill": 2,
+    "topmetal2_drw": 55,
+    "topmetal2_nofill": 2,
+    "topmetal2_pin": 4,
+    "topvia1_drw": 3,
+    "topvia2_drw": 35,
+    "trans_drw": 2,
+    "via1_drw": 3658,
+    "via2_drw": 429,
+    "via3_drw": 429,
+    "via4_drw": 425
+  },
+  "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
+  "cdl": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
+  "parity": {
+    "subckt": "ctle_dut",
+    "spice_file": "circuits/ctle56n/spice/ctle_pdk.cir",
+    "cdl_file": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
+    "ok": false,
+    "ports_match": true,
+    "devices_match": false,
+    "spice_ports": [
+      "outp",
+      "outn",
+      "inp",
+      "inn",
+      "vdd",
+      "vss",
+      "mgate"
+    ],
+    "cdl_ports": [
+      "outp",
+      "outn",
+      "inp",
+      "inn",
+      "vdd",
+      "vss",
+      "mgate"
+    ],
+    "matched_devices": [
+      "cap_cmomi l=1.24252e-05 w=1.24252e-05",
+      "npn13G2",
+      "npn13G2",
+      "rppd l=1.4e-06 w=5e-06",
+      "rppd l=1.4e-06 w=5e-06",
+      "rsil l=5e-06 w=5e-07",
+      "sg13_lv_nmos l=1e-06 w=0.000243",
+      "sg13_lv_nmos l=1e-06 w=0.000243",
+      "sg13_lv_nmos l=1e-06 w=0.000243"
+    ],
+    "only_in_spice": [
+      "inductor",
+      "inductor"
+    ],
+    "only_in_cdl": [
+      "inductor d=4e-05 s=2.1e-06 w=4e-06",
+      "inductor d=4e-05 s=2.1e-06 w=4e-06"
+    ],
+    "independent_sources_in_spice": [],
+    "model_aliases": {
+      "ind_shunt": "inductor"
+    },
+    "notes": [
+      "permitted substitution(s): ind_shunt -> inductor"
+    ],
+    "error": ""
+  },
+  "em": {
+    "ok": true,
+    "source": "/home/ubuntu/.local/share/ihp-eda/IHP-Open-PDK/ihp-sg13g2/libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef",
+    "derate_required": 1.0,
+    "derate_used_for_sizing": 2.0,
+    "segments": [
+      {
+        "net": "mdiode.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vss.rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "shared source rail",
+        "width_um": 8.635,
+        "min_width_um": 4.3172,
+        "capacity_a": 0.01727,
+        "utilisation": 0.5,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vdd.strap",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "between the coil supply feeds",
+        "width_um": 3.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.048,
+        "utilisation": 0.1799,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp1",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed across to the load",
+        "width_um": 2.46,
+        "min_width_um": 0.1919,
+        "capacity_a": 0.036899999999999995,
+        "utilisation": 0.078,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp1.drop",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed down to the crossing metal",
+        "width_um": 3.0,
+        "min_width_um": 0.1799,
+        "capacity_a": 0.048,
+        "utilisation": 0.06,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp2",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed across to the load",
+        "width_um": 2.46,
+        "min_width_um": 0.1919,
+        "capacity_a": 0.036899999999999995,
+        "utilisation": 0.078,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp2.drop",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed down to the crossing metal",
+        "width_um": 3.0,
+        "min_width_um": 0.1799,
+        "capacity_a": 0.048,
+        "utilisation": 0.06,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "e1",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "emitter/collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "e2",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "emitter/collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outp",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "emitter/collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outn",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "emitter/collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vss top/bottom run",
+        "width_um": 6.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.096,
+        "utilisation": 0.0899,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vss left/right run",
+        "width_um": 6.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.09,
+        "utilisation": 0.0959,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 0.00863436,
+        "note": "vss corner stitch",
+        "cuts": 4,
+        "min_cuts": 1,
+        "capacity_a": 0.04,
+        "utilisation": 0.2159,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vdd top/bottom run",
+        "width_um": 6.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.096,
+        "utilisation": 0.0899,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vdd left/right run",
+        "width_um": 6.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.09,
+        "utilisation": 0.0959,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 0.00863436,
+        "note": "vdd corner stitch",
+        "cuts": 4,
+        "min_cuts": 1,
+        "capacity_a": 0.04,
+        "utilisation": 0.2159,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vss.riser",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "source rail up to the ring",
+        "width_um": 3.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.048,
+        "utilisation": 0.1799,
+        "checkable": true,
+        "ok": true
+      }
+    ],
+    "failures": [],
+    "unchecked_layers": [],
+    "uncheckable_reasons": {}
+  },
+  "drc": {
+    "cell": "ctle_dut",
+    "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
+    "clean": false,
+    "strictly_clean": false,
+    "total_violations": 26,
+    "real_violations": 10,
+    "by_rule": {
+      "LBE.a": 16,
+      "LBE.c": 10
+    },
+    "real_by_rule": {
+      "LBE.c": 10
+    },
+    "context_by_rule": {
+      "LBE.a": 16
+    },
+    "context_rule_reasons": {
+      "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+    },
+    "examples": {
+      "LBE.a": [
+        "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+        "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+        "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+        "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+        "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+      ],
+      "LBE.c": [
+        "edge-pair: (-22.37,0;-54.01,31.64)|(-63.89,41.52;-63.89,31.64)",
+        "edge-pair: (-63.89,31.64;-95.53,0)|(-54.01,31.64;-54.01,41.52)",
+        "edge-pair: (-54.01,31.64;-54.01,76.38)|(-63.89,76.38;-63.89,31.64)",
+        "edge-pair: (-54.01,66.5;-54.01,76.38)|(-95.53,108.02;-63.89,76.38)",
+        "edge-pair: (-63.89,76.38;-63.89,66.5)|(-54.01,76.38;-22.37,108.02)"
+      ]
+    },
+    "tables": [],
+    "report": "/workspace/layout/blocks/out/ctle_stage/drc_run/ctle_dut_ctle_dut_main.lyrdb",
+    "log": "/workspace/layout/blocks/out/ctle_stage/drc_run/drc_run.log",
+    "error": "",
+    "ok": true,
+    "allowed_chip_level_rules": [
+      "LBE.a",
+      "LBE.c"
+    ],
+    "enforced_context_rules": [
+      "LU.a",
+      "LU.b"
+    ],
+    "remaining_violations": {}
+  },
+  "lvs": {
+    "cell": "ctle_dut",
+    "layout": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.cdl",
+    "clean": false,
+    "params_ok": true,
+    "devices_matched": 0,
+    "summary": "2026-08-19 19:15:35 +0000: Memory Usage (145748K) : ERROR : Netlists don't match",
+    "extracted_netlist": "/workspace/layout/blocks/out/ctle_stage/lvs_run/ctle_dut_extracted.cir",
+    "param_checks": [],
+    "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
+    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log"
+  }
+}

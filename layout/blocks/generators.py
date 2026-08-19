@@ -43,6 +43,10 @@ class Block:
     guard: dict | None = None
     notes: list[str] = field(default_factory=list)
     symmetry: dict | None = None
+    #: Drawn conductors with the current each carries, for the EM check.
+    em_segments: list[Any] = field(default_factory=list)
+    #: Power ring geometry, when the block draws one.
+    ring: Any = None
 
     def write(self, gds_dir: Path) -> Path:
         return write_gds(
@@ -65,6 +69,7 @@ class Block:
             ],
             "guard_ring": self.guard,
             "symmetry": self.symmetry,
+            "power_ring": self.ring.summary() if self.ring is not None else None,
             "notes": self.notes,
             "layers": layer_summary(self.layout, self.cell),
         }
