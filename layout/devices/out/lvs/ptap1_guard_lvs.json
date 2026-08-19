@@ -5,7 +5,7 @@
   "clean": true,
   "params_ok": true,
   "devices_matched": 0,
-  "summary": "2026-08-19 20:01:35 +0000: Memory Usage (142244K) : INFO : Congratulations! Netlists match.",
+  "summary": "2026-08-19 20:04:53 +0000: Memory Usage (142664K) : INFO : Congratulations! Netlists match.",
   "extracted_netlist": "/workspace/layout/devices/out/lvs_run/ptap1_guard/ptap1_guard_extracted.cir",
   "param_checks": [
     {

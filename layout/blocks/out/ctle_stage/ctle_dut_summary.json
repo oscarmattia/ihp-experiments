@@ -2297,6 +2297,7 @@
     "unchecked_layers": [],
     "uncheckable_reasons": {}
   },
+  "png": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.png",
   "drc": {
     "cell": "ctle_dut",
     "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
@@ -2355,10 +2356,48 @@
     "clean": true,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "2026-08-19 20:04:12 +0000: Memory Usage (145956K) : INFO : Congratulations! Netlists match.",
+    "summary": "2026-08-19 20:05:26 +0000: Memory Usage (146160K) : INFO : Congratulations! Netlists match.",
     "extracted_netlist": "/workspace/layout/blocks/out/ctle_stage/lvs_run/ctle_dut_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/ctle_stage/lvs_run/lvs_run.log",
     "error": ""
+  },
+  "pex": {
+    "cell": "ctle_dut",
+    "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_dut_pex.spice",
+    "ok": true,
+    "resistors": 0,
+    "capacitors": 100,
+    "total_resistance_ohm": 0.0,
+    "resistor_elements": [],
+    "resistance_extracted": true,
+    "note": "",
+    "total_capacitance_f": 1.8915635999999992e-13,
+    "per_net_capacitance_f": {
+      "e2": 1.413256e-13,
+      "e1": 1.4094690999999998e-13,
+      "vdd": 1.4078959999999997e-13,
+      "vss": 4.922430999999996e-14,
+      "a_n576_1960#": 4.2925830000000006e-14,
+      "m2_n576_2380#": 1.276667999999999e-14,
+      "inn": 1.2432270000000002e-14,
+      "m2_n576_n1012#": 1.1656440000000008e-14,
+      "inp": 1.151095e-14,
+      "outp": 1.0477950000000001e-14,
+      "outn": 1.0451880000000001e-14,
+      "w_n26_n36#": 5.8320900000000005e-15,
+      "a_0_0#": 5.793800000000002e-15,
+      "a_68_n36#": 4.61943e-15,
+      "w_0_n86#": 4.14886e-15,
+      "a_268_0#": 3.0095100000000003e-15,
+      "a_0_280#": 1.83638e-15,
+      "a_0_n86#": 1.83638e-15,
+      "m1_n70_n157#": 1.27668e-15,
+      "w_n656_n652#": 1.1939800000000001e-15
+    },
+    "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",
+    "error": "",
+    "signal_resistance_ohm": 0
   }
 }
