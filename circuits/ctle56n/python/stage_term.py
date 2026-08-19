@@ -302,7 +302,7 @@ def plot_insertion_loss(
     ax.set_ylabel("Insertion loss (dB)")
     ax.set_title(f"vod/vid @ output — DC={il_dc:.1f} dB, 28 GHz={il_28:.1f} dB")
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend(fontsize=8)
+    ax.legend(fontsize=8, loc="lower left")
     fig.savefig(path, dpi=120)
     plt.close(fig)
 
@@ -318,7 +318,7 @@ def plot_s11(freq: np.ndarray, s11_db: np.ndarray, path: Path) -> None:
     ax.set_ylabel("S11 (dB, 100 Ohm diff ref)")
     ax.set_title("Differential return loss at bond pad (100 Ohm reference)")
     ax.grid(True, which="both", alpha=0.3)
-    ax.legend(fontsize=8)
+    ax.legend(fontsize=8, loc="lower left")
     fig.savefig(path, dpi=120)
     plt.close(fig)
 
