@@ -188,6 +188,16 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
 - Because steering sets gain by scaling `gm`, a **fixed** degeneration resistor costs the same gain at every
   setting and does not reduce the steering range — unlike variable degeneration. That makes fixed `Rs` a
   clean linearity knob, though its benefit scales with the pair's current and so fades at minimum gain.
+- **An output driver into a 50 Ω interface is gain-starved, and `re` is why.** The differential load is
+  pinned at `RD || 50` = 25 Ω by the interface, so gain is `gm_eff * 25`. With `re = 7.13*(4/Nx)` degenerating
+  the pair, `Nx=2` gives `gm_eff ~ 49 mS` and a gain of only ~1.23 (+1.8 dB) `[sim]`. Consequences:
+  - The full switching swing is `I_T * R_eff * 2` (400 mVpp,diff at `I_T` = 8 mA into 25 Ω), but reaching it
+    needs roughly `400 mV / gain` ≈ **325 mVpp,diff of drive** — not the `4*VT ≈ 100 mV` an undegenerated
+    `tanh` pair would need. `re` adds roughly `I_T*re` ≈ 114 mV to the required drive.
+  - So a driver stage is **not** a free limiter: the preceding chain must be budgeted to deliver that drive,
+    or `Nx` raised (since `re ~ 1/Nx`) at the cost of input capacitance.
+  - Testing a driver with the same 100 mVpp,diff stimulus used for input-referred stages will understate its
+    swing. Characterize pad swing versus input swing instead of quoting one amplitude.
 - **The LUT `gm` for these HBTs is already `re`-degenerated.** `gm/Ic = 9.90 1/V` against the intrinsic
   `1/VT = 38.7 1/V` is the tell. Applying `gm/(1 + gm*re)` on top double-counts `re` — it cost one agent a
   3.3 dB error in a gain ceiling and nearly a wrong architecture decision. Stage gain from the LUT `gm` is
