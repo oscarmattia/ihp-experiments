@@ -1,0 +1,892 @@
+{
+  "devices": [
+    {
+      "name": "rppd_load",
+      "kind": "rppd",
+      "pcell": "rppd",
+      "spice_model": "rppd",
+      "note": "CTLE shunt-peaked load, 86.74 ohm realized (RD target 87 ohm)",
+      "params": {
+        "w": 5e-06,
+        "l": 1.4e-06
+      },
+      "pcell_params": {
+        "Calculate": "R",
+        "w": "5u",
+        "l": "1.4u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "m": "1",
+        "l": "1.4u",
+        "w": "5u"
+      },
+      "bbox_um": {
+        "width": 5.4,
+        "height": 2.62,
+        "area": 14.148
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            2.5,
+            -0.28
+          ],
+          "width": 4.96,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            2.5,
+            1.6800000000000002
+          ],
+          "width": 4.96,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 4,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "polyres_drw": 1,
+        "psd_drw": 3,
+        "salblock_drw": 1
+      },
+      "gds": "gds/rppd_load.gds",
+      "cdl": "cdl/rppd_load.cdl",
+      "png": null
+    },
+    {
+      "name": "rsil_degen",
+      "kind": "rsil",
+      "pcell": "rsil",
+      "spice_model": "rsil",
+      "note": "CTLE emitter degeneration, RS=86.63 ohm",
+      "params": {
+        "w": 5e-07,
+        "l": 5e-06
+      },
+      "pcell_params": {
+        "Calculate": "R",
+        "w": "0.5u",
+        "l": "5u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "m": "1",
+        "l": "5u",
+        "w": "0.5u"
+      },
+      "bbox_um": {
+        "width": 0.86,
+        "height": 6.06,
+        "area": 5.2116
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            -0.2
+          ],
+          "width": 0.46,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            5.2
+          ],
+          "width": 0.46,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 2,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "polyres_drw": 1,
+        "res_drw": 1
+      },
+      "gds": "gds/rsil_degen.gds",
+      "cdl": "cdl/rsil_degen.cdl",
+      "png": null
+    },
+    {
+      "name": "cmomi_cs",
+      "kind": "cmomi",
+      "pcell": "cmomi",
+      "spice_model": "cap_cmomi",
+      "note": "CTLE degeneration cap, CS=183.7 fF, feed=same",
+      "params": {
+        "w": 1.24252e-05,
+        "l": 1.24252e-05,
+        "mmin": 2,
+        "mmax": 5,
+        "feed": "same"
+      },
+      "pcell_params": {
+        "w": "12.4252u",
+        "l": "12.4252u",
+        "mmin": 2,
+        "mmax": 5,
+        "feed": "same"
+      },
+      "cdl_params": {
+        "w": "12.4252u",
+        "l": "12.4252u"
+      },
+      "bbox_um": {
+        "width": 13.01,
+        "height": 12.49,
+        "area": 162.4949
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal4_pin",
+          "center": [
+            -0.75,
+            5.785
+          ],
+          "width": 0.21,
+          "orientation": 180.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal5_pin",
+          "center": [
+            -0.75,
+            5.785
+          ],
+          "width": 0.21,
+          "orientation": 180.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "metal2_drw": 378,
+        "metal3_drw": 378,
+        "metal4_drw": 379,
+        "metal4_pin": 1,
+        "metal5_drw": 379,
+        "metal5_pin": 1,
+        "nometfiller_drw": 1,
+        "recog_mom": 1,
+        "via2_drw": 364,
+        "via3_drw": 364,
+        "via4_drw": 364
+      },
+      "gds": "gds/cmomi_cs.gds",
+      "cdl": "cdl/cmomi_cs.cdl",
+      "png": null
+    },
+    {
+      "name": "npn13G2_pair_device",
+      "kind": "npn13G2",
+      "pcell": "npn13G2",
+      "spice_model": "npn13G2",
+      "note": "CTLE differential pair HBT, Nx=1",
+      "params": {
+        "Nx": 1
+      },
+      "pcell_params": {
+        "Nx": 1,
+        "Ny": 1,
+        "le": "0.9u",
+        "we": "0.07u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "le": "0.9u",
+        "we": "0.07u",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 6.7,
+        "height": 7.11,
+        "area": 47.637
+      },
+      "terminals": [
+        {
+          "name": "C",
+          "layer": "metal1_pin",
+          "center": [
+            0.0,
+            1.13
+          ],
+          "width": 1.85,
+          "orientation": 90.0
+        },
+        {
+          "name": "B",
+          "layer": "metal1_pin",
+          "center": [
+            0.0,
+            -1.1400000000000001
+          ],
+          "width": 1.95,
+          "orientation": 270.0
+        },
+        {
+          "name": "E",
+          "layer": "metal2_pin",
+          "center": [
+            0.0,
+            -0.007500000000000007
+          ],
+          "width": 1.555,
+          "orientation": 270.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 2,
+        "activ_mask": 1,
+        "cont_drw": 2,
+        "emwind_drw": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 3,
+        "metal1_pin": 2,
+        "metal2_drw": 1,
+        "metal2_pin": 1,
+        "nsd_block": 1,
+        "psd_drw": 1,
+        "trans_drw": 1,
+        "via1_drw": 8
+      },
+      "gds": "gds/npn13G2_pair_device.gds",
+      "cdl": "cdl/npn13G2_pair_device.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_tail",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "CTLE tail/mirror device, W=242.99 um total in 122 fingers of 2.0 um, L=1.00 um",
+      "params": {
+        "w": 0.000242988195909,
+        "l": 1e-06,
+        "ng": 122
+      },
+      "pcell_params": {
+        "w": "242.988u",
+        "l": "1u",
+        "ng": "122",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "242.988u",
+        "l": "1u",
+        "ng": "122",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 138.3,
+        "height": 2.785,
+        "area": 385.1655
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            1.2125000000000001
+          ],
+          "width": 2.425,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.53,
+            1.2125000000000001
+          ],
+          "width": 2.425,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.8400000000000001,
+            1.2125
+          ],
+          "width": 2.785,
+          "orientation": 180.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 102,
+        "cont_drw": 707,
+        "gatpoly_drw": 100,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 100,
+        "metal1_drw": 101,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_tail.gds",
+      "cdl": "cdl/nmos_tail.cdl",
+      "png": null
+    },
+    {
+      "name": "inductor_turn1_d40",
+      "kind": "inductor",
+      "pcell": "inductor2",
+      "spice_model": "inductor",
+      "note": "shunt-peaking coil at the EM-characterized geometry (~66.4 pH at 28 GHz per ind_shunt.inc)",
+      "params": {
+        "d": 4e-05,
+        "w": 4e-06,
+        "s": 2.1e-06,
+        "nr_r": 1
+      },
+      "pcell_params": {
+        "w": "4u",
+        "s": "2.1u",
+        "d": "40u",
+        "nr_r": 1
+      },
+      "cdl_params": {
+        "w": "4u",
+        "s": "2.1u",
+        "d": "40u",
+        "nr_r": "1"
+      },
+      "bbox_um": {
+        "width": 108.02,
+        "height": 109.02,
+        "area": 11776.3404
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "topmetal2_pin",
+          "center": [
+            -3.05,
+            0.0
+          ],
+          "width": 4.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "topmetal2_pin",
+          "center": [
+            3.05,
+            0.0
+          ],
+          "width": 4.0,
+          "orientation": 270.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_nofill": 1,
+        "gatpoly_nofill": 1,
+        "ind_drw": 1,
+        "ind_pin": 2,
+        "lbe_drw": 1,
+        "metal1_nofill": 1,
+        "metal2_nofill": 1,
+        "metal3_nofill": 1,
+        "metal4_nofill": 1,
+        "metal5_nofill": 1,
+        "norcx_drw": 1,
+        "pwell_block": 1,
+        "topmetal1_nofill": 1,
+        "topmetal2_drw": 5,
+        "topmetal2_nofill": 1,
+        "topmetal2_pin": 2
+      },
+      "gds": "gds/inductor_turn1_d40.gds",
+      "cdl": "cdl/inductor_turn1_d40.cdl",
+      "png": null
+    },
+    {
+      "name": "ntap1_guard",
+      "kind": "ntap1",
+      "pcell": "ntap1",
+      "spice_model": "ntap1",
+      "note": "n-tap for guard rings",
+      "params": {
+        "w": 7.8e-07,
+        "l": 7.8e-07
+      },
+      "pcell_params": {
+        "Calculate": "R,A",
+        "w": "0.78u",
+        "l": "0.78u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "0.78u",
+        "l": "0.78u"
+      },
+      "bbox_um": {
+        "width": 1.26,
+        "height": 1.26,
+        "area": 1.5876
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.39,
+            0.39
+          ],
+          "width": 0.6,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 1,
+        "cont_drw": 4,
+        "metal1_drw": 1,
+        "metal1_pin": 2,
+        "nbulay_drw": 1,
+        "nwell_drw": 2,
+        "nwell_pin": 1
+      },
+      "gds": "gds/ntap1_guard.gds",
+      "cdl": "cdl/ntap1_guard.cdl",
+      "png": null
+    },
+    {
+      "name": "ptap1_guard",
+      "kind": "ptap1",
+      "pcell": "ptap1",
+      "spice_model": "ptap1",
+      "note": "p-tap for guard rings",
+      "params": {
+        "w": 7.8e-07,
+        "l": 7.8e-07
+      },
+      "pcell_params": {
+        "Calculate": "R,A",
+        "w": "0.78u",
+        "l": "0.78u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "0.78u",
+        "l": "0.78u"
+      },
+      "bbox_um": {
+        "width": 0.84,
+        "height": 0.84,
+        "area": 0.7056
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.39,
+            0.39
+          ],
+          "width": 0.5,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 1,
+        "cont_drw": 4,
+        "metal1_drw": 2,
+        "metal1_pin": 1,
+        "psd_drw": 1,
+        "substrate_drw": 1
+      },
+      "gds": "gds/ptap1_guard.gds",
+      "cdl": "cdl/ptap1_guard.cdl",
+      "png": null
+    },
+    {
+      "name": "cmim_decap",
+      "kind": "cmim",
+      "pcell": "cmim",
+      "spice_model": "cap_cmim",
+      "note": "MIM decap of the kind the termination stage uses",
+      "params": {
+        "w": 1e-05,
+        "l": 1e-05
+      },
+      "pcell_params": {
+        "Calculate": "C",
+        "w": "10u",
+        "l": "10u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "10u",
+        "l": "10u"
+      },
+      "bbox_um": {
+        "width": 11.2,
+        "height": 11.2,
+        "area": 125.44
+      },
+      "terminals": [
+        {
+          "name": "MINUS",
+          "layer": "metal5_drw",
+          "center": [
+            -0.6,
+            5.0
+          ],
+          "width": 11.2,
+          "orientation": 180.0
+        },
+        {
+          "name": "PLUS",
+          "layer": "topmetal1_drw",
+          "center": [
+            5.0,
+            10.04
+          ],
+          "width": 10.08,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "metal5_drw": 1,
+        "mim_drw": 1,
+        "topmetal1_drw": 1,
+        "vmim_drw": 64
+      },
+      "gds": "gds/cmim_decap.gds",
+      "cdl": "cdl/cmim_decap.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_char_l0p13",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "char/mos LV sweep corner L=0.13 um, W=1 um, ng=1",
+      "params": {
+        "w": 1e-06,
+        "l": 1.3e-07,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "1u",
+        "l": "0.13u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "1u",
+        "l": "0.13u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 0.81,
+        "height": 1.36,
+        "area": 1.1016
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            0.6599999999999999,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.405,
+            0.5
+          ],
+          "width": 1.36,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 6,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_char_l0p13.gds",
+      "cdl": "cdl/nmos_char_l0p13.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_char_l0p18",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "char/mos LV sweep corner L=0.18 um, W=1 um, ng=1",
+      "params": {
+        "w": 1e-06,
+        "l": 1.8e-07,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "1u",
+        "l": "0.18u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "1u",
+        "l": "0.18u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 0.86,
+        "height": 1.36,
+        "area": 1.1696
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            0.71,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.43000000000000005,
+            0.5
+          ],
+          "width": 1.36,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 6,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_char_l0p18.gds",
+      "cdl": "cdl/nmos_char_l0p18.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_char_l0p25",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "char/mos LV sweep corner L=0.25 um, W=1 um, ng=1",
+      "params": {
+        "w": 1e-06,
+        "l": 2.5e-07,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "1u",
+        "l": "0.25u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "1u",
+        "l": "0.25u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 0.93,
+        "height": 1.36,
+        "area": 1.2648
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            0.78,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.46499999999999997,
+            0.5
+          ],
+          "width": 1.36,
+          "orientation": 180.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 6,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_char_l0p25.gds",
+      "cdl": "cdl/nmos_char_l0p25.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_char_l0p5",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "char/mos LV sweep corner L=0.5 um, W=1 um, ng=1",
+      "params": {
+        "w": 1e-06,
+        "l": 5e-07,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "1u",
+        "l": "0.5u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "1u",
+        "l": "0.5u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 1.18,
+        "height": 1.36,
+        "area": 1.6048
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.03,
+            0.5
+          ],
+          "width": 1.0,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.59,
+            0.5
+          ],
+          "width": 1.36,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 6,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_char_l0p5.gds",
+      "cdl": "cdl/nmos_char_l0p5.cdl",
+      "png": null
+    }
+  ],
+  "failures": []
+}

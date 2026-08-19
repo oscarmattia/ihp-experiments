@@ -1,0 +1,4 @@
+* cmim_decap — generated from DeviceSpec; do not edit by hand
+.SUBCKT cmim_decap PLUS MINUS
+C1 PLUS MINUS cap_cmim w=10u l=10u
+.ENDS cmim_decap

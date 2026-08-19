@@ -1,0 +1,4 @@
+* ptap1_guard — generated from DeviceSpec; do not edit by hand
+.SUBCKT ptap1_guard PLUS
+R1 PLUS sub ptap1 w=0.78u l=0.78u
+.ENDS ptap1_guard

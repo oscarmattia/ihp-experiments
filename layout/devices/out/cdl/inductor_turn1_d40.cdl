@@ -1,0 +1,4 @@
+* inductor_turn1_d40 — generated from DeviceSpec; do not edit by hand
+.SUBCKT inductor_turn1_d40 PLUS MINUS
+L1 PLUS MINUS sub inductor w=4u s=2.1u d=40u nr_r=1
+.ENDS inductor_turn1_d40

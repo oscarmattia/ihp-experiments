@@ -1,0 +1,4 @@
+* ntap1_guard — generated from DeviceSpec; do not edit by hand
+.SUBCKT ntap1_guard PLUS
+R1 PLUS sub ntap1 w=0.78u l=0.78u
+.ENDS ntap1_guard

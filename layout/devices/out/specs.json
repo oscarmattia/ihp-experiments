@@ -1,0 +1,128 @@
+[
+  {
+    "name": "rppd_load",
+    "kind": "rppd",
+    "params": {
+      "w": 5e-06,
+      "l": 1.4e-06
+    },
+    "note": "CTLE shunt-peaked load, 86.74 ohm realized (RD target 87 ohm)"
+  },
+  {
+    "name": "rsil_degen",
+    "kind": "rsil",
+    "params": {
+      "w": 5e-07,
+      "l": 5e-06
+    },
+    "note": "CTLE emitter degeneration, RS=86.63 ohm"
+  },
+  {
+    "name": "cmomi_cs",
+    "kind": "cmomi",
+    "params": {
+      "w": 1.24252e-05,
+      "l": 1.24252e-05,
+      "mmin": 2,
+      "mmax": 5,
+      "feed": "same"
+    },
+    "note": "CTLE degeneration cap, CS=183.7 fF, feed=same"
+  },
+  {
+    "name": "npn13G2_pair_device",
+    "kind": "npn13G2",
+    "params": {
+      "Nx": 1
+    },
+    "note": "CTLE differential pair HBT, Nx=1"
+  },
+  {
+    "name": "nmos_tail",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 0.000242988195909,
+      "l": 1e-06,
+      "ng": 122
+    },
+    "note": "CTLE tail/mirror device, W=242.99 um total in 122 fingers of 2.0 um, L=1.00 um"
+  },
+  {
+    "name": "inductor_turn1_d40",
+    "kind": "inductor",
+    "params": {
+      "d": 4e-05,
+      "w": 4e-06,
+      "s": 2.1e-06,
+      "nr_r": 1
+    },
+    "note": "shunt-peaking coil at the EM-characterized geometry (~66.4 pH at 28 GHz per ind_shunt.inc)"
+  },
+  {
+    "name": "ntap1_guard",
+    "kind": "ntap1",
+    "params": {
+      "w": 7.8e-07,
+      "l": 7.8e-07
+    },
+    "note": "n-tap for guard rings"
+  },
+  {
+    "name": "ptap1_guard",
+    "kind": "ptap1",
+    "params": {
+      "w": 7.8e-07,
+      "l": 7.8e-07
+    },
+    "note": "p-tap for guard rings"
+  },
+  {
+    "name": "cmim_decap",
+    "kind": "cmim",
+    "params": {
+      "w": 1e-05,
+      "l": 1e-05
+    },
+    "note": "MIM decap of the kind the termination stage uses"
+  },
+  {
+    "name": "nmos_char_l0p13",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 1e-06,
+      "l": 1.3e-07,
+      "ng": 1
+    },
+    "note": "char/mos LV sweep corner L=0.13 um, W=1 um, ng=1"
+  },
+  {
+    "name": "nmos_char_l0p18",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 1e-06,
+      "l": 1.8e-07,
+      "ng": 1
+    },
+    "note": "char/mos LV sweep corner L=0.18 um, W=1 um, ng=1"
+  },
+  {
+    "name": "nmos_char_l0p25",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 1e-06,
+      "l": 2.5e-07,
+      "ng": 1
+    },
+    "note": "char/mos LV sweep corner L=0.25 um, W=1 um, ng=1"
+  },
+  {
+    "name": "nmos_char_l0p5",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 1e-06,
+      "l": 5e-07,
+      "ng": 1
+    },
+    "note": "char/mos LV sweep corner L=0.5 um, W=1 um, ng=1"
+  }
+]

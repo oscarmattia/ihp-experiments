@@ -9,3 +9,7 @@ circuits/ctle56n/out/**/*.log
 
 __pycache__/
 *.py[cod]
+layout/**/out/**/drc_run/
+layout/**/out/**/lvs_run/
+layout/**/out/**/pex_run/
+layout/**/out/**/work/

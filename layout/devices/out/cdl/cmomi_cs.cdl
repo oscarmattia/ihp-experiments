@@ -1,0 +1,4 @@
+* cmomi_cs — generated from DeviceSpec; do not edit by hand
+.SUBCKT cmomi_cs PLUS MINUS
+C1 PLUS MINUS cap_cmomi w=12.4252u l=12.4252u
+.ENDS cmomi_cs

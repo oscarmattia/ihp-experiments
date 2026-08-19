@@ -1,0 +1,4 @@
+* nmos_char_l0p25 — generated from DeviceSpec; do not edit by hand
+.SUBCKT nmos_char_l0p25 D G S
+M1 D G S sub sg13_lv_nmos w=1u l=0.25u ng=1 m=1
+.ENDS nmos_char_l0p25

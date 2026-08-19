@@ -1,0 +1,4 @@
+* rsil_degen — generated from DeviceSpec; do not edit by hand
+.SUBCKT rsil_degen PLUS MINUS
+R1 PLUS MINUS sub rsil m=1 l=5u w=0.5u
+.ENDS rsil_degen
