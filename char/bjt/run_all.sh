@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run IHP SG13G2 BJT / HBT DC characterization.
+# Run IHP SG13G2 BJT / HBT DC + AC characterization.
 set -euo pipefail
 
 BJT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

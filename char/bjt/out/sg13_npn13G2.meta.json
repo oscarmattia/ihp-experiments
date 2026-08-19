@@ -33,11 +33,13 @@
     "BETA": "Ic/Ib",
     "GM": "\u2202Ic/\u2202VBE (S), numerical",
     "GO": "\u2202Ic/\u2202VCE (S), numerical",
-    "CBE": "Cbe (F); NaN if model does not expose it in DC",
-    "CBC": "Cbc (F); NaN if model does not expose it in DC",
+    "CBE": "Cbe (F) from per-bias OP (HBT AC pass)",
+    "CBC": "Cbc (F) from per-bias OP (HBT AC pass)",
+    "CIN": "input capacitance (F) from Y11 @ 10 GHz (HBT AC pass)",
+    "FT": "transition frequency (Hz) = 10 GHz \u00d7 |h21| (HBT AC pass)",
     "VA": "Early approx Ic/go (V)",
     "GM_IC": "gm/Ic (1/V)"
   },
   "shape": "signal arrays are (n_geo, n_vce, n_vbe); axes are 1-D",
-  "notes": "gm/go/beta recomputed from Ic,Ib after DC; VBIC @q[gm] etc. often freeze under nested dc wrdata. Caps from @q may be stale."
+  "notes": "gm/go/beta recomputed from Ic,Ib after DC; VBIC @q[gm] etc. often freeze under nested dc wrdata. HBT Cbe/Cbc/Cin/fT come from a separate OP+AC pass (10 GHz |h21|, not nested-dc wrdata). PNP/lateral devices skip AC; FT/CIN remain NaN."
 }
