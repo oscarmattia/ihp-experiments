@@ -28,8 +28,8 @@ min_eye_height_mV,27.846
 min_eye_width_UI,0.7100
 min_eye_width_ps,12.679
 min_eye_sample_phase_UI,0.2202
-min_sbr_isi_norm,-0.262982
-min_sbr_isi_abs,0.283912
+min_sbr_isi_norm,-0.267082
+min_sbr_isi_abs,0.267082
 mid_VCTRL_V,0.4200
 mid_gain_src_DC_dB,-4.417
 mid_gain_src_28G_dB,1.429
@@ -48,8 +48,8 @@ mid_eye_height_mV,77.304
 mid_eye_width_UI,0.7650
 mid_eye_width_ps,13.661
 mid_eye_sample_phase_UI,0.1642
-mid_sbr_isi_norm,-0.301043
-mid_sbr_isi_abs,0.301043
+mid_sbr_isi_norm,-0.285348
+mid_sbr_isi_abs,0.285348
 max_VCTRL_V,0.6500
 max_gain_src_DC_dB,-3.379
 max_gain_src_28G_dB,2.529
@@ -68,5 +68,5 @@ max_eye_height_mV,88.192
 max_eye_width_UI,0.7650
 max_eye_width_ps,13.661
 max_eye_sample_phase_UI,0.1642
-max_sbr_isi_norm,-0.304772
-max_sbr_isi_abs,0.304772
+max_sbr_isi_norm,-0.283021
+max_sbr_isi_abs,0.283021

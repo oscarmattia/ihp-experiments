@@ -24,97 +24,35 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 
 ## Sizing summary
 
-| Parameter | Symbol | Ideal | PDK | Notes |
-| --- | --- | --- | --- | --- |
-| Emitter multiplier | Nx | 1 | 1 | HBT LUT index |
-| HBT VBE (LUT) | VBE | 0.950 V | 0.950 V | max-fT bias |
-| Input common-mode | VBASE | 1.396 V | 1.396 V | inp/inn DC |
-| Supply | VDD | 1.600 V | 1.600 V | below BVceo ~1.6 V |
-| HBT collector current | Ic | 2.888 mA | 2.888 mA | per side |
-| Tail current | I_tail | 2.878 mA | 2.878 mA | Ic per tail (×2 devices) |
-| Transition frequency | f_T | 348.80 GHz | 348.80 GHz | LUT at bias |
-| Transconductance | g_m | 28.51 mS | 28.51 mS |  |
-| Input capacitance | C_in | 10.36 fF | 10.36 fF | HBT CIN |
-| Load capacitance | C_L | 25.13 fF | 25.13 fF | Miller + route (no coil port C) |
-| Load resistor | R_D | 87.0 Ω | 5.0×1.4 µm | shunt peak |
-| Emitter degeneration | R_s | 86.6 Ω | 86.6 Ω |  |
-| Degeneration cap | C_s | 183.7 fF | 183.7 fF | ideal or MIM |
-| Drain inductor | L | 60.88 pH | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
-| Bessel MFD | m | 0.32 | 0.32 | L/(R_D² C_L) |
-| MOS tail W/L/VGS | W/L/VGS | 243/1.0/0.550 V | 243/1.0/0.550 V | LV NMOS + mirror |
-| RPPD load | W/L | ideal R | 5.0×1.4 µm | LUT ≈ R_D/0.88 |
-| DC gain | A_v0 | -0.24 dB | -0.24 dB | −6…0 dB target |
-| Peaking @ 28 GHz | — | 5.46 dB | 5.39 dB | 3–10 dB target |
-| Peak AC gain | G_peak | 5.22 dB | 5.19 dB |  |
-| Peak frequency | f_peak | 29.97 GHz | 32.12 GHz |  |
-| −3 dB bandwidth | f_{−3dB} | 94.22 GHz | 100.98 GHz | after peak |
-| CMRR | — | 23.09 dB | 23.09 dB | > 6 dB |
-| PSRR | — | 120.00 dB | 120.00 dB | > 20 dB (clipped 120 dB) |
-| HBT VCE | V_CE | 0.910 V | 0.910 V |  |
-| MOS tail VDS | V_DS,tail | 0.439 V | 0.439 V |  |
+| Parameter | Symbol | Value | Notes |
+| --- | --- | --- | --- |
+| Emitter multiplier | Nx | 1 | HBT LUT index |
+| HBT VBE (LUT) | VBE | 0.950 V | max-fT bias |
+| Input common-mode | VBASE | 1.396 V | inp/inn DC |
+| Supply | VDD | 1.600 V | below BVceo ~1.6 V |
+| HBT collector current | Ic | 2.888 mA | per side |
+| Tail current | I_tail | 2.878 mA | Ic per tail (×2 devices) |
+| Transition frequency | f_T | 348.80 GHz | LUT at bias |
+| Transconductance | g_m | 28.51 mS |  |
+| Input capacitance | C_in | 10.36 fF | HBT CIN |
+| Load capacitance | C_L | 25.13 fF | Miller + route (no coil port C) |
+| Load resistor | R_D | 87.0 Ω | shunt peak |
+| Emitter degeneration | R_s | 86.6 Ω |  |
+| Degeneration cap | C_s | 183.7 fF | ideal or MIM |
+| Drain inductor | L | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
+| Bessel MFD | m | 0.32 | L/(R_D² C_L) |
+| MOS tail W/L/VGS | W/L/VGS | 243/1.0/0.550 V | LV NMOS + mirror |
+| RPPD load | W/L | ideal R | LUT ≈ R_D/0.88 |
+| DC gain | A_v0 | -0.25 dB | −6…0 dB target |
+| Peaking @ 28 GHz | — | 5.46 dB | 3–10 dB target |
+| Peak AC gain | G_peak | 5.22 dB |  |
+| Peak frequency | f_peak | 29.97 GHz |  |
+| −3 dB bandwidth | f_{−3dB} | 94.22 GHz | after peak |
+| CMRR | — | 23.09 dB | > 6 dB |
+| PSRR | — | 120.00 dB | > 20 dB (clipped 120 dB) |
+| HBT VCE | V_CE | 0.910 V |  |
+| MOS tail VDS | V_DS,tail | 0.438 V |  |
 
 Plots and waveforms: `out/ideal/` (ideal passives) and `out/pdk/` (PDK R/C passives).
 Each pass includes AC PNGs/CSVs, transient CSVs, eye PNGs/CSVs, and SBR when `--no-tran` is not set.
 Combined metrics: `out/summary.csv`; per-pass: `out/ideal/metrics.csv`, `out/pdk/metrics.csv`.
-
-## Single-bit response
-
-### Ideal
-
-Waveforms: `out/ideal/sbr.png`, `out/ideal/sbr.csv`, `out/ideal/sbr_taps.csv`.
-
-Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **32 UI** settle at logic 0.
-Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
-|h| < **0.5%** of |cursor| (h_0 always kept).
-
-| Tap | k | h (mV) | h / h_0 | Kept |
-| --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | 0.000 | -0.0000 | no |
-| h_{-2} pre | -2 | 0.000 | -0.0000 | no |
-| h_{-1} pre | -1 | 0.000 | -0.0000 | no |
-| **h_0 cursor** | 0 | -167.174 | 1.000 | yes |
-| h_1 post | 1 | 46.571 | -0.2786 | yes |
-| h_2 post | 2 | 13.980 | -0.0836 | yes |
-| h_3 post | 3 | 3.353 | -0.0201 | yes |
-| h_4 post | 4 | 0.799 | -0.0048 | no |
-| h_5 post | 5 | 0.185 | -0.0011 | no |
-| h_6 post | 6 | 0.038 | -0.0002 | no |
-| h_7 post | 7 | 0.003 | -0.0000 | no |
-| h_8 post | 8 | -0.006 | 0.0000 | no |
-| h_9 post | 9 | -0.008 | 0.0000 | no |
-| h_10 post | 10 | -0.008 | 0.0000 | no |
-
-- Main cursor h_0 = **-167.17 mV** at t = **0.504 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3823** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3823** (same taps)
-- Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
-
-### PDK
-
-Waveforms: `out/pdk/sbr.png`, `out/pdk/sbr.csv`, `out/pdk/sbr_taps.csv`.
-
-Isolated **1 UI** NRZ pulse (**100 mVpp,diff**, ±50 mV vid), after **32 UI** settle at logic 0.
-Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
-|h| < **0.5%** of |cursor| (h_0 always kept).
-
-| Tap | k | h (mV) | h / h_0 | Kept |
-| --- | --- | --- | --- | --- |
-| h_{-3} pre | -3 | -0.000 | 0.0000 | no |
-| h_{-2} pre | -2 | -0.000 | 0.0000 | no |
-| h_{-1} pre | -1 | -0.000 | 0.0000 | no |
-| **h_0 cursor** | 0 | -166.900 | 1.000 | yes |
-| h_1 post | 1 | 49.426 | -0.2961 | yes |
-| h_2 post | 2 | 12.059 | -0.0723 | yes |
-| h_3 post | 3 | 2.449 | -0.0147 | yes |
-| h_4 post | 4 | 0.496 | -0.0030 | no |
-| h_5 post | 5 | 0.097 | -0.0006 | no |
-| h_6 post | 6 | 0.015 | -0.0001 | no |
-| h_7 post | 7 | -0.002 | 0.0000 | no |
-| h_8 post | 8 | -0.006 | 0.0000 | no |
-| h_9 post | 9 | -0.007 | 0.0000 | no |
-| h_10 post | 10 | -0.007 | 0.0000 | no |
-
-- Main cursor h_0 = **-166.90 mV** at t = **0.504 UI** after pulse start
-- Normalized total ISI = Σ h_k / h_0 = **-0.3831** (k≠0, kept taps only)
-- Σ|h_k|/|h_0| = **0.3831** (same taps)
-- Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
