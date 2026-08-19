@@ -452,6 +452,7 @@ main() {
     openems_ok=1
   fi
 
+  install_appcsxcad_stub
   write_em_env
   install_palace || warn "Palace setup encountered errors (non-fatal)"
 
