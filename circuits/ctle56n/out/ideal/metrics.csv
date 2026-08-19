@@ -1,9 +1,9 @@
 parameter,value
 ideal_dc_gain_dB,-0.245
-ideal_peaking_28G_dB,5.462
-ideal_G_peak_dB,5.223
-ideal_f_peak_Hz,2.99732e+10
-ideal_f_3dB_Hz,9.4224e+10
+ideal_peaking_28G_dB,5.283
+ideal_G_peak_dB,5.040
+ideal_f_peak_Hz,2.70219e+10
+ideal_f_3dB_Hz,7.93305e+10
 ideal_CMRR_dB,23.092
 ideal_PSRR_dB,120.000
 ideal_VCE_V,0.9102

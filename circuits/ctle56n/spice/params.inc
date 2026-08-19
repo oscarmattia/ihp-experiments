@@ -7,12 +7,12 @@
 .param RD=87
 .param RS=86.6296
 .param CS=1.83719e-13
-.param LLOAD=6.08785e-11
-.param CL=2.51348e-14
+.param LLOAD=8.13693e-11
+.param CL=3.35948e-14
 .param CBE=1.71473e-14
 .param CBC=3.95826e-16
 .param CL_MILLER=1.83348e-14
-.param CL_INTERCONNECT=6.8e-15
+.param CL_INTERCONNECT=1.526e-14
 .param ITAIL=0.00287812
 .param MOS_W=243
 .param MOS_L=1
@@ -34,7 +34,7 @@
 .param SCALE=1
 .param PEAKING_DB=7
 .param L_EM=6.6354e-11
-.param RD_MIN=70.0085
+.param RD_MIN=60.5553
 .param M_BESSEL=0.32
 .param M_IDEAL=0.32
-.param M_PDK=0.350907
+.param M_PDK=0.26254

@@ -12,7 +12,7 @@ Sizing uses characterization LUTs (`char/bjt`, `char/mos`, `char/passive`) at ma
 Load C_L = Miller-aware FO1 VGA input + interconnect (not raw LUT CIN; coil port C excluded).
 Bessel shunt-peaking **m = L/(R_D² C_L) ≈ 0.32**.
 
-The drain inductor **L = 60.88 pH** (6.08785e-11 H) is physically tiny (via / short-trace scale).
+The drain inductor **L = 81.37 pH** (8.13693e-11 H) is physically tiny (via / short-trace scale).
 No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L remains **ideal** in ngspice.
 
 ## Targets
@@ -35,19 +35,19 @@ No PDK spiral is used — minimum EM cell `l2n0` is ~2 nH, far too large. L rema
 | Transition frequency | f_T | 348.80 GHz | 348.80 GHz | LUT at bias |
 | Transconductance | g_m | 28.51 mS | 28.51 mS |  |
 | Input capacitance | C_in | 10.36 fF | 10.36 fF | HBT CIN |
-| Load capacitance | C_L | 25.13 fF | 25.13 fF | Miller + route (no coil port C) |
+| Load capacitance | C_L | 33.59 fF | 33.59 fF | Miller + route (no coil port C) |
 | Load resistor | R_D | 87.0 Ω | 5.0×1.4 µm | shunt peak |
 | Emitter degeneration | R_s | 86.6 Ω | 86.6 Ω |  |
 | Degeneration cap | C_s | 183.7 fF | 183.7 fF | ideal or MIM |
-| Drain inductor | L | 60.88 pH | 60.88 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
+| Drain inductor | L | 81.37 pH | 81.37 pH | ideal; VDD→L→R_D→collector; no PDK spiral (l2n0 ~2 nH) |
 | Bessel MFD | m | 0.32 | 0.32 | L/(R_D² C_L) |
 | MOS tail W/L/VGS | W/L/VGS | 243/1.0/0.550 V | 243/1.0/0.550 V | LV NMOS + mirror |
 | RPPD load | W/L | ideal R | 5.0×1.4 µm | LUT ≈ R_D/0.88 |
 | DC gain | A_v0 | -0.24 dB | -0.24 dB | −6…0 dB target |
-| Peaking @ 28 GHz | — | 5.46 dB | 5.39 dB | 3–10 dB target |
-| Peak AC gain | G_peak | 5.22 dB | 5.19 dB |  |
-| Peak frequency | f_peak | 29.97 GHz | 32.12 GHz |  |
-| −3 dB bandwidth | f_{−3dB} | 94.22 GHz | 100.98 GHz | after peak |
+| Peaking @ 28 GHz | — | 5.28 dB | 5.00 dB | 3–10 dB target |
+| Peak AC gain | G_peak | 5.04 dB | 4.77 dB |  |
+| Peak frequency | f_peak | 27.02 GHz | 26.71 GHz |  |
+| −3 dB bandwidth | f_{−3dB} | 79.33 GHz | 78.51 GHz | after peak |
 | CMRR | — | 23.09 dB | 23.09 dB | > 6 dB |
 | PSRR | — | 120.00 dB | 120.00 dB | > 20 dB (clipped 120 dB) |
 | HBT VCE | V_CE | 0.910 V | 0.910 V |  |

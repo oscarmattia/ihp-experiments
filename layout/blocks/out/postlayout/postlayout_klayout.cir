@@ -1,0 +1,21 @@
+* postlayout-cl-model: full
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerCAP.lib' cap_typ
+
+* ctle_dut — post-layout DUT wrapper; do not edit by hand
+.include {IND_SHUNT_INC}
+.subckt ctle_dut outp outn inp inn vdd vss mgate
+X$1 outn nlp2 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQ2 outn inn e2 vss npn13G2 we=70n le=900n nx=1
+X$3 outp nlp1 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQ1 outp inp e1 vss npn13G2 we=70n le=900n nx=1
+X$5 e1 e2 vss rsil w=0.5u l=5u ps=0u m=1
+Xtail2 e2 mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+Xtail1 e1 mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+Xcdeg e1 e2 cap_cmomi w=12.4252u l=12.4252u mmin=2 mmax=5 feed=same m=1
+Xl1 vdd nlp1 vss ind_shunt
+Xl2 vdd nlp2 vss ind_shunt
+.ends ctle_dut

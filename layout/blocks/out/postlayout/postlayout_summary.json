@@ -1,0 +1,35 @@
+{
+  "cell": "ctle_dut",
+  "simview_gds": "layout/blocks/out/postlayout/simview_gds/ctle_dut.gds",
+  "simview_reduced_cdl": "layout/blocks/out/postlayout/simview_reduced.cdl",
+  "flows": {
+    "klayout": {
+      "netlist": "layout/blocks/out/postlayout/postlayout_klayout.cir",
+      "core_netlist": "layout/blocks/out/postlayout/ctle_dut_core.cir",
+      "device_count": 8,
+      "parasitic_count": 0,
+      "capacitance_kept_fF": 0.0,
+      "capacitance_dropped_fF": 0.0,
+      "gates": {
+        "lvs_match": true
+      }
+    },
+    "magic": {
+      "netlist": "layout/blocks/out/postlayout/postlayout_magic.cir",
+      "core_netlist": "layout/blocks/out/postlayout/ctle_dut_core_magic.cir",
+      "device_count": 8,
+      "parasitic_count": 30,
+      "capacitance_kept_fF": 472.7731,
+      "capacitance_dropped_fF": 3.0219,
+      "gates": {
+        "pex_physical": true,
+        "lvs_match": true
+      }
+    }
+  },
+  "gates": {
+    "lvs_match": true,
+    "lvs_summary": "Congratulations! Netlists match.",
+    "pex_physical": true
+  }
+}

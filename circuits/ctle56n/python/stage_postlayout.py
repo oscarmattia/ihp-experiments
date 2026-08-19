@@ -80,6 +80,44 @@ def _param_from_inc(inc_path: Path, name: str, default: float = 0.0) -> float:
     return default
 
 
+CL_MARKER = "* postlayout-cl-model:"
+
+
+def _declared_cl_model(dut: Path) -> str | None:
+    """The load model the netlist itself asks for, if it says.
+
+    A netlist that carries its own interconnect capacitance needs the Miller term
+    only; one that carries no parasitics needs the full CL. The generator knows
+    which it built and records it, so the right answer does not depend on the caller
+    remembering.
+    """
+    for line in dut.read_text().splitlines()[:8]:
+        if line.startswith(CL_MARKER):
+            value = line[len(CL_MARKER):].strip()
+            if value in ("full", "miller"):
+                return value
+    return None
+
+
+def _resolve_cl_tb(spice_dir: Path, mode: str) -> str:
+    """TB shunt load on outp/outn for benches that use {CL_TB}.
+
+    Schematic runs use full ``CL`` (Miller + interconnect).  Post-layout extracted
+    netlists already include the output routing, so ``CL_INTERCONNECT`` would be
+    double-counted if applied again via ``Cload_*``.
+    """
+    params_inc = spice_dir / "params.inc"
+    if mode == "full":
+        val = _param_from_inc(params_inc, "CL")
+        if val <= 0:
+            raise SystemExit("CL missing from spice/params.inc")
+        return f"{val:.6g}"
+    val = _param_from_inc(params_inc, "CL_MILLER")
+    if val <= 0:
+        raise SystemExit("CL_MILLER missing from spice/params.inc")
+    return f"{val:.6g}"
+
+
 def _ind_shunt_r_dc_ohm(spice_dir: Path) -> float:
     inc = spice_dir / "ind_shunt.inc"
     if not inc.is_file():
@@ -142,6 +180,7 @@ def run_postlayout_pass(
     dut_cir: Path,
     spice_dir: Path,
     *,
+    cl_tb: str,
     extra_params: dict[str, str] | None = None,
 ) -> SimMetrics:
     """DC + AC suite for one external CTLE DUT view."""
@@ -178,6 +217,7 @@ def run_postlayout_pass(
         models,
         spice_dir,
         extra_params=ep,
+        cl_tb=cl_tb,
         **tb_kw,
     )
     run_ngspice(tb_diff, work, "ac_diff.log")
@@ -199,6 +239,7 @@ def run_postlayout_pass(
         models,
         spice_dir,
         extra_params=ep,
+        cl_tb=cl_tb,
         **tb_kw,
     )
     run_ngspice(tb_cm, work, "ac_cm.log")
@@ -216,6 +257,7 @@ def run_postlayout_pass(
         models,
         spice_dir,
         extra_params=ep,
+        cl_tb=cl_tb,
         **tb_kw,
     )
     run_ngspice(tb_psrr, work, "ac_psrr.log")
@@ -301,6 +343,7 @@ def run_tran(
     dut_cir: Path,
     spice_dir: Path,
     vbase: float,
+    cl_tb: str,
     extra_params: dict[str, str] | None = None,
 ) -> EyeMetrics:
     models = pdk_models()
@@ -319,6 +362,7 @@ def run_tran(
         models,
         spice_dir,
         extra_params={**ep, "TMAX": f"{tmax:.6e}"},
+        cl_tb=cl_tb,
         dut_name=CTLE_DUT_NAME,
     )
     run_ngspice(tb_tran, work, "tran.log")
@@ -344,6 +388,7 @@ def run_sbr(
     dut_cir: Path,
     spice_dir: Path,
     vbase: float,
+    cl_tb: str,
     extra_params: dict[str, str] | None = None,
 ) -> SbrResult:
     models = pdk_models()
@@ -362,6 +407,7 @@ def run_sbr(
         models,
         spice_dir,
         extra_params={**ep, "TMAX": f"{tmax:.6e}"},
+        cl_tb=cl_tb,
         dut_name=CTLE_DUT_NAME,
     )
     run_ngspice(tb_sbr, work, "sbr.log")
@@ -394,6 +440,14 @@ def main() -> None:
         action="store_true",
         help="Skip 56G NRZ PRBS9 and SBR transient",
     )
+    parser.add_argument(
+        "--cl-tb",
+        choices=("miller", "full"),
+        default=None,
+        help="TB Cload on outp/outn: miller=CL_MILLER only (for a netlist that "
+        "carries its own extracted routing); full=CL (Miller+route). Defaults to "
+        "whatever the netlist declares, falling back to miller.",
+    )
     args = parser.parse_args()
 
     dut_cir = args.dut
@@ -402,9 +456,14 @@ def main() -> None:
 
     spice_dir = _spice_dir()
     pass_name = args.pass_name
+    # The netlist knows whether it carries its own interconnect; trust it unless
+    # told otherwise, because guessing wrong is silent and shifts the peaking.
+    mode = args.cl_tb or _declared_cl_model(dut_cir) or "miller"
+    cl_tb = _resolve_cl_tb(spice_dir, mode)
+    print(f"  load model: {mode} (Cload = {cl_tb} F per output)")
 
     try:
-        metrics = run_postlayout_pass(pass_name, dut_cir, spice_dir)
+        metrics = run_postlayout_pass(pass_name, dut_cir, spice_dir, cl_tb=cl_tb)
     except (RuntimeError, ValueError, FileNotFoundError) as exc:
         print(exc, file=sys.stderr)
         sys.exit(1)
@@ -421,8 +480,8 @@ def main() -> None:
             sys.exit(1)
         vbase = float(vbase_m.group(1))
         try:
-            eye = run_tran(pass_name, dut_cir, spice_dir, vbase)
-            sbr = run_sbr(pass_name, dut_cir, spice_dir, vbase)
+            eye = run_tran(pass_name, dut_cir, spice_dir, vbase, cl_tb=cl_tb)
+            sbr = run_sbr(pass_name, dut_cir, spice_dir, vbase, cl_tb=cl_tb)
         except (RuntimeError, ValueError) as exc:
             print(exc, file=sys.stderr)
             sys.exit(1)

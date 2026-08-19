@@ -100,6 +100,22 @@ def klayout_core_devices(extracted: Path) -> list[str]:
     return [rename_schematic_instances(normalise_element(line)) for line in kept]
 
 
+CL_MARKER = "* postlayout-cl-model:"
+
+
+def _declare_cl_model(netlist: Path, model: str) -> None:
+    """Record which testbench load a netlist expects, for the simulator to read.
+
+    Whether the lumped CL should include the interconnect term depends on whether
+    this netlist carries the interconnect itself, which only the flow that built it
+    knows. Leaving that to a CLI default gets it wrong silently: applying Miller-only
+    to a netlist with no parasitics under-loads the output by 15 fF and reported
+    0.6 dB more peaking than the design has.
+    """
+    text = netlist.read_text()
+    netlist.write_text(f"{CL_MARKER} {model}\n{text}")
+
+
 def _rel(path: Path) -> str:
     """Repo-relative where possible: this summary is a committed artifact."""
     try:
@@ -160,6 +176,7 @@ def build_klayout_flow(
     )
     _prepend_pdk_libs(wrapper_path)
     _inline_core(wrapper_path, core_path)
+    _declare_cl_model(wrapper_path, "full")
     summary = {
         "netlist": _rel(wrapper_path),
         "core_netlist": _rel(core_path),
@@ -218,6 +235,7 @@ def build_magic_flow(
     )
     _prepend_pdk_libs(wrapper_path)
     _inline_core(wrapper_path, core_path)
+    _declare_cl_model(wrapper_path, "miller")
     summary.update(
         {
             "netlist": _rel(wrapper_path),

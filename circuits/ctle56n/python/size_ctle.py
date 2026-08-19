@@ -42,8 +42,13 @@ CMOMI_MMAX = 5
 CMOMI_DENSITY_FF_UM2 = 1.19
 
 # FO1 load: Miller-aware VGA input + on-chip route (fringe/coupling dominated).
-ROUTING_CAP_FF_PER_UM = 0.17  # mid of 0.15–0.2 fF/µm [docs/PDK.md]
-INTERCONNECT_LENGTH_UM = 40.0
+# mid of 0.15–0.2 fF/µm [docs/PDK.md]; measured Metal4 trunk (135.6 µm) was
+# 0.085 fF/µm standalone — conservative for high metals far from substrate.
+ROUTING_CAP_FF_PER_UM = 0.17
+INTERCONNECT_LENGTH_UM = 40.0  # pre-layout route guess (planning length)
+# Post-layout extraction, CTLE stage output node (outp): Metal4 trunk 135.6 µm ×
+# 2.88 µm.  Includes ~1.3× neighbour coupling above the standalone 11.55 fF wire.
+INTERCONNECT_CAP_F_MEASURED = 15.26e-15
 FO1_AV_MILLER = 2.0  # conservative max-gain Miller multiplier (VGA agent)
 
 # HBT intrinsic emitter resistance: re = 7.13*(4/Nx) Ω [model card]
@@ -134,8 +139,16 @@ def miller_cin(cbe_f: float, cbc_f: float, av_lin: float) -> float:
 def interconnect_cap_f(
     length_um: float = INTERCONNECT_LENGTH_UM,
     cap_ff_per_um: float = ROUTING_CAP_FF_PER_UM,
+    *,
+    use_measured: bool = True,
 ) -> float:
-    """Per-output route C (one trace CTLE out → VGA in)."""
+    """Per-output route C (one trace CTLE out → VGA in).
+
+    Post-layout extraction supersedes length×coefficient when available; the
+    estimate path is kept for pre-layout budget work without a measurement.
+    """
+    if use_measured and INTERCONNECT_CAP_F_MEASURED is not None:
+        return INTERCONNECT_CAP_F_MEASURED
     return cap_ff_per_um * 1e-15 * length_um
 
 
@@ -828,11 +841,23 @@ def print_summary(params: CtleParams) -> None:
         f"  ft={params.ft_hz:.3e} Hz  CBE={params.cbe_f*1e15:.2f} fF  "
         f"CBC={params.cbc_f*1e15:.3f} fF  gm={params.gm:.4e} S  re={params.hbt_re_ohm:.1f} Ω"
     )
+    ic_est_ff = ROUTING_CAP_FF_PER_UM * INTERCONNECT_LENGTH_UM
+    if INTERCONNECT_CAP_F_MEASURED is not None:
+        ic_note = (
+            f"route measured {params.cl_interconnect_f*1e15:.2f} fF "
+            f"(extracted CTLE outp; est {ic_est_ff:.1f} fF @ "
+            f"{INTERCONNECT_LENGTH_UM:.0f} µm × {ROUTING_CAP_FF_PER_UM:.2f} fF/µm)"
+        )
+    else:
+        ic_note = (
+            f"route {INTERCONNECT_LENGTH_UM:.0f} µm @ "
+            f"{ROUTING_CAP_FF_PER_UM:.2f} fF/µm: "
+            f"{params.cl_interconnect_f*1e15:.2f} fF"
+        )
     print(
         f"  C_L={params.cl_f*1e15:.2f} fF "
         f"(Miller |Av|={FO1_AV_MILLER:.0f}: {params.cl_miller_f*1e15:.2f} fF + "
-        f"route {INTERCONNECT_LENGTH_UM:.0f} µm @ {ROUTING_CAP_FF_PER_UM:.2f} fF/µm: "
-        f"{params.cl_interconnect_f*1e15:.2f} fF)"
+        f"{ic_note})"
     )
     print(
         f"  RD={params.rd_ohm:.2f} Ω (Bessel floor RD_min={params.rd_min_ohm:.1f} Ω, "

@@ -1,0 +1,13 @@
+{
+  "cell": "ctle_dut",
+  "layout": "/workspace/layout/blocks/out/postlayout/simview_gds/ctle_dut.gds",
+  "netlist": "/workspace/layout/blocks/out/postlayout/simview_reduced.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/blocks/out/postlayout/lvs_run/ctle_dut_extracted.cir",
+  "param_checks": [],
+  "log": "/workspace/layout/blocks/out/postlayout/lvs_run/lvs_run.log",
+  "error": ""
+}

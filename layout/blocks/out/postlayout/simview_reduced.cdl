@@ -1,0 +1,11 @@
+* ctle_dut — generated from DeviceSpecs; do not edit by hand
+.SUBCKT ctle_dut outp outn inp inn vdd vss mgate e1 e2 nlp1 nlp2
+M1 mgate mgate vss vss sg13_lv_nmos w=243u l=1u ng=1 m=1
+M2 e1 mgate vss vss sg13_lv_nmos w=243u l=1u ng=1 m=1
+M3 e2 mgate vss vss sg13_lv_nmos w=243u l=1u ng=1 m=1
+R1 e1 e2 vss rsil m=1 l=5u w=0.5u
+Q1 outp inp e1 vss npn13G2 le=0.9u we=0.07u m=1
+Q2 outn inn e2 vss npn13G2 le=0.9u we=0.07u m=1
+R2 outp nlp1 vss rppd m=1 l=1.4u w=5u
+R3 outn nlp2 vss rppd m=1 l=1.4u w=5u
+.ENDS ctle_dut

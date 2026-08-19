@@ -1,0 +1,11 @@
+* ctle_dut_core — extracted core; do not edit by hand
+.subckt ctle_dut_core outp outn inp inn vdd vss mgate e1 e2 nlp1 nlp2
+X$1 outn nlp2 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQ2 outn inn e2 vss npn13G2 we=70n le=900n nx=1
+X$3 outp nlp1 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQ1 outp inp e1 vss npn13G2 we=70n le=900n nx=1
+X$5 e1 e2 vss rsil w=0.5u l=5u ps=0u m=1
+Xtail2 e2 mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+Xtail1 e1 mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u pd=503u rfmode=0 pre_layout=0
+.ends ctle_dut_core

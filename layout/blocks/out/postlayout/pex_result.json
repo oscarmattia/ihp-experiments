@@ -1,0 +1,33 @@
+{
+  "cell": "ctle_dut",
+  "gds": "/workspace/layout/blocks/out/postlayout/simview_gds/ctle_dut.gds",
+  "netlist": "/workspace/layout/blocks/out/postlayout/pex_run/ctle_dut_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 39,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 4.75795e-13,
+  "per_net_capacitance_f": {
+    "vss": 4.42949e-13,
+    "mgate": 1.49908e-13,
+    "vdd": 1.37491e-13,
+    "e2": 7.53529e-14,
+    "e1": 7.50248e-14,
+    "outp": 1.52639e-14,
+    "outn": 1.51903e-14,
+    "inn": 1.19413e-14,
+    "inp": 1.19379e-14,
+    "nlp1": 6.75459e-15,
+    "nlp2": 6.75459e-15,
+    "rd1_R0_0/a_0_0#": 1.11173e-15,
+    "rd2_M90_0/a_0_0#": 1.11173e-15,
+    "rdeg_R270_0/a_0_0#": 7.9839e-16
+  },
+  "log": "/workspace/layout/blocks/out/postlayout/pex_run/magic_pex.log",
+  "error": ""
+}

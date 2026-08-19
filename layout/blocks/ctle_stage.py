@@ -402,8 +402,15 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     axis = _snap(2 * array_w + 1.5 * array_gap)
     placement = {
         "tail1": _snap(axis - array_gap / 2.0 - array_w),
-        "tail2": _snap(axis + array_gap / 2.0),
     }
+    # Arrays are placed by bounding box, but the tails must mirror by device area:
+    # build_mos_array extends the box by rail_width on each side for the Metal2 bus
+    # overhang, so a box-symmetric tail2 put inp over tail1's empty rail band and
+    # inn over tail2's active devices — 7.9% inp/inn node capacitance mismatch in
+    # post-layout extraction despite identical trunk geometry.
+    rail_w = arrays["tail1"].rail_width_um
+    device_span = array_w - 2 * rail_w
+    placement["tail2"] = _snap(2 * axis - placement["tail1"] - device_span)
     placement["mdiode"] = _snap(placement["tail1"] - array_gap - array_w)
 
     nmos_ports: dict[str, Terminal] = {}
