@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Bisect driver_dut LVS: HBT+tail, +loads, +coils, +tapeout."""
+"""Bisect driver_dut LVS: core steps plus pad-band granular configs.
+
+Probe flags live on ``build_driver_stage(..., _probe={...})`` — not on the public
+builder. Measured 2026-08-20: ``vdd|vss`` mega-net when ESD/clamp Metal3 ties
+crossed the channel vss trunk on Metal3; fixed by dedicated channel metals
+(outp/outn Metal5, vdd TopMetal1, vss TopMetal2) with single transitions at
+unique y outside the ESD/clamp horizontal tie band.
+"""
 
 from __future__ import annotations
 
@@ -19,6 +26,31 @@ STEPS = (
     ("core", dict(with_loads=False, with_coils=False, with_tapeout=False)),
     ("loads", dict(with_loads=True, with_coils=False, with_tapeout=False)),
     ("coils", dict(with_loads=True, with_coils=True, with_tapeout=False)),
+    ("pads_only", dict(
+        with_loads=False, with_coils=False, with_tapeout=True,
+        with_pads=True, with_esd=False, with_pad_feed=False,
+        _probe={"with_clamp": False, "with_channel_supplies": True},
+    )),
+    ("channel_only", dict(
+        with_loads=False, with_coils=False, with_tapeout=True,
+        with_pads=True, with_esd=False, with_pad_feed=False,
+        _probe={"with_clamp": False, "with_channel_supplies": True, "with_esd_ring_ties": False},
+    )),
+    ("clamp+channel", dict(
+        with_loads=False, with_coils=False, with_tapeout=True,
+        with_pads=True, with_esd=False, with_pad_feed=False,
+        _probe={"with_clamp": True, "with_channel_supplies": True, "with_esd_ring_ties": False},
+    )),
+    ("esd+channel", dict(
+        with_loads=False, with_coils=False, with_tapeout=True,
+        with_pads=True, with_esd=True, with_pad_feed=False,
+        _probe={"with_clamp": False, "with_channel_supplies": True, "with_esd_ring_ties": True},
+    )),
+    ("esd+clamp+channel", dict(
+        with_loads=False, with_coils=False, with_tapeout=True,
+        with_pads=True, with_esd=True, with_pad_feed=False,
+        _probe={"with_clamp": True, "with_channel_supplies": True, "with_esd_ring_ties": True},
+    )),
     ("full", dict(with_loads=True, with_coils=True, with_tapeout=True)),
 )
 
@@ -49,7 +81,7 @@ def main() -> int:
         mega = any("|" in n for n in nets)
         ok = lvs.clean and not mega
         mark = "ok" if ok else "FAIL"
-        print(f"{name:8}  {mark:4}  {sorted(nets)[:12]}{'...' if len(nets) > 12 else ''}")
+        print(f"{name:18}  {mark:4}  {sorted(nets)[:12]}{'...' if len(nets) > 12 else ''}")
         if mega:
             merged = next(n for n in nets if "|" in n)
             print(f"           mega-net: {merged}")

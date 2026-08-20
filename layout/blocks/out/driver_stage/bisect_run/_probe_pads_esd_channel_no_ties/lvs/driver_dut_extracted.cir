@@ -1,0 +1,12 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 18:57
+
+.SUBCKT driver_dut em|mgate|vss inp inn outp outn
+D$1 em|mgate|vss \$I1008 \$I1007 diodevdd_4kv m=1
+D$2 em|mgate|vss \$I1006 \$I1005 diodevdd_4kv m=1
+D$4 em|mgate|vss \$I1002 em|mgate|vss diodevss_2kv m=0.26
+Q$5 outn inn em|mgate|vss em|mgate|vss npn13G2 we=70n le=900n Nx=2 m=1
+D$6 em|mgate|vss em|mgate|vss em|mgate|vss diodevdd_4kv m=1
+Q$7 outp inp em|mgate|vss em|mgate|vss npn13G2 we=70n le=900n Nx=2 m=1
+M$8 em|mgate|vss em|mgate|vss em|mgate|vss em|mgate|vss sg13_lv_nmos L=1u
++ W=1086.4u AS=369.376p AD=367.9872p PS=2247.6u PD=2247.32u rfmode=0
+.ENDS driver_dut

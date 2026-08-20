@@ -1,0 +1,14 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 19:00
+
+.SUBCKT driver_dut mgate em vdd|vss inp inn outp outn
+Q$1 outn inn em vdd|vss npn13G2 we=70n le=900n Nx=2 m=1
+Q$2 outp inp em vdd|vss npn13G2 we=70n le=900n Nx=2 m=1
+D$3 \$I567 vdd|vss vdd|vss diodevss_2kv m=1
+D$4 vdd|vss vdd|vss \$I568 diodevdd_2kv m=1
+D$5 \$I569 vdd|vss vdd|vss diodevss_2kv m=1
+D$6 vdd|vss vdd|vss vdd|vss diodevdd_2kv m=1
+M$7 mgate mgate vdd|vss vdd|vss sg13_lv_nmos L=1u W=392u AS=133.28p AD=133.28p
++ PS=811.2u PD=811.2u rfmode=0
+M$47 em mgate vdd|vss vdd|vss sg13_lv_nmos L=1u W=783.68u AS=266.4512p
++ AD=266.4512p PS=1621.08u PD=1621.08u rfmode=0
+.ENDS driver_dut
