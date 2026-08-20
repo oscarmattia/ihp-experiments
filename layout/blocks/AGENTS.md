@@ -230,9 +230,9 @@ per `../AGENTS.md`.
 Black-box the coils; ESD diodes and the clamp stay in the extracted core (LVS
 `D$` → `X`, pin order remapped). LVS **matches**. KLayout is devices only (11).
 Magic C-only keeps **819 fF** / drops 0.76 fF. The BW-setting term is
-**144 fF `outp`–`vss`**, not the cell total; the wrapper sets `PAD_C=0` and
-keeps the ESD compact models. Schematic 91 GHz vs Magic 35 GHz is that pad
-model (hand TM1-area 27.7 fF vs extracted 144 fF), not missing ESD. See
+**144 fF `outp`–`vss`**, not the cell total. Isolated, the same
+`bondpad_70um` is **80 fF**; the extra ~64 fF is the pad band. The wrapper
+sets `PAD_C=0` and keeps the ESD compact models. See
 `layout/debug_pex/FINDINGS.md` and `circuits/ctle56n/driver_report.md`.
 
 ## VGA stage (`vga_dut`)

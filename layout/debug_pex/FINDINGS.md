@@ -14,6 +14,7 @@ source ~/.local/share/ihp-eda/env.sh
 python layout/debug_pex/probe_unit_sweep.py          # does it scale with device count?
 python layout/debug_pex/probe_extract_settings.py    # is it how we asked?
 python layout/debug_pex/probe_driver_pad_bw.py       # driver 91→35 GHz: pad model, not ESD
+python layout/debug_pex/probe_standalone_pad.py      # isolated bondpad_70um is 80 fF, not 144
 ```
 
 ## It is not the device count
@@ -355,7 +356,30 @@ goes 78.6 → 194.5 fF/side (2.47×) and BW falls 90.7 → 35.6 GHz (2.55×),
 which is the RC ratio, not \(1/\sqrt{C}\).
 
 The hand 27.68 fF is `70 × 70 × 5.649 aF/µm²` — TM1 plate to substrate, no
-fringe, no TM2, no coupling to the pad-band `vss` ring that surrounds a
-filled Metal3–TopMetal2 stack. Magic's 144 fF is that geometry. Do not
-retune the cell to the hand number; retune the *model* if a smaller pad C
-is believed.
+fringe, no stack. Magic's 144 fF is **not** that pad sitting in free space.
+`probe_standalone_pad.py` extracts the same `bondpad_70um` PCell alone at
+**80.45 fF** to substrate. A TM2 `vss` ring at the driver's 6 um clearance
+adds only 4 fF pad–vss. The other ~63 fF on `outp`–`vss` is the pad band
+(ESD metal, dual-net ring, Metal5 feed, neighbour pad), not the pad stack.
+Do not retune the cell to the hand number; retune the *model*. The isolated
+PCell is still 3× the hand 27.7 fF — Magic does not treat the M3–TM2 stack
+as a single shielded TM1 plate.
+
+## Standalone `bondpad_70um` is 80 fF, not 144 fF
+
+Same Magic C-only flow as the driver wrapper. Catalog pad: 70 um octagon,
+`bottomMetal=3`, `topMetal=TM2`, `stack=t`.
+
+| Case | Magic pad-node | Area-only predict |
+| --- | --- | --- |
+| `bondpad_70um` alone | **80.45 fF** to sub | 48.7 fF (M3 octagon, shielded) / 150 fF (sum every layer) |
+| same + TM2 `vss` ring, 6 um gap | 81.67 fF (77.7 to sub + 4.0 to vss) | — |
+| TM1 70×70 square (hand geometry) | 38.15 fF | 27.68 fF |
+| Metal3 70×70 square | 67.55 fF | 58.77 fF |
+| Driver in-situ `outp`–`vss` | **143.56 fF** | — |
+
+144 fF is excessive for the pad alone — the user was right. Isolated, the
+PCell is 80 fF: Magic is between a shielded bottom plate (49 fF) and an
+unshielded stack sum (150 fF), and a TM1 plate already runs 38% above the
+area formula because of fringe. The remaining 63 fF in the driver is
+neighbours, not the pad.
