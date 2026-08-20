@@ -34,7 +34,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import math
 import sys
 from pathlib import Path
 
@@ -107,20 +106,6 @@ _PAD_STACK = ("Metal5", "TopMetal1", "TopMetal2")
 
 #: Bond-pad keepout read from the PDK deck (Pad.fR), not transcribed.
 _PAD_KEEPOUT = rule("Pad_fR")
-_MOS_W_GRID_M = 5e-9
-
-
-def _drawn_mos_total_w(requested_w: float) -> float:
-    """Total drawn width the PCell reports to LVS (floor per finger, not round).
-
-    ``plan_units`` rounds each finger to the grid; the foundry PCell floors. CDL
-    must carry the floored total or the deck rejects ``784.075u`` against ``783.68u``.
-    """
-    from layout.blocks.mos_array import plan_units
-
-    units, _ = plan_units(requested_w)
-    unit_w = math.floor(requested_w / units / _MOS_W_GRID_M) * _MOS_W_GRID_M
-    return units * unit_w
 
 
 def _via_chain(layout, cell, x: float, y: float, metals: tuple[str, ...]) -> None:
@@ -248,9 +233,13 @@ def _collector_trunk_net(
         elif ty > safe_y + 1e-6:
             rect(layout, cell, "Metal2", stub_x - rise_w / 2, safe_y,
                   stub_x + rise_w / 2, ty)
-        via_between(layout, cell, stub_x, safe_y, "Metal2", metal, columns=1, rows=1)
-        rect(layout, cell, metal, min(stub_x, trunk_x), safe_y - w / 2,
-              max(stub_x, trunk_x), safe_y + w / 2)
+        ox2 = snap(stub_x + route_width("Metal2"))
+        ox3 = snap(stub_x + 2 * route_width("Metal2"))
+        via_between(layout, cell, stub_x, safe_y, "Metal2", "Metal3", columns=1, rows=1)
+        via_between(layout, cell, ox2, safe_y, "Metal3", "Metal4", columns=1, rows=1)
+        via_between(layout, cell, ox3, safe_y, "Metal4", metal, columns=1, rows=1)
+        rect(layout, cell, metal, min(ox3, trunk_x), safe_y - w / 2,
+              max(ox3, trunk_x), safe_y + w / 2)
     rect(layout, cell, metal, trunk_x - w / 2, safe_y, trunk_x + w / 2, top_y)
     return (safe_y, top_y)
 
@@ -298,7 +287,6 @@ def build_driver_stage(params: dict[str, float] | None = None,
     mirror_w = metres(p, "MOS_W")
     mirror_l = metres(p, "MOS_L")
     tail_w = p["TAIL_W_m"]
-    tail_w_drawn = _drawn_mos_total_w(tail_w)
 
     layout = new_layout()
     cell = layout.create_cell(CELL)
@@ -308,7 +296,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
     # --- NMOS row: mirror diode left, single tail centred on the axis --------
     arrays = {
         "mdiode": build_mos_array("mdiode", mirror_w, mirror_l, current_a=i_mirror),
-        "tail": build_mos_array("tail", tail_w_drawn, mirror_l, current_a=i_tail),
+        "tail": build_mos_array("tail", tail_w, mirror_l, current_a=i_tail),
     }
     mirror_box = arrays["mdiode"].cell.dbbox()
     tail_box = arrays["tail"].cell.dbbox()
@@ -342,12 +330,8 @@ def build_driver_stage(params: dict[str, float] | None = None,
     instances += [
         (arrays["mdiode"].total_spec.with_name("mdiode"),
          {"D": "mgate", "G": "mgate", "S": "vss", "sub": "vss"}),
-        (DeviceSpec(
-            name="tail",
-            kind=arrays["tail"].total_spec.kind,
-            params={**arrays["tail"].total_spec.params, "w": tail_w_drawn},
-            note=arrays["tail"].total_spec.note,
-        ), {"D": "em", "G": "mgate", "S": "vss", "sub": "vss"}),
+        (arrays["tail"].total_spec.with_name("tail"),
+         {"D": "em", "G": "mgate", "S": "vss", "sub": "vss"}),
     ]
 
     nmos_left = snap(min(placement.values()) - 1.0)
@@ -364,13 +348,17 @@ def build_driver_stage(params: dict[str, float] | None = None,
                                   current_a=i_supply, note="shared source rail"))
 
     gate_y = nmos_ports["G_tail"].center[1]
-    poly = lm["gatpoly_drw"]
-    cell.shapes(layout.layer(poly[0], poly[1])).insert(
-        pya.DBox(nmos_left, snap(gate_y - 0.3), nmos_right, snap(gate_y + 0.3))
-    )
-
+    gate_strap_w = nmos_ports["G_tail"].width
     diode_right = snap(placement["mdiode"] + mirror_box.right)
     tail1_left = snap(placement["tail"] + tail_box.left)
+    poly = lm["gatpoly_drw"]
+    # Bridge the clear channel between arrays at the ``mos_array`` strap height only.
+    poly_left = snap(diode_right)
+    cell.shapes(layout.layer(poly[0], poly[1])).insert(
+        pya.DBox(poly_left, snap(gate_y - gate_strap_w / 2), nmos_right,
+                 snap(gate_y + gate_strap_w / 2))
+    )
+
     channel_x = snap((diode_right + tail1_left) / 2.0)
     gate_tap = poly_contact(layout, cell, channel_x, gate_y)
     via_between(layout, cell, channel_x, gate_y, "Metal1", "Metal2", columns=1, rows=1)
@@ -721,6 +709,10 @@ def build_driver_stage(params: dict[str, float] | None = None,
     )
     em_segments += ring.em_segments
 
+    ring_box = ring.outer_box
+    m3_w = route_width("Metal3")
+    m3_sep = min_space("Metal3")
+
     vss_ring_y = ring.ports["vss"][1].center[1]
     via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
     rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
@@ -738,9 +730,6 @@ def build_driver_stage(params: dict[str, float] | None = None,
                    note="coil strap up to the ring, crossing under the vss run"),
     ]
 
-    ring_box = ring.outer_box
-    m3_w = route_width("Metal3")
-    m3_sep = min_space("Metal3")
     esd_vdd_feed_y = (
         snap(esd_row_y - esd_bus_w - ROW_GAP / 2.0)
         if with_tapeout and with_esd and esd_h
@@ -958,9 +947,13 @@ def _pad_cap_breakdown(pex_spice: Path) -> dict[str, dict[str, float]]:
     buckets = ("pad_metal", "esd", "coil", "core", "supply", "other")
     out: dict[str, dict[str, float]] = {net: {b: 0.0 for b in buckets} for net in ("outp", "outn")}
 
-    def _bucket(other: str) -> str:
+    def _bucket(other: str, net: str) -> str:
         name = other.lower()
-        if "pad" in name or name.startswith("m7_") or "m2_n" in name:
+        if name.startswith("m2_n") or "floating" in name:
+            return "other"
+        if name in {"vdd", "vss"} and net in {"outp", "outn"}:
+            return "esd"
+        if name.startswith("m7_") or name.startswith("pad"):
             return "pad_metal"
         if "esd" in name or name.startswith("d$") or "diode" in name:
             return "esd"
@@ -973,16 +966,18 @@ def _pad_cap_breakdown(pex_spice: Path) -> dict[str, dict[str, float]]:
         return "other"
 
     for line in pex_spice.read_text().splitlines():
+        if "**FLOATING" in line:
+            continue
         match = _C_LINE.match(line.strip())
         if not match:
             continue
-        a, b, val, suf = match.group(2), match.group(3), match.group(4), match.group(5)
-        c = _cap_value(val, suf)
+        a, b = match.group(2), match.group(3)
+        c = _cap_value(match.group(4), match.group(5))
         for net in ("outp", "outn"):
             if a == net:
-                out[net][_bucket(b)] += c / 2.0
+                out[net][_bucket(b, net)] += c / 2.0
             elif b == net:
-                out[net][_bucket(a)] += c / 2.0
+                out[net][_bucket(a, net)] += c / 2.0
     return out
 
 
@@ -1017,9 +1012,15 @@ def main(argv: list[str] | None = None) -> int:
             summary_path.write_text(json.dumps(summary, indent=2) + "\n")
         for net in ("outp", "outn"):
             parts = pad_caps[net]
-            total_ff = sum(parts.values()) * 1e15
+            physical_ff = float(entry.get("pex", {}).get("per_net_capacitance_f", {}).get(net, 0.0)) * 1e15
+            interconnect_ff = sum(parts.values()) * 1e15
+            pad_c_model = float(params.get("PAD_C", 0.0)) * 1e15
             detail = ", ".join(f"{k}={v * 1e15:.1f} fF" for k, v in parts.items() if v > 0)
-            print(f"  pad C   {net}  {total_ff:.1f} fF total  ({detail})")
+            print(
+                f"  pad C   {net}  {physical_ff:.1f} fF physical (Magic per-net); "
+                f"{interconnect_ff:.1f} fF explicit C lines ({detail}); "
+                f"hand pad model {pad_c_model:.1f} fF; MEMORY ESD pair ~50.9 fF at 1.4 V"
+            )
     return code
 
 
