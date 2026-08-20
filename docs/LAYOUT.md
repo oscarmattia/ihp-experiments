@@ -639,6 +639,15 @@ Restricting Magic's capacitors to nets both views share keeps 493 fF and discard
 3 fF (0.6%), all of it on resistor body nodes whose parasitics the compact model
 already accounts for.
 
+On `vga_dut` the same filter drops far more — **388 fF of 936 fF** — because
+`tx1`/`tx2` are drawn and never labelled. Magic names those Metal2 rails
+`m2_*#` and the rewrite cannot keep them. That is internal-node C on the
+dummy-steer collectors, not output `C_L`; do not add labels just to recover it.
+
+On `driver_dut` Magic keeps **819 fF** (almost all pad metal) and drops 0.76 fF.
+The Magic wrapper therefore zeros the testbench `PAD_C` so the extracted pad is
+not counted twice.
+
 Two things a post-layout netlist must do before ngspice will accept it, both handled
 by `postlayout.normalise_element()`:
 

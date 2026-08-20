@@ -1,0 +1,15 @@
+parameter,value
+postlayout_vga_magic_dc_gain_dB,2.757
+postlayout_vga_magic_peaking_28G_dB,-1.161
+postlayout_vga_magic_G_peak_dB,3.639
+postlayout_vga_magic_f_peak_Hz,5.14103e+08
+postlayout_vga_magic_f_3dB_Hz,3.59335e+10
+postlayout_vga_magic_CMRR_dB,35.107
+postlayout_vga_magic_PSRR_dB,120.000
+postlayout_vga_magic_VCE_V,0.8907
+postlayout_vga_magic_VDS_tail_V,0.4595
+postlayout_vga_magic_VGS_tail_V,0.4143
+postlayout_vga_magic_Ic_A,0.00125687
+postlayout_vga_magic_Id_tail_A,0.00574864
+postlayout_vga_magic_RD_realized_ohm,nan
+postlayout_vga_magic_m,nan

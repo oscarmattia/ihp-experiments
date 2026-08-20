@@ -1,0 +1,16 @@
+* vga_dut — generated from DeviceSpecs; do not edit by hand
+.SUBCKT vga_dut outp outn inp inn vicm steerp steern vdd vss mgate nlp1 nlp2
+M1 mgate mgate vss vss sg13_lv_nmos w=246.75u l=1u ng=1 m=1
+M2 tx1 mgate vss vss sg13_lv_nmos w=246.75u l=1u ng=1 m=1
+M3 tx2 mgate vss vss sg13_lv_nmos w=246.75u l=1u ng=1 m=1
+M4 em steerp tx1 vss sg13_lv_nmos w=200u l=0.5u ng=1 m=1
+M5 em steerp tx2 vss sg13_lv_nmos w=200u l=0.5u ng=1 m=1
+M6 ed1 steern tx1 vss sg13_lv_nmos w=200u l=0.5u ng=1 m=1
+M7 ed2 steern tx2 vss sg13_lv_nmos w=200u l=0.5u ng=1 m=1
+Q1 outp inp em vss npn13G2 le=0.9u we=0.07u Nx=1 m=1
+Q2 outn inn em vss npn13G2 le=0.9u we=0.07u Nx=1 m=1
+Q3 outp vicm ed1 vss npn13G2 le=0.9u we=0.07u Nx=1 m=1
+Q4 outn vicm ed2 vss npn13G2 le=0.9u we=0.07u Nx=1 m=1
+R1 outp nlp1 vss rppd m=1 l=1.4u w=5u
+R2 outn nlp2 vss rppd m=1 l=1.4u w=5u
+.ENDS vga_dut

@@ -225,6 +225,13 @@ files under `probe*/`, `bisect*/`, `check*/`, `lvs_*/` — is gone; extraction
 investigations worth keeping belong in `layout/debug_pex/` with a findings note,
 per `../AGENTS.md`.
 
+### Post-layout (`out/postlayout_driver/`)
+
+Black-box the coils; ESD diodes and the clamp stay in the extracted core (LVS
+`D$` → `X`, pin order remapped). LVS **matches**. KLayout is devices only (11).
+Magic C-only keeps **819 fF** / drops 0.76 fF — that C is mostly pad metal, so
+the Magic DUT wrapper sets `PAD_C=0`. See `circuits/ctle56n/driver_report.md`.
+
 ## VGA stage (`vga_dut`)
 
 Cell name is **`vga_dut`**, pins `outp outn inp inn vicm steerp steern vdd vss
@@ -260,3 +267,11 @@ own y instead bridged two arrays — every array in that row has a rail there.
 
 `out/vga_stage/` holds the same six committed artifacts as the other stages and
 nothing else.
+
+### Post-layout (`out/postlayout_vga/`)
+
+Black-box the coils; LVS against the reduced CDL **matches**. KLayout is devices
+only (13). Magic C-only keeps **548 fF** and drops **388 fF** — the unlabeled
+`tx1`/`tx2` Metal2 rails (`m2_*#`). Do not add labels to recover that C; the
+midband output numbers stay usable because the drop is internal-node C, not
+`C_L`. See `circuits/ctle56n/vga_report.md`.

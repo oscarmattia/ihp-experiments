@@ -118,3 +118,53 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 - Normalized total ISI = Σ h_k / h_0 = **0.0147** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.0147** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
+
+## Post-layout comparison
+
+Extracted from the laid-out cell, simulated through the same testbenches as the
+schematic because the VGA is a device-only cell with the same ten pins (including vicm / steerp / steern / mgate). Both
+flows take their devices from the LVS extraction; only the Magic flow carries
+interconnect capacitance.
+
+The lumped output load differs between them **by design**: a netlist that carries
+its own extracted routing takes the `CL_MILLER` term only, while one without
+parasitics takes the full `CL`, since otherwise the routing is either counted twice
+or not at all. Each netlist declares which it needs.
+
+| Metric | Schematic (PDK) | devices only | devices + extracted C |
+| --- | --- | --- | --- |
+| _lumped output load_ | full CL | full CL | CL_MILLER |
+| DC gain | 2.76 dB | 2.76 dB | 2.76 dB |
+| Peaking @ 28 GHz | -0.65 dB | -0.65 dB | -1.16 dB |
+| Peak gain | 3.64 dB | 3.64 dB | 3.64 dB |
+| f_peak | 570.3 MHz | 570.3 MHz | 514.1 MHz |
+| f_-3dB | 42.51 GHz | 42.53 GHz | 35.93 GHz |
+| CMRR | 35.11 dB | 35.11 dB | 35.11 dB |
+| V_CE | 0.891 V | 0.891 V | 0.891 V |
+| I_C | 1.257 mA | 1.257 mA | 1.257 mA |
+
+| Flow | Devices | Parasitic C | Kept | Dropped |
+| --- | --- | --- | --- | --- |
+| `klayout` | 13 | 0 | 0.00 fF | 0.00 fF |
+| `magic` | 13 | 56 | 547.80 fF | 387.64 fF |
+
+Extraction gates: LVS against the reduced CDL **match**, capacitance physical **yes**.
+
+Two device kinds are replaced by their compact models rather than extracted: the
+inductor, because the PDK has no ngspice model for it and Magic sees the spiral as a
+DC short, and the metal-finger capacitor, because the extractor's finger geometry is
+not the calibrated model. Their nets are promoted to pins and reconnected outside
+the extracted core.
+
+Plots and waveforms: `out/postlayout_vga_klayout/`, `out/postlayout_vga_magic/`, same file names as the schematic passes.
+
+**Magic C drop (do not "fix" the layout)**
+
+`vga_dut` never labels the dummy-steer collectors `tx1`/`tx2`. Magic
+PEX therefore names those Metal2 rails `m2_7492_3498#` and
+`m2_36168_2698#` and the C-only rewrite drops them (~80 fF each to
+`vss`, plus coupling to `em`/`ed*`). `postlayout_summary.json`
+reports **kept 548 fF / dropped 388 fF**. The midband output numbers
+above are still usable (the drop is internal-node C, not `C_L`). The
+steering-node C is under-counted; do not add labels just to recover
+those capacitors.

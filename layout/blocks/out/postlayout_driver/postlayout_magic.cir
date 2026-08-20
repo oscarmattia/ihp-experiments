@@ -1,0 +1,42 @@
+* postlayout-cl-model: miller
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerDIO.lib' dio_tt
+
+* driver_dut — post-layout DUT wrapper; do not edit by hand
+.include {IND_SHUNT_INC}
+.subckt driver_dut outp outn inp inn vdd vss mgate
+XQ2 outn inn em vss npn13G2 we=70n le=900n nx=2
+X$2 outn nlp2 vss rsil w=0.5u l=2.35u ps=0u m=1
+XQ1 outp inp em vss npn13G2 we=70n le=900n nx=2
+X$4 outp nlp1 vss rsil w=0.5u l=2.35u ps=0u m=1
+Xesd_vdd_p vdd outp vss diodevdd_2kv m=1
+Xesd_vss_p vdd outp vss diodevss_2kv m=1
+Xesd_vdd_n vdd outn vss diodevdd_2kv m=1
+Xesd_vss_n vdd outn vss diodevss_2kv m=1
+Xclamp vdd vss nmoscl_2 m=1 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=392u as=133.28p ad=133.28p ps=811.2u pd=811.2u rfmode=0 pre_layout=0
+Xtail em mgate vss vss sg13_lv_nmos l=1u w=783.68u as=266.4512p ad=266.4512p ps=1621.08u pd=1621.08u rfmode=0 pre_layout=0
+C0 em inn 6.21516f
+C1 em inp 6.23525f
+C2 em mgate 36.75177f
+C3 em outn 0.70411f
+C4 em outp 0.68097f
+C5 em vss 0.19178p
+C6 inn mgate 0.62894f
+C7 inn outn 0.04174f
+C8 inn vss 14.3395f
+C9 inp mgate 0.62812f
+C10 inp outp 0.05293f
+C11 inp vss 14.3599f
+C12 mgate vss 0.24367p
+C13 nlp1 outp 2.56425f
+C14 nlp1 vss 4.85885f
+C15 nlp2 outn 2.55841f
+C16 nlp2 vss 4.99297f
+C17 outn vss 0.14432p
+C18 outp vss 0.14356p
+Xl1 vdd nlp1 vss ind_shunt
+Xl2 vdd nlp2 vss ind_shunt
+.ends driver_dut

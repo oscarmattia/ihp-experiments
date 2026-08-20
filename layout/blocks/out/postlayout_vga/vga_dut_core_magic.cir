@@ -1,0 +1,72 @@
+* vga_dut_core — extracted core; do not edit by hand
+.subckt vga_dut_core outp outn inp inn vicm steerp steern vdd vss mgate nlp1 nlp2 ed1 em ed2
+X$1 outn nlp2 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQd2 outn vicm ed2 vss npn13G2 we=70n le=900n nx=1
+XQ2 outn inn em vss npn13G2 we=70n le=900n nx=1
+XQ1 outp inp em vss npn13G2 we=70n le=900n nx=1
+X$5 outp nlp1 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQd1 outp vicm ed1 vss npn13G2 we=70n le=900n nx=1
+Xtail2 tx2 mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xps2 em steerp tx2 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xpd2 ed2 steern tx2 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xtail1 tx1 mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xps1 em steerp tx1 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xpd1 ed1 steern tx1 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+C0 ed1 em 7.07468f
+C1 ed1 outp 0.14307f
+C2 ed1 steern 8.38273f
+C3 ed1 steerp 1.80466f
+C4 ed1 vicm 2.10722f
+C5 ed1 vss 12.78655f
+C6 ed2 em 5.74469f
+C7 ed2 outn 0.14307f
+C8 ed2 steern 6.22961f
+C9 ed2 steerp 0.00671f
+C10 ed2 vicm 0.21609f
+C11 ed2 vss 13.09472f
+C12 em inn 0.73037f
+C13 em inp 0.73037f
+C14 em outn 0.2645f
+C15 em outp 0.2645f
+C16 em steern 4.36208f
+C17 em steerp 15.34104f
+C18 em vicm 0.97711f
+C19 em vss 26.33574f
+C20 inn mgate 0.12303f
+C21 inn outn 0.01778f
+C22 inn steern 0.62994f
+C23 inn steerp 0.62994f
+C24 inn vdd 0.21688f
+C25 inn vicm 0.63439f
+C26 inn vss 10.16283f
+C27 inp mgate 0.12534f
+C28 inp outp 0.01778f
+C29 inp steern 0.62994f
+C30 inp steerp 0.62994f
+C31 inp vdd 0.21688f
+C32 inp vicm 0.63439f
+C33 inp vss 10.24174f
+C34 mgate vdd 0.77153f
+C35 mgate vss 0.14879p
+C36 nlp1 outp 0.96476f
+C37 nlp1 vdd 0.75958f
+C38 nlp1 vss 5.14512f
+C39 nlp2 outn 0.96476f
+C40 nlp2 vdd 0.75958f
+C41 nlp2 vss 5.14512f
+C42 outn vdd 0.47412f
+C43 outn vicm 0.05791f
+C44 outn vss 12.6994f
+C45 outp vdd 0.47412f
+C46 outp vicm 0.05908f
+C47 outp vss 12.91672f
+C48 steern steerp 1.40687f
+C49 steern vdd 0.33022f
+C50 steern vss 37.38353f
+C51 steerp vdd 0.33022f
+C52 steerp vss 39.24295f
+C53 vdd vicm 0.33022f
+C54 vdd vss 0.1375p
+C55 vicm vss 9.63924f
+.ends vga_dut_core

@@ -480,9 +480,18 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **LVS `D$` instances are `.subckt` wrappers.** `diodevdd_2kv`, `diodevss_2kv` and `nmoscl_2` are
   subcircuits, so a post-layout core has to rewrite the LVS `D$` prefix to `X` the same way it
   rewrites `M$`/`Q$`/`R$`. Leave `D$` and ngspice treats them as primitive diodes `[model]`.
+  Pin order also differs: the deck writes BJT3 `C B E` (and the clamp as `VSS VDD`); the compact
+  models want `VDD PAD VSS` / `VDD VSS`. Remap before simulating or the diodes sit on the rails.
 - **Driver Magic flow must drop the testbench `PAD_C`.** The bond pad is metal, so C-only PEX already
   has it; keeping the hand cap double-counts. The `* postlayout-cl-model: miller` marker is the
   switch. KLayout (devices only) still needs the hand cap `[sim]`.
+- **VGA Magic drops unlabeled `tx1`/`tx2`.** Those dummy-steer collectors are drawn but never
+  labelled, so PEX emits `m2_7492_3498#` / `m2_36168_2698#` (~80 fF each to `vss`, plus coupling
+  to `em`/`ed*`) and the C-only rewrite throws them away: kept 548 fF, dropped 388 fF. The
+  midband output numbers are still usable (internal-node C, not `C_L`); steering-node C is
+  under-counted. Do not add labels just to recover those capacitors `[sim]`.
+- **`--flow magic` used to wipe the KLayout row from `postlayout_summary.json`.** `run_stage`
+  now merges the previous `flows` dict so a one-flow rebuild keeps the other flow's numbers.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
   continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction. With the
   coil black-boxed the crash goes away and the pass completes on every cell, so the coil is the

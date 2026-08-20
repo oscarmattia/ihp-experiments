@@ -462,6 +462,68 @@ _RENAME_BY_CELL = {
 }
 
 
+def _clean_node(name: str) -> str:
+    """KLayout escapes generated net names as ``\\$10``."""
+    return name.replace("\\", "")
+
+
+def _vga_tx_aliases(lines: list[str]) -> dict[str, str]:
+    """Map LVS-generated tail nets onto the schematic's ``tx1``/``tx2``.
+
+    Those nets are unlabeled in the GDS, so LVS invents ``$10``/``$11``. The
+    dummy-steer devices identify them: ``ed1/steern/<net>`` is ``tx1``.
+    """
+    aliases: dict[str, str] = {}
+    for line in lines:
+        try:
+            _, nodes, model, _ = _split_element_tokens(line)
+        except ValueError:
+            continue
+        if model.lower() != "sg13_lv_nmos" or len(nodes) < 3:
+            continue
+        drain, gate, source = (_clean_node(n) for n in nodes[:3])
+        if drain == "ed1" and gate == "steern":
+            aliases[source] = "tx1"
+        elif drain == "ed2" and gate == "steern":
+            aliases[source] = "tx2"
+    return {src: dst for src, dst in aliases.items() if src not in {"tx1", "tx2"}}
+
+
+# LVS writes ESD terminals in deck order (BJT3 C-B-E, clamp diode N-P),
+# which is not the ngspice ``.subckt`` pin order.
+_ESD_LVS_TO_SPICE = {
+    "diodevdd_2kv": (1, 2, 0),  # C B E = VSS VDD PAD → VDD PAD VSS
+    "diodevss_2kv": (0, 2, 1),  # C B E = VDD VSS PAD → VDD PAD VSS
+    "nmoscl_2": (1, 0),  # extracted VSS VDD → VDD VSS
+}
+
+
+def _remap_esd_nodes(nodes: list[str], model_l: str) -> list[str]:
+    order = _ESD_LVS_TO_SPICE.get(model_l)
+    if order is None or len(nodes) < len(order):
+        return nodes
+    return [nodes[i] for i in order] + nodes[len(order):]
+
+
+def _apply_node_aliases(line: str, aliases: dict[str, str]) -> str:
+    joined = " ".join(line.split())
+    name, nodes, model, params = _split_element_tokens(joined)
+    nodes = [aliases.get(_clean_node(n), _clean_node(n)) for n in nodes]
+    nodes = _remap_esd_nodes(nodes, model.lower())
+    return " ".join([name, *nodes, model, *params])
+
+
+def rewrite_extracted_lines(lines: list[str], cell: str = "ctle_dut") -> list[str]:
+    """Normalise LVS lines and rename instances (and VGA ``tx*`` nets) for probes."""
+    aliases = _vga_tx_aliases(lines) if cell == "vga_dut" else {}
+    rewritten: list[str] = []
+    for line in lines:
+        line = _apply_node_aliases(line, aliases)
+        line = rename_schematic_instances(normalise_element(line), cell)
+        rewritten.append(line)
+    return rewritten
+
+
 def rename_schematic_instances(line: str, cell: str = "ctle_dut") -> str:
     """Map LVS instance names to the schematic's ``XQ1``/``Xtail1``/… for ``save`` probes."""
     _, nodes, model, _param_tokens = _split_element_tokens(line)
@@ -478,11 +540,18 @@ def rename_schematic_instances(line: str, cell: str = "ctle_dut") -> str:
 def parse_subckt_ports(netlist: Path, subckt: str) -> list[str]:
     """Read the port list from ``.subckt <subckt> ...`` in a netlist file."""
     needle = subckt.lower()
-    for line in Path(netlist).read_text().splitlines():
+    lines = Path(netlist).read_text().splitlines()
+    for index, line in enumerate(lines):
         match = _SUBCKT_RE.match(line)
         if not match or match.group(1).lower() != needle:
             continue
-        ports = [tok for tok in match.group(2).split() if "=" not in tok]
+        ports = [tok for tok in match.group(2).split() if tok and "=" not in tok]
+        nxt = index + 1
+        while nxt < len(lines) and lines[nxt].lstrip().startswith("+"):
+            ports.extend(
+                tok for tok in lines[nxt].lstrip()[1:].split() if tok and "=" not in tok
+            )
+            nxt += 1
         if not ports:
             raise ValueError(f"empty port list for .subckt {subckt!r} in {netlist}")
         return ports
@@ -506,6 +575,9 @@ def extract_subckt_lines(netlist: Path, subckt: str) -> list[str]:
             break
         stripped = line.strip()
         if not stripped or stripped.startswith("*"):
+            continue
+        # A wrapped ``.SUBCKT`` port list is a ``+`` line before any element.
+        if not raw and stripped.startswith("+"):
             continue
         raw.append(line)
     return _join_element_lines(raw)

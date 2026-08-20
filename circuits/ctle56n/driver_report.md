@@ -39,9 +39,9 @@ no emitter degeneration. EM-fitted shunt inductor (`ind_shunt`) for Bessel peaki
 | HBT VCE | V_CE | 0.963 V | per side |
 | Return loss DC | RL | 38.85 dB | pad, 100 Ω diff |
 | Return loss @ 28 GHz | RL_28G | 26.53 dB |  |
-| Pad swing (pp) | — | 113.20 mV | PRBS |
-| Pad eye height | — | 98.71 mV |  |
-| Pad eye width | — | 0.8400 UI |  |
+| Pad swing (pp) | — | — | PRBS |
+| Pad eye height | — | — |  |
+| Pad eye width | — | nan UI |  |
 
 Plots and waveforms: `out/driver/`.
 
@@ -76,3 +76,39 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 - Normalized total ISI = Σ h_k / h_0 = **-0.0075** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.0075** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
+
+## Post-layout comparison
+
+Extracted from the laid-out cell, simulated through the same testbenches as the
+schematic because the pad driver is a device-only cell with the same seven pins.
+Both flows take their devices from the LVS extraction; only the Magic flow
+carries interconnect and pad-metal capacitance. The Magic netlist therefore
+drops the testbench ``PAD_C`` so the extracted pad is not counted twice.
+
+| Metric | Schematic (PDK) | devices only | devices + extracted C |
+| --- | --- | --- | --- |
+| _pad / output load_ | TB PAD_C | TB PAD_C | PAD_C = 0 |
+| DC gain | -0.83 dB | -0.83 dB | -0.83 dB |
+| Gain @ 28 GHz | 0.24 dB | 0.24 dB | -1.67 dB |
+| Peaking @ 28 GHz | 1.07 dB | 1.07 dB | -0.83 dB |
+| Peak gain | 0.47 dB | 0.47 dB | 0.47 dB |
+| f_peak | 1.40 GHz | 1.40 GHz | 743.2 MHz |
+| f_-3dB | 90.69 GHz | 90.69 GHz | 34.88 GHz |
+| HBT VCE | 0.963 V | 0.963 V | 0.963 V |
+| Pad CM | 1.389 V | 1.389 V | 1.389 V |
+| Return loss DC | 38.85 dB | 38.85 dB | 55.58 dB |
+| Return loss @ 28 GHz | 26.53 dB | 26.53 dB | 10.50 dB |
+| Pad eye height | — | — | — |
+| Pad eye width | — | — | — |
+
+| Flow | Devices | Parasitic C | Kept | Dropped |
+| --- | --- | --- | --- | --- |
+| `klayout` | 11 | 0 | 0.00 fF | 0.00 fF |
+| `magic` | 11 | 19 | 818.94 fF | 0.76 fF |
+
+Extraction gates: LVS against the reduced CDL **match**, capacitance physical **yes**.
+
+The shunt coils are replaced by the EM-fitted ``ind_shunt`` compact model; ESD
+diodes and the rail clamp stay in the extracted core.
+
+Plots and waveforms: `out/postlayout_driver_klayout/`, `out/postlayout_driver_magic/`, same file names as the schematic pass.

@@ -48,11 +48,11 @@ from layout.blocks.vga_stage import (  # noqa: E402
 from layout.common.lvs import run_lvs  # noqa: E402
 from layout.common.pex import run_magic_pex  # noqa: E402
 from layout.common.postlayout import (  # noqa: E402
+    _split_element_tokens,
     extract_subckt_lines,
     magic_capacitor_lines,
-    normalise_element,
     parse_subckt_ports,
-    rename_schematic_instances,
+    rewrite_extracted_lines,
     write_core,
 )
 from layout.common import simview  # noqa: E402
@@ -162,9 +162,7 @@ def klayout_core_devices(
     """Device lines from the LVS deck, minus black-boxed kinds, normalised."""
     raw = extract_subckt_lines(extracted, cell)
     kept = [line for line in raw if not _is_black_box_line(line, black_box_models)]
-    return [
-        rename_schematic_instances(normalise_element(line), cell) for line in kept
-    ]
+    return rewrite_extracted_lines(kept, cell)
 
 
 CL_MARKER = "* postlayout-cl-model:"
@@ -208,14 +206,15 @@ def core_port_list(extracted: Path, cell: str, instances: list, port_nets: list[
     should have been promoted shows up as an error rather than as lost parasitics.
     """
     ports = simview.sim_port_nets(port_nets, instances)
-    extracted_ports = set(parse_subckt_ports(extracted, cell))
-    missing = sorted(extracted_ports - set(ports))
-    if missing:
-        raise ValueError(
-            f"the extracted core exposes {missing}, which the wrapper interface does "
-            "not carry; promote them or they will be left floating"
-        )
-    return ports
+    extracted_ports = parse_subckt_ports(extracted, cell)
+    # Black-box promotion covers nets a removed device used to touch. Internal
+    # nets that stay in the core (VGA ``em``/``ed1``/``ed2``, driver ``em``)
+    # still appear on the extracted ``.SUBCKT`` line whenever the layout
+    # labelled them, and Magic capacitors on those nets are dropped unless
+    # they are core ports. Append them; do not take the extracted list as the
+    # *only* source — ``vdd`` is absent from it when both coils are boxed.
+    extra = [net for net in extracted_ports if net not in ports]
+    return ports + extra
 
 
 def build_klayout_flow(
@@ -283,8 +282,14 @@ def build_magic_flow(
         return None, summary
 
     core_ports = core_port_list(extracted, spec.cell, instances, port_nets)
-    known_nets = set(core_ports)
     devices = klayout_core_devices(extracted, spec.cell, spec.black_box_models)
+    known_nets = set(core_ports)
+    for line in devices:
+        try:
+            _, nodes, _, _ = _split_element_tokens(line)
+        except ValueError:
+            continue
+        known_nets.update(nodes)
     cap_lines, kept_f, dropped_f = magic_capacitor_lines(pex_netlist, known_nets)
 
     core_subckt = f"{spec.cell}_core"
@@ -364,7 +369,16 @@ def run_stage(spec: StageSpec, out_dir: Path, flow: str) -> int:
         return 1
 
     extracted = Path(lvs.extracted_netlist)
+    # A one-flow rebuild must not wipe the other flow's committed summary.
     flows: dict = {}
+    summary_path = out_dir / "postlayout_summary.json"
+    if summary_path.is_file():
+        try:
+            previous = json.loads(summary_path.read_text()).get("flows") or {}
+            if isinstance(previous, dict):
+                flows.update(previous)
+        except json.JSONDecodeError:
+            pass
 
     if flow in ("klayout", "both"):
         wrapper, flow_summary = build_klayout_flow(

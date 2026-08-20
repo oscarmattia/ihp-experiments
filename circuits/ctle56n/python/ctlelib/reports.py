@@ -237,6 +237,7 @@ def _postlayout_section(
     summary_rel: Path = POSTLAYOUT_SUMMARY,
     stage: str = "CTLE",
     pin_note: str = "the same seven pins",
+    extra: str = "",
 ) -> str:
     """Compare the schematic against the extracted layout, when both exist.
 
@@ -304,7 +305,7 @@ not the calibrated model. Their nets are promoted to pins and reconnected outsid
 the extracted core.
 
 Plots and waveforms: {plots}, same file names as the schematic passes.
-"""
+{extra}"""
 
 
 def write_ctle_report(
@@ -634,6 +635,18 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ {vout_cm or '1.35 V'}** from `
         summary_rel=VGA_POSTLAYOUT_SUMMARY,
         stage="VGA",
         pin_note="the same ten pins (including vicm / steerp / steern / mgate)",
+        extra="""
+**Magic C drop (do not "fix" the layout)**
+
+`vga_dut` never labels the dummy-steer collectors `tx1`/`tx2`. Magic
+PEX therefore names those Metal2 rails `m2_7492_3498#` and
+`m2_36168_2698#` and the C-only rewrite drops them (~80 fF each to
+`vss`, plus coupling to `em`/`ed*`). `postlayout_summary.json`
+reports **kept 548 fF / dropped 388 fF**. The midband output numbers
+above are still usable (the drop is internal-node C, not `C_L`). The
+steering-node C is under-counted; do not add labels just to recover
+those capacitors.
+""",
     )
     path.write_text(body)
 
