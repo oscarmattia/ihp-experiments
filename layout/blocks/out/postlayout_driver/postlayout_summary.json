@@ -20,7 +20,7 @@
       "core_netlist": "layout/blocks/out/postlayout_driver/driver_dut_core_magic.cir",
       "device_count": 11,
       "parasitic_count": 19,
-      "capacitance_kept_fF": 818.9429,
+      "capacitance_kept_fF": 842.2176,
       "capacitance_dropped_fF": 0.7629,
       "gates": {
         "pex_physical": true,

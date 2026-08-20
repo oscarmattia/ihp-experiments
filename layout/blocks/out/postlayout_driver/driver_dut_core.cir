@@ -9,6 +9,6 @@ Xesd_vss_p vdd outp vss diodevss_2kv m=1
 Xesd_vdd_n vdd outn vss diodevdd_2kv m=1
 Xesd_vss_n vdd outn vss diodevss_2kv m=1
 Xclamp vdd vss nmoscl_2 m=1 pre_layout=0
-Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=392u as=133.28p ad=133.28p ps=811.2u pd=811.2u rfmode=0 pre_layout=0
-Xtail em mgate vss vss sg13_lv_nmos l=1u w=783.68u as=266.4512p ad=266.4512p ps=1621.08u pd=1621.08u rfmode=0 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=391.6u as=133.144p ad=133.144p ps=810.4u pd=810.4u rfmode=0 pre_layout=0
+Xtail em mgate vss vss sg13_lv_nmos l=1u w=782.89u as=266.1826p ad=266.1826p ps=1619.5u pd=1619.5u rfmode=0 pre_layout=0
 .ends driver_dut_core

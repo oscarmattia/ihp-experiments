@@ -229,8 +229,9 @@ per `../AGENTS.md`.
 
 Black-box the coils; ESD diodes and the clamp stay in the extracted core (LVS
 `D$` → `X`, pin order remapped). LVS **matches**. KLayout is devices only (11).
-Magic C-only keeps **819 fF** / drops 0.76 fF. The BW-setting term is
-**144 fF `outp`–`vss`**, not the cell total. Isolated, the same
+Magic C-only keeps **842 fF** / drops 0.76 fF. The BW-setting term is
+**152 fF `outp`–`vss`** (was 144 fF at the shorter `turn1_d40` cell), not
+the cell total. Isolated, the same
 `bondpad_70um` is **80 fF**; the tied ESD column adds **21 fF**; ~42 fF
 is still the pad band. The wrapper sets `PAD_C=0` and keeps the ESD
 compact models. See

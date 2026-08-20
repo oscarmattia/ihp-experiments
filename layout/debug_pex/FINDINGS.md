@@ -391,9 +391,10 @@ supply in both schematic and post-layout.
 144 − 102 = **42 fF** still unaccounted. That is not the pad and not the ESD
 column.
 
-**Driver schematic sizing** (2026-08): `size_driver.py` now uses the in-situ
+**Driver schematic sizing** (2026-08): `size_driver.py` uses the in-situ
 143.56 fF Magic pad metal for `PAD_C` and Butterworth m = 0.414 shunt L
-(`turn1` ~215 pH / `ind_shunt_drv.inc`). After the retune, schematic and
-Magic agree at 43.67 / 43.61 GHz and +0.07 / +0.06 dB @ 28 GHz (was
-34.88 GHz / −1.67 dB with the 63 pH coil). CTLE/VGA stay Bessel m = 0.32
-in `ind_shunt.inc`. Layout GDS coil is still `turn1_d40`.
+(`turn1` ~215 pH / `ind_shunt_drv.inc`). Layout GDS is the same `turn1`
+pair (d=120 µm); the cell grew 78 µm taller and Magic `outp`–`vss` is now
+**152.23 fF**. Schematic 43.67 GHz / +0.07 dB @ 28 GHz; Magic 42.16 GHz /
+−0.14 dB. Was 34.88 GHz / −1.67 dB with the 63 pH coil. CTLE/VGA stay
+Bessel m = 0.32 in `ind_shunt.inc`.

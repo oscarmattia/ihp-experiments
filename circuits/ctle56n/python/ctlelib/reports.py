@@ -712,8 +712,8 @@ back-termination (`rsil`), with pad + ESD capacitance inside the DUT. Single LV 
 no emitter degeneration. EM-fitted shunt inductor (`ind_shunt_drv`, case `turn1` ~215 pH) for
 Butterworth peaking (**m = 0.414**) to the Magic pad-metal load. CTLE/VGA still share
 `ind_shunt` at Bessel **m = 0.32**. Schematic `PAD_C` is Magic in-situ metal only (143.56 fF);
-ESD junction C stays in the compact models. Layout GDS coil is still `turn1_d40` until a later
-layout rebuild; Magic post-layout zeros `PAD_C` and uses the new compact L (black-boxed).
+ESD junction C stays in the compact models. Layout GDS coil is the same `turn1`
+(d = 120 µm). Magic post-layout zeros `PAD_C` and black-boxes the compact L.
 
 ## Targets
 
@@ -801,11 +801,12 @@ pair (50.9 fF). Schematic ``PAD_C`` is now the Magic in-situ metal
 **80 fF from the isolated ``bondpad_70um``** plus **21 fF from the tied ESD
 column** plus ~42 fF still in the pad band. Shunt L is Butterworth
 ``m = 0.414`` → EM ``turn1`` ~215 pH in ``ind_shunt_drv`` (CTLE/VGA stay
-Bessel in shared ``ind_shunt``). Schematic and Magic now agree at
-**43.7 GHz / +0.07 dB @ 28 GHz** (was 34.9 GHz / −1.67 dB with the 63 pH
-coil). The laid-out coil is still ``turn1_d40``. The 819 fF Magic total is
-mostly ``mgate`` / ``em`` and is not ``C_L``. See
-``layout/debug_pex/FINDINGS.md``.
+Bessel in shared ``ind_shunt``). Layout GDS is the same ``turn1`` pair.
+Schematic is **43.7 GHz / +0.07 dB @ 28 GHz**; Magic after the taller
+cell is **42.2 GHz / −0.14 dB** (``outp``–``vss`` 152 fF vs the 144 fF
+the schematic sizes against). Was 34.9 GHz / −1.67 dB with the 63 pH
+coil. Magic keeps 842 fF cell-total, mostly ``mgate`` / ``em``, not
+``C_L``. See ``layout/debug_pex/FINDINGS.md``.
 
 Plots and waveforms: {plots}, same file names as the schematic pass.
 """

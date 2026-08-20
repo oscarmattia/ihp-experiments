@@ -64,8 +64,8 @@ matches schematic; Magic is the layout cost). VGA Magic drops 388 fF on
 unlabeled `tx1`/`tx2` — see MEMORY.md. The driver's pad load is Magic in-situ
 metal **143.56 fF** + ESD junction **50.9 fF** ≈ **194 fF/side**; shunt L uses
 Butterworth **m = 0.414** → EM case `turn1` in `ind_shunt_drv.inc`. CTLE/VGA
-stay Bessel **m = 0.32** in shared `ind_shunt.inc`. Layout GDS coil is still
-`turn1_d40`. Both stages have DC+AC+PRBS/SBR. Artifacts:
+stay Bessel **m = 0.32** in shared `ind_shunt.inc`. Layout GDS coil is the
+same `turn1` (d = 120 µm). Both stages have DC+AC+PRBS/SBR. Artifacts:
 `out/postlayout_{vga,driver}_{klayout,magic}/`.
 
 ## Targets
