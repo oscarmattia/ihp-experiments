@@ -59,10 +59,10 @@ the netlists come from `layout/blocks/run_postlayout.py --stage {ctle,vga,driver
 `* postlayout-cl-model: full|miller` so the testbench does not double-count interconnect
 (or, on the driver, the hand `PAD_C`).
 
-Post-layout AC numbers live in `vga_report.md` / `driver_report.md` (KLayout
+Post-layout numbers live in `vga_report.md` / `driver_report.md` (KLayout
 matches schematic; Magic is the layout cost). VGA Magic drops 388 fF on
-unlabeled `tx1`/`tx2` — see MEMORY.md. Artifacts:
-`out/postlayout_{vga,driver}_{klayout,magic}/`.
+unlabeled `tx1`/`tx2` — see MEMORY.md. Both stages now have DC+AC+PRBS/SBR.
+Artifacts: `out/postlayout_{vga,driver}_{klayout,magic}/`.
 
 ## Targets
 

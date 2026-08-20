@@ -98,8 +98,8 @@ drops the testbench ``PAD_C`` so the extracted pad is not counted twice.
 | Pad CM | 1.389 V | 1.389 V | 1.389 V |
 | Return loss DC | 38.85 dB | 38.85 dB | 55.58 dB |
 | Return loss @ 28 GHz | 26.53 dB | 26.53 dB | 10.50 dB |
-| Pad eye height | — | — | — |
-| Pad eye width | — | — | — |
+| Pad eye height | — | 98.69 mV | 98.24 mV |
+| Pad eye width | — | 0.8400 UI | 0.8025 UI |
 
 | Flow | Devices | Parasitic C | Kept | Dropped |
 | --- | --- | --- | --- | --- |

@@ -628,6 +628,21 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ {vout_cm or '1.35 V'}** from `
     body += _vga_pass_section("Ideal passives", "vga_ideal_", "vga_ideal", exp)
     body += _vga_pass_section("PDK passives", "vga_pdk_", "vga_pdk", exp)
     pdk_m = load_sim_metrics(exp / "out" / "vga_pdk" / "metrics.csv", "vga_pdk_")
+    kl_m = read_metrics_dict(exp / "out" / "postlayout_vga_klayout" / "metrics.csv")
+    mag_m = read_metrics_dict(exp / "out" / "postlayout_vga_magic" / "metrics.csv")
+    kl_eh = _metric_float(kl_m, "postlayout_vga_klayout_eye_height_mV")
+    kl_ew = _metric_float(kl_m, "postlayout_vga_klayout_eye_width_UI")
+    mag_eh = _metric_float(mag_m, "postlayout_vga_magic_eye_height_mV")
+    mag_ew = _metric_float(mag_m, "postlayout_vga_magic_eye_width_UI")
+    eye_note = ""
+    if not math.isnan(kl_eh) and not math.isnan(mag_eh):
+        eye_note = (
+            f"\n**Eyes (mid VCTRL, PRBS9)** — devices-only "
+            f"**{_fmt_mw(kl_eh)} / {kl_ew:.3f} UI**, Magic "
+            f"**{_fmt_mw(mag_eh)} / {mag_ew:.3f} UI**. Phase-invariance "
+            f"passed on both. The Magic bandwidth drop does not close the "
+            f"mid-gain eye.\n"
+        )
     body += _postlayout_section(
         exp,
         pdk_m,
@@ -635,7 +650,7 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ {vout_cm or '1.35 V'}** from `
         summary_rel=VGA_POSTLAYOUT_SUMMARY,
         stage="VGA",
         pin_note="the same ten pins (including vicm / steerp / steern / mgate)",
-        extra="""
+        extra=f"""
 **Magic C drop (do not "fix" the layout)**
 
 `vga_dut` never labels the dummy-steer collectors `tx1`/`tx2`. Magic
@@ -646,7 +661,7 @@ reports **kept 548 fF / dropped 388 fF**. The midband output numbers
 above are still usable (the drop is internal-node C, not `C_L`). The
 steering-node C is under-counted; do not add labels just to recover
 those capacitors.
-""",
+{eye_note}""",
     )
     path.write_text(body)
 

@@ -168,3 +168,5 @@ reports **kept 548 fF / dropped 388 fF**. The midband output numbers
 above are still usable (the drop is internal-node C, not `C_L`). The
 steering-node C is under-counted; do not add labels just to recover
 those capacitors.
+
+**Eyes (mid VCTRL, PRBS9)** — devices-only **145.91 mV / 0.505 UI**, Magic **145.92 mV / 0.505 UI**. Phase-invariance passed on both. The Magic bandwidth drop does not close the mid-gain eye.

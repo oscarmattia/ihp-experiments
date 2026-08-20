@@ -31,6 +31,15 @@ peaking_28G_dB,1.072
 G_peak_dB,0.469
 f_peak_Hz,1.40029e+09
 f_3dB_Hz,9.06891e+10
-pad_swing_pp_mV,nan
+pad_swing_pp_mV,113.18
 return_loss_dc_dB,38.853
 return_loss_28GHz_dB,26.531
+pad_eye_height_mV,98.69
+pad_eye_width_UI,0.8400
+pad_eye_width_ps,15.000
+pad_eye_pp_swing_mV,113.18
+pad_eye_sample_phase_UI,0.6540
+eye_height_margin_pct,-50.7
+eye_width_margin_pct,68.0
+sbr_cursor_mV,-105.5768
+sbr_isi_norm,-0.00751214

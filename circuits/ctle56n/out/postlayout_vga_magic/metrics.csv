@@ -13,3 +13,10 @@ postlayout_vga_magic_Ic_A,0.00125687
 postlayout_vga_magic_Id_tail_A,0.00574864
 postlayout_vga_magic_RD_realized_ohm,nan
 postlayout_vga_magic_m,nan
+postlayout_vga_magic_eye_height_mV,145.92
+postlayout_vga_magic_eye_width_UI,0.5050
+postlayout_vga_magic_eye_width_ps,9.018
+postlayout_vga_magic_eye_pp_swing_mV,154.62
+postlayout_vga_magic_eye_sample_phase_UI,0.4762
+eye_phase_invariance_ok,yes
+eye_phase_invariance,height_err/pp=0.0000 (tol 0.02) width_err=0.0000 (tol 0.05)
