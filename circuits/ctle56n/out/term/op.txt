@@ -10,8 +10,6 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.395690e+00
-v(outn) = 1.395690e+00
 v(inp) = 1.395690e+00
 v(inn) = 1.395690e+00
 v(vdd) = 1.600000e+00

@@ -54,8 +54,9 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
-    LEGACY_DUT_PORTS,
-    LEGACY_NODESET,
+    DRIVER_DUT_BIAS,
+    DRIVER_DUT_PORTS,
+    DRIVER_NODESET,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, verify_eye_phase_invariance  # noqa: E402
@@ -90,14 +91,14 @@ PAD_CM_OFFSET_ACCEPTED = True  # Ic ~5% above nominal; no ITAIL trim (characteri
 
 DRIVER_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "save v(xu1.em) v(xu1.mgate) v(xu1.nlp1) v(xu1.nlp2)\n"
+    "save v(xu1.em) v(mgate) v(xu1.nlp1) v(xu1.nlp2)\n"
     "save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "save @n.xu1.xtail.nsg13_lv_nmos[ids]\n"
     "save @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
 )
 DRIVER_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "print v(xu1.em) v(xu1.mgate) v(xu1.nlp1) v(xu1.nlp2)\n"
+    "print v(xu1.em) v(mgate) v(xu1.nlp1) v(xu1.nlp2)\n"
     "print @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "print @n.xu1.xtail.nsg13_lv_nmos[ids]\n"
     "print @n.xu1.xmdiode.nsg13_lv_nmos[ids]"
@@ -381,7 +382,7 @@ def _inject_floating_load(text: str, rdiff: str = "100") -> str:
     if "Rterm" in text:
         return text
     return re.sub(
-        r"(XU1 outp outn inp inn vdd \{DUT_NAME\}|XU1 outp outn inp inn vdd driver_dut)\n",
+        r"(XU1 outp outn inp inn vdd 0 mgate (?:\{DUT_NAME\}|driver_dut))\n",
         r"\1\n* Floating 100 Ohm differential receiver (TB only)\nRterm outp outn "
         + rdiff
         + "\n",
@@ -401,7 +402,7 @@ def _patch_tb_nodeset(tb_path: Path, ep: dict[str, str]) -> None:
     text = tb_path.read_text()
     text = re.sub(
         r"\.nodeset[^\n]*",
-        f".nodeset v(xu1.mgate)={ep['MOS_VGS']} "
+        f".nodeset v(mgate)={ep['MOS_VGS']} "
         f"v(xu1.em)={ve:.4f} "
         f"v(outp)={vcoll:.4f} v(outn)={vcoll:.4f}",
         text,
@@ -429,9 +430,9 @@ def _prepare_driver_tb(
         dut_name=DRIVER_DUT_NAME,
         dc_save_lines=DRIVER_DC_SAVE_LINES,
         dc_print_lines=DRIVER_DC_PRINT_LINES,
-        dut_ports=LEGACY_DUT_PORTS,
-        dut_bias="",
-        dut_nodeset=LEGACY_NODESET,
+        dut_ports=DRIVER_DUT_PORTS,
+        dut_bias=DRIVER_DUT_BIAS,
+        dut_nodeset=DRIVER_NODESET,
     )
     text = _inject_floating_load(tb.read_text(), ep.get("RDIFF_TB", "100"))
     tb.write_text(text)
@@ -501,7 +502,7 @@ def _measure_driver_cin_ff(work: Path, models: Path, dut_cir: Path, ep: dict[str
         ".include params.inc\n"
         f".include {dut_local.resolve()}\n"
         f"Vdd vdd 0 dc {ep['VDD']}\n"
-        f"XU1 outp outn inp inn vdd {DRIVER_DUT_NAME}\n"
+        f"XU1 outp outn inp inn vdd 0 {DRIVER_DUT_NAME}\n"
         f"Rterm outp outn {ep.get('RDIFF_TB', '100')}\n"
         f"Vp inp 0 dc {ep['VBASE']} ac 1 0\n"
         f"Vn inn 0 dc {ep['VBASE']} ac 1 180\n"
@@ -640,7 +641,7 @@ def run(
     vce1 = vout_p - ve if not math.isnan(ve) else float("nan")
     vce2 = vout_n - ve if not math.isnan(ve) else float("nan")
     vds_tail = ve if not math.isnan(ve) else float("nan")
-    vgs_tail = dc.get("v(xu1.mgate)", 0.85)
+    vgs_tail = dc.get("v(mgate)", 0.85)
     id_tail = dc.get("@n.xu1.xtail.nsg13_lv_nmos[ids]", float("nan"))
 
     rd_real = float(ep.get("RSIL_R", params.rsil_r_ohm))
@@ -711,9 +712,9 @@ def run(
         cl_tb="0",
         dc_save_lines=DRIVER_DC_SAVE_LINES,
         dc_print_lines=DRIVER_DC_PRINT_LINES,
-        dut_ports=LEGACY_DUT_PORTS,
-        dut_bias="",
-        dut_nodeset=LEGACY_NODESET,
+        dut_ports=DRIVER_DUT_PORTS,
+        dut_bias=DRIVER_DUT_BIAS,
+        dut_nodeset=DRIVER_NODESET,
     )
     run_ngspice(tb_pad, work, "zin_pad.log")
     freq_z, zdiff = _parse_zin_pad_raw(work / "zin_pad.raw")

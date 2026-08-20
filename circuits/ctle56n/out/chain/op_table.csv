@@ -5,7 +5,7 @@ vtt,1.3957,1.3957,on-chip termination CM (CTLE input target)
 ctle_in_CM,1.3957,1.3957,CTLE base CM post-term
 ctle_VDS_tail,0.4385,0.4457,emitter VDS
 ctle_Vout_CM,1.3483,1.3504,CTLE collector CM → VGA input
-ctle_Ic,0.00288838,,per HBT
+ctle_Ic,0.00288839,,per HBT
 ctle_VCE,0.9504,,signal HBT
 vga_VBASE,1.3504,1.3504,dummy-pair + input CM reference
 vga_Vout_CM,1.3495,,VGA → driver interface

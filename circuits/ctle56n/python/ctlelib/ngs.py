@@ -42,12 +42,43 @@ CTLE_DUT_BIAS = "Iref vdd mgate {ITAIL}"
 #: without the xu1 prefix; e1/e2 remain internal.
 CTLE_NODESET = ".nodeset v(mgate)={MOS_VGS} v(xu1.e1)=0.28 v(xu1.e2)=0.28"
 
-#: Stages that still carry their own sources keep the pre-existing 5-port
-#: interface and hierarchical nodeset. They need the same treatment as the CTLE
-#: before they can be laid out; see docs/LAYOUT.md.
-LEGACY_DUT_PORTS = "outp outn inp inn vdd"
-LEGACY_NODESET = (
-    ".nodeset v(xu1.mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.e1)=0.28 v(xu1.e2)=0.28"
+#: Termination — devices only; pad caps live in the testbench.
+TERM_DUT_PORTS = "inp inn vdd 0"
+TERM_DUT_BIAS = (
+    "* Bond-pad hand cap (sg13g2_bondpad.lib is empty)\n"
+    "Cpadp inp 0 {PAD_C}\n"
+    "Cpadn inn 0 {PAD_C}"
+)
+TERM_NODESET = ""
+
+#: VGA — tail mirror, CM reference and steering gates are testbench-side.
+VGA_DUT_PORTS = "outp outn inp inn vicm steerp steern vdd 0 mgate"
+VGA_DUT_BIAS = (
+    "Iref vdd mgate {ITAIL}\n"
+    "Vicm vicm 0 dc {VBASE}\n"
+    "Vsp steerp 0 dc {VCTRL_P}\n"
+    "Vsn steern 0 dc {VCTRL_N}"
+)
+VGA_NODESET = (
+    ".nodeset v(mgate)={MOS_VGS} v(xu1.em)=0.28 v(xu1.ed1)=0.28 v(xu1.ed2)=0.28 "
+    "v(xu1.tx1)=0.28 v(xu1.tx2)=0.28"
+)
+
+#: Pad driver — mirror reference and pad caps are testbench-side.
+DRIVER_DUT_PORTS = "outp outn inp inn vdd 0 mgate"
+DRIVER_DUT_BIAS = (
+    "Iref vdd mgate {ITAIL_HALF}\n"
+    "Cpadp outp 0 {PAD_C}\n"
+    "Cpadn outn 0 {PAD_C}"
+)
+DRIVER_NODESET = ".nodeset v(mgate)={MOS_VGS} v(xu1.em)=0.28"
+
+#: Chain top — stages are device-only inside; chain_dut carries their sources.
+CHAIN_DUT_PORTS = "outp outn inp inn vdd"
+CHAIN_DUT_BIAS = ""
+CHAIN_NODESET = (
+    ".nodeset v(xu1.ctle_mgate)={MOS_VGS} v(xu1.vga_mgate)={MOS_VGS} "
+    "v(xu1.drv_mgate)={MOS_VGS} v(outp)=1.40 v(outn)=1.40"
 )
 
 
@@ -177,6 +208,59 @@ def complex_from_vm_vp(vm: np.ndarray, vp: np.ndarray) -> np.ndarray:
     return vm * (np.cos(phase) + 1j * np.sin(phase))
 
 
+#: Leading columns in AC ``wrdata`` with ``wr_singlescale`` (complex scale): freq, freq, freq_imag.
+AC_WRDATA_COMPLEX_SCALE_COLS = 3
+
+
+def parse_ac_vm_vp_raw(raw: Path, n_pairs: int) -> tuple[np.ndarray, list[np.ndarray]]:
+    """Parse AC ``wrdata`` with ``wr_singlescale`` (complex scale).
+
+    Layout: ``freq, freq, freq_imag`` then ``n_pairs`` of ``(vm, vp)`` columns.
+    Total width must be ``AC_WRDATA_COMPLEX_SCALE_COLS + 2 * n_pairs``.
+    """
+    rows = []
+    with raw.open() as f:
+        for line in f:
+            parts = line.split()
+            if parts:
+                rows.append([float(x) for x in parts])
+    arr = np.asarray(rows)
+    n_data = 2 * n_pairs
+    ncol_expected = AC_WRDATA_COMPLEX_SCALE_COLS + n_data
+    if arr.shape[1] != ncol_expected:
+        raise RuntimeError(
+            f"{raw}: expected {ncol_expected} columns "
+            f"({AC_WRDATA_COMPLEX_SCALE_COLS} scale + {n_data} data) "
+            f"for {n_pairs} vm/vp pairs, got {arr.shape[1]}"
+        )
+    freq = arr[:, 0]
+    start = AC_WRDATA_COMPLEX_SCALE_COLS
+    pairs = [
+        complex_from_vm_vp(arr[:, start + 2 * i], arr[:, start + 2 * i + 1])
+        for i in range(n_pairs)
+    ]
+    return freq, pairs
+
+
+def assert_unit_diff_source(
+    v_p: np.ndarray,
+    v_n: np.ndarray,
+    *,
+    tol: float = 1e-3,
+    label: str = "vsrc",
+) -> None:
+    """Ideal 0.5/0° + 0.5/180° sources must give |v_p - v_n| == 1 at every frequency."""
+    vsrc = v_p - v_n
+    mag = np.abs(vsrc)
+    err = float(np.max(np.abs(mag - 1.0)))
+    if err > tol:
+        idx = int(np.argmax(np.abs(mag - 1.0)))
+        raise ValueError(
+            f"{label}: |v_p - v_n| must be 1.0 at all frequencies "
+            f"(max err {err:.2e} at index {idx}, |vsrc|={mag[idx]:.4f})"
+        )
+
+
 def parse_psrr_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """wrdata frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(vdd) vp(vdd)."""
     rows = []
@@ -196,51 +280,14 @@ def parse_psrr_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
 
 
 def parse_ac_raw(raw: Path) -> tuple[np.ndarray, ...]:
-    import sys
-
-    if str(_REPO) not in sys.path:
-        sys.path.insert(0, str(_REPO))
-    from char.common.lut import parse_wrdata
-
-    rows = []
-    with raw.open() as f:
-        for line in f:
-            parts = line.split()
-            if parts:
-                rows.append([float(x) for x in parts])
-    arr = np.asarray(rows)
-    if arr.shape[1] >= 11:
-        vm_outp, vp_outp = arr[:, 3], arr[:, 4]
-        vm_outn, vp_outn = arr[:, 5], arr[:, 6]
-        vm_inp, vp_inp = arr[:, 7], arr[:, 8]
-        vm_inn, vp_inn = arr[:, 9], arr[:, 10]
-        freq = arr[:, 0]
-    else:
-        names = [
-            "vm_outp", "vp_outp", "vm_outn", "vp_outn",
-            "vm_inp", "vp_inp", "vm_inn", "vp_inn",
-        ]
-        data = parse_wrdata(raw, names)
-        rows_arr = np.asarray(rows)
-        freq = rows_arr[:, 0]
-        vm_outp = data["vm_outp"]
-        vp_outp = data["vp_outp"]
-        vm_outn = data["vm_outn"]
-        vp_outn = data["vp_outn"]
-        vm_inp = data["vm_inp"]
-        vp_inp = data["vp_inp"]
-        vm_inn = data["vm_inn"]
-        vp_inn = data["vp_inn"]
-
-    voutp = complex_from_vm_vp(vm_outp, vp_outp)
-    voutn = complex_from_vm_vp(vm_outn, vp_outn)
-    vin_p = complex_from_vm_vp(vm_inp, vp_inp)
-    vin_n = complex_from_vm_vp(vm_inn, vp_inn)
+    """Parse standard 4-pair AC diff wrdata (outp, outn, inp, inn or equivalent order)."""
+    freq, pairs = parse_ac_vm_vp_raw(raw, n_pairs=4)
+    voutp, voutn, vin_p, vin_n = pairs
     return freq, voutp, voutn, vin_p, vin_n
 
 
 def parse_tran_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """wrdata: time v(outp) v(outn) v(inp) v(inn)."""
+    """Parse transient wrdata: ``time`` duplicated, then real voltage vectors."""
     rows = []
     with raw.open() as f:
         for line in f:
@@ -248,10 +295,12 @@ def parse_tran_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.nd
             if parts:
                 rows.append([float(x) for x in parts])
     arr = np.asarray(rows)
-    if arr.shape[1] >= 8:
-        return arr[:, 0], arr[:, 1], arr[:, 3], arr[:, 5], arr[:, 7]
-    if arr.shape[1] >= 6:
+    ncol = arr.shape[1]
+    # wr_singlescale on real vectors: time, time, then one column per signal.
+    if ncol >= 6:
         return arr[:, 0], arr[:, 2], arr[:, 3], arr[:, 4], arr[:, 5]
-    if arr.shape[1] >= 5:
+    if ncol >= 5:
         return arr[:, 0], arr[:, 1], arr[:, 2], arr[:, 3], arr[:, 4]
-    raise RuntimeError(f"{raw}: expected ≥5 columns, got {arr.shape[1]}")
+    raise RuntimeError(
+        f"{raw}: expected ≥5 columns (time + signals), got {ncol}"
+    )

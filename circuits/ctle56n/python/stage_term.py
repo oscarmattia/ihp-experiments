@@ -31,7 +31,9 @@ from ctlelib import (  # noqa: E402
     verify_eye_phase_invariance,
     group_delay_s,
     interp_db_at,
+    assert_unit_diff_source,
     parse_ac_raw,
+    parse_ac_vm_vp_raw,
     parse_dc_log,
     parse_tran_raw,
     plot_eye_diff,
@@ -39,7 +41,6 @@ from ctlelib import (  # noqa: E402
     plot_sbr,
     plot_tran_diff,
     plot_tran_se,
-    prepare_tb,
     pdk_models,
     run_ngspice,
     write_ac_diff_csv,
@@ -48,10 +49,8 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
-    LEGACY_DUT_PORTS,
-    LEGACY_NODESET,
 )
-from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
+from ctlelib.ngs import apply_params  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EyeMetrics  # noqa: E402
 from size_term import (  # noqa: E402
     NYQUIST_HZ,
@@ -66,9 +65,9 @@ from size_term import (  # noqa: E402
 )
 
 TERM_DUT_NAME = "term_dut"
-TERM_DC_SAVE_LINES = "save v(outp) v(outn) v(inp) v(inn) v(vdd) v(xu1.vtt)"
+TERM_DC_SAVE_LINES = "save v(inp) v(inn) v(vdd) v(xu1.vtt)"
 TERM_DC_PRINT_LINES = (
-    "print v(outp) v(outn) v(inp) v(inn) v(vdd) v(xu1.vtt)\n"
+    "print v(inp) v(inn) v(vdd) v(xu1.vtt)\n"
     "print (v(vdd)-v(xu1.vtt))/273.7"
 )
 
@@ -120,23 +119,26 @@ def _write_ac_tb_50ohm(
 .include {dut_cir.resolve()}
 
 Vdd vdd 0 dc {{VDD}}
-XU1 outp outn inp inn vdd {TERM_DUT_NAME}
+* Bond-pad hand cap (moved from DUT)
+Cpadp inp 0 {{PAD_C}}
+Cpadn inn 0 {{PAD_C}}
+XU1 inp inn vdd 0 {TERM_DUT_NAME}
 
 Vp vp 0 dc {{VBASE}} ac 0.5 0
 Vn vn 0 dc {{VBASE}} ac 0.5 180
 Rsrc_p vp inp {{RSRC_LEG}}
 Rsrc_n vn inn {{RSRC_LEG}}
 
-Cload_p outp 0 {{CL_TB}}
-Cload_n outn 0 {{CL_TB}}
+Cload_p inp 0 {{CL_TB}}
+Cload_n inn 0 {{CL_TB}}
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 
 .control
-save v(outp) v(outn) v(inp) v(inn) v(vp) v(vn)
+save v(inp) v(inn) v(vp) v(vn)
 ac dec 200 1e6 100e9
 set wr_singlescale
-wrdata ac_diff.raw frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn)
+wrdata ac_diff.raw frequency vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn)
 .endc
 .end
 """
@@ -159,7 +161,9 @@ def _write_dc_tb(
 .include {dut_cir.resolve()}
 
 Vdd vdd 0 dc {{VDD}}
-XU1 outp outn inp inn vdd {TERM_DUT_NAME}
+Cpadp inp 0 {{PAD_C}}
+Cpadn inn 0 {{PAD_C}}
+XU1 inp inn vdd 0 {TERM_DUT_NAME}
 
 Vp inp 0 dc {{VBASE}}
 Vn inn 0 dc {{VBASE}}
@@ -176,6 +180,45 @@ echo "--- DC operating point ---"
 """
     text = apply_params(text, spice_dir, extra)
     out = work / "tb_dc_term.cir"
+    out.write_text(text)
+    return out
+
+
+def _write_zin_tb(
+    work: Path,
+    dut_cir: Path,
+    spice_dir: Path,
+    extra: dict[str, str],
+) -> Path:
+    text = f"""* Input impedance / return loss at bond pads — 100 Ohm differential reference
+.include params.inc
+.include {dut_cir.resolve()}
+
+Vdd vdd 0 dc {{VDD}}
+Cpadp inp 0 {{PAD_C}}
+Cpadn inn 0 {{PAD_C}}
+XU1 inp inn vdd 0 {TERM_DUT_NAME}
+
+Vcm cm 0 dc {{VBASE}}
+Rcm_p cm inp 1e9
+Rcm_n cm inn 1e9
+Iac inp inn dc 0 ac 1
+
+Cload_p inp 0 {{CL_TB}}
+Cload_n inn 0 {{CL_TB}}
+
+.options gmin=1e-18 abstol=1e-15 reltol=1e-3
+
+.control
+save v(inp) v(inn) v(xu1.vtt)
+ac dec 300 1e6 100e9
+set wr_singlescale
+wrdata zin.raw frequency vm(inp) vp(inp) vm(inn) vp(inn)
+.endc
+.end
+"""
+    text = apply_params(text, spice_dir, extra)
+    out = work / "tb_zin_term.cir"
     out.write_text(text)
     return out
 
@@ -207,18 +250,20 @@ def _write_tran_tb(
 .include {stim_name}
 
 Vdd vdd 0 dc {{VDD}}
-XU1 outp outn inp inn vdd {TERM_DUT_NAME}
+Cpadp inp 0 {{PAD_C}}
+Cpadn inn 0 {{PAD_C}}
+XU1 inp inn vdd 0 {TERM_DUT_NAME}
 
-Cload_p outp 0 {{CL_TB}}
-Cload_n outn 0 {{CL_TB}}
+Cload_p inp 0 {{CL_TB}}
+Cload_n inn 0 {{CL_TB}}
 
 .options gmin=1e-18 abstol=1e-15 reltol=1e-3
 
 .control
-save v(outp) v(outn) v(inp) v(inn)
+save v(inp) v(inn)
 tran 0.5p {{TMAX}} 0 1p
 set wr_singlescale
-wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn)
+wrdata {raw_name} time v(inp) v(inn) v(vp_drv) v(vn_drv)
 .endc
 .end
 """
@@ -229,25 +274,23 @@ wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn)
 
 
 def _parse_zin_raw(raw: Path) -> tuple[np.ndarray, np.ndarray]:
-    rows = []
-    with raw.open() as f:
-        for line in f:
-            parts = line.split()
-            if parts:
-                rows.append([float(x) for x in parts])
-    arr = np.asarray(rows)
-    if arr.shape[1] >= 7:
-        freq = arr[:, 0]
-        vinp = complex_from_vm_vp(arr[:, 3], arr[:, 4])
-        vinn = complex_from_vm_vp(arr[:, 5], arr[:, 6])
-    elif arr.shape[1] >= 5:
-        freq = arr[:, 0]
-        vinp = complex_from_vm_vp(arr[:, 1], arr[:, 2])
-        vinn = complex_from_vm_vp(arr[:, 3], arr[:, 4])
-    else:
-        raise RuntimeError(f"{raw}: unexpected zin wrdata width {arr.shape[1]}")
+    freq, (vinp, vinn) = parse_ac_vm_vp_raw(raw, n_pairs=2)
     zdiff = np.abs(vinp - vinn)  # passive diff input magnitude (Iac = 1 A)
     return freq, zdiff
+
+
+def _parse_term_tran_raw(raw: Path) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Transient wrdata: time, time, v(inp), v(inn), v(vp_drv), v(vn_drv)."""
+    rows = np.loadtxt(raw)
+    if rows.ndim == 1:
+        rows = rows.reshape(1, -1)
+    ncol_expected = 6  # 2 time columns + 4 real signals
+    if rows.shape[1] != ncol_expected:
+        raise RuntimeError(
+            f"{raw}: expected {ncol_expected} columns (2 time + 4 signals), "
+            f"got {rows.shape[1]}"
+        )
+    return parse_tran_raw(raw)
 
 
 def _s11_db(z: np.ndarray, z0: float = Z0_DIFF_OHM) -> np.ndarray:
@@ -436,13 +479,8 @@ def run(
     # --- AC insertion loss (100 Ohm diff source, 50 Ohm per leg) ---
     tb_ac = _write_ac_tb_50ohm(work, dut_local, models, spice_dir, extra)
     run_ngspice(tb_ac, work, "ac_diff.log")
-    freq, voutp, voutn, vin_p, vin_n = parse_ac_raw(work / "ac_diff.raw")
-    # wrdata includes vp/vn after inp/inn (columns 11-14)
-    rows = np.loadtxt(work / "ac_diff.raw")
-    if rows.ndim == 1:
-        rows = rows.reshape(1, -1)
-    vvp = complex_from_vm_vp(rows[:, 11], rows[:, 12])
-    vvn = complex_from_vm_vp(rows[:, 13], rows[:, 14])
+    freq, voutp, voutn, vvp, vvn = parse_ac_raw(work / "ac_diff.raw")
+    assert_unit_diff_source(vvp, vvn)
     vsrc = vvp - vvn
     vod = voutp - voutn
     h = np.where(np.abs(vsrc) > 1e-30, vod / vsrc, 0.0)
@@ -461,21 +499,7 @@ def run(
     write_ac_diff_csv(pout / "ac_diff.csv", freq, h_db, gd_s)
 
     # --- Zin / return loss ---
-    tb_zin = prepare_tb(
-        spice_dir / "tb_zin.cir",
-        dut_cir,
-        work,
-        models,
-        spice_dir,
-        extra_params=extra,
-        dut_name=TERM_DUT_NAME,
-        cl_tb=extra["CL_TB"],
-        dc_save_lines=TERM_DC_SAVE_LINES,
-        dc_print_lines=TERM_DC_PRINT_LINES,
-        dut_ports=LEGACY_DUT_PORTS,
-        dut_bias="",
-        dut_nodeset=LEGACY_NODESET,
-    )
+    tb_zin = _write_zin_tb(work, dut_local, spice_dir, extra)
     run_ngspice(tb_zin, work, "zin.log")
     freq_z, zdiff = _parse_zin_raw(work / "zin.raw")
     s11_db = _s11_db(zdiff)
@@ -497,7 +521,7 @@ def run(
         extra_tran = {**extra, "TMAX": f"{tmax:.6e}"}
         tb_tran = _write_tran_tb(work, dut_local, spice_dir, extra_tran, "prbs_stim.inc", "tran.raw")
         run_ngspice(tb_tran, work, "tran.log")
-        time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / "tran.raw")
+        time_s, v_outp, v_outn, v_inp, v_inn = _parse_term_tran_raw(work / "tran.raw")
         write_tran_csv(pout / "tran.csv", time_s, v_outp, v_outn, v_inp, v_inn)
         write_eye_csvs(pout, time_s, v_outp, v_outn)
         plot_tran_se(time_s, v_outp, v_outn, v_inp, v_inn, pout / "tran_se.png")
@@ -519,7 +543,7 @@ def run(
         extra_sbr = {**extra, "TMAX": f"{tmax_sbr:.6e}"}
         tb_sbr = _write_tran_tb(work, dut_local, spice_dir, extra_sbr, "sbr_stim.inc", "sbr.raw")
         run_ngspice(tb_sbr, work, "sbr.log")
-        time_s, v_outp, v_outn, v_inp, v_inn = parse_tran_raw(work / "sbr.raw")
+        time_s, v_outp, v_outn, v_inp, v_inn = _parse_term_tran_raw(work / "sbr.raw")
         sbr_result = extract_sbr(time_s, v_outp, v_outn)
         write_tran_csv(pout / "sbr.csv", time_s, v_outp, v_outn, v_inp, v_inn)
         write_sbr_taps_csv(pout / "sbr_taps.csv", sbr_result)

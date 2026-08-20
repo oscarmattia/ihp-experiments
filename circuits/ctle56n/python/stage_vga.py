@@ -66,8 +66,9 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
-    LEGACY_DUT_PORTS,
-    LEGACY_NODESET,
+    VGA_DUT_BIAS,
+    VGA_DUT_PORTS,
+    VGA_NODESET,
 )
 
 NYQUIST_HZ = 28e9
@@ -76,8 +77,8 @@ VCE_FLOOR_V = 0.9
 
 VGA_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "save v(xu1.e1) v(xu1.e2) v(xu1.ed1) v(xu1.ed2) v(xu1.mgate)\n"
-    "save v(xu1.tx1) v(xu1.tx2) v(xu1.steerp) v(xu1.steern) v(xu1.ctrl)\n"
+    "save v(xu1.em) v(xu1.ed1) v(xu1.ed2) v(mgate) v(vicm) v(steerp) v(steern)\n"
+    "save v(xu1.tx1) v(xu1.tx2)\n"
     "save @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "save @q.xu1.xqd1.qnpn13g2[ic] @q.xu1.xqd2.qnpn13g2[ic]\n"
     "save @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
@@ -87,8 +88,8 @@ VGA_DC_SAVE_LINES = (
 )
 VGA_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "print v(xu1.e1) v(xu1.e2) v(xu1.ed1) v(xu1.ed2) v(xu1.mgate)\n"
-    "print v(xu1.tx1) v(xu1.tx2) v(xu1.steerp) v(xu1.steern) v(xu1.ctrl)\n"
+    "print v(xu1.em) v(xu1.ed1) v(xu1.ed2) v(mgate) v(vicm) v(steerp) v(steern)\n"
+    "print v(xu1.tx1) v(xu1.tx2)\n"
     "print @q.xu1.xq1.qnpn13g2[ic] @q.xu1.xq2.qnpn13g2[ic]\n"
     "print @q.xu1.xqd1.qnpn13g2[ic] @q.xu1.xqd2.qnpn13g2[ic]\n"
     "print @n.xu1.xtail1.nsg13_lv_nmos[ids] @n.xu1.xtail2.nsg13_lv_nmos[ids]\n"
@@ -191,8 +192,8 @@ def _patch_tb_nodeset(tb_path: Path, ep: dict[str, str]) -> None:
     text = tb_path.read_text()
     text = re.sub(
         r"\.nodeset[^\n]*",
-        f".nodeset v(xu1.mgate)={ep['MOS_VGS']} v(xu1.e1)={ve:.4f} "
-        f"v(xu1.e2)={ve:.4f} v(xu1.ed1)={ve:.4f} v(xu1.ed2)={ve:.4f} "
+        f".nodeset v(mgate)={ep['MOS_VGS']} v(xu1.em)={ve:.4f} "
+        f"v(xu1.ed1)={ve:.4f} v(xu1.ed2)={ve:.4f} "
         f"v(outp)={vout:.4f} v(outn)={vout:.4f}",
         text,
         count=1,
@@ -217,9 +218,9 @@ def _prepare_vga_tb(
         extra_params=ep,
         cl_tb=ep["CL"],
         **_tb_kw(),
-        dut_ports=LEGACY_DUT_PORTS,
-        dut_bias="",
-        dut_nodeset=LEGACY_NODESET,
+        dut_ports=VGA_DUT_PORTS,
+        dut_bias=VGA_DUT_BIAS,
+        dut_nodeset=VGA_NODESET,
     )
     _patch_tb_nodeset(tb, ep)
     return tb
@@ -285,10 +286,10 @@ def run_dc_sweep(
         dc = parse_dc_log(dc_log)
         v_c1 = dc.get("v(outp)", 0.0)
         v_c2 = dc.get("v(outn)", 0.0)
-        ve1 = dc.get("v(xu1.e1)", 0.0)
+        ve1 = dc.get("v(xu1.em)", 0.0)
         vce = v_c1 - ve1
         vds_tail = ve1
-        vgs_tail = dc.get("v(xu1.mgate)", 0.85)
+        vgs_tail = dc.get("v(mgate)", 0.85)
         ic_sig, ic_dum, id_sig, id_dum, id_tail, steer_ok = _steering_from_dc(dc)
         vout_cm = (v_c1 + v_c2) / 2.0
 

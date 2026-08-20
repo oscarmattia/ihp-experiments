@@ -1,5 +1,8 @@
 * 56G NRZ output pad driver — shunt-peaked CML (no degeneration), pad + ESD
-* Receiver termination is NOT in this block — floating 100 Ohm diff lives in the TB.
+*
+* Devices only: mirror reference current and pad capacitance are supplied by
+* whoever instantiates this cell. Receiver termination is NOT in this block —
+* floating 100 Ohm diff lives in the testbench.
 .include '{IND_SHUNT_INC}'
 
 .lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
@@ -7,38 +10,28 @@
 .lib '{PDK_MODELS}/cornerRES.lib' res_typ
 .lib '{PDK_MODELS}/cornerDIO.lib' dio_tt
 
-* Pad cap: stacked TM1+TM2 70x70 um, TM1 bottom plate only (see docs/PDK.md).
-.param PAD_W={PAD_W}
-.param PAD_L={PAD_L}
-.param PAD_C={PAD_C}
 .param ESD_M={ESD_M}
 
-.subckt driver_dut outp outn inp inn vdd
+.subckt driver_dut outp outn inp inn vdd vss mgate
 * Shunt-peaked collectors: VDD -> L -> RD -> pad/collector
-Xl1 vdd nlp1 0 ind_shunt
-Xrd1 nlp1 outp 0 rsil w={RSIL_W} l={RSIL_L} m=1
-Xl2 vdd nlp2 0 ind_shunt
-Xrd2 nlp2 outn 0 rsil w={RSIL_W} l={RSIL_L} m=1
+Xl1 vdd nlp1 vss ind_shunt
+Xrd1 nlp1 outp vss rsil w={RSIL_W} l={RSIL_L} m=1
+Xl2 vdd nlp2 vss ind_shunt
+Xrd2 nlp2 outn vss rsil w={RSIL_W} l={RSIL_L} m=1
 
 * HBT differential pair — shared emitter (no degeneration, no steering)
-XQ1 outp inp em s1 npn13G2 Nx={Nx}
-Vs1 s1 0 dc 0
-XQ2 outn inn em s2 npn13G2 Nx={Nx}
-Vs2 s2 0 dc 0
+XQ1 outp inp em vss npn13G2 Nx={Nx}
+XQ2 outn inn em vss npn13G2 Nx={Nx}
 
 * Single MOS tail (2·Ic): mirror Iref=ITAIL/2 into W diode, 2W tail sinks ITAIL
-.param ITAIL_HALF={ITAIL_HALF}
-Iref vdd mgate {ITAIL_HALF}
-XMdiode mgate mgate 0 0 sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
-Xtail em mgate 0 0 sg13_lv_nmos w={TAIL_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+XMdiode mgate mgate vss vss sg13_lv_nmos w={MOS_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
+Xtail em mgate vss vss sg13_lv_nmos w={TAIL_W_m} l={MOS_L_m} ng=1 m=1 rfmode=0
 
-* --- Pad + ESD (positive) — liftable block; params PAD_*, ESD_M ---
-Cpadp outp 0 {PAD_C}
-Xesd_vdd_p vdd outp 0 diodevdd_2kv m={ESD_M}
-Xesd_vss_p vdd outp 0 diodevss_2kv m={ESD_M}
+* --- Pad + ESD (positive) — params PAD_*, ESD_M; pad cap is testbench-side ---
+Xesd_vdd_p vdd outp vss diodevdd_2kv m={ESD_M}
+Xesd_vss_p vdd outp vss diodevss_2kv m={ESD_M}
 * --- Pad + ESD (negative) ---
-Cpadn outn 0 {PAD_C}
-Xesd_vdd_n vdd outn 0 diodevdd_2kv m={ESD_M}
-Xesd_vss_n vdd outn 0 diodevss_2kv m={ESD_M}
-Xclamp vdd 0 nmoscl_2 m=1
+Xesd_vdd_n vdd outn vss diodevdd_2kv m={ESD_M}
+Xesd_vss_n vdd outn vss diodevss_2kv m={ESD_M}
+Xclamp vdd vss nmoscl_2 m=1
 .ends driver_dut

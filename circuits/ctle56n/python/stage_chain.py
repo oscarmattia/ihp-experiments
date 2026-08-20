@@ -56,8 +56,9 @@ from ctlelib import (  # noqa: E402
     write_eye_csvs,
     write_sbr_taps_csv,
     write_tran_csv,
-    LEGACY_DUT_PORTS,
-    LEGACY_NODESET,
+    CHAIN_DUT_BIAS,
+    CHAIN_DUT_PORTS,
+    CHAIN_NODESET,
 )
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EYE_SETTLE_UI, EyeMetrics  # noqa: E402
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
@@ -91,13 +92,12 @@ DRV_TOKEN_KEYS = (
 
 CHAIN_DC_SAVE_LINES = (
     "save v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
-    "save v(xu1.drv_inp) v(xu1.drv_inn)\n"
+    "save v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "save v(xu1.xuterm.vtt)\n"
     "save v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.ctle_mgate)\n"
-    "save v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
-    "save v(xu1.xuvga.mgate) v(xu1.xuvga.tx1) v(xu1.xuvga.tx2)\n"
-    "save v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
+    "save v(xu1.xuvga.em) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2) v(xu1.vga_mgate)\n"
+    "save v(xu1.xuvga.tx1) v(xu1.xuvga.tx2)\n"
+    "save v(xu1.xudrv.em) v(xu1.drv_mgate)\n"
     "save @q.xu1.xuctle.xq1.qnpn13g2[ic] @q.xu1.xuctle.xq2.qnpn13g2[ic]\n"
     "save @q.xu1.xuvga.xq1.qnpn13g2[ic] @q.xu1.xuvga.xq2.qnpn13g2[ic]\n"
     "save @q.xu1.xuvga.xqd1.qnpn13g2[ic] @q.xu1.xuvga.xqd2.qnpn13g2[ic]\n"
@@ -110,12 +110,11 @@ CHAIN_DC_SAVE_LINES = (
 )
 CHAIN_DC_PRINT_LINES = (
     "print v(outp) v(outn) v(inp) v(inn) v(vdd)\n"
-    "print v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)\n"
-    "print v(xu1.drv_inp) v(xu1.drv_inn)\n"
+    "print v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)\n"
     "print v(xu1.xuterm.vtt)\n"
     "print v(xu1.xuctle.e1) v(xu1.xuctle.e2) v(xu1.ctle_mgate)\n"
-    "print v(xu1.xuvga.e1) v(xu1.xuvga.e2) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2)\n"
-    "print v(xu1.xudrv.em) v(xu1.xudrv.mgate)\n"
+    "print v(xu1.xuvga.em) v(xu1.xuvga.ed1) v(xu1.xuvga.ed2) v(xu1.vga_mgate)\n"
+    "print v(xu1.xudrv.em) v(xu1.drv_mgate)\n"
     "print @q.xu1.xuctle.xq1.qnpn13g2[ic] @q.xu1.xuctle.xq2.qnpn13g2[ic]\n"
     "print @q.xu1.xuvga.xq1.qnpn13g2[ic] @q.xu1.xuvga.xq2.qnpn13g2[ic]\n"
     "print @q.xu1.xuvga.xqd1.qnpn13g2[ic] @q.xu1.xuvga.xqd2.qnpn13g2[ic]\n"
@@ -281,11 +280,11 @@ def _patch_nodeset(tb_path: Path, term: TermParams, vga: VgaParams, ctle: CtlePa
         r"\.nodeset[^\n]*",
         ".nodeset "
         f"v(xu1.ctle_mgate)={term.extra.get('MOS_VGS', '0.55')} "
-        f"v(xu1.xuvga.mgate)={vga.mos_vgs:.4g} "
-        f"v(xu1.xudrv.mgate)={driver.mos_vgs:.4g} "
+        f"v(xu1.vga_mgate)={vga.mos_vgs:.4g} "
+        f"v(xu1.drv_mgate)={driver.mos_vgs:.4g} "
         f"v(xu1.xuctle.e1)={tail_vds:.4g} v(xu1.xuctle.e2)={tail_vds:.4g} "
-        f"v(xu1.xuvga.e1)={tail_vds:.4g} v(xu1.xuvga.e2)={tail_vds:.4g} "
-        f"v(xu1.xuvga.ed1)={tail_vds:.4g} v(xu1.xuvga.ed2)={tail_vds:.4g} "
+        f"v(xu1.xuvga.em)={tail_vds:.4g} v(xu1.xuvga.ed1)={tail_vds:.4g} "
+        f"v(xu1.xuvga.ed2)={tail_vds:.4g} "
         f"v(outp)={driver.vout_cm_est:.4g} v(outn)={driver.vout_cm_est:.4g}",
         text,
         count=1,
@@ -314,9 +313,9 @@ def _prepare_chain_tb(
         cl_tb=cl_tb,
         dc_save_lines=CHAIN_DC_SAVE_LINES,
         dc_print_lines=CHAIN_DC_PRINT_LINES,
-        dut_ports=LEGACY_DUT_PORTS,
-        dut_bias="",
-        dut_nodeset=LEGACY_NODESET,
+        dut_ports=CHAIN_DUT_PORTS,
+        dut_bias=CHAIN_DUT_BIAS,
+        dut_nodeset=CHAIN_NODESET,
     )
     text = _inject_receiver_load(tb.read_text(), extra.get("RDIFF_TB", "100"))
     tb.write_text(text)
@@ -358,11 +357,10 @@ Cload_n outn 0 0
 
 .control
 save v(outp) v(outn) v(inp) v(inn) v(vp) v(vn)
-save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)
-save v(xu1.drv_inp) v(xu1.drv_inn)
+save v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)
 ac dec 200 1e6 300e9
 set wr_singlescale
-wrdata {raw_name} frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn) vm(xu1.ctle_inp) vp(xu1.ctle_inp) vm(xu1.ctle_inn) vp(xu1.ctle_inn) vm(xu1.vga_inp) vp(xu1.vga_inp) vm(xu1.vga_inn) vp(xu1.vga_inn) vm(xu1.drv_inp) vp(xu1.drv_inp) vm(xu1.drv_inn) vp(xu1.drv_inn)
+wrdata {raw_name} frequency vm(outp) vp(outp) vm(outn) vp(outn) vm(inp) vp(inp) vm(inn) vp(inn) vm(vp) vp(vp) vm(vn) vp(vn) vm(xu1.vga_inp) vp(xu1.vga_inp) vm(xu1.vga_inn) vp(xu1.vga_inn) vm(xu1.drv_inp) vp(xu1.drv_inp) vm(xu1.drv_inn) vp(xu1.drv_inn)
 .endc
 .end
 """
@@ -448,11 +446,10 @@ Cload_n outn 0 0
 
 .control
 save v(outp) v(outn) v(inp) v(inn)
-save v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn)
-save v(xu1.drv_inp) v(xu1.drv_inn)
+save v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)
 tran 0.5p {{TMAX}} 0 1p
 set wr_singlescale
-wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn) v(xu1.ctle_inp) v(xu1.ctle_inn) v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)
+wrdata {raw_name} time v(outp) v(outn) v(inp) v(inn) v(inp) v(inn) v(xu1.vga_inp) v(xu1.vga_inn) v(xu1.drv_inp) v(xu1.drv_inn)
 .endc
 .end
 """
@@ -526,12 +523,12 @@ def _ac_gains_from_raw(raw: Path) -> dict[str, np.ndarray]:
     vinn = complex_from_vm_vp(rows[:, 9], rows[:, 10])
     vvp = complex_from_vm_vp(rows[:, 11], rows[:, 12])
     vvn = complex_from_vm_vp(rows[:, 13], rows[:, 14])
-    vctlep = complex_from_vm_vp(rows[:, 15], rows[:, 16])
-    vctleinn = complex_from_vm_vp(rows[:, 17], rows[:, 18])
-    vvgap = complex_from_vm_vp(rows[:, 19], rows[:, 20])
-    vvgainn = complex_from_vm_vp(rows[:, 21], rows[:, 22])
-    vdrvinp = complex_from_vm_vp(rows[:, 23], rows[:, 24])
-    vdrvinn = complex_from_vm_vp(rows[:, 25], rows[:, 26])
+    vctlep = vinp
+    vctleinn = vinn
+    vvgap = complex_from_vm_vp(rows[:, 15], rows[:, 16])
+    vvgainn = complex_from_vm_vp(rows[:, 17], rows[:, 18])
+    vdrvinp = complex_from_vm_vp(rows[:, 19], rows[:, 20])
+    vdrvinn = complex_from_vm_vp(rows[:, 21], rows[:, 22])
 
     vod = voutp - voutn
     vpad = vinp - vinn
@@ -800,9 +797,11 @@ def _vce_from_dc(dc: dict[str, float], qpath: str, out_node: str = "v(outp)") ->
     if "xuctle" in qpath:
         ve = dc.get("v(xu1.xuctle.e1)", float("nan"))
     elif "xuvga.xq" in qpath and "xqd" not in qpath:
-        ve = dc.get("v(xu1.xuvga.e1)", float("nan"))
+        ve = dc.get("v(xu1.xuvga.em)", float("nan"))
     elif "xqd" in qpath:
-        ve = dc.get("v(xu1.xuvga.ed1)", float("nan"))
+        ed1 = dc.get("v(xu1.xuvga.ed1)", float("nan"))
+        ed2 = dc.get("v(xu1.xuvga.ed2)", float("nan"))
+        ve = 0.5 * (ed1 + ed2) if not (math.isnan(ed1) or math.isnan(ed2)) else float("nan")
     vout = dc.get(out_node, float("nan"))
     return vout - ve if not (math.isnan(vout) or math.isnan(ve)) else float("nan")
 
@@ -817,8 +816,8 @@ def write_op_table(
 ) -> None:
     vcm = 0.5 * (dc.get("v(inp)", term.vbase) + dc.get("v(inn)", term.vbase))
     vtt = dc.get("v(xu1.xuterm.vtt)", term.vbase)
-    ctle_inp = dc.get("v(xu1.ctle_inp)", float("nan"))
-    ctle_inn = dc.get("v(xu1.ctle_inn)", float("nan"))
+    ctle_inp = dc.get("v(inp)", float("nan"))
+    ctle_inn = dc.get("v(inn)", float("nan"))
     ctle_in_cm = 0.5 * (ctle_inp + ctle_inn) if not math.isnan(ctle_inp) else float("nan")
     vga_inp = dc.get("v(xu1.vga_inp)", float("nan"))
     vga_inn = dc.get("v(xu1.vga_inn)", float("nan"))

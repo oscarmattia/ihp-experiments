@@ -17,16 +17,15 @@ v(outn) = 1.352907e+00
 v(inp) = 1.350360e+00
 v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 5.356793e-01
-v(xu1.e2) = 5.356793e-01
+v(xu1.em) = 5.356793e-01
 v(xu1.ed1) = 4.037777e-01
 v(xu1.ed2) = 4.037777e-01
-v(xu1.mgate) = 4.142349e-01
+v(mgate) = 4.142349e-01
+v(vicm) = 1.350360e+00
+v(steerp) = 6.330000e-01
+v(steern) = 1.207000e+00
 v(xu1.tx1) = 3.745123e-01
 v(xu1.tx2) = 3.745123e-01
-v(xu1.steerp) = 6.330000e-01
-v(xu1.steern) = 1.207000e+00
-v(xu1.ctrl) = 1.500000e-01
 @q.xu1.xq1.qnpn13g2[ic] = 2.198332e-04
 @q.xu1.xq2.qnpn13g2[ic] = 2.198332e-04
 @q.xu1.xqd1.qnpn13g2[ic] = 2.617473e-03
@@ -58,16 +57,15 @@ v(outn) = 1.351269e+00
 v(inp) = 1.350360e+00
 v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.851349e-01
-v(xu1.e2) = 4.851349e-01
+v(xu1.em) = 4.851349e-01
 v(xu1.ed1) = 4.242812e-01
 v(xu1.ed2) = 4.242812e-01
-v(xu1.mgate) = 4.142349e-01
+v(mgate) = 4.142349e-01
+v(vicm) = 1.350360e+00
+v(steerp) = 7.400000e-01
+v(steern) = 1.101000e+00
 v(xu1.tx1) = 3.948161e-01
 v(xu1.tx2) = 3.948161e-01
-v(xu1.steerp) = 7.400000e-01
-v(xu1.steern) = 1.101000e+00
-v(xu1.ctrl) = 2.800000e-01
 @q.xu1.xq1.qnpn13g2[ic] = 7.882108e-04
 @q.xu1.xq2.qnpn13g2[ic] = 7.882108e-04
 @q.xu1.xqd1.qnpn13g2[ic] = 2.067901e-03
@@ -99,16 +97,15 @@ v(outn) = 1.350135e+00
 v(inp) = 1.350360e+00
 v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.594752e-01
-v(xu1.e2) = 4.594752e-01
+v(xu1.em) = 4.594752e-01
 v(xu1.ed1) = 4.430834e-01
 v(xu1.ed2) = 4.430834e-01
-v(xu1.mgate) = 4.142349e-01
+v(mgate) = 4.142349e-01
+v(vicm) = 1.350360e+00
+v(steerp) = 8.550000e-01
+v(steern) = 9.860000e-01
 v(xu1.tx1) = 4.097514e-01
 v(xu1.tx2) = 4.097514e-01
-v(xu1.steerp) = 8.550000e-01
-v(xu1.steern) = 9.860000e-01
-v(xu1.ctrl) = 4.200000e-01
 @q.xu1.xq1.qnpn13g2[ic] = 1.256893e-03
 @q.xu1.xq2.qnpn13g2[ic] = 1.256893e-03
 @q.xu1.xqd1.qnpn13g2[ic] = 1.612249e-03
@@ -140,16 +137,15 @@ v(outn) = 1.350543e+00
 v(inp) = 1.350360e+00
 v(inn) = 1.350360e+00
 v(vdd) = 1.600000e+00
-v(xu1.e1) = 4.348638e-01
-v(xu1.e2) = 4.348638e-01
+v(xu1.em) = 4.348638e-01
 v(xu1.ed1) = 4.695738e-01
 v(xu1.ed2) = 4.695738e-01
-v(xu1.mgate) = 4.142349e-01
+v(mgate) = 4.142349e-01
+v(vicm) = 1.350360e+00
+v(steerp) = 1.043000e+00
+v(steern) = 7.970000e-01
 v(xu1.tx1) = 4.043000e-01
 v(xu1.tx2) = 4.043000e-01
-v(xu1.steerp) = 1.043000e+00
-v(xu1.steern) = 7.970000e-01
-v(xu1.ctrl) = 6.500000e-01
 @q.xu1.xq1.qnpn13g2[ic] = 1.805416e-03
 @q.xu1.xq2.qnpn13g2[ic] = 1.805416e-03
 @q.xu1.xqd1.qnpn13g2[ic] = 1.059039e-03
@@ -165,30 +161,35 @@ Note: Simulation executed from .control section
 
 === VCTRL = 1.000 V (OP FAILED) ===
 ngspice failed on tb_dc.cir:
-                          1.35036              1.35036
-xu1.e1                                          nan                  nan
-xu1.e2                                          nan                  nan
+                              1.6                  1.6
+xu1.xl1.ns1                                    -nan                 -nan
+xu1.nlp1                                       -nan                 -nan
+xu1.xl1.nmid                                   -nan                 -nan
+outp                                           -nan                 -nan
+xu1.xrd1.dt                                    -nan                 -nan
+xu1.xl2.ns1                                    -nan                 -nan
+xu1.nlp2                                       -nan                 -nan
+xu1.xl2.nmid                                   -nan                 -nan
+outn                                           -nan                 -nan
+xu1.xrd2.dt                                    -nan                 -nan
 inp                                         1.35036              1.35036
+xu1.em                                          nan                  nan
 xu1.xq1.s1                                      nan                  nan
 xu1.xq1.t                                      -nan                 -nan
-xu1.s1                                            0                    0
 inn                                         1.35036              1.35036
 xu1.xq2.s1                                      nan                  nan
 xu1.xq2.t                                      -nan                 -nan
-xu1.s2                                            0                    0
+vicm                                        1.35036              1.35036
 xu1.ed1                                         nan                  nan
 xu1.xqd1.s1                                     nan                  nan
 xu1.xqd1.t                                     -nan                 -nan
-xu1.sd1                                           0                    0
 xu1.ed2                                         nan                  nan
 xu1.xqd2.s1                                     nan                  nan
 xu1.xqd2.t                                     -nan                 -nan
-xu1.sd2                                           0                    0
-xu1.mgate                                       nan                  nan
-xu1.ctrl                                          1                    1
-xu1.steerp                                     1.33                 1.33
-xu1.steern                                     0.51                 0.51
+mgate                                           nan                  nan
 xu1.tx1                                         nan                  nan
+steerp                                         1.33                 1.33
+steern                                         0.51                 0.51
 xu1.tx2                                         nan                  nan
 l.xu1.xl2.lsk#branch                           -nan                 -nan
 l.xu1.xl2.lp#branch                            -nan                 -nan
@@ -196,14 +197,9 @@ l.xu1.xl1.lsk#branch                           -nan                 -nan
 l.xu1.xl1.lp#branch                            -nan                 -nan
 vn#branch                                       nan                  nan
 vp#branch                                       nan                  nan
-v.xu1.vsn#branch                                nan                  nan
-v.xu1.vsp#branch                                nan                  nan
-v.xu1.vctrl#branch                                0                    0
-v.xu1.vsd2#branch                               nan                  nan
-v.xu1.vsd1#branch                               nan                  nan
-v.xu1.vs2#branch                                nan                  nan
-v.xu1.vs1#branch                                nan                  nan
-v.xu1.vicm#branch                               nan                  nan
+vsn#branch                                      nan                  nan
+vsp#branch                                      nan                  nan
+vicm#branch                                     nan                  nan
 vdd#branch                                     -nan                 -nan
 
 doAnalyses: OP:  Timestep too small; trouble with xu1.xq1:npn13g2_nx_vbic-instance q.xu1.xq1.qnpn13g2
@@ -212,7 +208,7 @@ doAnalyses: OP:  Timestep too small; trouble with xu1.xq1:npn13g2_nx_vbic-instan
 op simulation(s) aborted
 --- DC operating point ---
 Warning from checkvalid: vector outp is not available or has zero length.
-Warning from checkvalid: vector xu1.e1 is not available or has zero length.
+Warning from checkvalid: vector xu1.em is not available or has zero length.
 Warning from checkvalid: vector xu1.tx1 is not available or has zero length.
 Warning from checkvalid: vector @q.xu1.xq1.qnpn13g2[ic] is not available or has zero length.
 Warning from checkvalid: vector @q.xu1.xqd1.qnpn13g2[ic] is not available or has zero length.
