@@ -72,7 +72,7 @@ from layout.common.gds import stamp_net_labels
 from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.layers import layer_map
 from layout.common.pdk import new_layout, pya_module
-from layout.common.rules import route_width, rule
+from layout.common.rules import min_space, route_width, rule
 from layout.common.sizing import metres, read_params
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
@@ -95,7 +95,10 @@ DUMMY_DX = 18.0
 BASE_VIA_DX = 2.2
 PORT_METAL = "Metal4"
 CONTROL_METAL = "Metal3"
-VICM_METAL = "Metal4"
+#: vicm shares Metal3 with steerp/steern at a different y. It cannot go on Metal4
+#: with inp/inn: the dummy bases sit either side of the axis, so the bus has to
+#: cross the middle, and the inp/inn trunks run down through there.
+VICM_METAL = "Metal3"
 PORT_REACH = 6.0
 IN_TRUNK_METAL = "Metal4"
 RING_CLEARANCE = 10.0
@@ -103,6 +106,9 @@ ARRAY_GAP = 12.0
 STEER_PORT_DY = 12.0
 ROUTE_METAL = "Metal5"
 RAIL_METAL = "Metal2"
+#: Clearance either side of the tx lane, between the tail drain rails and the
+#: steering source rails, in um.
+TX_LANE_CLEAR = 1.0
 CHIP_LEVEL_ALLOWED = ("LBE.a", "LBE.c")
 COIL_ACTIVE_GAP = 10.0
 OUT_FEED_DX = 8.0
@@ -207,61 +213,75 @@ def _place_array(layout, cell, array, dx: float, dy: float, prefix: str) -> dict
     return ports
 
 
-def _ring_tap(layout, cell, guard: dict, left_x: float, rail_y: float, rail_w: float, *,
-              outside_x: float | None = None) -> None:
-    """Land one guard-ring tap on the shared vss source rail."""
+def _ring_tap(layout, cell, guard: dict, near_x: float, rail_y: float,
+              rail_w: float) -> None:
+    """Land one guard-ring tap on the shared vss source rail.
+
+    The drop is ``rail_w`` wide — 8.6 um here, not a thin wire — so it goes down a
+    channel chosen to hold it. Dropping it past the side of an array instead put
+    its edge 0.3 um inside the array box, where it touched both the source rail
+    and the drain rail on the way past and shorted vss to the mirror gate.
+    """
     guard_box = guard["outer_box_um"]
     tap_x, tap_y = min(
         guard["tap_centres_um"],
-        key=lambda c: (abs(c[1] - guard_box[1]) > 0.1, abs(c[0] - left_x)),
+        key=lambda c: (abs(c[1] - guard_box[1]) > 0.1, abs(c[0] - near_x)),
     )
     via_between(layout, cell, tap_x, tap_y, "Metal1", RAIL_METAL, columns=1, rows=1)
-    drop_x = snap(outside_x if outside_x is not None else tap_x)
-    if abs(drop_x - tap_x) > 1e-6:
-        rect(layout, cell, RAIL_METAL, min(tap_x, drop_x), tap_y - rail_w / 2,
-              max(tap_x, drop_x), tap_y + rail_w / 2)
     rect(layout, cell, RAIL_METAL,
-          drop_x - rail_w / 2, min(tap_y, rail_y), drop_x + rail_w / 2, max(tap_y, rail_y))
+          tap_x - rail_w / 2, min(tap_y, rail_y), tap_x + rail_w / 2, max(tap_y, rail_y))
 
 
-def _tx_vertical(
+def _tx_bus(
     layout,
     cell,
     tail_drain: Terminal,
     steer_sources: list[Terminal],
     *,
-    gap_top: float,
-    gap_bottom: float,
+    lane_y: float,
     width: float,
 ) -> None:
-    """Bridge the row gap on Metal2; array rails already exist at top and bottom."""
-    trunk_x = snap(tail_drain.center[0])
-    rect(layout, cell, RAIL_METAL, trunk_x - width / 2, gap_bottom,
-          trunk_x + width / 2, gap_top)
-    for src in steer_sources:
-        sx, sy = src.center
-        rect(layout, cell, RAIL_METAL, min(sx, trunk_x), sy - width / 2,
-              max(sx, trunk_x), sy + width / 2)
+    """Join a tail's drain rail to its steering sources through the row-gap lane.
+
+    The lane is the clear band between the tail drain rails and the steering
+    source rails. Running the horizontal at the steering source rails' own y
+    instead bridged two arrays' rails — every array in that row has a rail at that
+    y — and shorted tx1 to tx2 and to the ring tap passing through.
+    """
+    xs = [snap(tail_drain.center[0])] + [snap(t.center[0]) for t in steer_sources]
+    rect(layout, cell, RAIL_METAL, min(xs) - width / 2, lane_y - width / 2,
+          max(xs) + width / 2, lane_y + width / 2)
+    for terminal in [tail_drain] + list(steer_sources):
+        tx, ty = snap(terminal.center[0]), snap(terminal.center[1])
+        rect(layout, cell, RAIL_METAL, tx - width / 2, min(ty, lane_y),
+              tx + width / 2, max(ty, lane_y))
 
 
 def _steer_drain_rise(
     layout,
     cell,
     drain: Terminal,
-    bus_y: float,
-    bus_metal: str,
-    bus_w: float,
-    bus_x: float,
+    lane_y: float,
+    turn_x: float,
+    top_y: float,
+    metal: str,
+    width: float,
 ) -> None:
-    """Vertical-leg-first rise from a steering drain rail up to a horizontal bus."""
-    dx, dy = drain.center
-    dx, dy = snap(dx), snap(dy)
+    """A steering drain rail up to ``top_y``, via a horizontal lane at ``lane_y``.
+
+    Three legs: Metal2 up off the rail, across on ``metal`` at ``lane_y``, then up
+    at ``turn_x``. The lane is what keeps ``em`` clear of ``ed1``/``ed2``: the
+    steering drains sit outboard of the dummy emitters they have to reach past, so
+    the two nets cannot share one y.
+    """
+    dx, dy = snap(drain.center[0]), snap(drain.center[1])
     w2 = route_width(RAIL_METAL)
-    hop_y = snap(dy + ROW_GAP / 2.0)
-    rect(layout, cell, RAIL_METAL, dx - w2 / 2, dy, dx + w2 / 2, hop_y)
-    via_between(layout, cell, dx, hop_y, RAIL_METAL, bus_metal, columns=1, rows=1)
-    rect(layout, cell, bus_metal, min(dx, bus_x) - bus_w / 2, bus_y - bus_w / 2,
-          max(dx, bus_x) + bus_w / 2, bus_y + bus_w / 2)
+    rect(layout, cell, RAIL_METAL, dx - w2 / 2, dy, dx + w2 / 2, lane_y)
+    via_between(layout, cell, dx, lane_y, RAIL_METAL, metal, columns=1, rows=1)
+    rect(layout, cell, metal, min(dx, turn_x) - width / 2, lane_y - width / 2,
+          max(dx, turn_x) + width / 2, lane_y + width / 2)
+    rect(layout, cell, metal, turn_x - width / 2, min(lane_y, top_y),
+          turn_x + width / 2, max(lane_y, top_y))
 
 
 def build_vga_stage(params: dict[str, float] | None = None,
@@ -340,7 +360,15 @@ def build_vga_stage(params: dict[str, float] | None = None,
     placement["pd2"] = snap(2 * axis - pd1_active_left - steer_device_span - steer_rail_w)
 
     mos_row_y = 0.0
-    steer_row_y = snap(tail_box.top + ROW_GAP)
+    # Set the row pitch from what the tx lane needs, not from ROW_GAP: the lane is
+    # a Metal2 run in the clear band between the tail drain rails and the steering
+    # source rails, and it needs its own width plus a spacing either side.
+    tx_lane_w = snap(max(em.width_for_a(RAIL_METAL, float(p["ITAIL"])),
+                         route_width(RAIL_METAL)))
+    tx_lane_band = snap(tx_lane_w + 2.0 * max(min_space(RAIL_METAL), TX_LANE_CLEAR))
+    steer_row_y = snap(
+        tail_box.top - steer_box.bottom + max(ROW_GAP, tx_lane_band)
+    )
 
     nmos_ports: dict[str, Terminal] = {}
     steer_ports: dict[str, Terminal] = {}
@@ -366,16 +394,14 @@ def build_vga_stage(params: dict[str, float] | None = None,
     vss_rail_bottom = snap(source_rail_top - vss_rail_w)
     vss_rail_y = snap(source_rail_top - vss_rail_w / 2)
 
-    mdiode_vss_left = snap(placement["mdiode"] + mos_boxes["mdiode"].left - 1.0)
-    mdiode_vss_right = snap(placement["mdiode"] + mos_boxes["mdiode"].right + 1.0)
-    tail_vss_left = snap(placement["tail1"] + mos_boxes["tail1"].left - 1.0)
-    tail_vss_right = snap(placement["tail2"] + mos_boxes["tail2"].right + 1.0)
-    rect(layout, cell, RAIL_METAL, mdiode_vss_left, vss_rail_bottom,
-          mdiode_vss_right, source_rail_top)
-    rect(layout, cell, RAIL_METAL, tail_vss_left, vss_rail_bottom,
-          tail_vss_right, source_rail_top)
+    # One bar across the whole row. Every array in this row has vss on its source
+    # rail, so unlike the old single-row floorplan — where a full-width bar would
+    # have shorted ps1/ps2's sources onto em — there is nothing here to avoid.
+    # Two separate bars left the row as two disconnected nets both labelled vss,
+    # only one of which reached the ring.
+    rect(layout, cell, RAIL_METAL, mos_left, vss_rail_bottom, mos_right, source_rail_top)
     em_segments.append(em.Segment("vss.rail", RAIL_METAL, width_um=vss_rail_w,
-                                  current_a=i_supply, note="mirror and tail source rails only"))
+                                  current_a=i_supply, note="shared source rail, whole MOS row"))
 
     gate_y = nmos_ports["G_tail1"].center[1]
     poly = lm["gatpoly_drw"]
@@ -390,18 +416,23 @@ def build_vga_stage(params: dict[str, float] | None = None,
         pya.DBox(mos_left, strap_bottom, mos_right, strap_top)
     )
 
-    diode_right = snap(placement["mdiode"] + mos_boxes["mdiode"].right)
-    tail1_left = snap(placement["tail1"] + mos_boxes["tail1"].left)
-    channel_x = snap((diode_right + tail1_left) / 2.0)
-    gate_tap = poly_contact(layout, cell, channel_x, gate_y)
-    via_between(layout, cell, channel_x, gate_y, "Metal1", RAIL_METAL, columns=1, rows=1)
+    # mgate leaves on mdiode's **left**, which is the cell's own left edge — the
+    # side the port goes out on. Tapping the strap on mdiode's right instead put
+    # the whole route inside the row: the rise to the port then ran up past the
+    # steering row at that x, through pd1's rails and the steering ring's taps,
+    # and mgate came back merged with tx1 and the substrate.
+    #
+    # The tap sits over the array's own left rail end-cap, where the array's gate
+    # strap is poly over field and the two Metal2 rails are far above and below
+    # gate_y, so the diode link is one short vertical.
+    diode_left = snap(placement["mdiode"] + mos_boxes["mdiode"].left)
+    gate_tap_x = snap(diode_left + rail_w / 2)
+    gate_tap = poly_contact(layout, cell, gate_tap_x, gate_y)
+    via_between(layout, cell, gate_tap_x, gate_y, "Metal1", RAIL_METAL, columns=1, rows=1)
 
-    link_x = snap(diode_right - rail_w / 2)
     diode_rail = nmos_ports["D_mdiode"]
-    rect(layout, cell, RAIL_METAL, link_x - link_w / 2, gate_y,
-          link_x + link_w / 2, diode_rail.center[1])
-    rect(layout, cell, RAIL_METAL, min(link_x, channel_x), gate_y - link_w / 2,
-          max(link_x, channel_x), gate_y + link_w / 2)
+    rect(layout, cell, RAIL_METAL, gate_tap_x - link_w / 2, gate_y,
+          gate_tap_x + link_w / 2, diode_rail.center[1])
 
     instances += [
         (arrays["mdiode"].total_spec.with_name("mdiode"),
@@ -420,6 +451,12 @@ def build_vga_stage(params: dict[str, float] | None = None,
          {"D": "ed2", "G": "steern", "S": "tx2", "sub": "vss"}),
     ]
 
+    # The axis is the one column clear in both rows: ARRAY_GAP between the two
+    # tail arrays below, and the ps1-to-ps2 channel above, with the tx lanes
+    # stopping either side of it. The mdiode-to-tail1 channel is clear too, but a
+    # tx lane crosses it.
+    vss_drop_x = axis
+
     mos_box = pya.DBox(mos_left, vss_rail_bottom, mos_right, snap(mos_row_y + tail_box.top))
     guard_mos = add_guard_ring(layout, cell, mos_box, RingSpec(kind="ptap1", clearance=2.0))
     _ring_tap(layout, cell, guard_mos, mos_left, vss_rail_y, vss_rail_w)
@@ -427,26 +464,24 @@ def build_vga_stage(params: dict[str, float] | None = None,
     steer_top = snap(steer_row_y + steer_box.top)
     steer_box_guard = pya.DBox(steer_left, steer_row_y, steer_right, steer_top)
     guard_steer = add_guard_ring(layout, cell, steer_box_guard, RingSpec(kind="ptap1", clearance=2.0))
-    _ring_tap(layout, cell, guard_steer, steer_left, vss_rail_y, vss_rail_w,
-              outside_x=snap(mos_left - 3.0))
+    _ring_tap(layout, cell, guard_steer, vss_drop_x, vss_rail_y, vss_rail_w)
 
-    mos_top = snap(max(mos_row_y + tail_box.top, guard_mos["outer_box_um"][3]))
     steer_guard_top = snap(guard_steer["outer_box_um"][3])
 
-    tx_w = snap(max(em.width_for_a(RAIL_METAL, i_tail), route_width(RAIL_METAL)))
-    tail_drain_y = snap(nmos_ports["D_tail1"].center[1])
-    steer_src_y = snap(steer_ports["S_ps1"].center[1])
-    tx_gap_top = snap(tail_drain_y - rail_w / 2)
-    tx_gap_bottom = snap(steer_src_y + steer_rail_w / 2)
-    _tx_vertical(
+    tx_w = tx_lane_w
+    tx_lane_y = snap(
+        (snap(nmos_ports["D_tail1"].center[1] + rail_w / 2)
+         + snap(steer_ports["S_ps1"].center[1] - steer_rail_w / 2)) / 2.0
+    )
+    _tx_bus(
         layout, cell, nmos_ports["D_tail1"],
         [steer_ports["S_ps1"], steer_ports["S_pd1"]],
-        gap_top=tx_gap_top, gap_bottom=tx_gap_bottom, width=tx_w,
+        lane_y=tx_lane_y, width=tx_w,
     )
-    _tx_vertical(
+    _tx_bus(
         layout, cell, nmos_ports["D_tail2"],
         [steer_ports["S_ps2"], steer_ports["S_pd2"]],
-        gap_top=tx_gap_top, gap_bottom=tx_gap_bottom, width=tx_w,
+        lane_y=tx_lane_y, width=tx_w,
     )
     em_segments += [
         em.Segment("tx1", RAIL_METAL, width_um=tx_w, current_a=i_tail,
@@ -458,13 +493,27 @@ def build_vga_stage(params: dict[str, float] | None = None,
     sig_w = snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
     ctrl_w = snap(max(route_width(CONTROL_METAL), sig_w * 0.5))
     vicm_w = snap(max(route_width(VICM_METAL), ctrl_w))
+    hbt_probe_box = device_bbox_at(hbt, 0.0, 0.0)
 
     col_p_x = snap(axis - COIL_PIN_GAP / 2.0)
     col_n_x = snap(axis + COIL_PIN_GAP / 2.0)
     out_col_p = snap(col_p_x + OUT_FEED_DX)
     out_col_n = snap(col_n_x - OUT_FEED_DX)
 
-    row_y = snap(steer_guard_top + ROW_GAP)
+    # Three lanes cross the band between the steering row and the HBT row: em and
+    # ed1/ed2 on Metal5, and vicm on Metal3. The lanes' via stacks reach Metal3 on
+    # the way up, so vicm has to clear them even though it is on another layer.
+    # Set the row pitch from the stack rather than from ROW_GAP, which left the ed
+    # lane inside the HBT row's own footprint and its via 0.04 um off vicm.
+    lane_pitch = snap(sig_w + min_space(ROUTE_METAL))
+    em_lane_y = snap(steer_guard_top + lane_pitch)
+    ed_lane_y = snap(em_lane_y + lane_pitch)
+    vicm_bus_y = snap(ed_lane_y + lane_pitch)
+
+    row_y = snap(max(
+        steer_guard_top + ROW_GAP,
+        vicm_bus_y + lane_pitch / 2.0 - hbt_probe_box.bottom,
+    ))
     q1 = hbt.with_name("q1")
     q2 = hbt.with_name("q2")
     qd1 = hbt.with_name("qd1")
@@ -566,45 +615,36 @@ def build_vga_stage(params: dict[str, float] | None = None,
     qd1x, _ = _hbt_emitter_up(layout, cell, qd1_t["E"], ROUTE_METAL, outboard_sign=-1.0)
     qd2x, _ = _hbt_emitter_up(layout, cell, qd2_t["E"], ROUTE_METAL, outboard_sign=+1.0)
 
-    em_left = snap(min(q1x, steer_ports["D_ps1"].center[0]) - sig_w)
-    em_right = snap(max(q2x, steer_ports["D_ps2"].center[0]) + sig_w)
-    rect(layout, cell, ROUTE_METAL, em_left - sig_w / 2, em_y - sig_w / 2,
-          em_right + sig_w / 2, em_y + sig_w / 2)
-    rect(layout, cell, ROUTE_METAL, q1x - sig_w / 2, min(q1_t["E"].center[1], em_y),
-          q1x + sig_w / 2, max(q1_t["E"].center[1], em_y))
-    rect(layout, cell, ROUTE_METAL, q2x - sig_w / 2, min(q2_t["E"].center[1], em_y),
-          q2x + sig_w / 2, max(q2_t["E"].center[1], em_y))
-    rect(layout, cell, ROUTE_METAL, min(q1x, em_left) - sig_w / 2, em_y - sig_w / 2,
-          max(q1x, em_left) + sig_w / 2, em_y + sig_w / 2)
-    rect(layout, cell, ROUTE_METAL, min(em_right, q2x) - sig_w / 2, em_y - sig_w / 2,
-          max(em_right, q2x) + sig_w / 2, em_y + sig_w / 2)
-
-    em_mid = snap((em_left + em_right) / 2.0)
-    _steer_drain_rise(layout, cell, steer_ports["D_ps1"], em_y, ROUTE_METAL, sig_w, em_mid)
-    _steer_drain_rise(layout, cell, steer_ports["D_ps2"], em_y, ROUTE_METAL, sig_w, em_mid)
+    # em and ed1/ed2 both climb from the steering row to the same emitter row, and
+    # each steering drain sits outboard of the emitter it feeds, so the two nets
+    # have to cross in x. em takes the LOWER lane, so em's riser at q1x crosses
+    # ed's lane at a y where ed's horizontal has already stopped at qd1x, and ed's
+    # riser at qd1x sits entirely above em's lane.
+    rect(layout, cell, ROUTE_METAL, q1x - sig_w / 2, min(em_y, em_lane_y),
+          q1x + sig_w / 2, max(em_y, em_lane_y))
+    rect(layout, cell, ROUTE_METAL, q2x - sig_w / 2, min(em_y, em_lane_y),
+          q2x + sig_w / 2, max(em_y, em_lane_y))
+    rect(layout, cell, ROUTE_METAL, q1x - sig_w / 2, em_y - sig_w / 2,
+          q2x + sig_w / 2, em_y + sig_w / 2)
+    _steer_drain_rise(layout, cell, steer_ports["D_ps1"], em_lane_y, q1x, em_y,
+                      ROUTE_METAL, sig_w)
+    _steer_drain_rise(layout, cell, steer_ports["D_ps2"], em_lane_y, q2x, em_y,
+                      ROUTE_METAL, sig_w)
     em_segments.append(
         em.Segment("em", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
-                   note="shared signal emitter strap")
+                   note="shared signal emitter strap, inboard lane")
     )
 
-    ed_left = snap(min(qd1x, steer_ports["D_pd1"].center[0]) - sig_w)
-    ed_right = snap(max(qd2x, steer_ports["D_pd2"].center[0]) + sig_w)
-    _steer_drain_rise(layout, cell, steer_ports["D_pd1"], em_y, ROUTE_METAL, sig_w, qd1x)
-    _steer_drain_rise(layout, cell, steer_ports["D_pd2"], em_y, ROUTE_METAL, sig_w, qd2x)
-    rect(layout, cell, ROUTE_METAL, qd1x - sig_w / 2, min(qd1_t["E"].center[1], em_y),
-          qd1x + sig_w / 2, max(qd1_t["E"].center[1], em_y))
-    rect(layout, cell, ROUTE_METAL, qd2x - sig_w / 2, min(qd2_t["E"].center[1], em_y),
-          qd2x + sig_w / 2, max(qd2_t["E"].center[1], em_y))
-    rect(layout, cell, ROUTE_METAL, min(qd1x, ed_left) - sig_w / 2, em_y - sig_w / 2,
-          max(qd1x, ed_left) + sig_w / 2, em_y + sig_w / 2)
-    rect(layout, cell, ROUTE_METAL, min(ed_right, qd2x) - sig_w / 2, em_y - sig_w / 2,
-          max(ed_right, qd2x) + sig_w / 2, em_y + sig_w / 2)
-    em_segments += [
-        em.Segment("ed1", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
-                   note="dummy emitter to pd1 drain"),
-        em.Segment("ed2", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
-                   note="dummy emitter to pd2 drain"),
-    ]
+    for drain_port, qdx, qd_t, net in (
+        ("D_pd1", qd1x, qd1_t, "ed1"),
+        ("D_pd2", qd2x, qd2_t, "ed2"),
+    ):
+        _steer_drain_rise(layout, cell, steer_ports[drain_port], ed_lane_y, qdx,
+                          qd_t["E"].center[1], ROUTE_METAL, sig_w)
+        em_segments.append(
+            em.Segment(net, ROUTE_METAL, width_um=sig_w, current_a=i_tail,
+                       note="dummy emitter to its steering drain, outboard lane")
+        )
 
     out_col_top: dict[str, float] = {}
     for col_x, q_t, qd_t, rd_t, net in (
@@ -629,13 +669,24 @@ def build_vga_stage(params: dict[str, float] | None = None,
         via_between(layout, cell, vx, by, "Metal1", IN_TRUNK_METAL, columns=1, rows=1)
         in_trunk_x[name] = vx
 
-    vicm_bus_y = snap(hbt_top + ROW_GAP / 2.0)
+    # vicm_bus_y is the top of the lane stack, below the row. The base is the HBT's
+    # bottom terminal, so a bus above the row drags every riser up past that
+    # device's own emitter and collector — and the collector column's
+    # Metal2-to-Metal5 stack has a Metal4 and a Metal3 pad on the way, which is
+    # what merged vicm into outp and outn.
     vicm_pts: list[tuple[float, float]] = []
     vicm_terminals: list[Terminal] = []
     for base in (qd1_t["B"], qd2_t["B"]):
         bx, by = base.center
-        poly_contact(layout, cell, bx, by)
-        sign = -1.0 if bx < axis else +1.0
+        # No poly_contact here: an HBT base is not poly, and the Cont cuts it
+        # draws land on the device. Take the base out sideways along its own bar,
+        # the way the signal bases do.
+        #
+        # Inboard, against the emitter's outboard stub. An HBT stacks all three
+        # terminals at one x with 0.23 um between base Metal1 and emitter Metal2,
+        # so a base via on the same side as the emitter stub — 0.2 um from it —
+        # merges the two, and vicm comes back joined to ed1 and ed2.
+        sign = +1.0 if bx < axis else -1.0
         vx = snap(bx + sign * BASE_VIA_DX)
         stub_h = snap(base.width if base.width < 1.0 else route_width("Metal1"))
         rect(layout, cell, "Metal1", min(bx, vx), by - stub_h / 2, max(bx, vx), by + stub_h / 2)
@@ -692,20 +743,20 @@ def build_vga_stage(params: dict[str, float] | None = None,
         ("inp", in_trunk_x["inp"], q1_t["B"].center[1], port_bottom, 270.0),
         ("inn", in_trunk_x["inn"], q2_t["B"].center[1], port_bottom, 270.0),
     ):
+        # outp/outn stay on Metal5 all the way out, the way the driver's do. Both
+        # ring layers are above Metal5, so the grid still closes over them, and
+        # hopping to Metal4 here put an 8 um trunk on the layer vicm's bus runs
+        # on — which merged outp, outn and vicm into one net.
         col_x = snap(col_x)
-        if name.startswith("out"):
-            via_between(layout, cell, col_x, col_top, PORT_METAL, ROUTE_METAL)
-            rect(layout, cell, PORT_METAL, col_x - sig_w / 2, min(col_top, y_to),
-                  col_x + sig_w / 2, max(col_top, y_to))
-        else:
-            rect(layout, cell, IN_TRUNK_METAL, col_x - sig_w / 2, min(col_top, y_to),
-                  col_x + sig_w / 2, max(col_top, y_to))
+        metal = ROUTE_METAL if name.startswith("out") else IN_TRUNK_METAL
+        rect(layout, cell, metal, col_x - sig_w / 2, min(col_top, y_to),
+              col_x + sig_w / 2, max(col_top, y_to))
         signal_ports[name] = Terminal(
-            name=name, layer=f"{PORT_METAL.lower()}_drw",
+            name=name, layer=f"{metal.lower()}_drw",
             center=(col_x, y_to), width=sig_w, orientation=orientation,
         )
         em_segments.append(
-            em.Segment(name, PORT_METAL, width_um=sig_w, current_a=0.0,
+            em.Segment(name, metal, width_um=sig_w, current_a=0.0,
                        note="signal trunk out of the cell edge")
         )
 
@@ -738,14 +789,12 @@ def build_vga_stage(params: dict[str, float] | None = None,
                    note="dummy base common mode out of the left cell edge on Metal4")
     )
 
-    mgate_rise_y = snap(steer_guard_top + ROW_GAP / 2)
-    rect(layout, cell, RAIL_METAL, channel_x - link_w / 2, gate_y,
-          channel_x + link_w / 2, mgate_rise_y)
-    via_between(layout, cell, channel_x, mgate_rise_y, RAIL_METAL, PORT_METAL)
-    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, mgate_rise_y - sig_w / 2,
-          channel_x + sig_w / 2, mgate_rise_y + sig_w / 2)
-    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, min(gate_y, mgate_rise_y),
-          port_left + sig_w / 2, max(gate_y, mgate_rise_y))
+    # Straight out of the left edge at the gate's own y. Metal4 clears the guard
+    # rings and the Metal2 ring taps it passes over on the way, so the mirror gate
+    # never needs a vertical inside either MOS row.
+    via_between(layout, cell, gate_tap_x, gate_y, RAIL_METAL, PORT_METAL)
+    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, gate_y - sig_w / 2,
+          gate_tap_x + sig_w / 2, gate_y + sig_w / 2)
     mgate_port = Terminal(
         name="mgate", layer=f"{PORT_METAL.lower()}_drw",
         center=(port_left, gate_y), width=sig_w, orientation=180.0,
@@ -819,18 +868,20 @@ def build_vga_stage(params: dict[str, float] | None = None,
         },
         notes=[
             f"cell name is {CELL}, shared with the schematic subcircuit",
-            "two MOS rows: mdiode|tail1|tail2 below, pd1|ps1|ps2|pd2 above; "
-            f"tx1/tx2 are vertical Metal2 between the rows",
+            "two MOS rows: mdiode|tail1|tail2 below, pd1|ps1|ps2|pd2 above, so "
+            "tx1/tx2 are a Metal2 lane in the gap between the rows",
             "tail2, ps2 and pd2 mirror by device span not bounding box",
             f"coil pin row {coil_half_h:.1f} um half-height above highest p-tap "
             f"(PWB_f={rule('PWB_f'):.2f} um) plus {COIL_ACTIVE_GAP:.0f} um clearance",
             f"drawn nlp interconnect {interconnect_um:.1f} um per side",
-            "vicm/steerp/steern/mgate leave at the left edge; "
-            f"steerp/steern on Metal3, vicm/mgate on Metal4",
+            "vicm/steerp/steern/mgate leave at the left edge; vicm, steerp and "
+            "steern share Metal3 at three y, mgate is on Metal4 at the gate's y",
             f"output columns jog {OUT_FEED_DX:.0f} um inboard of the load x "
             "so Metal5 does not short the nlp via stack",
             f"wire widths from the technology LEF at the operating point: "
             f"{i_tail * 1e3:.2f} mA per tail, {i_supply * 1e3:.2f} mA supply",
+            "em, ed1/ed2 and vicm take three lanes below the HBT row; the row "
+            "pitch comes from that stack, not from ROW_GAP",
             f"ring squared about the axis at half-width {ring_half:.1f} um and "
             f"{RING_CLEARANCE:.0f} um clearance",
         ],

@@ -1,27 +1,27 @@
 {
   "name": "vga_dut",
   "bbox_um": {
-    "width": 364.48,
-    "height": 246.325,
-    "area": 89780.536
+    "width": 357.7,
+    "height": 251.385,
+    "area": 89920.4145
   },
   "ports": {
     "outp": {
       "name": "outp",
-      "layer": "metal4_drw",
+      "layer": "metal5_drw",
       "center": [
         128.32,
-        201.67
+        206.73
       ],
       "width": 2.88,
       "orientation": 90.0
     },
     "outn": {
       "name": "outn",
-      "layer": "metal4_drw",
+      "layer": "metal5_drw",
       "center": [
         156.32,
-        201.67
+        206.73
       ],
       "width": 2.88,
       "orientation": 90.0
@@ -48,10 +48,10 @@
     },
     "vicm": {
       "name": "vicm",
-      "layer": "metal4_drw",
+      "layer": "metal3_drw",
       "center": [
-        -42.2,
-        56.61
+        -38.81,
+        55.16
       ],
       "width": 1.44,
       "orientation": 180.0
@@ -60,8 +60,8 @@
       "name": "steerp",
       "layer": "metal3_drw",
       "center": [
-        -42.2,
-        39.31
+        -38.81,
+        44.37
       ],
       "width": 1.44,
       "orientation": 180.0
@@ -70,8 +70,8 @@
       "name": "steern",
       "layer": "metal3_drw",
       "center": [
-        -42.2,
-        27.31
+        -38.81,
+        32.37
       ],
       "width": 1.44,
       "orientation": 180.0
@@ -81,7 +81,7 @@
       "layer": "topmetal2_drw",
       "center": [
         142.32,
-        192.67
+        197.73
       ],
       "width": 6.0,
       "orientation": 90.0
@@ -91,7 +91,7 @@
       "layer": "topmetal2_drw",
       "center": [
         142.32,
-        183.67
+        188.73
       ],
       "width": 6.0,
       "orientation": 90.0
@@ -100,7 +100,7 @@
       "name": "mgate",
       "layer": "metal4_drw",
       "center": [
-        -42.2,
+        -38.81,
         10.25
       ],
       "width": 2.88,
@@ -1771,10 +1771,10 @@
   },
   "power_ring": {
     "outer_box_um": [
-      -36.2,
+      -32.81,
       -38.655,
-      320.84,
-      195.67
+      317.45,
+      200.73
     ],
     "widths_um": {
       "vss": 6.0,
@@ -1791,7 +1791,7 @@
           "layer": "topmetal2_drw",
           "center": [
             142.32,
-            183.67
+            188.73
           ],
           "width": 6.0,
           "orientation": 90.0
@@ -1810,8 +1810,8 @@
           "name": "vss_left",
           "layer": "topmetal1_drw",
           "center": [
-            -24.2,
-            78.505
+            -20.81,
+            81.035
           ],
           "width": 6.0,
           "orientation": 180.0
@@ -1820,8 +1820,8 @@
           "name": "vss_right",
           "layer": "topmetal1_drw",
           "center": [
-            308.84,
-            78.505
+            305.45,
+            81.035
           ],
           "width": 6.0,
           "orientation": 0.0
@@ -1833,7 +1833,7 @@
           "layer": "topmetal2_drw",
           "center": [
             142.32,
-            192.67
+            197.73
           ],
           "width": 6.0,
           "orientation": 90.0
@@ -1852,8 +1852,8 @@
           "name": "vdd_left",
           "layer": "topmetal1_drw",
           "center": [
-            -33.2,
-            78.505
+            -29.81,
+            81.035
           ],
           "width": 6.0,
           "orientation": 180.0
@@ -1862,8 +1862,8 @@
           "name": "vdd_right",
           "layer": "topmetal1_drw",
           "center": [
-            317.84,
-            78.505
+            314.45,
+            81.035
           ],
           "width": 6.0,
           "orientation": 0.0
@@ -1878,23 +1878,24 @@
   "pad_power_ring": null,
   "notes": [
     "cell name is vga_dut, shared with the schematic subcircuit",
-    "two MOS rows: mdiode|tail1|tail2 below, pd1|ps1|ps2|pd2 above; tx1/tx2 are vertical Metal2 between the rows",
+    "two MOS rows: mdiode|tail1|tail2 below, pd1|ps1|ps2|pd2 above, so tx1/tx2 are a Metal2 lane in the gap between the rows",
     "tail2, ps2 and pd2 mirror by device span not bounding box",
     "coil pin row 54.0 um half-height above highest p-tap (PWB_f=0.24 um) plus 10 um clearance",
-    "drawn nlp interconnect 98.6 um per side",
-    "vicm/steerp/steern/mgate leave at the left edge; steerp/steern on Metal3, vicm/mgate on Metal4",
+    "drawn nlp interconnect 86.3 um per side",
+    "vicm/steerp/steern/mgate leave at the left edge; vicm, steerp and steern share Metal3 at three y, mgate is on Metal4 at the gate's y",
     "output columns jog 8 um inboard of the load x so Metal5 does not short the nlp via stack",
     "wire widths from the technology LEF at the operating point: 2.88 mA per tail, 8.63 mA supply",
-    "ring squared about the axis at half-width 153.5 um and 10 um clearance"
+    "em, ed1/ed2 and vicm take three lanes below the HBT row; the row pitch comes from that stack, not from ROW_GAP",
+    "ring squared about the axis at half-width 150.1 um and 10 um clearance"
   ],
   "layers": {
     "activ_drw": 1215,
     "activ_mask": 4,
     "activ_nofill": 2,
-    "cont_drw": 11998,
+    "cont_drw": 11990,
     "emwind_drw": 4,
     "extblock_drw": 6,
-    "gatpoly_drw": 178,
+    "gatpoly_drw": 176,
     "gatpoly_nofill": 2,
     "gatpoly_pin": 155,
     "heatres_drw": 2,
@@ -1902,17 +1903,17 @@
     "ind_drw": 2,
     "ind_pin": 4,
     "lbe_drw": 2,
-    "metal1_drw": 2158,
+    "metal1_drw": 2156,
     "metal1_nofill": 2,
     "metal1_pin": 1064,
-    "metal2_drw": 701,
+    "metal2_drw": 699,
     "metal2_nofill": 2,
     "metal2_pin": 4,
-    "metal3_drw": 32,
+    "metal3_drw": 36,
     "metal3_nofill": 2,
-    "metal4_drw": 34,
+    "metal4_drw": 23,
     "metal4_nofill": 2,
-    "metal5_drw": 40,
+    "metal5_drw": 38,
     "metal5_nofill": 2,
     "norcx_drw": 2,
     "nsd_block": 4,
@@ -1931,8 +1932,8 @@
     "trans_drw": 4,
     "via1_drw": 7497,
     "via2_drw": 43,
-    "via3_drw": 39,
-    "via4_drw": 39
+    "via3_drw": 37,
+    "via4_drw": 31
   },
   "gds": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
   "cdl": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
@@ -2370,7 +2371,7 @@
         "layer": "Metal2",
         "kind": "ROUTING",
         "current_a": 0.00863436,
-        "note": "mirror and tail source rails only",
+        "note": "shared source rail, whole MOS row",
         "width_um": 8.635,
         "min_width_um": 4.3172,
         "capacity_a": 0.01727,
@@ -2448,7 +2449,7 @@
         "layer": "Metal5",
         "kind": "ROUTING",
         "current_a": 0.00287812,
-        "note": "shared signal emitter strap",
+        "note": "shared signal emitter strap, inboard lane",
         "width_um": 2.88,
         "min_width_um": 1.4391,
         "capacity_a": 0.0057599999999999995,
@@ -2461,7 +2462,7 @@
         "layer": "Metal5",
         "kind": "ROUTING",
         "current_a": 0.00287812,
-        "note": "dummy emitter to pd1 drain",
+        "note": "dummy emitter to its steering drain, outboard lane",
         "width_um": 2.88,
         "min_width_um": 1.4391,
         "capacity_a": 0.0057599999999999995,
@@ -2474,7 +2475,7 @@
         "layer": "Metal5",
         "kind": "ROUTING",
         "current_a": 0.00287812,
-        "note": "dummy emitter to pd2 drain",
+        "note": "dummy emitter to its steering drain, outboard lane",
         "width_um": 2.88,
         "min_width_um": 1.4391,
         "capacity_a": 0.0057599999999999995,
@@ -2614,7 +2615,7 @@
       },
       {
         "net": "outp",
-        "layer": "Metal4",
+        "layer": "Metal5",
         "kind": "ROUTING",
         "current_a": 0.0,
         "note": "signal trunk out of the cell edge",
@@ -2627,7 +2628,7 @@
       },
       {
         "net": "outn",
-        "layer": "Metal4",
+        "layer": "Metal5",
         "kind": "ROUTING",
         "current_a": 0.0,
         "note": "signal trunk out of the cell edge",
@@ -2692,7 +2693,7 @@
       },
       {
         "net": "vicm",
-        "layer": "Metal4",
+        "layer": "Metal3",
         "kind": "ROUTING",
         "current_a": 0.0,
         "note": "dummy base common mode out of the left cell edge on Metal4",
@@ -2777,13 +2778,50 @@
     "cell": "vga_dut",
     "layout": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
     "netlist": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
-    "clean": false,
+    "clean": true,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "Netlists don't match",
+    "summary": "Congratulations! Netlists match.",
     "extracted_netlist": "/workspace/layout/blocks/out/vga_stage/lvs_run/vga_dut_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/vga_stage/lvs_run/lvs_run.log",
-    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/vga_stage/lvs_run/lvs_run.log"
+    "error": ""
+  },
+  "pex": {
+    "cell": "vga_dut",
+    "gds": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/vga_stage/pex_run/vga_dut_pex.spice",
+    "ok": true,
+    "resistors": 0,
+    "capacitors": 70,
+    "total_resistance_ohm": 0.0,
+    "resistor_elements": [],
+    "resistance_extracted": true,
+    "physical": true,
+    "negative_capacitors": [],
+    "note": "",
+    "total_capacitance_f": 1.07214e-12,
+    "per_net_capacitance_f": {
+      "vss": 7.80374e-13,
+      "mgate": 2.21278e-13,
+      "m2_7492_3498#": 2.07744e-13,
+      "m2_36168_2698#": 2.04717e-13,
+      "vdd": 1.87953e-13,
+      "em": 1.53504e-13,
+      "steern": 8.56222e-14,
+      "ed1": 7.98213e-14,
+      "steerp": 7.7517e-14,
+      "ed2": 7.28399e-14,
+      "vicm": 1.94854e-14,
+      "inn": 1.33019e-14,
+      "inp": 1.32367e-14,
+      "outp": 1.23349e-14,
+      "outn": 1.21423e-14,
+      "rd1_R0_0/a_0_0#": 1.203e-15,
+      "rd2_M90_0/a_0_0#": 1.203e-15
+    },
+    "log": "/workspace/layout/blocks/out/vga_stage/pex_run/magic_pex.log",
+    "error": "",
+    "signal_resistance_ohm": 0
   }
 }
