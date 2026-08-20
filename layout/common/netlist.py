@@ -12,6 +12,17 @@ against:
 
 Resistors, capacitors and inductors put the model name after an optional bulk
 node; MOS and BJT carry the bulk as a regular terminal.
+
+Subcircuit calls follow the PDK's hierarchical testcases under
+``tech/lvs/testing/testcases/manual_tests`` (for example
+``implicit_connections/SP6TCClockGenerator.cdl``) and the chain schematic
+``circuits/ctle56n/spice/chain_pdk.cir``:
+
+    X<name> <port nets in .SUBCKT order> <subckt_name>
+
+Each ``port nets`` entry is the top-level net that sub-block port connects to.
+The subcircuit definitions precede the top ``.SUBCKT`` in the same file.
+Verified with ``layout/debug_pex/probe_hier_lvs.py``.
 """
 
 from __future__ import annotations
@@ -23,6 +34,9 @@ from layout.common.spec import DeviceSpec
 
 #: Net name used for the substrate/bulk connection.
 BULK_NET = "sub"
+
+#: One sub-block in a hierarchical CDL: port list then device instances.
+BlockDef = tuple[list[str], list[tuple[DeviceSpec, dict[str, str]]]]
 
 
 def element_line(spec: DeviceSpec, nets: dict[str, str] | None = None, instance: str = "1") -> str:
@@ -99,4 +113,64 @@ def write_block_cdl(
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(block_subckt(name, ports, instances))
+    return path
+
+
+def _instantiation_line(
+    instance: str,
+    subckt: str,
+    port_nets: list[str],
+    mapping: dict[str, str],
+) -> str:
+    """One ``X`` line wiring ``subckt`` ports to top-level nets."""
+    nets = [mapping[port] for port in port_nets]
+    prefix = instance if instance.startswith("X") else f"X{instance}"
+    return f"{prefix} {' '.join(nets)} {subckt}"
+
+
+def chain_subckt(
+    name: str,
+    ports: list[str],
+    blocks: dict[str, BlockDef],
+    instances: list[tuple[str, str, dict[str, str]]],
+) -> str:
+    """A hierarchical CDL: sub-block ``.SUBCKT`` definitions plus a top cell.
+
+    ``blocks`` maps each subcircuit name to ``(port_nets, device_instances)``.
+    ``instances`` lists ``(instance_name, subckt_name, port->net mapping)`` for
+    the top cell; the mapping must cover every port in the sub-block's
+    ``port_nets`` list.
+    """
+    lines: list[str] = []
+    for subckt, (sub_ports, sub_instances) in blocks.items():
+        lines.append(block_subckt(subckt, sub_ports, sub_instances).rstrip())
+        lines.append("")
+    lines.extend(
+        [
+            f"* {name} — generated from DeviceSpecs; do not edit by hand",
+            f".SUBCKT {name} {' '.join(ports)}",
+        ]
+    )
+    for instance, subckt, mapping in instances:
+        sub_ports, _ = blocks[subckt]
+        missing = [port for port in sub_ports if port not in mapping]
+        if missing:
+            raise ValueError(
+                f"{instance} of {subckt} missing port mapping for {missing}"
+            )
+        lines.append(_instantiation_line(instance, subckt, sub_ports, mapping))
+    lines.extend([f".ENDS {name}", ""])
+    return "\n".join(lines)
+
+
+def write_chain_cdl(
+    name: str,
+    ports: list[str],
+    blocks: dict[str, BlockDef],
+    instances: list[tuple[str, str, dict[str, str]]],
+    path: Path,
+) -> Path:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(chain_subckt(name, ports, blocks, instances))
     return path
