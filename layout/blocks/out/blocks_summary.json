@@ -341,7 +341,6 @@
       },
       "gds": "gds/hbt_diff_pair.gds",
       "cdl": "cdl/hbt_diff_pair.cdl",
-      "png": "png/hbt_diff_pair.png",
       "drc": {
         "cell": "hbt_diff_pair",
         "gds": "/workspace/layout/blocks/out/gds/hbt_diff_pair.gds",
@@ -510,7 +509,6 @@
       },
       "gds": "gds/rppd_load_pair.gds",
       "cdl": "cdl/rppd_load_pair.cdl",
-      "png": "png/rppd_load_pair.png",
       "drc": {
         "cell": "rppd_load_pair",
         "gds": "/workspace/layout/blocks/out/gds/rppd_load_pair.gds",
@@ -676,7 +674,6 @@
       },
       "gds": "gds/degeneration_network.gds",
       "cdl": "cdl/degeneration_network.cdl",
-      "png": "png/degeneration_network.png",
       "drc": {
         "cell": "degeneration_network",
         "gds": "/workspace/layout/blocks/out/gds/degeneration_network.gds",
@@ -1790,7 +1787,6 @@
       },
       "gds": "gds/nmos_tail_pair.gds",
       "cdl": "cdl/nmos_tail_pair.cdl",
-      "png": "png/nmos_tail_pair.png",
       "drc": {
         "cell": "nmos_tail_pair",
         "gds": "/workspace/layout/blocks/out/gds/nmos_tail_pair.gds",
@@ -1924,7 +1920,6 @@
       },
       "gds": "gds/shunt_coil.gds",
       "cdl": "cdl/shunt_coil.cdl",
-      "png": "png/shunt_coil.png",
       "drc": {
         "cell": "shunt_coil",
         "gds": "/workspace/layout/blocks/out/gds/shunt_coil.gds",
