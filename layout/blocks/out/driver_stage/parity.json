@@ -1,0 +1,54 @@
+{
+  "subckt": "driver_dut",
+  "spice_file": "circuits/ctle56n/spice/driver_pdk.cir",
+  "cdl_file": "/workspace/layout/blocks/out/driver_stage/driver_dut.cdl",
+  "ok": false,
+  "ports_match": true,
+  "devices_match": false,
+  "spice_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "cdl_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "matched_devices": [
+    "diodevdd_2kv",
+    "diodevdd_2kv",
+    "diodevss_2kv",
+    "diodevss_2kv",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "nmoscl_2",
+    "npn13G2 nx=2",
+    "npn13G2 nx=2",
+    "rsil l=2.35e-06 w=5e-07",
+    "rsil l=2.35e-06 w=5e-07",
+    "sg13_lv_nmos l=1e-06 w=0.000392"
+  ],
+  "only_in_spice": [
+    "sg13_lv_nmos l=1e-06 w=0.000784075"
+  ],
+  "only_in_cdl": [
+    "sg13_lv_nmos l=1e-06 w=0.00078368"
+  ],
+  "independent_sources_in_spice": [],
+  "model_aliases": {
+    "ind_shunt": "inductor"
+  },
+  "notes": [
+    "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+  ],
+  "error": ""
+}

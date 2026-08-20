@@ -34,6 +34,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -106,6 +107,20 @@ _PAD_STACK = ("Metal5", "TopMetal1", "TopMetal2")
 
 #: Bond-pad keepout read from the PDK deck (Pad.fR), not transcribed.
 _PAD_KEEPOUT = rule("Pad_fR")
+_MOS_W_GRID_M = 5e-9
+
+
+def _drawn_mos_total_w(requested_w: float) -> float:
+    """Total drawn width the PCell reports to LVS (floor per finger, not round).
+
+    ``plan_units`` rounds each finger to the grid; the foundry PCell floors. CDL
+    must carry the floored total or the deck rejects ``784.075u`` against ``783.68u``.
+    """
+    from layout.blocks.mos_array import plan_units
+
+    units, _ = plan_units(requested_w)
+    unit_w = math.floor(requested_w / units / _MOS_W_GRID_M) * _MOS_W_GRID_M
+    return units * unit_w
 
 
 def _via_chain(layout, cell, x: float, y: float, metals: tuple[str, ...]) -> None:
@@ -158,6 +173,37 @@ def _ring_tie(
         via_between(layout, cell, tap_x, ty, pin_metal, route_metal)
     _edge_route(layout, cell, route_metal, tap_x, ty, ring_y, width)
     via_between(layout, cell, tap_x, ring_y, route_metal, "TopMetal1")
+
+
+def _supply_ring_tie(
+    layout,
+    cell,
+    terminal: Terminal,
+    feed_y: float,
+    ring_y: float,
+    tap_x: float,
+    pin_metal: str,
+    route_metal: str,
+    width: float,
+    *,
+    ring_port_x: float,
+    inboard_sign: float,
+) -> None:
+    """Reach a ring side port; via stack sits on a stub outside the port pin."""
+    tx, ty = via_up(layout, cell, terminal, pin_metal)
+    vert_metal = route_metal
+    if pin_metal != route_metal:
+        via_between(layout, cell, tx, ty, pin_metal, route_metal)
+    _edge_route(layout, cell, vert_metal, tx, ty, feed_y, width)
+    stub_x = snap(ring_port_x + inboard_sign * (VIA_OFFSET + 3.0 * route_width(route_metal)))
+    rect(layout, cell, route_metal, min(tx, stub_x) - width / 2, feed_y - width / 2,
+          max(tx, stub_x) + width / 2, feed_y + width / 2)
+    _edge_route(layout, cell, route_metal, stub_x, feed_y, ring_y, width)
+    via_between(layout, cell, stub_x, feed_y, route_metal, "TopMetal1", columns=1, rows=1)
+    tm1_w = route_width("TopMetal1")
+    _edge_route(layout, cell, "TopMetal1", stub_x, feed_y, ring_y, tm1_w)
+    rect(layout, cell, "TopMetal1", min(stub_x, ring_port_x) - tm1_w / 2, ring_y - tm1_w / 2,
+          max(stub_x, ring_port_x) + tm1_w / 2, ring_y + tm1_w / 2)
 
 
 def _collector_trunk_net(
@@ -252,6 +298,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
     mirror_w = metres(p, "MOS_W")
     mirror_l = metres(p, "MOS_L")
     tail_w = p["TAIL_W_m"]
+    tail_w_drawn = _drawn_mos_total_w(tail_w)
 
     layout = new_layout()
     cell = layout.create_cell(CELL)
@@ -261,7 +308,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
     # --- NMOS row: mirror diode left, single tail centred on the axis --------
     arrays = {
         "mdiode": build_mos_array("mdiode", mirror_w, mirror_l, current_a=i_mirror),
-        "tail": build_mos_array("tail", tail_w, mirror_l, current_a=i_tail),
+        "tail": build_mos_array("tail", tail_w_drawn, mirror_l, current_a=i_tail),
     }
     mirror_box = arrays["mdiode"].cell.dbbox()
     tail_box = arrays["tail"].cell.dbbox()
@@ -295,8 +342,12 @@ def build_driver_stage(params: dict[str, float] | None = None,
     instances += [
         (arrays["mdiode"].total_spec.with_name("mdiode"),
          {"D": "mgate", "G": "mgate", "S": "vss", "sub": "vss"}),
-        (arrays["tail"].total_spec.with_name("tail"),
-         {"D": "em", "G": "mgate", "S": "vss", "sub": "vss"}),
+        (DeviceSpec(
+            name="tail",
+            kind=arrays["tail"].total_spec.kind,
+            params={**arrays["tail"].total_spec.params, "w": tail_w_drawn},
+            note=arrays["tail"].total_spec.note,
+        ), {"D": "em", "G": "mgate", "S": "vss", "sub": "vss"}),
     ]
 
     nmos_left = snap(min(placement.values()) - 1.0)
@@ -313,6 +364,10 @@ def build_driver_stage(params: dict[str, float] | None = None,
                                   current_a=i_supply, note="shared source rail"))
 
     gate_y = nmos_ports["G_tail"].center[1]
+    poly = lm["gatpoly_drw"]
+    cell.shapes(layout.layer(poly[0], poly[1])).insert(
+        pya.DBox(nmos_left, snap(gate_y - 0.3), nmos_right, snap(gate_y + 0.3))
+    )
 
     diode_right = snap(placement["mdiode"] + mirror_box.right)
     tail1_left = snap(placement["tail"] + tail_box.left)
@@ -518,7 +573,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
         _, clamp_probe = build(clamp_spec)
         clamp_bbox = clamp_probe.dbbox()
         clamp_dx = snap(axis - clamp_bbox.width() / 2.0)
-        clamp_dy = snap(coil_row_y - clamp_bbox.height() / 2.0)
+        clamp_dy = snap(coil_row_y - coil_half_h + clamp_bbox.height() / 2.0 + ROW_GAP)
         clamp_t, _ = place(layout, cell, clamp_spec.with_name("clamp"), clamp_dx, clamp_dy)
         instances.append((clamp_spec.with_name("clamp"), {"VDD": "vdd", "VSS": "vss"}))
 
@@ -539,12 +594,10 @@ def build_driver_stage(params: dict[str, float] | None = None,
             esd_row_y = snap(pad_bottom_y - ESD_OUTBOARD_GAP - esd_h)
 
             if with_coils:
-                coil_feed_left = snap(min(l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]))
-                coil_feed_right = snap(max(l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]))
                 pad_clear = snap(_PAD_KEEPOUT + tm2_feed_w)
                 pad_cx_by_net = {
-                    "outp": snap(coil_feed_left - pad_clear - pad_half),
-                    "outn": snap(coil_feed_right + pad_clear + pad_half),
+                    "outp": snap(l1_box.left - pad_clear - pad_half),
+                    "outn": snap(l2_box.right + pad_clear + pad_half),
                 }
             else:
                 pad_cx_by_net = {
@@ -557,12 +610,14 @@ def build_driver_stage(params: dict[str, float] | None = None,
                 ("n", +1.0, "outn", "n"),
             ):
                 pad_cx = pad_cx_by_net[pad_net]
-                pad_dx = snap(pad_cx - pad_half)
                 trunk_x = out_trunk_p_x if pad_net == "outp" else out_trunk_n_x
                 inboard_x = snap(pad_cx - sign * pad_half)
-                feeder_x = snap(pad_cx + sign * (pad_half + _PAD_KEEPOUT))
+                tm2_x = snap(inboard_x + sign * (_PAD_KEEPOUT + tm2_feed_w / 2))
+                pad_anchor_y = snap(pad_bottom_y + pad_half)
 
-                pad_t, pad_box = place(layout, cell, pad_spec.with_name(f"pad_{side}"), pad_dx, pad_bottom_y)
+                pad_t, pad_box = place(
+                    layout, cell, pad_spec.with_name(f"pad_{side}"), pad_cx, pad_anchor_y,
+                )
                 pad_terminals[pad_net] = pad_t["PAD"]
                 pad_ports[pad_net] = Terminal(
                     name=pad_net,
@@ -598,33 +653,29 @@ def build_driver_stage(params: dict[str, float] | None = None,
                     layout, cell, _collector_trunk_targets(pad_net),
                     trunk_x=trunk_x, em_y=em_y, metal=ROUTE_METAL, width=sig_w,
                 )
-                bus_y = snap(max(trunk_top, bus_y_nom))
+                bus_y = snap(max(trunk_top + sig_w, bus_y_nom))
 
                 _edge_route(layout, cell, ROUTE_METAL, trunk_x, trunk_top, bus_y, sig_w)
                 rect(layout, cell, ROUTE_METAL,
-                      min(trunk_x, feeder_x) - sig_w / 2, bus_y - sig_w / 2,
-                      max(trunk_x, feeder_x) + sig_w / 2, bus_y + sig_w / 2)
-                _edge_route(layout, cell, ROUTE_METAL, feeder_x, bus_y, stack_y, sig_w)
-                rect(layout, cell, ROUTE_METAL,
-                      min(feeder_x, inboard_x) - sig_w / 2, stack_y - sig_w / 2,
-                      max(feeder_x, inboard_x) + sig_w / 2, stack_y + sig_w / 2)
+                      min(trunk_x, inboard_x) - sig_w / 2, bus_y - sig_w / 2,
+                      max(trunk_x, inboard_x) + sig_w / 2, bus_y + sig_w / 2)
+                _edge_route(layout, cell, ROUTE_METAL, inboard_x, bus_y, stack_y, sig_w)
                 _via_chain(layout, cell, inboard_x, stack_y, _PAD_STACK)
-                _edge_route(layout, cell, "TopMetal2", inboard_x, stack_y, pad_bottom_y, tm2_feed_w)
+                _edge_route(layout, cell, "TopMetal2", tm2_x, stack_y, pad_bottom_y, tm2_feed_w)
+                rect(layout, cell, "TopMetal2",
+                      min(tm2_x, inboard_x) - tm2_feed_w / 2, pad_bottom_y - tm2_feed_w / 2,
+                      max(tm2_x, inboard_x) + tm2_feed_w / 2, pad_bottom_y + tm2_feed_w / 2)
 
-                esd_feed_y = snap(pad_bottom_y - _PAD_KEEPOUT - esd_bus_w)
+                esd_bus_y = snap(bus_y - sig_w - esd_bus_w)
                 for esd_t in (evdd_t, evss_t):
-                    px, py = esd_t["PAD"].center
-                    stub_x = snap(px + sign * VIA_OFFSET)
-                    rect(layout, cell, "Metal2", min(px, stub_x), py - esd_bus_w / 2,
-                          max(px, stub_x), py + esd_bus_w / 2)
-                    rect(layout, cell, "Metal2", stub_x - esd_bus_w / 2, min(py, esd_feed_y),
-                          stub_x + esd_bus_w / 2, max(py, esd_feed_y))
-                    rect(layout, cell, "Metal2", min(stub_x, inboard_x), esd_feed_y - esd_bus_w / 2,
-                          max(stub_x, inboard_x), esd_feed_y + esd_bus_w / 2)
-                    via_between(layout, cell, inboard_x, esd_feed_y, "Metal2", ROUTE_METAL,
-                                columns=1, rows=1)
-                    if esd_feed_y < stack_y - 1e-6:
-                        _edge_route(layout, cell, ROUTE_METAL, inboard_x, esd_feed_y, stack_y, sig_w)
+                    px, py = via_up(layout, cell, esd_t["PAD"], ROUTE_METAL)
+                    _edge_route(layout, cell, ROUTE_METAL, px, py, esd_bus_y, sig_w)
+                    if abs(px - inboard_x) > 1e-6:
+                        rect(layout, cell, ROUTE_METAL,
+                              min(px, inboard_x) - sig_w / 2, esd_bus_y - sig_w / 2,
+                              max(px, inboard_x) + sig_w / 2, esd_bus_y + sig_w / 2)
+                if esd_bus_y < bus_y - 1e-6:
+                    _edge_route(layout, cell, ROUTE_METAL, inboard_x, esd_bus_y, bus_y, sig_w)
         else:
             _, pad_probe = build(pad_spec)
             pad_bbox = pad_probe.dbbox()
@@ -689,32 +740,70 @@ def build_driver_stage(params: dict[str, float] | None = None,
 
     ring_box = ring.outer_box
     m3_w = route_width("Metal3")
+    m3_sep = min_space("Metal3")
+    esd_vdd_feed_y = (
+        snap(esd_row_y - esd_bus_w - ROW_GAP / 2.0)
+        if with_tapeout and with_esd and esd_h
+        else snap(coil_top + ROW_GAP)
+    )
+    esd_vss_feed_y = snap(esd_vdd_feed_y - max(m3_sep, 3.0))
 
-    # Clamp and ESD supplies reach the ring on dedicated verticals at the sides.
     if clamp_t is not None:
-        _ring_tie(
-            layout, cell, clamp_t["VDD"], vdd_ring_y, snap(ring_box[2] - 4.0),
-            "Metal2", "Metal2", m3_w,
-        )
-        _ring_tie(
-            layout, cell, clamp_t["VSS"], vss_ring_y, snap(ring_box[0] + 4.0),
-            "Metal2", "Metal3", m3_w,
-        )
+        clamp_vdd_x, clamp_vdd_y = clamp_t["VDD"].center
+        vdd_stub_x, vdd_stub_y = via_up(layout, cell, clamp_t["VDD"], "Metal3")
+        _edge_route(layout, cell, "Metal3", clamp_vdd_x, vdd_stub_y, vdd_y, m3_w)
+        if abs(vdd_stub_x - clamp_vdd_x) > 1e-6:
+            rect(layout, cell, "Metal3", min(vdd_stub_x, clamp_vdd_x) - m3_w / 2, vdd_stub_y - m3_w / 2,
+                  max(vdd_stub_x, clamp_vdd_x) + m3_w / 2, vdd_stub_y + m3_w / 2)
+        if abs(clamp_vdd_x - axis) > 1e-6:
+            rect(layout, cell, "Metal3", min(clamp_vdd_x, axis) - m3_w / 2, vdd_y - m3_w / 2,
+                  max(clamp_vdd_x, axis) + m3_w / 2, vdd_y + m3_w / 2)
+        _via_chain(layout, cell, axis, vdd_y, ("Metal3", "Metal4", "Metal5", "TopMetal1", "TopMetal2"))
+        rect(layout, cell, "TopMetal2", min(axis, clamp_vdd_x) - strap_w / 2, vdd_y - strap_w / 2,
+              max(axis, clamp_vdd_x) + strap_w / 2, vdd_y + strap_w / 2)
+
+        clamp_vss_x, clamp_vss_y = clamp_t["VSS"].center
+        vss_stub_x, vss_stub_y = via_up(layout, cell, clamp_t["VSS"], "Metal3")
+        _edge_route(layout, cell, "Metal3", clamp_vss_x, vss_stub_y, vss_rail_y, m3_w)
+        if abs(vss_stub_x - clamp_vss_x) > 1e-6:
+            rect(layout, cell, "Metal3", min(vss_stub_x, clamp_vss_x) - m3_w / 2, vss_stub_y - m3_w / 2,
+                  max(vss_stub_x, clamp_vss_x) + m3_w / 2, vss_stub_y + m3_w / 2)
+        via_between(layout, cell, clamp_vss_x, vss_rail_y, "Metal3", "Metal2", columns=2, rows=2)
+        rect(layout, cell, "Metal2", clamp_vss_x - vss_rail_w / 2, vss_rail_y - vss_rail_w / 2,
+              nmos_right + vss_rail_w / 2, vss_rail_y + vss_rail_w / 2)
 
     for pad_net, (evdd_t, evss_t) in esd_terms.items():
         if pad_net == "outp":
             vdd_port = ring.ports["vdd"][2]
             vss_port = ring.ports["vss"][2]
+            inboard_sign = 1.0
         else:
             vdd_port = ring.ports["vdd"][3]
             vss_port = ring.ports["vss"][3]
-        _ring_tie(
-            layout, cell, evdd_t["VDD"], vdd_port.center[1], vdd_port.center[0],
+            inboard_sign = -1.0
+        evdd_x, evdd_y = via_up(layout, cell, evdd_t["VDD"], "Metal2")
+        evss_vdd_x, evss_vdd_y = via_up(layout, cell, evss_t["VDD"], "Metal2")
+        vdd_link_y = snap(max(evdd_y, evss_vdd_y) + esd_bus_w)
+        _edge_route(layout, cell, "Metal2", evdd_x, evdd_y, vdd_link_y, esd_bus_w)
+        _edge_route(layout, cell, "Metal2", evss_vdd_x, evss_vdd_y, vdd_link_y, esd_bus_w)
+        rect(layout, cell, "Metal2", min(evdd_x, evss_vdd_x) - esd_bus_w / 2, vdd_link_y - esd_bus_w / 2,
+              max(evdd_x, evss_vdd_x) + esd_bus_w / 2, vdd_link_y + esd_bus_w / 2)
+        _supply_ring_tie(
+            layout, cell, evdd_t["VDD"], esd_vdd_feed_y, vdd_port.center[1], vdd_port.center[0],
             "Metal2", "Metal2", esd_bus_w,
+            ring_port_x=vdd_port.center[0], inboard_sign=inboard_sign,
         )
-        _ring_tie(
-            layout, cell, evss_t["VSS"], vss_port.center[1], vss_port.center[0],
+        evdd_vss_x, evdd_vss_y = via_up(layout, cell, evdd_t["VSS"], "Metal3")
+        evss_x, evss_y = via_up(layout, cell, evss_t["VSS"], "Metal3")
+        vss_link_y = snap(min(evdd_vss_y, evss_y) - esd_bus_w)
+        _edge_route(layout, cell, "Metal3", evdd_vss_x, evdd_vss_y, vss_link_y, esd_bus_w)
+        _edge_route(layout, cell, "Metal3", evss_x, evss_y, vss_link_y, esd_bus_w)
+        rect(layout, cell, "Metal3", min(evdd_vss_x, evss_x) - esd_bus_w / 2, vss_link_y - esd_bus_w / 2,
+              max(evdd_vss_x, evss_x) + esd_bus_w / 2, vss_link_y + esd_bus_w / 2)
+        _supply_ring_tie(
+            layout, cell, evss_t["VSS"], esd_vss_feed_y, vss_port.center[1], vss_port.center[0],
             "Metal2", "Metal3", esd_bus_w,
+            ring_port_x=vss_port.center[0], inboard_sign=inboard_sign,
         )
 
     # --- signal ports ------------------------------------------------------------
@@ -776,6 +865,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
     label_pairs: list[tuple[Terminal, str]] = [
         (signal_ports["inp"], "inp"), (signal_ports["inn"], "inn"),
         (signal_ports["outp"], "outp"), (signal_ports["outn"], "outn"),
+        (q1_t["C"], "outp"), (q2_t["C"], "outn"),
         (q1_t["E"], "em"), (q2_t["E"], "em"),
         (gate_tap, "mgate"), (mgate_port, "mgate"), (nmos_ports["S_tail"], "vss"),
         (ring.ports["vdd"][0], "vdd"), (ring.ports["vss"][0], "vss"),
@@ -852,6 +942,50 @@ def build_driver_stage(params: dict[str, float] | None = None,
     return block
 
 
+_C_LINE = __import__("re").compile(r"^C(\S+)\s+(\S+)\s+(\S+)\s+([0-9.eE+-]+)(\w*)", __import__("re").M)
+_SI = {"f": 1e-15, "p": 1e-12, "n": 1e-9, "u": 1e-6, "m": 1e-3}
+
+
+def _cap_value(raw: str, suffix: str) -> float:
+    scale = _SI.get(suffix[:1].lower(), 1.0) if suffix else 1.0
+    return float(raw) * scale
+
+
+def _pad_cap_breakdown(pex_spice: Path) -> dict[str, dict[str, float]]:
+    """Half-capacitor attribution on outp/outn from the Magic PEX netlist."""
+    if not pex_spice.is_file():
+        return {}
+    buckets = ("pad_metal", "esd", "coil", "core", "supply", "other")
+    out: dict[str, dict[str, float]] = {net: {b: 0.0 for b in buckets} for net in ("outp", "outn")}
+
+    def _bucket(other: str) -> str:
+        name = other.lower()
+        if "pad" in name or name.startswith("m7_"):
+            return "pad_metal"
+        if "esd" in name or name.startswith("d$") or "diode" in name:
+            return "esd"
+        if name.startswith("l$") or "nlp" in name or name.startswith("rd"):
+            return "coil"
+        if name in {"em", "inp", "inn", "mgate"} or name.startswith("m$") or name.startswith("q$"):
+            return "core"
+        if name in {"vdd", "vss"}:
+            return "supply"
+        return "other"
+
+    for line in pex_spice.read_text().splitlines():
+        match = _C_LINE.match(line.strip())
+        if not match:
+            continue
+        a, b, val, suf = match.group(2), match.group(3), match.group(4), match.group(5)
+        c = _cap_value(val, suf)
+        for net in ("outp", "outn"):
+            if a == net:
+                out[net][_bucket(b)] += c / 2.0
+            elif b == net:
+                out[net][_bucket(a)] += c / 2.0
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=OUT_DIR)
@@ -861,7 +995,7 @@ def main(argv: list[str] | None = None) -> int:
 
     params = read_params(PARAMS_INC)
     block = build_driver_stage(params=params)
-    code, _entry = run_stage_gates(
+    code, entry = run_stage_gates(
         block,
         args.out,
         schematic=SCHEMATIC,
@@ -871,6 +1005,21 @@ def main(argv: list[str] | None = None) -> int:
         no_render=args.no_render,
         no_pex=args.no_pex,
     )
+    pex_path = args.out / "pex_run" / "driver_dut_pex.spice"
+    pad_caps = _pad_cap_breakdown(pex_path)
+    if pad_caps:
+        entry.setdefault("pex", {})["pad_capacitance_f"] = pad_caps
+        summary_path = args.out / "driver_dut_summary.json"
+        if summary_path.is_file():
+            import json
+            summary = json.loads(summary_path.read_text())
+            summary.setdefault("pex", {})["pad_capacitance_f"] = pad_caps
+            summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+        for net in ("outp", "outn"):
+            parts = pad_caps[net]
+            total_ff = sum(parts.values()) * 1e15
+            detail = ", ".join(f"{k}={v * 1e15:.1f} fF" for k, v in parts.items() if v > 0)
+            print(f"  pad C   {net}  {total_ff:.1f} fF total  ({detail})")
     return code
 
 
