@@ -1,6 +1,8 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 14:27
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 11:01
 
-.SUBCKT term_dut vdd|vss inn|inp
-D$1 vdd|vss vdd|vss inn|inp diodevss_2kv m=2
-D$2 vdd|vss vdd|vss inn|inp diodevdd_2kv m=2
+.SUBCKT term_dut inp inn vss vdd vdd$1 vdd$2 vdd$3
+D$1 vdd$1 vss inn diodevss_2kv m=1
+D$2 vss vdd$3 inn diodevdd_2kv m=1
+D$3 vdd vss inp diodevss_2kv m=1
+D$4 vss vdd$2 inp diodevdd_2kv m=1
 .ENDS term_dut

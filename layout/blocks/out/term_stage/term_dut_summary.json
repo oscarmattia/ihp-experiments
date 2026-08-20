@@ -1,17 +1,17 @@
 {
   "name": "term_dut",
   "bbox_um": {
-    "width": 238.0,
-    "height": 222.955,
-    "area": 53063.29
+    "width": 314.18,
+    "height": 291.11,
+    "area": 91460.9398
   },
   "ports": {
     "inp_pad": {
       "name": "inp_pad",
       "layer": "metal4_drw",
       "center": [
-        92.42,
-        -11.01
+        75.0,
+        -25.005
       ],
       "width": 0.3,
       "orientation": 270.0
@@ -20,8 +20,8 @@
       "name": "inp_top",
       "layer": "metal4_drw",
       "center": [
-        92.42,
-        210.945
+        75.0,
+        265.105
       ],
       "width": 0.3,
       "orientation": 90.0
@@ -30,8 +30,8 @@
       "name": "inn_pad",
       "layer": "metal4_drw",
       "center": [
-        92.93,
-        -11.01
+        85.0,
+        -25.005
       ],
       "width": 0.3,
       "orientation": 270.0
@@ -40,8 +40,8 @@
       "name": "inn_top",
       "layer": "metal4_drw",
       "center": [
-        92.93,
-        210.945
+        85.0,
+        265.105
       ],
       "width": 0.3,
       "orientation": 90.0
@@ -50,8 +50,8 @@
       "name": "inp_pad",
       "layer": "metal4_drw",
       "center": [
-        92.42,
-        -11.01
+        75.0,
+        -25.005
       ],
       "width": 0.3,
       "orientation": 270.0
@@ -60,8 +60,8 @@
       "name": "inn_pad",
       "layer": "metal4_drw",
       "center": [
-        92.93,
-        -11.01
+        85.0,
+        -25.005
       ],
       "width": 0.3,
       "orientation": 270.0
@@ -70,8 +70,8 @@
       "name": "vdd_top",
       "layer": "topmetal2_drw",
       "center": [
-        100.0,
-        203.445
+        80.0,
+        257.605
       ],
       "width": 3.0,
       "orientation": 90.0
@@ -80,8 +80,8 @@
       "name": "vss_top",
       "layer": "topmetal2_drw",
       "center": [
-        100.0,
-        197.445
+        80.0,
+        251.605
       ],
       "width": 3.0,
       "orientation": 90.0
@@ -94,14 +94,6 @@
     "vss"
   ],
   "devices": [
-    {
-      "name": "clamp",
-      "kind": "esd_nmoscl",
-      "nets": {
-        "VDD": "vdd",
-        "VSS": "vss"
-      }
-    },
     {
       "name": "esd_vdd_p",
       "kind": "esd_diodevdd",
@@ -157,6 +149,14 @@
       }
     },
     {
+      "name": "clamp",
+      "kind": "esd_nmoscl",
+      "nets": {
+        "VDD": "vdd",
+        "VSS": "vss"
+      }
+    },
+    {
       "name": "rtt_top",
       "kind": "rppd",
       "nets": {
@@ -189,411 +189,411 @@
     "clearance_um": 2.0,
     "pitch_um": 1.4,
     "outer_box_um": [
-      76.305,
-      13.99,
-      119.19500000000001,
-      43.370000000000005
+      -53.09,
+      162.245,
+      -10.2,
+      191.625
     ],
     "tap_centres_um": [
       [
-        76.725,
-        14.41
+        -52.67,
+        162.665
       ],
       [
-        76.725,
-        15.835
+        -52.67,
+        164.09
       ],
       [
-        76.725,
-        17.265
+        -52.67,
+        165.52
       ],
       [
-        76.725,
-        18.69
+        -52.67,
+        166.945
       ],
       [
-        76.725,
-        20.12
+        -52.67,
+        168.375
       ],
       [
-        76.725,
-        21.545
+        -52.67,
+        169.8
       ],
       [
-        76.725,
-        22.97
+        -52.67,
+        171.225
       ],
       [
-        76.725,
-        24.4
+        -52.67,
+        172.655
       ],
       [
-        76.725,
-        25.825
+        -52.67,
+        174.08
       ],
       [
-        76.725,
-        27.255
+        -52.67,
+        175.51
       ],
       [
-        76.725,
-        28.68
+        -52.67,
+        176.935
       ],
       [
-        76.725,
-        30.105
+        -52.67,
+        178.36
       ],
       [
-        76.725,
-        31.535
+        -52.67,
+        179.79
       ],
       [
-        76.725,
-        32.96
+        -52.67,
+        181.215
       ],
       [
-        76.725,
-        34.39
+        -52.67,
+        182.645
       ],
       [
-        76.725,
-        35.815
+        -52.67,
+        184.07
       ],
       [
-        76.725,
-        37.24
+        -52.67,
+        185.495
       ],
       [
-        76.725,
-        38.67
+        -52.67,
+        186.925
       ],
       [
-        76.725,
-        40.095
+        -52.67,
+        188.35
       ],
       [
-        76.725,
-        41.525
+        -52.67,
+        189.78
       ],
       [
-        76.725,
-        42.95
+        -52.67,
+        191.205
       ],
       [
-        78.125,
-        14.41
+        -51.27,
+        162.665
       ],
       [
-        78.125,
-        42.95
+        -51.27,
+        191.205
       ],
       [
-        79.53,
-        14.41
+        -49.865,
+        162.665
       ],
       [
-        79.53,
-        42.95
+        -49.865,
+        191.205
       ],
       [
-        80.93,
-        14.41
+        -48.465,
+        162.665
       ],
       [
-        80.93,
-        42.95
+        -48.465,
+        191.205
       ],
       [
-        82.33,
-        14.41
+        -47.065,
+        162.665
       ],
       [
-        82.33,
-        42.95
+        -47.065,
+        191.205
       ],
       [
-        83.735,
-        14.41
+        -45.66,
+        162.665
       ],
       [
-        83.735,
-        42.95
+        -45.66,
+        191.205
       ],
       [
-        85.135,
-        14.41
+        -44.26,
+        162.665
       ],
       [
-        85.135,
-        42.95
+        -44.26,
+        191.205
       ],
       [
-        86.535,
-        14.41
+        -42.86,
+        162.665
       ],
       [
-        86.535,
-        42.95
+        -42.86,
+        191.205
       ],
       [
-        87.94,
-        14.41
+        -41.455,
+        162.665
       ],
       [
-        87.94,
-        42.95
+        -41.455,
+        191.205
       ],
       [
-        89.34,
-        14.41
+        -40.055,
+        162.665
       ],
       [
-        89.34,
-        42.95
+        -40.055,
+        191.205
       ],
       [
-        90.74,
-        14.41
+        -38.655,
+        162.665
       ],
       [
-        90.74,
-        42.95
+        -38.655,
+        191.205
       ],
       [
-        92.145,
-        14.41
+        -37.25,
+        162.665
       ],
       [
-        92.145,
-        42.95
+        -37.25,
+        191.205
       ],
       [
-        93.545,
-        14.41
+        -35.85,
+        162.665
       ],
       [
-        93.545,
-        42.95
+        -35.85,
+        191.205
       ],
       [
-        94.945,
-        14.41
+        -34.45,
+        162.665
       ],
       [
-        94.945,
-        42.95
+        -34.45,
+        191.205
       ],
       [
-        96.35,
-        14.41
+        -33.045,
+        162.665
       ],
       [
-        96.35,
-        42.95
+        -33.045,
+        191.205
       ],
       [
-        97.75,
-        14.41
+        -31.645,
+        162.665
       ],
       [
-        97.75,
-        42.95
+        -31.645,
+        191.205
       ],
       [
-        99.15,
-        14.41
+        -30.245,
+        162.665
       ],
       [
-        99.15,
-        42.95
+        -30.245,
+        191.205
       ],
       [
-        100.555,
-        14.41
+        -28.84,
+        162.665
       ],
       [
-        100.555,
-        42.95
+        -28.84,
+        191.205
       ],
       [
-        101.955,
-        14.41
+        -27.44,
+        162.665
       ],
       [
-        101.955,
-        42.95
+        -27.44,
+        191.205
       ],
       [
-        103.355,
-        14.41
+        -26.04,
+        162.665
       ],
       [
-        103.355,
-        42.95
+        -26.04,
+        191.205
       ],
       [
-        104.76,
-        14.41
+        -24.635,
+        162.665
       ],
       [
-        104.76,
-        42.95
+        -24.635,
+        191.205
       ],
       [
-        106.16,
-        14.41
+        -23.235,
+        162.665
       ],
       [
-        106.16,
-        42.95
+        -23.235,
+        191.205
       ],
       [
-        107.56,
-        14.41
+        -21.835,
+        162.665
       ],
       [
-        107.56,
-        42.95
+        -21.835,
+        191.205
       ],
       [
-        108.965,
-        14.41
+        -20.43,
+        162.665
       ],
       [
-        108.965,
-        42.95
+        -20.43,
+        191.205
       ],
       [
-        110.365,
-        14.41
+        -19.03,
+        162.665
       ],
       [
-        110.365,
-        42.95
+        -19.03,
+        191.205
       ],
       [
-        111.765,
-        14.41
+        -17.63,
+        162.665
       ],
       [
-        111.765,
-        42.95
+        -17.63,
+        191.205
       ],
       [
-        113.17,
-        14.41
+        -16.225,
+        162.665
       ],
       [
-        113.17,
-        42.95
+        -16.225,
+        191.205
       ],
       [
-        114.57,
-        14.41
+        -14.825,
+        162.665
       ],
       [
-        114.57,
-        42.95
+        -14.825,
+        191.205
       ],
       [
-        115.97,
-        14.41
+        -13.425,
+        162.665
       ],
       [
-        115.97,
-        42.95
+        -13.425,
+        191.205
       ],
       [
-        117.375,
-        14.41
+        -12.02,
+        162.665
       ],
       [
-        117.375,
-        42.95
+        -12.02,
+        191.205
       ],
       [
-        118.775,
-        14.41
+        -10.62,
+        162.665
       ],
       [
-        118.775,
-        15.835
+        -10.62,
+        164.09
       ],
       [
-        118.775,
-        17.265
+        -10.62,
+        165.52
       ],
       [
-        118.775,
-        18.69
+        -10.62,
+        166.945
       ],
       [
-        118.775,
-        20.12
+        -10.62,
+        168.375
       ],
       [
-        118.775,
-        21.545
+        -10.62,
+        169.8
       ],
       [
-        118.775,
-        22.97
+        -10.62,
+        171.225
       ],
       [
-        118.775,
-        24.4
+        -10.62,
+        172.655
       ],
       [
-        118.775,
-        25.825
+        -10.62,
+        174.08
       ],
       [
-        118.775,
-        27.255
+        -10.62,
+        175.51
       ],
       [
-        118.775,
-        28.68
+        -10.62,
+        176.935
       ],
       [
-        118.775,
-        30.105
+        -10.62,
+        178.36
       ],
       [
-        118.775,
-        31.535
+        -10.62,
+        179.79
       ],
       [
-        118.775,
-        32.96
+        -10.62,
+        181.215
       ],
       [
-        118.775,
-        34.39
+        -10.62,
+        182.645
       ],
       [
-        118.775,
-        35.815
+        -10.62,
+        184.07
       ],
       [
-        118.775,
-        37.24
+        -10.62,
+        185.495
       ],
       [
-        118.775,
-        38.67
+        -10.62,
+        186.925
       ],
       [
-        118.775,
-        40.095
+        -10.62,
+        188.35
       ],
       [
-        118.775,
-        41.525
+        -10.62,
+        189.78
       ],
       [
-        118.775,
-        42.95
+        -10.62,
+        191.205
       ]
     ],
     "tap_size_um": [
@@ -605,24 +605,24 @@
     "within_latchup_limit": true
   },
   "symmetry": {
-    "axis_x_um": 100.0,
+    "axis_x_um": 80.0,
     "pairs": {
       "pads": [
         35.0,
-        165.0
+        125.0
       ],
       "signal_trunks": [
-        92.42,
-        92.93
+        75.0,
+        85.0
       ]
     }
   },
   "power_ring": {
     "outer_box_um": [
-      -19.0,
-      -5.01,
-      219.0,
-      204.945
+      -77.09,
+      -19.005,
+      237.09,
+      259.105
     ],
     "widths_um": {
       "vss": 3.0,
@@ -638,8 +638,8 @@
           "name": "vss_top",
           "layer": "topmetal2_drw",
           "center": [
-            100.0,
-            197.445
+            80.0,
+            251.605
           ],
           "width": 3.0,
           "orientation": 90.0
@@ -648,8 +648,8 @@
           "name": "vss_bottom",
           "layer": "topmetal2_drw",
           "center": [
-            100.0,
-            2.49
+            80.0,
+            -11.505
           ],
           "width": 3.0,
           "orientation": 270.0
@@ -658,8 +658,8 @@
           "name": "vss_left",
           "layer": "topmetal1_drw",
           "center": [
-            -11.5,
-            99.97
+            -69.59,
+            120.05
           ],
           "width": 3.0,
           "orientation": 180.0
@@ -668,8 +668,8 @@
           "name": "vss_right",
           "layer": "topmetal1_drw",
           "center": [
-            211.5,
-            99.97
+            229.59,
+            120.05
           ],
           "width": 3.0,
           "orientation": 0.0
@@ -680,8 +680,8 @@
           "name": "vdd_top",
           "layer": "topmetal2_drw",
           "center": [
-            100.0,
-            203.445
+            80.0,
+            257.605
           ],
           "width": 3.0,
           "orientation": 90.0
@@ -690,8 +690,8 @@
           "name": "vdd_bottom",
           "layer": "topmetal2_drw",
           "center": [
-            100.0,
-            -3.51
+            80.0,
+            -17.505
           ],
           "width": 3.0,
           "orientation": 270.0
@@ -700,8 +700,8 @@
           "name": "vdd_left",
           "layer": "topmetal1_drw",
           "center": [
-            -17.5,
-            99.97
+            -75.59,
+            120.05
           ],
           "width": 3.0,
           "orientation": 180.0
@@ -710,8 +710,8 @@
           "name": "vdd_right",
           "layer": "topmetal1_drw",
           "center": [
-            217.5,
-            99.97
+            235.59,
+            120.05
           ],
           "width": 3.0,
           "orientation": 0.0
@@ -725,12 +725,12 @@
   },
   "notes": [
     "cell name is term_dut, shared with the schematic subcircuit",
-    "pitch 130 um: 70 um pads leave 60 um channel; Pad_fR 7.0 um keepout shrinks usable span to 46 um; two ESD columns at 13.06 um take 26.12 um; 19.88 um remain for four verticals needing 5.23 um (2.00+0.21+0.30+0.21+0.30+0.21+2.00)",
-    "pad band pitch 130 um (gap 60 um); ESD inboard; clamp on axis at outer edge",
-    "vtt divider and decap sit left of the axis; channel verticals vdd|inp|inn|vss",
+    "bond pads set the half-width at 35.0 um with 20 um gap",
+    "ESD outboard of each pad; vtt divider, decap and clamp sit left of the axis",
     "ESD straps drawn at 2.00 um for 2 kV discharge, not LEF average current",
+    "differential trunks in the 20.0 um pad gap",
     "clamp guard ring ties substrate on the divider vss bus only",
-    "ring squared about x=100.00 um at half-width 100.0 um"
+    "ring squared about x=80.00 um at half-width 138.1 um"
   ],
   "layers": {
     "activ_drw": 115,
@@ -741,12 +741,12 @@
     "heatres_drw": 4,
     "metal1_drw": 259,
     "metal1_pin": 112,
-    "metal2_drw": 68,
+    "metal2_drw": 73,
     "metal2_pin": 8,
-    "metal3_drw": 47,
+    "metal3_drw": 54,
     "metal3_pin": 2,
-    "metal4_drw": 29,
-    "metal5_drw": 58,
+    "metal4_drw": 36,
+    "metal5_drw": 65,
     "mim_drw": 1,
     "nbulay_drw": 1,
     "nwell_drw": 5,
@@ -759,14 +759,14 @@
     "salblock_drw": 14,
     "substrate_drw": 100,
     "thickgateox_drw": 1,
-    "topmetal1_drw": 36,
-    "topmetal2_drw": 29,
-    "topvia1_drw": 485,
-    "topvia2_drw": 211,
+    "topmetal1_drw": 43,
+    "topmetal2_drw": 28,
+    "topvia1_drw": 492,
+    "topvia2_drw": 210,
     "via1_drw": 1939,
-    "via2_drw": 847,
-    "via3_drw": 1047,
-    "via4_drw": 1043,
+    "via2_drw": 875,
+    "via3_drw": 1075,
+    "via4_drw": 1071,
     "vmim_drw": 225
   },
   "gds": "/workspace/layout/blocks/out/term_stage/term_dut.gds",
@@ -963,32 +963,6 @@
         "ok": true
       },
       {
-        "net": "inp.vdd",
-        "layer": "Metal2",
-        "kind": "ROUTING",
-        "current_a": 0.0,
-        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
-        "width_um": 2.0,
-        "min_width_um": 0.0,
-        "capacity_a": 0.004,
-        "utilisation": 0.0,
-        "checkable": true,
-        "ok": true
-      },
-      {
-        "net": "inp.vss",
-        "layer": "Metal2",
-        "kind": "ROUTING",
-        "current_a": 0.0,
-        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
-        "width_um": 2.0,
-        "min_width_um": 0.0,
-        "capacity_a": 0.004,
-        "utilisation": 0.0,
-        "checkable": true,
-        "ok": true
-      },
-      {
         "net": "inp.vss",
         "layer": "Metal2",
         "kind": "ROUTING",
@@ -1003,32 +977,6 @@
       },
       {
         "net": "inn.vdd",
-        "layer": "Metal2",
-        "kind": "ROUTING",
-        "current_a": 0.0,
-        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
-        "width_um": 2.0,
-        "min_width_um": 0.0,
-        "capacity_a": 0.004,
-        "utilisation": 0.0,
-        "checkable": true,
-        "ok": true
-      },
-      {
-        "net": "inn.vdd",
-        "layer": "Metal2",
-        "kind": "ROUTING",
-        "current_a": 0.0,
-        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
-        "width_um": 2.0,
-        "min_width_um": 0.0,
-        "capacity_a": 0.004,
-        "utilisation": 0.0,
-        "checkable": true,
-        "ok": true
-      },
-      {
-        "net": "inn.vss",
         "layer": "Metal2",
         "kind": "ROUTING",
         "current_a": 0.0,
@@ -1114,60 +1062,40 @@
   "drc": {
     "cell": "term_dut",
     "gds": "/workspace/layout/blocks/out/term_stage/term_dut.gds",
-    "clean": false,
-    "strictly_clean": false,
-    "total_violations": 6,
-    "real_violations": 6,
-    "by_rule": {
-      "TV1.b": 4,
-      "TV2.a": 2
-    },
-    "real_by_rule": {
-      "TV1.b": 4,
-      "TV2.a": 2
-    },
+    "clean": true,
+    "strictly_clean": true,
+    "total_violations": 0,
+    "real_violations": 0,
+    "by_rule": {},
+    "real_by_rule": {},
     "context_by_rule": {},
     "context_rule_reasons": {},
-    "examples": {
-      "TV1.b": [
-        "edge-pair: (0.3,-0.21;0.3,0.21)|(0.21,0.21;0.21,-0.21)",
-        "edge-pair: (-0.21,-0.21;-0.21,0.21)|(-0.3,0.21;-0.3,-0.21)",
-        "edge-pair: (0.3,-0.21;0.3,0.21)|(0.21,0.21;0.21,-0.21)",
-        "edge-pair: (-0.21,-0.21;-0.21,0.21)|(-0.3,0.21;-0.3,-0.21)"
-      ],
-      "TV2.a": [
-        "polygon: (91.97,-11.46;91.97,-10.56;93.38,-10.56;93.38,-11.46)",
-        "polygon: (91.97,130.175;91.97,131.075;93.38,131.075;93.38,130.175)"
-      ]
-    },
+    "examples": {},
     "tables": [],
     "report": "/workspace/layout/blocks/out/term_stage/drc_run/term_dut_term_dut_main.lyrdb",
     "log": "/workspace/layout/blocks/out/term_stage/drc_run/drc_run.log",
     "error": "",
-    "ok": false,
+    "ok": true,
     "allowed_chip_level_rules": [],
     "enforced_context_rules": [
       "LBE.a",
       "LU.a",
       "LU.b"
     ],
-    "remaining_violations": {
-      "TV1.b": 4,
-      "TV2.a": 2
-    }
+    "remaining_violations": {}
   },
   "lvs": {
     "cell": "term_dut",
     "layout": "/workspace/layout/blocks/out/term_stage/term_dut.gds",
     "netlist": "/workspace/layout/blocks/out/term_stage/term_dut.cdl",
-    "clean": false,
+    "clean": true,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "Netlists don't match",
+    "summary": "Congratulations! Netlists match.",
     "extracted_netlist": "/workspace/layout/blocks/out/term_stage/lvs_run/term_dut_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/term_stage/lvs_run/lvs_run.log",
-    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/term_stage/lvs_run/lvs_run.log"
+    "error": ""
   },
   "pex": {
     "cell": "term_dut",
@@ -1175,42 +1103,46 @@
     "netlist": "/workspace/layout/blocks/out/term_stage/pex_run/term_dut_pex.spice",
     "ok": true,
     "resistors": 0,
-    "capacitors": 6,
+    "capacitors": 28,
     "total_resistance_ohm": 0.0,
     "resistor_elements": [],
     "resistance_extracted": true,
     "physical": true,
     "negative_capacitors": [],
     "note": "",
-    "total_capacitance_f": 6.11905e-15,
+    "total_capacitance_f": 6.2994e-13,
     "per_net_capacitance_f": {
-      "vss": 6.11905e-15,
-      "m7_13700_9705#": 1.91208e-15,
-      "m7_24300_9705#": 1.59643e-15,
-      "rtt_bot_R0_0/a_0_0#": 1.54688e-15,
-      "rt_n_M90_0/a_0_0#": 5.4883e-16,
-      "rt_p_R270_0/a_0_0#": 3.4147e-16,
-      "rtt_top_R0_0/a_0_0#": 1.7336e-16
+      "ptap1_9/sub": 5.95646e-13,
+      "vdd": 3.33848e-13,
+      "inp": 1.49595e-13,
+      "inn": 1.48371e-13,
+      "vtt": 2.58723e-14,
+      "m7_13700_n1#": 1.87852e-15,
+      "m7_16300_n1#": 1.7878e-15,
+      "rtt_bot_R0_0/a_0_0#": 1.54507e-15,
+      "rt_p_R270_0/a_0_0#": 6.316e-16,
+      "rt_n_M90_0/a_0_0#": 5.7086e-16,
+      "rtt_top_R0_0/a_0_0#": 1.3481e-16
     },
     "log": "/workspace/layout/blocks/out/term_stage/pex_run/magic_pex.log",
     "error": "",
     "signal_resistance_ohm": 0,
     "pad_capacitance_f": {
       "inp": {
-        "pad_metal": 0.0,
-        "esd": 0.0,
-        "shunt_50r": 0.0,
-        "vtt_divider": 0.0,
-        "diff_cpl": 0.0,
+        "pad_metal": 6.1005e-17,
+        "esd": 6.919705000000001e-15,
+        "shunt_50r": 5.75e-18,
+        "vtt_divider": 1.931e-16,
+        "diff_cpl": 2.2875000000000002e-17,
         "substrate": 0.0,
         "other": 0.0
       },
       "inn": {
-        "pad_metal": 0.0,
-        "esd": 0.0,
-        "shunt_50r": 0.0,
-        "vtt_divider": 0.0,
-        "diff_cpl": 0.0,
+        "pad_metal": 6.1005e-17,
+        "esd": 6.85685e-15,
+        "shunt_50r": 1.8505e-17,
+        "vtt_divider": 1.0604e-16,
+        "diff_cpl": 2.2875000000000002e-17,
         "substrate": 0.0,
         "other": 0.0
       }
