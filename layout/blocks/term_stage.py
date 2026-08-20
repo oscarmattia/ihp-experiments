@@ -29,6 +29,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -269,7 +271,7 @@ def build_term_stage(params: dict[str, float] | None = None) -> Block:
     if _bisect_at_least("plus_clamp"):
         clamp = clamp_spec.with_name("clamp")
         clamp_t, clamp_box = place(layout, cell, clamp, side_x, row_y)
-        instances.append((clamp, {"VDD": "vss", "VSS": "vdd"}))
+        instances.append((clamp, {"VDD": "vdd", "VSS": "vss"}))
 
     if _bisect_at_least("plus_divider"):
         rtop_i = rtop.with_name("rtt_top")
@@ -356,17 +358,35 @@ def build_term_stage(params: dict[str, float] | None = None) -> Block:
             rect(layout, cell, bottom, lx - bus_w / 2, min(ly, strap_y), lx + bus_w / 2, max(ly, strap_y))
             rect(layout, cell, bottom, min(lx, bus_x), strap_y - bus_w / 2,
                   max(lx, bus_x), strap_y + bus_w / 2)
-        decap_y = snap(cdec_t["MINUS"].center[1])
+        # ``cmim`` MINUS: ctle-style Metal5 leg from ``rbot_t['MINUS']`` to the cap plate,
+        # then the same Metal5 run into the vss column. A strap from the cap edge alone does
+        # not merge mim_btm with the divider ``vss`` net in hierarchical LVS.
         m5_w = snap(route_width("Metal5"))
-        rect(layout, cell, "Metal5", min(vss_bus_x, cdec_box.left) - m5_w / 2, decap_y - m5_w / 2,
-              max(vss_bus_x, cdec_box.left) + m5_w / 2, decap_y + m5_w / 2)
-        via_between(layout, cell, vss_bus_x, decap_y, "Metal5", "Metal4", columns=2, rows=2)
-        via_between(layout, cell, vss_bus_x, decap_y, "Metal4", "Metal3", columns=2, rows=2)
-        _edge_route(layout, cell, "Metal3", vss_bus_x, decap_y, vss_strap_y, m3_w)
+        leg_y = vss_strap_y
+        rx, ry = rbot_t["MINUS"].center
+        fx, fy = cdec_t["MINUS"].center
+        via_between(layout, cell, rx, ry, "Metal1", "Metal5")
+        rect(layout, cell, "Metal5", rx - m5_w / 2, min(ry, leg_y), rx + m5_w / 2, max(ry, leg_y))
+        rect(layout, cell, "Metal5", min(rx, fx), leg_y - m5_w / 2, max(rx, fx), leg_y + m5_w / 2)
+        rect(layout, cell, "Metal5", fx - m5_w / 2, min(fy, leg_y), fx + m5_w / 2, max(fy, leg_y))
+        rect(layout, cell, "Metal5", min(rx, vss_bus_x), leg_y - m5_w / 2,
+              max(rx, vss_bus_x), leg_y + m5_w / 2)
+        via_between(layout, cell, vss_bus_x, leg_y, "Metal5", "Metal4", columns=2, rows=2)
+        via_between(layout, cell, vss_bus_x, leg_y, "Metal4", "Metal3", columns=2, rows=2)
+        # ``cmim`` PLUS: TopMetal1 leg from ``rbot_t['PLUS']`` to the cap top plate, then
+        # ``_join_vtt`` on the divider ``PLUS`` pin carries ``vtt`` on Metal5.
+        plus_leg_y = snap((rbot_box.bottom + cdec_box.top) / 2.0)
+        px, py = rbot_t["PLUS"].center
+        tx, ty = cdec_t["PLUS"].center
+        tm1_w = snap(route_width("TopMetal1"))
+        via_between(layout, cell, px, py, "Metal1", "TopMetal1")
+        rect(layout, cell, "TopMetal1", px - tm1_w / 2, min(py, plus_leg_y), px + tm1_w / 2, max(py, plus_leg_y))
+        rect(layout, cell, "TopMetal1", min(px, tx), plus_leg_y - tm1_w / 2, max(px, tx), plus_leg_y + tm1_w / 2)
+        rect(layout, cell, "TopMetal1", tx - tm1_w / 2, min(ty, plus_leg_y), tx + tm1_w / 2, max(ty, plus_leg_y))
+        rbot_feed_y = _join_vtt(rbot_t["PLUS"], row_y, vtt_stub_dx)
         vtt_ys += [
             _join_vtt(rtop_t["MINUS"], row_y, vtt_stub_dx),
-            _join_vtt(rbot_t["PLUS"], row_y, vtt_stub_dx),
-            _join_vtt(cdec_t["PLUS"], row_y, vtt_stub_dx),
+            rbot_feed_y,
         ]
 
     if guard_tap is not None:
@@ -583,6 +603,56 @@ def build_term_stage(params: dict[str, float] | None = None) -> Block:
     return block
 
 
+_C_LINE = re.compile(r"^C(\S+)\s+(\S+)\s+(\S+)\s+([0-9.eE+-]+)(\w*)(?:\s+\$.*)?$")
+_CAP_SI = {"m": 1e-3, "u": 1e-6, "n": 1e-9, "p": 1e-12, "f": 1e-15, "a": 1e-18}
+
+
+def _cap_value(raw: str, suffix: str) -> float:
+    scale = _CAP_SI.get(suffix[:1].lower(), 1.0) if suffix else 1.0
+    return float(raw) * scale
+
+
+def _pad_cap_breakdown(pex_spice: Path) -> dict[str, dict[str, float]]:
+    """Half-capacitor attribution on inp/inn from explicit Magic PEX ``C`` lines."""
+    if not pex_spice.is_file():
+        return {}
+    buckets = ("pad_metal", "esd", "shunt_50r", "vtt_divider", "diff_cpl", "substrate", "other")
+    out: dict[str, dict[str, float]] = {net: {b: 0.0 for b in buckets} for net in ("inp", "inn")}
+
+    def _bucket(other: str, net: str) -> str:
+        name = other.lower()
+        if "floating" in name:
+            return "substrate"
+        if name in {"vdd", "vss"} and net in {"inp", "inn"}:
+            return "esd"
+        if name.startswith("m7_") or "pad" in name:
+            return "pad_metal"
+        if name.startswith("rt_") or name.startswith("rtt_") or "rsil" in name:
+            return "shunt_50r"
+        if name == "vtt":
+            return "vtt_divider"
+        if name in {"inp", "inn"}:
+            return "diff_cpl"
+        if "ptap" in name or "/sub" in name or name.startswith("w_"):
+            return "substrate"
+        return "other"
+
+    for line in pex_spice.read_text().splitlines():
+        if "**FLOATING" in line:
+            continue
+        match = _C_LINE.match(line.strip())
+        if not match:
+            continue
+        a, b = match.group(2), match.group(3)
+        c = _cap_value(match.group(4), match.group(5))
+        for net in ("inp", "inn"):
+            if a == net:
+                out[net][_bucket(b, net)] += c / 2.0
+            elif b == net:
+                out[net][_bucket(a, net)] += c / 2.0
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=OUT_DIR)
@@ -591,7 +661,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     block = build_term_stage(read_params(PARAMS_INC))
-    code, _entry = run_stage_gates(
+    code, entry = run_stage_gates(
         block,
         args.out,
         schematic=Path("circuits/ctle56n/spice/term_pdk.cir"),
@@ -601,6 +671,28 @@ def main(argv: list[str] | None = None) -> int:
         no_render=args.no_render,
         no_pex=args.no_pex,
     )
+    pex_path = args.out / "pex_run" / f"{CELL}_pex.spice"
+    pad_caps = _pad_cap_breakdown(pex_path)
+    if pad_caps:
+        entry.setdefault("pex", {})["pad_capacitance_f"] = pad_caps
+        per_net = entry.get("pex", {}).get("per_net_capacitance_f", {})
+        summary_path = args.out / f"{CELL}_summary.json"
+        if summary_path.is_file():
+            summary = json.loads(summary_path.read_text())
+            summary.setdefault("pex", {})["pad_capacitance_f"] = pad_caps
+            summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+        pad_c_model = read_params(PARAMS_INC).get("PAD_C", 0.0)
+        for net in ("inp", "inn"):
+            parts = pad_caps[net]
+            interconnect_ff = sum(parts.values()) * 1e15
+            physical_ff = float(per_net.get(net, 0.0)) * 1e15
+            detail = ", ".join(f"{k}={v * 1e15:.1f} fF" for k, v in parts.items() if v > 0)
+            print(
+                f"  pad C   {net}  {physical_ff:.1f} fF physical (Magic per-net); "
+                f"{interconnect_ff:.1f} fF explicit C lines ({detail}); "
+                f"hand pad model {pad_c_model * 1e15:.1f} fF; "
+                f"MEMORY ESD pair ~50.9 fF at 1.4 V"
+            )
     return code
 
 
