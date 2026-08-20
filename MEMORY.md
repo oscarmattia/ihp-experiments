@@ -523,6 +523,27 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   `out` on the same x, and the via stack taking `nlp` up to TopMetal2 passes through Metal5, so a
   Metal5 riser at the column's x shorts the resistor out — LVS reports `nlp1|outp` with both terminals
   of `R` on one net. Offset the riser and jog across at the collector row.
+- **A via stack shorts on every layer it passes through, not just its endpoints.** A Metal2-to-Metal5
+  stack carries Metal3 and Metal4 pads. One landed in the VGA's `vicm` bus and merged `vicm` into
+  `outp`/`outn`; the next one sat 0.04 um from that bus and reported `M3.b`. When budgeting a routing
+  band's height, count the via pads of every lane crossing it, not just the lanes' own widths.
+- **Two nets that have to cross in x cannot share a y.** The VGA's `em` and `ed1`/`ed2` both climb from
+  the steering row to the same emitter row, and each steering drain sits outboard of the emitter it
+  feeds. Two lanes fix it, but only in one order: put `em` on the *lower* lane, so its riser crosses
+  `ed`'s lane at a y where `ed`'s horizontal has already stopped, and `ed`'s riser sits entirely above
+  `em`'s lane. The other order shorts.
+- **Route a bus on the side its device's pin faces.** An HBT's base is its *bottom* terminal, so a
+  common-mode bus belongs below the pair row; above it, every riser is dragged past that device's own
+  emitter and collector. Same argument horizontally: tapping the mirror gate on `mdiode`'s right when
+  the port leaves on the left put the whole route inside the MOS row, and it came back merged with the
+  substrate and `tx1`.
+- **A supply drop is as wide as its rail, and that width has to fit the channel.** An 8.6 um
+  `vss_rail_w` drop placed as if it were a thin wire landed 0.3 um inside an array's box, where it
+  touched that array's source rail *and* its drain rail on the way past.
+- **Two disjoint pieces of geometry carrying the same label are two nets.** The VGA's source rail was
+  drawn as two bars with no link and extracted as two nets both named `vss`, only one of which reached
+  the ring. A shared rail across a row is safe when every array in that row has that net on the rail —
+  check the row, not the habit.
 - **`place()` transforms a terminal's centre but not its recorded orientation.** After `M90` a pin that
   reads `orientation=0` is on the cell's *left*. `via_up` derives its stub direction from that field, so
   on a mirrored device it walks the stub into the cell body and onto whatever net is there. It is still
