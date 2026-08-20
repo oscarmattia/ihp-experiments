@@ -48,7 +48,6 @@ from layout.blocks.draw import (
     poly_contact,
     rect,
     snap,
-    trunk_net,
     via_between,
     via_up,
 )
