@@ -34,29 +34,34 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from layout.blocks.generators import Block, _connect_metal1_to
+from layout.blocks.draw import (
+    device_bbox_at,
+    mirrored_pair_x,
+    place,
+    poly_contact,
+    rect,
+    snap,
+    trunk_net,
+    via_between,
+    via_up,
+)
+from layout.blocks.generators import Block
 from layout.blocks.mos_array import build_mos_array
 from layout.blocks.power_ring import add_power_ring
+from layout.blocks.stage_gates import run_stage_gates
 from layout.common import em
 from layout.common.devices import build
-from layout.common.drc import CONTEXT_RULES, run_drc
 from layout.common.gds import stamp_net_labels
 from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.layers import layer_map
-from layout.common.lvs import run_lvs
-from layout.common.netlist import write_block_cdl
-from layout.common.parity import check_parity
 from layout.common.pdk import new_layout, pya_module
-from layout.common.pex import run_magic_pex, signal_resistors
-from layout.common.render import render_gds
-from layout.common.rules import grid, min_space, route_width
+from layout.common.rules import route_width
 from layout.common.sizing import metres, read_params
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
@@ -135,226 +140,14 @@ RING_CLEARANCE = 10.0
 #: between them for the mgate contact and the diode tie.
 ARRAY_GAP = 12.0
 
-#: Gate contact geometry. Cnt.a makes Cont exactly 0.16 um; Cnt.d wants 0.07 um
-#: of GatPoly around it and M1.c1 0.05 um of Metal1.
-GATE_CONT_SIZE = 0.16
-GATE_CONT_PITCH = 0.16 + 0.18  # Cnt.a + Cnt.b
-GATE_CONT_CUTS = 4
-
 #: Metal for the inter-row differential nets: top metal minus two, leaving
 #: TopMetal1 for the ring's vertical runs so the two never contend for a layer.
 ROUTE_METAL = "Metal5"
-
-#: How far outside a device a via stack is placed, in um. A stack's landing pads
-#: are wider than a device pin, so dropping one directly on a pin pushes contact
-#: and via spacing rules against the device's own geometry.
-VIA_OFFSET = 2.0
 
 #: Chip-level rules the stage cannot satisfy alone: the coils' local back-end
 #: markers are chip-area shapes with a 100 um minimum width and a spacing rule
 #: between regions. Latch-up is enforced.
 CHIP_LEVEL_ALLOWED = ("LBE.a", "LBE.c")
-
-
-def _snap(value: float) -> float:
-    g = grid()
-    return round(round(value / g) * g, 6)
-
-
-def _orient_trans(orientation: str):
-    pya = pya_module()
-    return {
-        "R0": pya.DTrans.R0, "R90": pya.DTrans.R90, "R180": pya.DTrans.R180,
-        "R270": pya.DTrans.R270, "M0": pya.DTrans.M0, "M45": pya.DTrans.M45,
-        "M90": pya.DTrans.M90, "M135": pya.DTrans.M135,
-    }[orientation]
-
-
-def _device_bbox_at(spec: DeviceSpec, dx: float, dy: float, orientation: str = "R0"):
-    """BBox a fully placed device would occupy, without drawing anything."""
-    pya = pya_module()
-    _, device_cell = build(spec)
-    trans = pya.DTrans(_orient_trans(orientation), pya.DVector(_snap(dx), _snap(dy)))
-    return trans * device_cell.dbbox()
-
-
-def _place(layout, cell, spec: DeviceSpec, dx: float, dy: float, orientation: str = "R0",
-           black_box: bool = False):
-    """Place a device and return its terminals in stage coordinates."""
-    from layout.common.route import metal_of
-
-    pya = pya_module()
-    device_layout, device_cell = build(spec)
-    terminals = derive_terminals(spec, device_layout, device_cell)
-
-    trans = pya.DTrans(_orient_trans(orientation), pya.DVector(_snap(dx), _snap(dy)))
-
-    if not black_box:
-        index = layout.add_cell(f"{spec.name}_{orientation}")
-        layout.cell(index).copy_tree(device_cell)
-        cell.insert(pya.DCellInstArray(index, trans))
-        device_bbox = trans * layout.cell(index).dbbox()
-
-    placed = {}
-    pad_boxes: list = []
-    for terminal in terminals:
-        point = trans * pya.DPoint(*terminal.center)
-        placed[terminal.name] = Terminal(
-            name=terminal.name,
-            layer=terminal.layer,
-            center=(_snap(point.x), _snap(point.y)),
-            width=terminal.width,
-            orientation=terminal.orientation,
-        )
-        if black_box:
-            metal = metal_of(terminal.layer)
-            if metal is None:
-                continue
-            pad_w = _snap(terminal.width if terminal.width > 0 else route_width(metal))
-            half = pad_w / 2
-            cx, cy = placed[terminal.name].center
-            _rect(layout, cell, metal, cx - half, cy - half, cx + half, cy + half)
-            pad_boxes.append(pya.DBox(cx - half, cy - half, cx + half, cy + half))
-
-    if black_box:
-        # feed=same puts PLUS and MINUS at one x,y on Metal4 and Metal5; two pads
-        # stacked there are correct and are not a short.
-        if pad_boxes:
-            bbox = pad_boxes[0]
-            for box in pad_boxes[1:]:
-                bbox += box
-        else:
-            bbox = pya.DBox(0, 0, 0, 0)
-    else:
-        bbox = device_bbox
-    return placed, bbox
-
-
-def _mirrored_pair_x(spec: DeviceSpec, axis: float, gap: float) -> tuple[float, float]:
-    """Translations for a device and its mirror, exactly symmetric about ``axis``."""
-    _, cell = build(spec)
-    box = cell.dbbox()
-    inner = gap / 2.0
-    return _snap(axis - inner - box.right), _snap(axis + inner + box.right)
-
-
-def _rect(layout, cell, metal: str, x0: float, y0: float, x1: float, y1: float) -> None:
-    pya = pya_module()
-    lm = layer_map()
-    ld = lm[f"{metal.lower()}_drw"]
-    cell.shapes(layout.layer(ld[0], ld[1])).insert(
-        pya.DBox(_snap(min(x0, x1)), _snap(min(y0, y1)), _snap(max(x0, x1)), _snap(max(y0, y1)))
-    )
-
-
-def _via_between(layout, cell, x: float, y: float, bottom: str, top: str,
-                 columns: int = 2, rows: int = 2) -> None:
-    """Place one via stack between two metals at a point."""
-    pya = pya_module()
-    via = DeviceSpec(
-        name=f"via_{bottom.lower()}_{top.lower()}",
-        kind="via_stack",
-        params={"b_layer": bottom, "t_layer": top, "columns": columns, "rows": rows},
-    )
-    _, via_cell = build(via)
-    index = layout.add_cell(f"{via.name}_{_snap(x)}_{_snap(y)}_{columns}x{rows}")
-    layout.cell(index).copy_tree(via_cell)
-    box = via_cell.dbbox()
-    cell.insert(
-        pya.DCellInstArray(
-            index, pya.DTrans(pya.DVector(_snap(x - box.center().x), _snap(y - box.center().y)))
-        )
-    )
-
-
-def _via_up(layout, cell, terminal: Terminal, metal: str) -> tuple[float, float]:
-    """Via stack from a terminal's metal up to ``metal``, on a stub outside it."""
-    from layout.common.route import metal_of
-
-    bottom = metal_of(terminal.layer)
-    x, y = terminal.center
-    if bottom is None:
-        return (x, y)
-
-    angle = terminal.orientation % 360.0
-    dx = {0.0: VIA_OFFSET, 180.0: -VIA_OFFSET}.get(angle, 0.0)
-    dy = {90.0: VIA_OFFSET, 270.0: -VIA_OFFSET}.get(angle, 0.0)
-    vx, vy = _snap(x + dx), _snap(y + dy)
-
-    stub_w = route_width(bottom)
-    _rect(layout, cell, bottom,
-          min(x, vx) - stub_w / 2, min(y, vy) - stub_w / 2,
-          max(x, vx) + stub_w / 2, max(y, vy) + stub_w / 2)
-
-    if bottom != metal:
-        _via_between(layout, cell, vx, vy, bottom, metal)
-    return (vx, vy)
-
-
-def _poly_contact(layout, cell, x: float, y: float, cuts: int = GATE_CONT_CUTS) -> Terminal:
-    """Contact a GatPoly strap up to Metal1 and return the Metal1 terminal.
-
-    The nmos PCell leaves its gate as bare poly with no contact at all, so a gate
-    net cannot leave the device without this. Cont is a fixed 0.16 um in this
-    PDK (Cnt.a is both a minimum and a maximum), so a wider connection means more
-    cuts rather than a bigger one.
-    """
-    pya = pya_module()
-    lm = layer_map()
-    span = (cuts - 1) * GATE_CONT_PITCH
-    x0 = _snap(x - span / 2)
-
-    cont = lm["cont_drw"]
-    cont_layer = layout.layer(cont[0], cont[1])
-    for i in range(cuts):
-        cx = _snap(x0 + i * GATE_CONT_PITCH)
-        cell.shapes(cont_layer).insert(
-            pya.DBox(
-                _snap(cx - GATE_CONT_SIZE / 2), _snap(y - GATE_CONT_SIZE / 2),
-                _snap(cx + GATE_CONT_SIZE / 2), _snap(y + GATE_CONT_SIZE / 2),
-            )
-        )
-
-    # Metal1 pad enclosing every cut, and a poly pad doing the same.
-    pad_w = _snap(span + GATE_CONT_SIZE + 2 * 0.09)
-    pad_h = _snap(GATE_CONT_SIZE + 2 * 0.09)
-    _rect(layout, cell, "Metal1", x - pad_w / 2, y - pad_h / 2, x + pad_w / 2, y + pad_h / 2)
-    poly = lm["gatpoly_drw"]
-    cell.shapes(layout.layer(poly[0], poly[1])).insert(
-        pya.DBox(_snap(x - pad_w / 2), _snap(y - pad_h / 2),
-                 _snap(x + pad_w / 2), _snap(y + pad_h / 2))
-    )
-    return Terminal("gate_contact", "metal1_drw", (_snap(x), _snap(y)), pad_h, 90.0)
-
-
-def _trunk_net(layout, cell, terminals: list[Terminal], trunk_x: float, metal: str,
-               width: float | None = None) -> tuple[float, float]:
-    """Vertical trunk on ``metal`` plus a horizontal stub per terminal.
-
-    Returns the trunk's ``(bottom, top)``, so a caller can carry the net onward
-    from where it ends rather than guessing.
-    """
-    w = width if width is not None else route_width(metal)
-    trunk_x = _snap(trunk_x)
-    points = [_via_up(layout, cell, t, metal) for t in terminals]
-    ys = [py for _, py in points]
-    _rect(layout, cell, metal, trunk_x - w / 2, min(ys), trunk_x + w / 2, max(ys))
-    for x, y in points:
-        _rect(layout, cell, metal, min(x, trunk_x), y - w / 2, max(x, trunk_x), y + w / 2)
-    return (min(ys), max(ys))
-
-
-def _vertical_net(layout, cell, terminals: list[Terminal], metal: str,
-                  width: float | None = None) -> None:
-    """Join terminals that share an x with a single vertical run."""
-    w = width if width is not None else route_width(metal)
-    xs = {t.center[0] for t in terminals}
-    if len(xs) != 1:
-        raise ValueError(f"vertical net needs one x, got {sorted(xs)}")
-    x = xs.pop()
-    points = [_via_up(layout, cell, t, metal) for t in terminals]
-    ys = [py for _, py in points]
-    _rect(layout, cell, metal, x - w / 2, min(ys), x + w / 2, max(ys))
 
 
 def build_ctle_stage(params: dict[str, float] | None = None,
@@ -399,9 +192,9 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # goes to the left of tail1, outside the symmetric core, because it carries no
     # signal and mirroring it would break the differential match. The axis is
     # chosen so the leftmost array starts at x=0.
-    axis = _snap(2 * array_w + 1.5 * array_gap)
+    axis = snap(2 * array_w + 1.5 * array_gap)
     placement = {
-        "tail1": _snap(axis - array_gap / 2.0 - array_w),
+        "tail1": snap(axis - array_gap / 2.0 - array_w),
     }
     # Arrays are placed by bounding box, but the tails must mirror by device area:
     # build_mos_array extends the box by rail_width on each side for the Metal2 bus
@@ -410,8 +203,8 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # post-layout extraction despite identical trunk geometry.
     rail_w = arrays["tail1"].rail_width_um
     device_span = array_w - 2 * rail_w
-    placement["tail2"] = _snap(2 * axis - placement["tail1"] - device_span)
-    placement["mdiode"] = _snap(placement["tail1"] - array_gap - array_w)
+    placement["tail2"] = snap(2 * axis - placement["tail1"] - device_span)
+    placement["mdiode"] = snap(placement["tail1"] - array_gap - array_w)
 
     nmos_ports: dict[str, Terminal] = {}
     for name, array in arrays.items():
@@ -425,7 +218,7 @@ def build_ctle_stage(params: dict[str, float] | None = None,
             nmos_ports[f"{pin}_{name}"] = Terminal(
                 name=f"{pin}_{name}",
                 layer=terminal.layer,
-                center=(_snap(point.x), _snap(point.y)),
+                center=(snap(point.x), snap(point.y)),
                 width=terminal.width,
                 orientation=terminal.orientation,
             )
@@ -444,39 +237,39 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     ]
 
     # Source rails and gate straps tie across all three arrays.
-    nmos_left = _snap(min(placement.values()) - 1.0)
-    nmos_right = _snap(max(placement.values()) + array_box.width() + 1.0)
+    nmos_left = snap(min(placement.values()) - 1.0)
+    nmos_right = snap(max(placement.values()) + array_box.width() + 1.0)
 
     # The shared vss rail carries all three devices' current, so it is much wider
     # than one array's own source rail. It has to grow *downward* from that rail:
     # centred on it, the extra width reached up into the drain via columns, which
     # start at the bottom of the active area, and shorted e1 and e2 to vss. LVS
     # caught it as one merged net with a single 729 um transistor.
-    vss_rail_w = _snap(max(em.width_for_a("Metal2", i_supply), route_width("Metal2")))
-    source_rail_top = _snap(
+    vss_rail_w = snap(max(em.width_for_a("Metal2", i_supply), route_width("Metal2")))
+    source_rail_top = snap(
         nmos_ports["S_tail1"].center[1] + arrays["tail1"].rail_width_um / 2
     )
-    vss_rail_bottom = _snap(source_rail_top - vss_rail_w)
-    vss_rail_y = _snap(source_rail_top - vss_rail_w / 2)
-    _rect(layout, cell, "Metal2", nmos_left, vss_rail_bottom, nmos_right, source_rail_top)
+    vss_rail_bottom = snap(source_rail_top - vss_rail_w)
+    vss_rail_y = snap(source_rail_top - vss_rail_w / 2)
+    rect(layout, cell, "Metal2", nmos_left, vss_rail_bottom, nmos_right, source_rail_top)
     em_segments.append(em.Segment("vss.rail", "Metal2", width_um=vss_rail_w,
                                   current_a=i_supply, note="shared source rail"))
 
     gate_y = nmos_ports["G_tail1"].center[1]
     poly = lm["gatpoly_drw"]
     cell.shapes(layout.layer(poly[0], poly[1])).insert(
-        pya.DBox(nmos_left, _snap(gate_y - 0.3), nmos_right, _snap(gate_y + 0.3))
+        pya.DBox(nmos_left, snap(gate_y - 0.3), nmos_right, snap(gate_y + 0.3))
     )
 
     # mgate leaves the poly strap in the clear channel between the diode array and
     # tail1. Nothing else is there: each array's bus rails overhang it by the rail
     # width, and the channel is wider than twice that. Routing this over the array
     # instead put Metal2 0.19 um from the drain stubs.
-    diode_right = _snap(placement["mdiode"] + array_box.right)
-    tail1_left = _snap(placement["tail1"] + array_box.left)
-    channel_x = _snap((diode_right + tail1_left) / 2.0)
-    gate_tap = _poly_contact(layout, cell, channel_x, gate_y)
-    _via_between(layout, cell, channel_x, gate_y, "Metal1", "Metal2", columns=1, rows=1)
+    diode_right = snap(placement["mdiode"] + array_box.right)
+    tail1_left = snap(placement["tail1"] + array_box.left)
+    channel_x = snap((diode_right + tail1_left) / 2.0)
+    gate_tap = poly_contact(layout, cell, channel_x, gate_y)
+    via_between(layout, cell, channel_x, gate_y, "Metal1", "Metal2", columns=1, rows=1)
 
     # Diode connection: the diode's drain rail comes back to that same gate tap,
     # which is what makes it diode connected and what sets mgate. The rail
@@ -484,15 +277,15 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # hugging the rail's inner edge, clear of tail1's drain rail (net e1) on the
     # other side of the channel.
     diode_rail = nmos_ports["D_mdiode"]
-    link_x = _snap(diode_right - arrays["mdiode"].rail_width_um / 2)
+    link_x = snap(diode_right - arrays["mdiode"].rail_width_um / 2)
     link_w = route_width("Metal2")
-    _rect(layout, cell, "Metal2", link_x - link_w / 2, gate_y,
+    rect(layout, cell, "Metal2", link_x - link_w / 2, gate_y,
           link_x + link_w / 2, diode_rail.center[1])
-    _rect(layout, cell, "Metal2", min(link_x, channel_x), gate_y - link_w / 2,
+    rect(layout, cell, "Metal2", min(link_x, channel_x), gate_y - link_w / 2,
           max(link_x, channel_x), gate_y + link_w / 2)
 
     nmos_box = pya.DBox(nmos_left, vss_rail_bottom, nmos_right,
-                        _snap(array_box.top))
+                        snap(array_box.top))
     # Guard ring around the NMOS only. Its taps are strapped to the vss rail, so
     # the substrate really is vss and the netlist's bulk connection is true.
     guard = add_guard_ring(layout, cell, nmos_box, RingSpec(kind="ptap1", clearance=2.0))
@@ -506,11 +299,11 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         guard["tap_centres_um"],
         key=lambda c: (abs(c[1] - guard_box[1]) > 0.1, abs(c[0] - nmos_left)),
     )
-    _via_between(layout, cell, tap_x, tap_y, "Metal1", "Metal2", columns=1, rows=1)
-    _rect(layout, cell, "Metal2",
+    via_between(layout, cell, tap_x, tap_y, "Metal1", "Metal2", columns=1, rows=1)
+    rect(layout, cell, "Metal2",
           tap_x - vss_rail_w / 2, tap_y, tap_x + vss_rail_w / 2, vss_rail_y)
 
-    nmos_top = _snap(max(array_box.top, guard_box[3]))
+    nmos_top = snap(max(array_box.top, guard_box[3]))
 
     # --- degeneration, centred on the axis ---------------------------------
     # The resistor is rotated R270 so PLUS comes out on its left and MINUS on its
@@ -523,29 +316,29 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # Left unrotated the feed is on its left edge and the legs have to cross the
     # finger field to reach it, which is where the Metal4 and Metal5 spacing
     # violations were coming from.
-    row_y = _snap(nmos_top + ROW_GAP)
+    row_y = snap(nmos_top + ROW_GAP)
     rdeg_i = rdeg.with_name("rdeg")
     cdeg_i = cdeg.with_name("cdeg")
     _, rdeg_probe = build(rdeg_i)
     rdeg_span = rdeg_probe.dbbox().height()
-    rdeg_t, rdeg_box = _place(layout, cell, rdeg_i, _snap(axis - rdeg_span / 2.0), row_y, "R270")
+    rdeg_t, rdeg_box = place(layout, cell, rdeg_i, snap(axis - rdeg_span / 2.0), row_y, "R270")
 
     _, cdeg_probe = build(cdeg_i)
     cdeg_w = cdeg_probe.dbbox().height()  # R90 swaps the cell's extents
-    cdeg_dx = _snap(axis + cdeg_w / 2.0)
-    cdeg_dy = _snap(rdeg_box.top + ROW_GAP)
+    cdeg_dx = snap(axis + cdeg_w / 2.0)
+    cdeg_dy = snap(rdeg_box.top + ROW_GAP)
     cdeg_bb = cdeg_i.kind in bb_kinds
-    cdeg_t, cdeg_place_box = _place(
+    cdeg_t, cdegplace_box = place(
         layout, cell, cdeg_i, cdeg_dx, cdeg_dy, "R90", black_box=cdeg_bb,
     )
     cdeg_box = (
-        _device_bbox_at(cdeg_i, cdeg_dx, cdeg_dy, "R90") if cdeg_bb else cdeg_place_box
+        device_bbox_at(cdeg_i, cdeg_dx, cdeg_dy, "R90") if cdeg_bb else cdegplace_box
     )
 
     # Legs run out of the cap's bottom edge, down into the clear band above the
     # resistor, then sideways to each resistor terminal. Metal4 for p and Metal5
     # for n, so the two paths may share x and y freely.
-    leg_y = _snap((rdeg_box.top + cdeg_box.bottom) / 2.0)
+    leg_y = snap((rdeg_box.top + cdeg_box.bottom) / 2.0)
     for terminal, target, leg_metal in (
         (rdeg_t["PLUS"], cdeg_t["PLUS"], "Metal4"),
         (rdeg_t["MINUS"], cdeg_t["MINUS"], "Metal5"),
@@ -553,46 +346,46 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         w = route_width(leg_metal)
         rx, ry = terminal.center
         fx, fy = target.center
-        _via_between(layout, cell, rx, ry, "Metal1", leg_metal)
-        _rect(layout, cell, leg_metal, rx - w / 2, ry, rx + w / 2, leg_y)
-        _rect(layout, cell, leg_metal, min(rx, fx), leg_y - w / 2, max(rx, fx), leg_y + w / 2)
-        _rect(layout, cell, leg_metal, fx - w / 2, leg_y, fx + w / 2, fy)
+        via_between(layout, cell, rx, ry, "Metal1", leg_metal)
+        rect(layout, cell, leg_metal, rx - w / 2, ry, rx + w / 2, leg_y)
+        rect(layout, cell, leg_metal, min(rx, fx), leg_y - w / 2, max(rx, fx), leg_y + w / 2)
+        rect(layout, cell, leg_metal, fx - w / 2, leg_y, fx + w / 2, fy)
 
     instances += [
         (rdeg_i, {"PLUS": "e1", "MINUS": "e2", "sub": "vss"}),
         (cdeg_i, {"PLUS": "e1", "MINUS": "e2"}),
     ]
-    degen_top = _snap(max(rdeg_box.top, cdeg_box.top))
+    degen_top = snap(max(rdeg_box.top, cdeg_box.top))
 
     # --- HBT pair ----------------------------------------------------------
-    row_y = _snap(degen_top + ROW_GAP)
+    row_y = snap(degen_top + ROW_GAP)
     q1 = hbt.with_name("q1")
     q2 = hbt.with_name("q2")
-    q_left, q_right = _mirrored_pair_x(hbt, axis, gap=2 * HBT_DX)
-    q1_t, q_box = _place(layout, cell, q1, q_left, row_y)
-    q2_t, _ = _place(layout, cell, q2, q_right, row_y, "M90")
+    q_left, q_right = mirrored_pair_x(hbt, axis, gap=2 * HBT_DX)
+    q1_t, q_box = place(layout, cell, q1, q_left, row_y)
+    q2_t, _ = place(layout, cell, q2, q_right, row_y, "M90")
     instances += [
         (q1, {"C": "outp", "B": "inp", "E": "e1", "sub": "vss"}),
         (q2, {"C": "outn", "B": "inn", "E": "e2", "sub": "vss"}),
     ]
-    hbt_top = _snap(q_box.top)
+    hbt_top = snap(q_box.top)
 
     # --- loads, kept near the axis above their transistors -----------------
-    row_y = _snap(hbt_top + ROW_GAP)
+    row_y = snap(hbt_top + ROW_GAP)
     rd1 = load.with_name("rd1")
     rd2 = load.with_name("rd2")
     load_terms = {t.name: t for t in derive_terminals(load, *build(load))}
     upper = max(load_terms.values(), key=lambda t: t.center[1])
     lower = min(load_terms.values(), key=lambda t: t.center[1])
-    rd_left = _snap(axis - LOAD_DX - upper.center[0])
-    rd_right = _snap(axis + LOAD_DX + upper.center[0])
-    rd1_t, rd_box = _place(layout, cell, rd1, rd_left, row_y)
-    rd2_t, _ = _place(layout, cell, rd2, rd_right, row_y, "M90")
+    rd_left = snap(axis - LOAD_DX - upper.center[0])
+    rd_right = snap(axis + LOAD_DX + upper.center[0])
+    rd1_t, rd_box = place(layout, cell, rd1, rd_left, row_y)
+    rd2_t, _ = place(layout, cell, rd2, rd_right, row_y, "M90")
     instances += [
         (rd1, {upper.name: "nlp1", lower.name: "outp", "sub": "vss"}),
         (rd2, {upper.name: "nlp2", lower.name: "outn", "sub": "vss"}),
     ]
-    load_top = _snap(rd_box.top)
+    load_top = snap(rd_box.top)
 
     # --- coils, facing each other with vdd on top --------------------------
     # M135 and R270 put each coil's two pins on the edge nearest the axis, stacked
@@ -606,31 +399,31 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # ties are the highest ones in the cell. Everything between them and the coils
     # is either p-tap free or inside the channel between the two bodies.
     _, coil_probe = build(coil)
-    coil_half_h = _snap(coil_probe.dbbox().width() / 2.0)
-    row_y = _snap(max(load_top + ROW_GAP, hbt_top + coil_half_h + PWB_TAP_CLEARANCE))
+    coil_half_h = snap(coil_probe.dbbox().width() / 2.0)
+    row_y = snap(max(load_top + ROW_GAP, hbt_top + coil_half_h + PWB_TAP_CLEARANCE))
     l1 = coil.with_name("l1")
     l2 = coil.with_name("l2")
-    l1_dx = _snap(axis - COIL_PIN_GAP / 2)
-    l2_dx = _snap(axis + COIL_PIN_GAP / 2)
+    l1_dx = snap(axis - COIL_PIN_GAP / 2)
+    l2_dx = snap(axis + COIL_PIN_GAP / 2)
     coil_bb = l1.kind in bb_kinds
-    l1_t, l1_place_box = _place(
+    l1_t, l1place_box = place(
         layout, cell, l1, l1_dx, row_y, "M135", black_box=coil_bb,
     )
-    l2_t, l2_place_box = _place(
+    l2_t, l2place_box = place(
         layout, cell, l2, l2_dx, row_y, "R270", black_box=coil_bb,
     )
     if coil_bb:
-        l1_box = _device_bbox_at(l1, l1_dx, row_y, "M135")
-        l2_box = _device_bbox_at(l2, l2_dx, row_y, "R270")
+        l1_box = device_bbox_at(l1, l1_dx, row_y, "M135")
+        l2_box = device_bbox_at(l2, l2_dx, row_y, "R270")
     else:
-        l1_box, l2_box = l1_place_box, l2_place_box
+        l1_box, l2_box = l1place_box, l2place_box
     instances += [
         (l1, {"PLUS": "vdd", "MINUS": "nlp1", "sub": "vss"}),
         (l2, {"PLUS": "vdd", "MINUS": "nlp2", "sub": "vss"}),
     ]
     # The clear channel between the two bodies. Every vertical crossing of the coil
     # row has to stay inside it.
-    channel = (_snap(l1_box.right), _snap(l2_box.left))
+    channel = (snap(l1_box.right), snap(l2_box.left))
 
     # --- vdd strap across the top of the coil pins -------------------------
     # Drawn at the feed's own width and y, so it is a straight continuation of both
@@ -639,9 +432,9 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # different width meets the feed inside it and is measured as part of the
     # winding. A 3 um strap on a 4 um feed had the coils extracting as w=1.5 um,
     # d=45 um against the drawn 4 um and 40 um.
-    strap_w = _snap(l1_t["PLUS"].width)
+    strap_w = snap(l1_t["PLUS"].width)
     vdd_y = l1_t["PLUS"].center[1]
-    _rect(layout, cell, "TopMetal2",
+    rect(layout, cell, "TopMetal2",
           l1_t["PLUS"].center[0], vdd_y - strap_w / 2,
           l2_t["PLUS"].center[0], vdd_y + strap_w / 2)
     em_segments.append(em.Segment("vdd.strap", "TopMetal2", width_um=strap_w,
@@ -660,20 +453,20 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # the two runs end 2 * LOAD_DX apart on different x. Drawn as two long
     # horizontal runs at one shared y they read as a single broken conductor even
     # though the deck saw two nets.
-    nlp_w = _snap(l1_t["MINUS"].width)
+    nlp_w = snap(l1_t["MINUS"].width)
     interconnect_um = 0.0
     for coil_pin, load_pin, name, turn_x in (
-        (l1_t["MINUS"], rd1_t[upper.name], "nlp1", _snap(axis - LOAD_DX)),
-        (l2_t["MINUS"], rd2_t[upper.name], "nlp2", _snap(axis + LOAD_DX)),
+        (l1_t["MINUS"], rd1_t[upper.name], "nlp1", snap(axis - LOAD_DX)),
+        (l2_t["MINUS"], rd2_t[upper.name], "nlp2", snap(axis + LOAD_DX)),
     ):
         feed_x, feed_y = coil_pin.center
-        land_x, land_y = _via_up(layout, cell, load_pin, "TopMetal2")
-        _rect(layout, cell, "TopMetal2", min(feed_x, turn_x), feed_y - nlp_w / 2,
+        land_x, land_y = via_up(layout, cell, load_pin, "TopMetal2")
+        rect(layout, cell, "TopMetal2", min(feed_x, turn_x), feed_y - nlp_w / 2,
               max(feed_x, turn_x), feed_y + nlp_w / 2)
-        _rect(layout, cell, "TopMetal2", turn_x - nlp_w / 2, min(feed_y, land_y),
+        rect(layout, cell, "TopMetal2", turn_x - nlp_w / 2, min(feed_y, land_y),
               turn_x + nlp_w / 2, max(feed_y, land_y))
         if abs(turn_x - land_x) > 1e-6:
-            _rect(layout, cell, "TopMetal2", min(turn_x, land_x), land_y - nlp_w / 2,
+            rect(layout, cell, "TopMetal2", min(turn_x, land_x), land_y - nlp_w / 2,
                   max(turn_x, land_x), land_y + nlp_w / 2)
         interconnect_um += abs(feed_x - turn_x) + abs(feed_y - land_y)
         em_segments.append(
@@ -682,19 +475,19 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         )
 
     # --- differential nets on Metal5, trunks placed symmetrically ----------
-    sig_w = _snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
-    trunk_out = _snap(array_box.width() * 0.5)
-    _trunk_net(layout, cell, [q1_t["E"], nmos_ports["D_tail1"], rdeg_t["PLUS"]],
+    sig_w = snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
+    trunk_out = snap(array_box.width() * 0.5)
+    trunk_net(layout, cell, [q1_t["E"], nmos_ports["D_tail1"], rdeg_t["PLUS"]],
                trunk_x=axis - trunk_out, metal=ROUTE_METAL, width=sig_w)
-    _trunk_net(layout, cell, [q2_t["E"], nmos_ports["D_tail2"], rdeg_t["MINUS"]],
+    trunk_net(layout, cell, [q2_t["E"], nmos_ports["D_tail2"], rdeg_t["MINUS"]],
                trunk_x=axis + trunk_out, metal=ROUTE_METAL, width=sig_w)
     # The output trunks run outboard of the loads rather than through them: the
     # load's own via stack up to nlp includes Metal5, so a trunk sharing that x
     # would short the output to nlp.
     out_trunk_top = {
-        "outp": _trunk_net(layout, cell, [q1_t["C"], rd1_t[lower.name]],
+        "outp": trunk_net(layout, cell, [q1_t["C"], rd1_t[lower.name]],
                            trunk_x=axis - OUT_TRUNK_DX, metal=ROUTE_METAL, width=sig_w)[1],
-        "outn": _trunk_net(layout, cell, [q2_t["C"], rd2_t[lower.name]],
+        "outn": trunk_net(layout, cell, [q2_t["C"], rd2_t[lower.name]],
                            trunk_x=axis + OUT_TRUNK_DX, metal=ROUTE_METAL, width=sig_w)[1],
     }
     em_segments += [
@@ -708,10 +501,10 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     in_trunk_x: dict[str, float] = {}
     for base, sign, name in ((q1_t["B"], +1.0, "inp"), (q2_t["B"], -1.0, "inn")):
         bx, by = base.center
-        vx = _snap(bx + sign * BASE_VIA_DX)
-        stub_h = _snap(base.width if base.width < 1.0 else route_width("Metal1"))
-        _rect(layout, cell, "Metal1", min(bx, vx), by - stub_h / 2, max(bx, vx), by + stub_h / 2)
-        _via_between(layout, cell, vx, by, "Metal1", IN_METAL, columns=1, rows=1)
+        vx = snap(bx + sign * BASE_VIA_DX)
+        stub_h = snap(base.width if base.width < 1.0 else route_width("Metal1"))
+        rect(layout, cell, "Metal1", min(bx, vx), by - stub_h / 2, max(bx, vx), by + stub_h / 2)
+        via_between(layout, cell, vx, by, "Metal1", IN_METAL, columns=1, rows=1)
         in_trunk_x[name] = vx
 
     # --- power ring ---------------------------------------------------------
@@ -725,11 +518,11 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         devices_box = devices_box + l1_box + l2_box
     if cdeg_bb:
         devices_box = devices_box + cdeg_box
-    ring_half = _snap(max(axis - devices_box.left, devices_box.right - axis))
+    ring_half = snap(max(axis - devices_box.left, devices_box.right - axis))
     ring = add_power_ring(
         layout, cell,
-        pya.DBox(_snap(axis - ring_half), devices_box.bottom,
-                 _snap(axis + ring_half), devices_box.top),
+        pya.DBox(snap(axis - ring_half), devices_box.bottom,
+                 snap(axis + ring_half), devices_box.top),
         currents={"vss": i_supply, "vdd": i_supply},
         clearance=RING_CLEARANCE,
     )
@@ -746,14 +539,14 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # conductor that happens to share a label, and LVS cannot see that: no device
     # touches the ring, so it never appears in the compare.
     vss_ring_y = ring.ports["vss"][1].center[1]
-    _via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
-    _rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
+    via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
+    rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
           axis + strap_w / 2, vss_rail_y)
 
     vdd_ring_y = ring.ports["vdd"][0].center[1]
-    _via_between(layout, cell, axis, vdd_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
-    _rect(layout, cell, "TopMetal1", axis - strap_w / 2, vdd_y, axis + strap_w / 2, vdd_ring_y)
-    _via_between(layout, cell, axis, vdd_ring_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
+    via_between(layout, cell, axis, vdd_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
+    rect(layout, cell, "TopMetal1", axis - strap_w / 2, vdd_y, axis + strap_w / 2, vdd_ring_y)
+    via_between(layout, cell, axis, vdd_ring_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
 
     em_segments += [
         em.Segment("vss.riser", "TopMetal2", width_um=strap_w, current_a=i_supply,
@@ -769,8 +562,8 @@ def build_ctle_stage(params: dict[str, float] | None = None,
     # outputs on Metal5, which also carries them past the coils, and the inputs on
     # Metal3, which nothing else in the stage uses.
     ring_box = ring.outer_box
-    port_top = _snap(ring_box[3] + PORT_REACH)
-    port_bottom = _snap(ring_box[1] - PORT_REACH)
+    port_top = snap(ring_box[3] + PORT_REACH)
+    port_bottom = snap(ring_box[1] - PORT_REACH)
     signal_ports: dict[str, Terminal] = {}
     for name, x, y_from, y_to, orientation in (
         ("outp", axis - OUT_TRUNK_DX, out_trunk_top["outp"], port_top, 90.0),
@@ -778,12 +571,12 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         ("inp", in_trunk_x["inp"], q1_t["B"].center[1], port_bottom, 270.0),
         ("inn", in_trunk_x["inn"], q2_t["B"].center[1], port_bottom, 270.0),
     ):
-        x = _snap(x)
+        x = snap(x)
         # The outputs arrive on the Metal5 collector trunk and change to Metal4 at
         # the top of it; the inputs are already on Metal4 from the base tap.
         if name.startswith("out"):
-            _via_between(layout, cell, x, y_from, PORT_METAL, ROUTE_METAL)
-        _rect(layout, cell, PORT_METAL, x - sig_w / 2, min(y_from, y_to),
+            via_between(layout, cell, x, y_from, PORT_METAL, ROUTE_METAL)
+        rect(layout, cell, PORT_METAL, x - sig_w / 2, min(y_from, y_to),
               x + sig_w / 2, max(y_from, y_to))
         signal_ports[name] = Terminal(
             name=name, layer=f"{PORT_METAL.lower()}_drw",
@@ -830,7 +623,7 @@ def build_ctle_stage(params: dict[str, float] | None = None,
                 "hbt": [q_left, q_right],
                 "loads": [rd_left, rd_right],
                 "coil_feeds": [l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]],
-                "out_trunks": [_snap(axis - OUT_TRUNK_DX), _snap(axis + OUT_TRUNK_DX)],
+                "out_trunks": [snap(axis - OUT_TRUNK_DX), snap(axis + OUT_TRUNK_DX)],
                 "in_trunks": [in_trunk_x["inp"], in_trunk_x["inn"]],
             },
         },
@@ -880,7 +673,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-pex", action="store_true")
     args = parser.parse_args(argv)
 
-    args.out.mkdir(parents=True, exist_ok=True)
     # No --black-box flag here on purpose. This entry point writes the tape-out
     # artifacts and gates them on parity against the full schematic and LVS against
     # the full CDL, none of which a deliberately reduced view can satisfy. Exposing
@@ -889,74 +681,16 @@ def main(argv: list[str] | None = None) -> int:
     # `black_box` argument to build_ctle_stage() is the API; layout/blocks/
     # run_postlayout.py is the caller that gates it correctly.
     block = build_ctle_stage()
-    entry = block.summary()
-
-    gds = block.write(args.out)
-    entry["gds"] = str(gds)
-    print(f"  placed  {entry['bbox_um']['width']:.1f} x {entry['bbox_um']['height']:.1f} um, "
-          f"{len(block.instances)} device(s), axis x={block.symmetry['axis_x_um']}")
-
-    cdl = write_block_cdl(CELL, block.port_nets, block.instances, args.out / f"{CELL}.cdl")
-    entry["cdl"] = str(cdl)
-
-    # Parity against the schematic, before any geometry check: if the two
-    # netlists disagree there is no point asking whether the layout matches one.
-    parity = check_parity(
-        Path("circuits/ctle56n/spice/ctle_pdk.cir"), cdl, subckt="ctle_dut"
+    code, _entry = run_stage_gates(
+        block,
+        args.out,
+        schematic=Path("circuits/ctle56n/spice/ctle_pdk.cir"),
+        subckt=CELL,
+        allowed_rules=CHIP_LEVEL_ALLOWED,
+        no_render=args.no_render,
+        no_pex=args.no_pex,
     )
-    parity.write(args.out / "parity.json")
-    entry["parity"] = parity.to_dict()
-    print(f"  parity  {'ok' if parity.ok else 'FAIL'}  {parity.summary()[:110]}")
-
-    em_report = em.check_segments(block.em_segments)
-    (args.out / "em.json").write_text(json.dumps(em_report, indent=2) + "\n")
-    entry["em"] = em_report
-    worst = max(
-        (s for s in em_report["segments"] if s.get("checkable")),
-        key=lambda s: s.get("utilisation") or 0.0,
-        default=None,
-    )
-    detail = (
-        f"worst {worst['net']} on {worst['layer']} at "
-        f"{(worst['utilisation'] or 0) * 100:.0f}% of limit"
-        if worst else "no checkable segments"
-    )
-    print(f"  EM      {'ok' if em_report['ok'] else 'FAIL ' + str(em_report['failures'])}  {detail}")
-
-    if not args.no_render:
-        png = render_gds(gds, args.out / f"{CELL}.png", width=1400)
-        entry["png"] = str(png) if png else None
-
-    allowed = set(CHIP_LEVEL_ALLOWED)
-    drc = run_drc(gds=gds, run_dir=args.out / "drc_run", cell_name=CELL, allow_context=True)
-    remaining = {r: c for r, c in drc.by_rule.items() if r not in allowed}
-    drc_ok = not remaining and not drc.error
-    entry["drc"] = drc.to_dict()
-    entry["drc"]["ok"] = drc_ok
-    entry["drc"]["allowed_chip_level_rules"] = sorted(allowed)
-    entry["drc"]["enforced_context_rules"] = sorted(set(CONTEXT_RULES) - allowed)
-    entry["drc"]["remaining_violations"] = remaining
-    chip = {r: c for r, c in drc.by_rule.items() if r in allowed}
-    print(f"  DRC     {'ok' if drc_ok else 'FAIL'}  chip-level={chip} remaining={remaining}")
-
-    lvs = run_lvs(gds=gds, cdl=cdl, run_dir=args.out / "lvs_run", topcell=CELL,
-                  disable_tap_extraction=True)
-    entry["lvs"] = lvs.to_dict()
-    print(f"  LVS     {'ok' if lvs.clean else 'FAIL'}  {lvs.summary[:70]}")
-
-    if not args.no_pex:
-        pex = run_magic_pex(gds=gds, cell=CELL, run_dir=args.out / "pex_run")
-        entry["pex"] = pex.to_dict()
-        if pex.ok:
-            signal = signal_resistors(pex.resistor_elements)
-            entry["pex"]["signal_resistance_ohm"] = round(sum(e["ohm"] for e in signal), 6)
-            print(f"  PEX     ok  {pex.capacitors} C totalling "
-                  f"{pex.total_capacitance * 1e15:.2f} fF, {pex.resistors} R")
-        else:
-            print(f"  PEX     FAIL {pex.error[:60]}")
-
-    (args.out / f"{CELL}_summary.json").write_text(json.dumps(entry, indent=2) + "\n")
-    return 0 if (drc_ok and lvs.clean and parity.ok and em_report["ok"]) else 1
+    return code
 
 
 if __name__ == "__main__":
