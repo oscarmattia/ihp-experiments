@@ -217,7 +217,7 @@ side.
 | EM | every conductor within its LEF limit | `em.json` |
 | DRC | clean apart from `LBE.a`/`LBE.c` | `drc_run/` |
 | LVS | netlists match | `lvs_run/` |
-| PEX | 27 C totalling 1390.9 fF | `pex_run/` |
+| PEX | 27 C totalling 1467.1 fF | `pex_run/` |
 
 `out/driver_stage/` holds the same six committed artifacts as the other stages and
 nothing else. The LVS bisection scratch that had accumulated there — 1449 tracked
@@ -236,11 +236,17 @@ is still the pad band. The wrapper sets `PAD_C=0` and keeps the ESD
 compact models. See
 `layout/debug_pex/FINDINGS.md` and `circuits/ctle56n/driver_report.md`.
 
-**Schematic vs layout coil:** `size_driver.py` now sizes Butterworth shunt L from
-EM case **`turn1`** (d = 120 µm) in `ind_shunt_drv.inc`. The laid-out GDS coil is
-still **`turn1_d40`** (d = 40 µm) until a layout rebuild. Do **not** re-run
-`driver_stage.py` expecting parity to pass against `turn1` — geometry would fail.
-Post-layout wrappers use `ind_shunt_drv` (via `run_postlayout.py --stage driver`).
+**Schematic vs layout coil:** `size_driver.py` sizes Butterworth shunt L from EM
+case **`turn1`** (D = 120 µm, w = 3 µm, s = 3 µm) in `ind_shunt_drv.inc`, and the
+laid-out GDS coil (`inductor_turn1`, M135/R270 facing pair) is now the same
+`turn1` geometry — built in `driver_stage.py` directly from the include's own
+header (same pattern as `parity._IND_HEADER`), not from `catalog.COIL`, which
+stays `turn1_d40` for CTLE/VGA. `COIL_PIN_GAP` is unchanged at 44 um: the bigger
+coil's inner edge still sits ~21 um from the pin origin, so the extra metal grows
+outboard, not into the channel. Cell bbox is now 497.9 x 469.6 um (was
+498 x 392 um); width is set by the 180 um pad pitch, not the coil, so only the
+height grew. Post-layout wrappers use `ind_shunt_drv` (via `run_postlayout.py
+--stage driver`).
 
 ## VGA stage (`vga_dut`)
 

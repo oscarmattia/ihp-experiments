@@ -28,24 +28,25 @@
     "diodevdd_2kv",
     "diodevss_2kv",
     "diodevss_2kv",
-    "inductor d=4e-05 s=2.1e-06 w=4e-06",
-    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "inductor d=0.00012 s=3e-06 w=3e-06",
+    "inductor d=0.00012 s=3e-06 w=3e-06",
     "nmoscl_2",
     "npn13G2 nx=2",
     "npn13G2 nx=2",
     "rsil l=2.35e-06 w=5e-07",
     "rsil l=2.35e-06 w=5e-07",
-    "sg13_lv_nmos l=1e-06 w=0.000392",
-    "sg13_lv_nmos l=1e-06 w=0.00078368"
+    "sg13_lv_nmos l=1e-06 w=0.0003916",
+    "sg13_lv_nmos l=1e-06 w=0.00078289"
   ],
   "only_in_spice": [],
   "only_in_cdl": [],
   "independent_sources_in_spice": [],
   "model_aliases": {
-    "ind_shunt": "inductor"
+    "ind_shunt": "inductor",
+    "ind_shunt_drv": "inductor"
   },
   "notes": [
-    "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+    "permitted substitution(s): ind_shunt -> inductor, ind_shunt_drv -> inductor; geometry for these is read from ind_shunt.inc, ind_shunt_drv.inc rather than from the element line, and is still compared"
   ],
   "error": ""
 }
