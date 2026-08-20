@@ -62,7 +62,7 @@
       },
       "gds": "gds/rppd_load.gds",
       "cdl": "cdl/rppd_load.cdl",
-      "png": null
+      "png": "png/rppd_load.png"
     },
     {
       "name": "rsil_degen",
@@ -125,7 +125,7 @@
       },
       "gds": "gds/rsil_degen.gds",
       "cdl": "cdl/rsil_degen.cdl",
-      "png": null
+      "png": "png/rsil_degen.png"
     },
     {
       "name": "cmomi_cs",
@@ -194,7 +194,7 @@
       },
       "gds": "gds/cmomi_cs.gds",
       "cdl": "cdl/cmomi_cs.cdl",
-      "png": null
+      "png": "png/cmomi_cs.png"
     },
     {
       "name": "npn13G2_pair_device",
@@ -273,7 +273,7 @@
       },
       "gds": "gds/npn13G2_pair_device.gds",
       "cdl": "cdl/npn13G2_pair_device.cdl",
-      "png": null
+      "png": "png/npn13G2_pair_device.png"
     },
     {
       "name": "nmos_tail_unit",
@@ -349,7 +349,7 @@
       },
       "gds": "gds/nmos_tail_unit.gds",
       "cdl": "cdl/nmos_tail_unit.cdl",
-      "png": null
+      "png": "png/nmos_tail_unit.png"
     },
     {
       "name": "inductor_turn1_d40",
@@ -423,7 +423,7 @@
       },
       "gds": "gds/inductor_turn1_d40.gds",
       "cdl": "cdl/inductor_turn1_d40.cdl",
-      "png": null
+      "png": "png/inductor_turn1_d40.png"
     },
     {
       "name": "rsil_term",
@@ -486,7 +486,7 @@
       },
       "gds": "gds/rsil_term.gds",
       "cdl": "cdl/rsil_term.cdl",
-      "png": null
+      "png": "png/rsil_term.png"
     },
     {
       "name": "rppd_vtt_top",
@@ -550,7 +550,7 @@
       },
       "gds": "gds/rppd_vtt_top.gds",
       "cdl": "cdl/rppd_vtt_top.cdl",
-      "png": null
+      "png": "png/rppd_vtt_top.png"
     },
     {
       "name": "rppd_vtt_bot",
@@ -614,7 +614,7 @@
       },
       "gds": "gds/rppd_vtt_bot.gds",
       "cdl": "cdl/rppd_vtt_bot.cdl",
-      "png": null
+      "png": "png/rppd_vtt_bot.png"
     },
     {
       "name": "cmim_vtt_decap",
@@ -672,7 +672,7 @@
       },
       "gds": "gds/cmim_vtt_decap.gds",
       "cdl": "cdl/cmim_vtt_decap.cdl",
-      "png": null
+      "png": "png/cmim_vtt_decap.png"
     },
     {
       "name": "nmos_vga_wide_unit",
@@ -748,7 +748,7 @@
       },
       "gds": "gds/nmos_vga_wide_unit.gds",
       "cdl": "cdl/nmos_vga_wide_unit.cdl",
-      "png": null
+      "png": "png/nmos_vga_wide_unit.png"
     },
     {
       "name": "nmos_vga_steer_unit",
@@ -824,7 +824,7 @@
       },
       "gds": "gds/nmos_vga_steer_unit.gds",
       "cdl": "cdl/nmos_vga_steer_unit.cdl",
-      "png": null
+      "png": "png/nmos_vga_steer_unit.png"
     },
     {
       "name": "npn13G2_driver",
@@ -903,7 +903,7 @@
       },
       "gds": "gds/npn13G2_driver.gds",
       "cdl": "cdl/npn13G2_driver.cdl",
-      "png": null
+      "png": "png/npn13G2_driver.png"
     },
     {
       "name": "nmos_driver_mirror_unit",
@@ -979,7 +979,7 @@
       },
       "gds": "gds/nmos_driver_mirror_unit.gds",
       "cdl": "cdl/nmos_driver_mirror_unit.cdl",
-      "png": null
+      "png": "png/nmos_driver_mirror_unit.png"
     },
     {
       "name": "nmos_driver_tail_unit",
@@ -1055,7 +1055,7 @@
       },
       "gds": "gds/nmos_driver_tail_unit.gds",
       "cdl": "cdl/nmos_driver_tail_unit.cdl",
-      "png": null
+      "png": "png/nmos_driver_tail_unit.png"
     },
     {
       "name": "esd_diodevdd_2kv",
@@ -1125,7 +1125,7 @@
       },
       "gds": "gds/esd_diodevdd_2kv.gds",
       "cdl": "cdl/esd_diodevdd_2kv.cdl",
-      "png": null
+      "png": "png/esd_diodevdd_2kv.png"
     },
     {
       "name": "esd_diodevss_2kv",
@@ -1195,7 +1195,7 @@
       },
       "gds": "gds/esd_diodevss_2kv.gds",
       "cdl": "cdl/esd_diodevss_2kv.cdl",
-      "png": null
+      "png": "png/esd_diodevss_2kv.png"
     },
     {
       "name": "esd_nmoscl_2",
@@ -1261,7 +1261,7 @@
       },
       "gds": "gds/esd_nmoscl_2.gds",
       "cdl": "cdl/esd_nmoscl_2.cdl",
-      "png": null
+      "png": "png/esd_nmoscl_2.png"
     },
     {
       "name": "bondpad_70um",
@@ -1309,7 +1309,7 @@
       },
       "gds": "gds/bondpad_70um.gds",
       "cdl": "cdl/bondpad_70um.cdl",
-      "png": null
+      "png": "png/bondpad_70um.png"
     },
     {
       "name": "ntap1_guard",
@@ -1360,7 +1360,7 @@
       },
       "gds": "gds/ntap1_guard.gds",
       "cdl": "cdl/ntap1_guard.cdl",
-      "png": null
+      "png": "png/ntap1_guard.png"
     },
     {
       "name": "ptap1_guard",
@@ -1410,7 +1410,7 @@
       },
       "gds": "gds/ptap1_guard.gds",
       "cdl": "cdl/ptap1_guard.cdl",
-      "png": null
+      "png": "png/ptap1_guard.png"
     },
     {
       "name": "cmim_decap",
@@ -1468,7 +1468,7 @@
       },
       "gds": "gds/cmim_decap.gds",
       "cdl": "cdl/cmim_decap.cdl",
-      "png": null
+      "png": "png/cmim_decap.png"
     },
     {
       "name": "nmos_char_l0p13",
@@ -1544,7 +1544,7 @@
       },
       "gds": "gds/nmos_char_l0p13.gds",
       "cdl": "cdl/nmos_char_l0p13.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p13.png"
     },
     {
       "name": "nmos_char_l0p18",
@@ -1620,7 +1620,7 @@
       },
       "gds": "gds/nmos_char_l0p18.gds",
       "cdl": "cdl/nmos_char_l0p18.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p18.png"
     },
     {
       "name": "nmos_char_l0p25",
@@ -1696,7 +1696,7 @@
       },
       "gds": "gds/nmos_char_l0p25.gds",
       "cdl": "cdl/nmos_char_l0p25.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p25.png"
     },
     {
       "name": "nmos_char_l0p5",
@@ -1772,7 +1772,7 @@
       },
       "gds": "gds/nmos_char_l0p5.gds",
       "cdl": "cdl/nmos_char_l0p5.cdl",
-      "png": null
+      "png": "png/nmos_char_l0p5.png"
     }
   ],
   "failures": []

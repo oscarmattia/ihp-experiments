@@ -1787,6 +1787,7 @@
       "ring width is set by the PDK minimum width, not by electromigration: 8.63 mA needs only 0.540 um of TopMetal2"
     ]
   },
+  "pad_power_ring": null,
   "notes": [
     "cell name is ctle_dut, shared with the schematic subcircuit",
     "tails mirrored about x=142.32 um; the bias diode sits to their left, outside the symmetric core because it carries no signal",

@@ -139,8 +139,10 @@ ESD_STACK_GAP = 8.0
 #: Inboard of an ESD column, where its two rail taps run vertically.
 ESD_TAP_DX = 2.5
 #: Width of an ESD rail tap or pad bar, um. ESD conducts a 2 kV discharge rather
-#: than a DC operating current, so this is not an ``em.py`` number.
-ESD_BUS_W = 3.0
+#: than a DC operating current, so this is not an ``em.py`` number and wider is
+#: better; 4 um is what the corridor between a column and its own pins holds. 6 um
+#: reports 32 Mn.b violations against the diodes' own Metal2.
+ESD_BUS_W = 4.0
 
 #: The pad band's own ring: clearance from the band to its innermost conductor.
 PAD_RING_CLEARANCE = 6.0
@@ -153,6 +155,12 @@ VSS_STRAP_DX = 40.0
 CLAMP_VSS_DX = 24.0
 
 PAD_FEED_METAL = "Metal5"
+#: How far inboard of its output column the pad feed comes down, um. The column
+#: itself cannot be extended past the load: the load's nlp pin sits directly above
+#: its outp pin, and the via stack that takes nlp up to TopMetal2 passes through
+#: Metal5 on the way, so a Metal5 riser at the column's x shorts the load out.
+#: Inboard puts the riser in the channel between the two coil bodies.
+OUT_FEED_DX = 8.0
 #: Minimum length a metal leaving a bond pad has to run before it stops or turns
 #: (``Pad.fR``). It is an exit length, not a keepout: the bondpad PCell is a
 #: filled Metal3-to-TopMetal2 stack, so a feed leaves on whichever of those
@@ -400,8 +408,13 @@ def build_driver_stage(params: dict[str, float] | None = None,
          {"D": "em", "G": "mgate", "S": "vss", "sub": "vss"}),
     ]
 
-    nmos_left = snap(min(placement.values()) - 1.0)
-    nmos_right = snap(max(placement.values()) + tail_w_box + 1.0)
+    # From the placed boxes, not from the placement offsets. An array's cell box
+    # starts left of its own origin — the gate strap inside it overhangs the
+    # source rail by 4 um — so a ring placed off the offsets sat on that strap and
+    # reported Gat.d against the tap activ either side of it.
+    array_boxes = {name: array.cell.dbbox() for name, array in arrays.items()}
+    nmos_left = snap(min(placement[n] + b.left for n, b in array_boxes.items()) - 1.0)
+    nmos_right = snap(max(placement[n] + b.right for n, b in array_boxes.items()) + 1.0)
 
     vss_rail_w = snap(max(em.width_for_a("Metal2", i_supply), route_width("Metal2")))
     source_rail_top = snap(nmos_ports["S_tail"].center[1] + arrays["tail"].rail_width_um / 2)
@@ -794,8 +807,14 @@ def build_driver_stage(params: dict[str, float] | None = None,
                 ("vss", snap(axis - VSS_STRAP_DX), vss_ring_top_y),
                 ("vss", snap(axis + VSS_STRAP_DX), vss_ring_top_y),
             ):
+                # Run the strap the full width of both conductors it lands on, not
+                # just centre to centre: a via field is placed about the centre and
+                # its outer row of TopMetal1 pads would otherwise sit outside the
+                # strap as islands, 1.1 um from it, which is TM1.b.
                 y_hi = pad_rail_y[(net, "lo")]
-                _edge_route(layout, cell, "TopMetal1", strap_x, y_lo, y_hi, ring_strap_w)
+                _edge_route(layout, cell, "TopMetal1", strap_x,
+                            snap(y_lo - ring_strap_w / 2.0),
+                            snap(y_hi + ring_strap_w / 2.0), ring_strap_w)
                 cuts = _top_via_field(layout, cell, strap_x, y_lo, i_supply)
                 _top_via_field(layout, cell, strap_x, y_hi, i_supply)
                 em_segments += [
@@ -828,10 +847,14 @@ def build_driver_stage(params: dict[str, float] | None = None,
                 # feed just leaves on Metal5. Pad.fR is an exit length, and this
                 # run is far longer than the 7 um it asks for.
                 feed_from = snap(pad_inner - inb * PAD_EXIT_LENGTH / 2.0)
-                rect(layout, cell, PAD_FEED_METAL, min(feed_from, col_x),
-                     pad_row_y - sig_w / 2, max(feed_from, col_x), pad_row_y + sig_w / 2)
-                _edge_route(layout, cell, PAD_FEED_METAL, col_x,
-                            out_col_top.get(pad_net, pad_row_y), pad_row_y, sig_w)
+                feed_x = snap(col_x + inb * OUT_FEED_DX)
+                rect(layout, cell, PAD_FEED_METAL, min(feed_from, feed_x),
+                     pad_row_y - sig_w / 2, max(feed_from, feed_x), pad_row_y + sig_w / 2)
+                col_top = out_col_top.get(pad_net, pad_row_y)
+                _edge_route(layout, cell, PAD_FEED_METAL, feed_x, col_top, pad_row_y, sig_w)
+                rect(layout, cell, PAD_FEED_METAL, min(col_x, feed_x) - sig_w / 2,
+                     col_top - sig_w / 2, max(col_x, feed_x) + sig_w / 2,
+                     col_top + sig_w / 2)
                 em_segments.append(
                     em.Segment(f"{pad_net}.pad_feed", PAD_FEED_METAL, width_um=sig_w,
                                current_a=i_tail,

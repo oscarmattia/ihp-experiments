@@ -320,6 +320,7 @@
         ]
       },
       "power_ring": null,
+      "pad_power_ring": null,
       "notes": [
         "mirrored about x=5.85 um so both devices see the same inner neighbour"
       ],
@@ -341,6 +342,7 @@
       },
       "gds": "gds/hbt_diff_pair.gds",
       "cdl": "cdl/hbt_diff_pair.cdl",
+      "png": "png/hbt_diff_pair.png",
       "drc": {
         "cell": "hbt_diff_pair",
         "gds": "/workspace/layout/blocks/out/gds/hbt_diff_pair.gds",
@@ -495,6 +497,7 @@
         ]
       },
       "power_ring": null,
+      "pad_power_ring": null,
       "notes": [],
       "layers": {
         "cont_drw": 4,
@@ -509,6 +512,7 @@
       },
       "gds": "gds/rppd_load_pair.gds",
       "cdl": "cdl/rppd_load_pair.cdl",
+      "png": "png/rppd_load_pair.png",
       "drc": {
         "cell": "rppd_load_pair",
         "gds": "/workspace/layout/blocks/out/gds/rppd_load_pair.gds",
@@ -646,6 +650,7 @@
       "guard_ring": null,
       "symmetry": null,
       "power_ring": null,
+      "pad_power_ring": null,
       "notes": [
         "Rs and Cs are in parallel between the emitter nodes",
         "the cap's terminals are stacked on Metal4 and Metal5 (feed=same), so each side is joined with a via_stack up from the resistor's Metal1 and a run on the cap's metal"
@@ -674,6 +679,7 @@
       },
       "gds": "gds/degeneration_network.gds",
       "cdl": "cdl/degeneration_network.cdl",
+      "png": "png/degeneration_network.png",
       "drc": {
         "cell": "degeneration_network",
         "gds": "/workspace/layout/blocks/out/gds/degeneration_network.gds",
@@ -1767,6 +1773,7 @@
       },
       "symmetry": null,
       "power_ring": null,
+      "pad_power_ring": null,
       "notes": [
         "each tail is 25 single-finger units of 9.72 um strapped on Metal2, each terminal carrying a 24-cut via column, totalling 243.0 um",
         "the nmos PCell provides no finger strapping and caps a single finger near 10 um, so a wide device must be built as an array",
@@ -1787,6 +1794,7 @@
       },
       "gds": "gds/nmos_tail_pair.gds",
       "cdl": "cdl/nmos_tail_pair.cdl",
+      "png": "png/nmos_tail_pair.png",
       "drc": {
         "cell": "nmos_tail_pair",
         "gds": "/workspace/layout/blocks/out/gds/nmos_tail_pair.gds",
@@ -1896,6 +1904,7 @@
       "guard_ring": null,
       "symmetry": null,
       "power_ring": null,
+      "pad_power_ring": null,
       "notes": [
         "L and Q come from openEMS plus the fitted ind_shunt model; Magic contributes substrate capacitance only",
         "the nofill/no-RCX keep-out markers extend well beyond the coil metal, which is why the cell is much larger than the coil"
@@ -1920,6 +1929,7 @@
       },
       "gds": "gds/shunt_coil.gds",
       "cdl": "cdl/shunt_coil.cdl",
+      "png": "png/shunt_coil.png",
       "drc": {
         "cell": "shunt_coil",
         "gds": "/workspace/layout/blocks/out/gds/shunt_coil.gds",
