@@ -61,7 +61,7 @@ Python scripts assume the caller has already sourced `env.sh` (`PDK_ROOT`, `ngsp
   `python/check_mos_w_grid.py`). That is not the 5 nm layout database grid — conflating the two
   caused silent width mismatches. A width that only exists in the schematic is a mismatch later.
 - Generated parameters: `spice/params.inc`, `spice/term_params.inc`, `spice/vga_params.inc`,
-  `spice/driver_params.inc` and `spice/ind_shunt.inc` (all committed).
+  `spice/driver_params.inc`, `spice/ind_shunt.inc`, and `spice/ind_shunt_drv.inc` (all committed).
 - Results: `out/summary.csv`, per-pass `metrics.csv`, plots, `op.txt`; commit summaries and PNGs, not raw
   `.raw` logs.
 

@@ -37,6 +37,6 @@ C15 nlp2 outn 2.55841f
 C16 nlp2 vss 4.99297f
 C17 outn vss 0.14432p
 C18 outp vss 0.14356p
-Xl1 vdd nlp1 vss ind_shunt
-Xl2 vdd nlp2 vss ind_shunt
+Xl1 vdd nlp1 vss ind_shunt_drv
+Xl2 vdd nlp2 vss ind_shunt_drv
 .ends driver_dut

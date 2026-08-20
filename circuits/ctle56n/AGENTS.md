@@ -61,10 +61,11 @@ the netlists come from `layout/blocks/run_postlayout.py --stage {ctle,vga,driver
 
 Post-layout numbers live in `vga_report.md` / `driver_report.md` (KLayout
 matches schematic; Magic is the layout cost). VGA Magic drops 388 fF on
-unlabeled `tx1`/`tx2` — see MEMORY.md. The driver's 91 → 35 GHz BW drop is
-the pad-node C (27.7 fF hand TM1-area vs 80 fF isolated `bondpad_70um` vs
-102 fF pad+ESD column vs 144 fF in-situ `outp`–`vss`); ESD compact models
-are in both netlists. Both stages have DC+AC+PRBS/SBR. Artifacts:
+unlabeled `tx1`/`tx2` — see MEMORY.md. The driver's pad load is Magic in-situ
+metal **143.56 fF** + ESD junction **50.9 fF** ≈ **194 fF/side**; shunt L uses
+Butterworth **m = 0.414** → EM case `turn1` in `ind_shunt_drv.inc`. CTLE/VGA
+stay Bessel **m = 0.32** in shared `ind_shunt.inc`. Layout GDS coil is still
+`turn1_d40`. Both stages have DC+AC+PRBS/SBR. Artifacts:
 `out/postlayout_{vga,driver}_{klayout,magic}/`.
 
 ## Targets
@@ -74,7 +75,7 @@ are in both netlists. Both stages have DC+AC+PRBS/SBR. Artifacts:
 | Rate | 56 Gb/s NRZ, Nyquist **28 GHz** |
 | CTLE DC gain | **−6 dB to 0 dB** (aim 0 dB) |
 | CTLE peaking | **3–10 dB at 28 GHz** |
-| Load | R+L shunt peaking, Bessel MFD **m = L/(RD² C_L) = 0.32**, accepted band 0.30–0.45 |
+| Load | R+L shunt peaking: CTLE/VGA Bessel **m = L/(RD² C_L) = 0.32**; pad driver Butterworth **m = 0.414** at Magic pad metal **C_L ≈ 194 fF/side** |
 | Fan-out | CTLE sees **FO1** (one VGA input unit); VGA drives **FO2** (2× its own input) |
 | CMRR | **> 6 dB** at low frequency |
 | PSRR | **> 20 dB** at low frequency (clipped to 120 dB when `vod ≈ 0`) |
@@ -127,7 +128,7 @@ are in both netlists. Both stages have DC+AC+PRBS/SBR. Artifacts:
 | R deg / term | `char/passive/out/sg13_rsil.npz` | Emitter degeneration and the 50 Ω termination |
 | C deg | `char/passive/out/sg13_cap_cmomi.npz` | Metal-only finger cap, `feed=same`, `mmin=2` |
 | C decap | `char/passive/out/sg13_cap_cmim.npz` | vtt decoupling |
-| L shunt | `char/passive/out/sg13_ind_turn1_d*.npz` | EM pi-model → `spice/ind_shunt.inc` |
+| L shunt | `char/passive/out/sg13_ind_turn1_d*.npz`, `sg13_ind_turn1.npz` | EM pi-model → `spice/ind_shunt.inc` (CTLE/VGA); driver → `spice/ind_shunt_drv.inc` |
 
 **Size every PDK resistor by ngspice `op` measurement**, never from `rsh·L/W` or a LUT lookup with a
 scale factor. Head/contact resistance dominates and does not scale with `L/W`.
@@ -140,8 +141,8 @@ scale factor. Head/contact resistance dominates and does not scale with `L/W`.
   `ind_shunt` subcircuit. The PDK has **no ngspice inductor model at all**, so coils are openEMS-extracted
   and lumped-fitted by `python/size_ind.py`; the port branch is capacitance-only (the stack models oxide
   as lossless).
-- `spice/ind_shunt.inc`, `spice/params.inc`, `spice/term_params.inc`, `spice/vga_params.inc` and
-  `spice/driver_params.inc` are **generated** artifacts and are committed.
+- `spice/ind_shunt.inc`, `spice/ind_shunt_drv.inc`, `spice/params.inc`, `spice/term_params.inc`,
+  `spice/vga_params.inc` and `spice/driver_params.inc` are **generated** artifacts and are committed.
 
 ## Measurement definitions
 
@@ -203,6 +204,7 @@ Individual stages:
 ```bash
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/stage_term.py
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/size_ctle.py     # -> params.inc + ind_shunt.inc
+$IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/size_driver.py  # -> driver_params.inc + ind_shunt_drv.inc
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/run_sims.py      # CTLE ideal + pdk
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/stage_vga.py
 $IHP_EDA_ROOT/venv/bin/python circuits/ctle56n/python/stage_chain.py

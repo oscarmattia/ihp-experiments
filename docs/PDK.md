@@ -216,6 +216,20 @@ This repo draws **70 µm** octagonal TM1+TM2 pads on the signal nets (`catalog.e
 Parasitic pad C belongs to whatever instantiates the stage (testbench `{PAD_C}` in
 `ngs.py`), not to the device-only subcircuit.
 
+**Magic C-only PEX of the same drawn pad** `[sim]` (see `layout/debug_pex/FINDINGS.md`):
+
+| Case | Value |
+| --- | --- |
+| Hand TM1-area formula (`pad_capacitance_f`) | 27.68 fF |
+| Isolated `bondpad_70um` | 80.45 fF |
+| Pad + ESD column tied (M2 bar + M5) | 101.56 fF `pad`–`vss` |
+| Driver in-situ `outp`–`vss` | **143.56 fF** |
+
+The stacked-plate area formula underestimates the drawn octagon (Magic 80 fF vs 28 fF
+hand). In-situ neighbours add the rest. Termination sizing still uses the hand formula;
+the pad driver schematic uses the Magic in-situ metal (143.56 fF) plus ESD junction C
+in the compact models.
+
 ### Layer-to-substrate area capacitance (Magic extract deck)
 
 From `magic/ihp-sg13g2-extract.tech`, typ variant `[model]`.

@@ -3,6 +3,9 @@
 
 CML shunt-peaked pair (no degeneration), single MOS tail, on-chip 50 Ohm/leg
 back-termination (rsil), pad+ESD inside DUT. Floating 100 Ohm diff load is TB-only.
+
+Pad metal C uses Magic in-situ ``outp``–``vss`` (143.56 fF), not the hand TM1-area
+formula. Shunt L targets Butterworth m = 0.414 at on-chip RD ≈ 50 Ω.
 """
 
 from __future__ import annotations
@@ -24,7 +27,6 @@ if str(_REPO) not in sys.path:
 from char.common.lut import load_lut  # noqa: E402
 
 from size_ctle import (  # noqa: E402
-    MFD,
     TAIL_VDS_V,
     ctle_collector_cm,
     hbt_caps_at_bias,
@@ -32,14 +34,14 @@ from size_ctle import (  # noqa: E402
     size_mos_tail,
     snap_drawable_mos_w,
 )
-from size_vga import pick_em_inductor, size_vga_for_chain  # noqa: E402
+from size_ind import generate_ind_shunt  # noqa: E402
+from size_vga import size_vga_for_chain  # noqa: E402
 from size_term import (  # noqa: E402
     ESD_C_FF_PER_PAD,
     RSIL_L_UM,
     RSIL_W_UM,
     Z0_DIFF_OHM,
     Z0_SE_OHM,
-    pad_capacitance_f,
     verify_rsil_ngspice,
 )
 
@@ -49,7 +51,9 @@ ITAIL_TARGET_A = 8.0e-3
 RD_ON_CHIP_OHM = 50.0
 SWING_DIFF_V = 0.400
 R_EFF_AC_SE_OHM = RD_ON_CHIP_OHM * Z0_DIFF_OHM / (2.0 * RD_ON_CHIP_OHM + Z0_DIFF_OHM)
-L_COIL_MIN_PH = 39.0
+# Magic C-only PEX, driver in-situ outp–vss (metal only; ESD stays in compact models)
+MAGIC_PAD_METAL_F = 143.56e-15
+M_BUTTERWORTH = 0.414  # Lee/Shekhar maximally-flat amplitude shunt peaking
 PAD_W_UM = 70.0
 PAD_L_UM = 70.0
 
@@ -76,8 +80,8 @@ class DriverParams:
     l_em_nh: float = 0.0
     cl_pad_f: float = 0.0
     m_realized: float = 0.0
-    m_bessel_target: float = MFD
-    l_bessel_target_ph: float = 0.0
+    m_target: float = M_BUTTERWORTH
+    l_target_ph: float = 0.0
     itail_a: float = ITAIL_TARGET_A
     mos_w_um: float = 0.0
     tail_w_um: float = 0.0
@@ -89,11 +93,21 @@ class DriverParams:
     vce_est: float = 0.0
     pad_w_um: float = PAD_W_UM
     pad_l_um: float = PAD_L_UM
-    pad_c_f: float = 0.0
+    pad_c_f: float = MAGIC_PAD_METAL_F
     esd_m: int = 1
     driver_cin_ff: float = 0.0
     vga_fo2_ff: float = 0.0
     vga_bw_penalty_pct: float = 0.0
+
+    @property
+    def m_bessel_target(self) -> float:
+        """Backward-compatible alias for reports reading old CSV keys."""
+        return self.m_target
+
+    @property
+    def l_bessel_target_ph(self) -> float:
+        """Backward-compatible alias for reports reading old CSV keys."""
+        return self.l_target_ph
 
 
 def _repo_paths() -> dict[str, Path]:
@@ -119,9 +133,14 @@ def vga_output_cm_v() -> float:
     return ctle_collector_cm(vga.vdd, ic_max, rd_real)
 
 
-def pad_cl_per_side_f(pad_w_um: float = PAD_W_UM, pad_l_um: float = PAD_L_UM) -> float:
-    """Per-side pad + ESD shunt C at the output node."""
-    return pad_capacitance_f(pad_w_um, pad_l_um) + ESD_C_FF_PER_PAD * 1e-15
+def pad_cl_per_side_f() -> float:
+    """Per-side pad metal + ESD shunt C at the output node.
+
+    Pad metal is Magic in-situ ``outp``–``vss`` (143.56 fF), not the hand TM1-area
+    formula used by ``size_term.pad_capacitance_f``. ESD junction C stays in the
+    compact ``diodevdd_2kv``/``diodevss_2kv`` models (50.9 fF/pair).
+    """
+    return MAGIC_PAD_METAL_F + ESD_C_FF_PER_PAD * 1e-15
 
 
 def pick_nx_for_itail(bjt_path: Path, itail_a: float) -> tuple[int, int]:
@@ -190,7 +209,7 @@ def size_driver(
         vbase = vga_output_cm_v()
 
     rsil_w, rsil_l, rsil_r = size_rsil_to_target(paths["rsil"], RD_ON_CHIP_OHM)
-    cl_pad = pad_cl_per_side_f(pad_w_um, pad_l_um)
+    cl_pad = pad_cl_per_side_f()
 
     nx_idx, nx = pick_nx_for_itail(paths["bjt"], itail_a)
     vbe, ic_lut, gm, ft, cbe, cbc, cin_lut, vce_lut = hbt_caps_at_bias(
@@ -200,12 +219,17 @@ def size_driver(
     av_lin = driver_gain_lin(gm, rsil_r)
     cin_m = miller_cin(cbe, cbc, av_lin)
 
-    # Bessel L at m=0.32 using on-chip RD and per-side C_L at pad
-    l_bessel_h = MFD * rsil_r ** 2 * cl_pad
-    l_bessel_ph = l_bessel_h * 1e12
-    # Minimum buildable coil — target below this is unreachable
-    em_case, l_nh = pick_em_inductor(l_bessel_h)
-    l_h = l_nh * 1e-9
+    # Butterworth L at m=0.414 using on-chip RD and per-side C_L at pad
+    l_target_h = M_BUTTERWORTH * rsil_r ** 2 * cl_pad
+    l_target_ph = l_target_h * 1e12
+    spice_dir = Path(__file__).resolve().parents[1] / "spice"
+    ind_drv_inc = spice_dir / "ind_shunt_drv.inc"
+    ind_model = generate_ind_shunt(
+        l_target_h, ind_drv_inc, subckt_name="ind_shunt_drv",
+    )
+    l_h = ind_model.l_band_h
+    em_case = ind_model.case
+    l_nh = l_h * 1e9
     m_real = l_h / (rsil_r ** 2 * cl_pad)
 
     tail_vds = vbase - vbe
@@ -244,7 +268,7 @@ def size_driver(
         l_em_nh=l_nh,
         cl_pad_f=cl_pad,
         m_realized=m_real,
-        l_bessel_target_ph=l_bessel_ph,
+        l_target_ph=l_target_ph,
         itail_a=itail_a,
         mos_w_um=mos_w,
         tail_w_um=tail_w,
@@ -256,7 +280,7 @@ def size_driver(
         vce_est=vce,
         pad_w_um=pad_w_um,
         pad_l_um=pad_l_um,
-        pad_c_f=pad_capacitance_f(pad_w_um, pad_l_um),
+        pad_c_f=MAGIC_PAD_METAL_F,
         esd_m=1,
         driver_cin_ff=driver_cin_ff,
         vga_fo2_ff=vga_fo2_ff,
@@ -278,7 +302,7 @@ def write_driver_params_inc(params: DriverParams, path: Path) -> None:
 
 def extra_params(params: DriverParams) -> dict[str, str]:
     spice_dir = Path(__file__).resolve().parents[1] / "spice"
-    ind_inc = spice_dir / "ind_shunt.inc"
+    ind_inc = spice_dir / "ind_shunt_drv.inc"
     return {
         "Nx": str(params.nx),
         "VBE": f"{params.vbe:.6g}",
@@ -303,12 +327,13 @@ def extra_params(params: DriverParams) -> dict[str, str]:
         "CL_TB": "0",
         "PAD_W": f"{params.pad_w_um:.6g}",
         "PAD_L": f"{params.pad_l_um:.6g}",
-        "PAD_C": f"{params.pad_c_f:.6g}",
+        "PAD_C": f"{MAGIC_PAD_METAL_F:.6g}",
         "ESD_M": str(params.esd_m),
         "CL_PAD": f"{params.cl_pad_f:.6g}",
         "M_REALIZED": f"{params.m_realized:.6g}",
-        "M_BESSEL": f"{MFD:.6g}",
-        "L_BESSEL_PH": f"{params.l_bessel_target_ph:.6g}",
+        "M_TARGET": f"{M_BUTTERWORTH:.6g}",
+        "M_BUTTERWORTH": f"{M_BUTTERWORTH:.6g}",
+        "L_TARGET_PH": f"{params.l_target_ph:.6g}",
         "IND_SHUNT_INC": str(ind_inc.resolve()),
     }
 
@@ -318,7 +343,7 @@ def print_summary(params: DriverParams) -> None:
     esd_ff = ESD_C_FF_PER_PAD
     cl_ff = params.cl_pad_f * 1e15
     swing_est = 2.0 * params.itail_a * R_EFF_AC_SE_OHM * 1e3
-    l_bessel_ac_ph = MFD * R_EFF_AC_SE_OHM ** 2 * params.cl_pad_f * 1e12
+    l_butter_ac_ph = M_BUTTERWORTH * R_EFF_AC_SE_OHM ** 2 * params.cl_pad_f * 1e12
 
     print("=== Output pad driver sizing ===")
     print("  Topology: CML pair, no Rs, single MOS tail (2W), shunt-peaked rsil load")
@@ -334,18 +359,21 @@ def print_summary(params: DriverParams) -> None:
         f"→ swing ≈ {swing_est:.0f} mVpp,diff"
     )
     print(f"  Vout_CM(est)={params.vout_cm_est:.3f} V  VCE(est)={params.vce_est:.3f} V")
-    print(f"  Pad C={pad_ff:.1f} fF + ESD={esd_ff:.1f} fF → C_L={cl_ff:.1f} fF/side")
     print(
-        f"  L={params.l_h*1e12:.1f} pH ({params.l_em_case})  "
-        f"m=L/(RD²·C_L)={params.m_realized:.3f}  (Bessel target {MFD})"
+        f"  Pad C (Magic metal)={pad_ff:.2f} fF + ESD={esd_ff:.1f} fF"
+        f" → C_L={cl_ff:.1f} fF/side"
     )
     print(
-        f"  Bessel L@m=0.32: {params.l_bessel_target_ph:.1f} pH (on-chip RD) — "
-        f"NOT reachable; coil floor ≈{L_COIL_MIN_PH:.0f} pH"
+        f"  L={params.l_h*1e12:.1f} pH ({params.l_em_case}, ind_shunt_drv)  "
+        f"m=L/(RD²·C_L)={params.m_realized:.3f}  (Butterworth target {M_BUTTERWORTH})"
     )
     print(
-        f"  AC-effective Bessel L@R_eff={R_EFF_AC_SE_OHM:.0f}Ω would need "
-        f"{l_bessel_ac_ph:.1f} pH (also below coil floor)"
+        f"  Butterworth L@m={M_BUTTERWORTH}: {params.l_target_ph:.1f} pH (on-chip RD); "
+        f"EM case {params.l_em_case} @ {params.l_h*1e12:.1f} pH"
+    )
+    print(
+        f"  AC-effective Butterworth L@R_eff={R_EFF_AC_SE_OHM:.0f}Ω would need "
+        f"{l_butter_ac_ph:.1f} pH"
     )
     print(
         f"  Driver C_in(Miller)={params.driver_cin_ff:.1f} fF  "

@@ -236,6 +236,12 @@ is still the pad band. The wrapper sets `PAD_C=0` and keeps the ESD
 compact models. See
 `layout/debug_pex/FINDINGS.md` and `circuits/ctle56n/driver_report.md`.
 
+**Schematic vs layout coil:** `size_driver.py` now sizes Butterworth shunt L from
+EM case **`turn1`** (d = 120 µm) in `ind_shunt_drv.inc`. The laid-out GDS coil is
+still **`turn1_d40`** (d = 40 µm) until a layout rebuild. Do **not** re-run
+`driver_stage.py` expecting parity to pass against `turn1` — geometry would fail.
+Post-layout wrappers use `ind_shunt_drv` (via `run_postlayout.py --stage driver`).
+
 ## VGA stage (`vga_dut`)
 
 Cell name is **`vga_dut`**, pins `outp outn inp inn vicm steerp steern vdd vss

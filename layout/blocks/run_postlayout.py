@@ -80,6 +80,7 @@ class StageSpec:
     pdk_lib_header: str
     black_box_models: frozenset[str]
     default_out: Path
+    inductor_subckt: str = "ind_shunt"
 
 
 STAGES: dict[str, StageSpec] = {
@@ -109,6 +110,7 @@ STAGES: dict[str, StageSpec] = {
         pdk_lib_header=_PDK_LIBS_DRIVER,
         black_box_models=_BLACK_BOX_INDUCTOR,
         default_out=_BLOCK_OUT / "postlayout_driver",
+        inductor_subckt="ind_shunt_drv",
     ),
 }
 
@@ -243,6 +245,7 @@ def build_klayout_flow(
         core_netlist=str(core_path.resolve()),
         core_subckt=core_subckt,
         core_ports=core_ports,
+        inductor_subckt=spec.inductor_subckt,
     )
     _prepend_pdk_libs(wrapper_path, spec.pdk_lib_header)
     _inline_core(wrapper_path, core_path)
@@ -309,6 +312,7 @@ def build_magic_flow(
         core_netlist=str(core_path.resolve()),
         core_subckt=core_subckt,
         core_ports=core_ports,
+        inductor_subckt=spec.inductor_subckt,
     )
     _prepend_pdk_libs(wrapper_path, spec.pdk_lib_header)
     _inline_core(wrapper_path, core_path)
