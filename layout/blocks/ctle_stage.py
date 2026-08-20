@@ -20,6 +20,7 @@ mirror images:
     ║   ┌───── guard ring (NMOS only) ──┐  ║
     ║   │  diode │ tail1 │ tail2        │  ║   strapped 243 um arrays
     ║   └───────────────┬────────────────┘ ║
+mgate ─┘                │                    Metal4, out of the left edge
     ╚═══════════════════╪══════════════════╝   vss taps the ring here
                   inp   │   inn                Metal4, out of the bottom edge
 
@@ -587,6 +588,34 @@ def build_ctle_stage(params: dict[str, float] | None = None,
                        note="signal trunk out of the cell edge")
         )
 
+    # --- mgate port, left edge ------------------------------------------------
+    # The bias diode hangs off the left of the NMOS row and sets the ring's
+    # half-width, so the left edge is the shortest run. The bottom edge already
+    # carries inp/inn on Metal4; mgate joins it there at gate_y. Metal4 passes
+    # under the ring's TopMetal2/TopMetal1 runs like the other signal ports.
+    #
+    # A horizontal run at gate_y on Metal2 would cross the mdiode array, so the
+    # exit rises above the guard ring first, crosses on Metal4, then drops back
+    # to gate_y at the port.
+    port_left = snap(ring_box[0] - PORT_REACH)
+    mgate_rise_y = snap(nmos_top + ROW_GAP / 2)
+    rect(layout, cell, "Metal2", channel_x - link_w / 2, gate_y,
+          channel_x + link_w / 2, mgate_rise_y)
+    via_between(layout, cell, channel_x, mgate_rise_y, "Metal2", PORT_METAL)
+    rect(layout, cell, PORT_METAL, min(channel_x, port_left) - sig_w / 2,
+          mgate_rise_y - sig_w / 2, max(channel_x, port_left) + sig_w / 2,
+          mgate_rise_y + sig_w / 2)
+    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, min(gate_y, mgate_rise_y),
+          port_left + sig_w / 2, max(gate_y, mgate_rise_y))
+    mgate_port = Terminal(
+        name="mgate", layer=f"{PORT_METAL.lower()}_drw",
+        center=(port_left, gate_y), width=sig_w, orientation=180.0,
+    )
+    em_segments.append(
+        em.Segment("mgate", PORT_METAL, width_um=sig_w, current_a=0.0,
+                   note="mirror gate bias out of the left cell edge")
+    )
+
     ports = {
         "inp": signal_ports["inp"],
         "inn": signal_ports["inn"],
@@ -594,7 +623,7 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         "outn": signal_ports["outn"],
         "vdd": ring.ports["vdd"][0],
         "vss": ring.ports["vss"][0],
-        "mgate": gate_tap,
+        "mgate": mgate_port,
     }
 
     for terminal, net in (
@@ -603,7 +632,7 @@ def build_ctle_stage(params: dict[str, float] | None = None,
         (q1_t["E"], "e1"), (q2_t["E"], "e2"),
         (rd1_t[upper.name], "nlp1"), (rd2_t[upper.name], "nlp2"),
         (l1_t["PLUS"], "vdd"), (l2_t["PLUS"], "vdd"),
-        (gate_tap, "mgate"), (nmos_ports["S_tail1"], "vss"),
+        (gate_tap, "mgate"), (mgate_port, "mgate"), (nmos_ports["S_tail1"], "vss"),
         (ring.ports["vdd"][0], "vdd"), (ring.ports["vss"][0], "vss"),
     ):
         stamp_net_labels(layout, cell, [terminal], {terminal.name: net})
@@ -646,6 +675,9 @@ def build_ctle_stage(params: dict[str, float] | None = None,
             f"outputs leave at the top edge on {ROUTE_METAL} and inputs at the "
             f"bottom on {IN_METAL}, both passing under the ring rather than "
             "breaking it",
+            f"mgate leaves at the left edge on {PORT_METAL} at gate_y, rising "
+            "above the NMOS row to cross the mdiode array on Metal4 rather than "
+            "breaking the ring",
             f"ring squared about the axis at half-width {ring_half:.1f} um and "
             f"{RING_CLEARANCE:.0f} um clearance, so it is equidistant from both "
             "coils; the bias diode sets the left side and the right widens to match",

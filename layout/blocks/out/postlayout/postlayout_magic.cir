@@ -18,13 +18,13 @@ Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=243u as=82.62p ad=82.62p ps=503u
 C0 e1 e2 0.1357f
 C1 e1 inn 0.02861f
 C2 e1 inp 1.81241f
-C3 e1 mgate 11.40616f
+C3 e1 mgate 11.42644f
 C4 e1 outp 0.3704f
-C5 e1 vss 61.2056f
+C5 e1 vss 61.32552f
 C6 e2 inn 1.91356f
-C7 e2 mgate 11.40585f
+C7 e2 mgate 11.40584f
 C8 e2 outn 0.3704f
-C9 e2 vss 61.45922f
+C9 e2 vss 61.1835f
 C10 inn mgate 0.12781f
 C11 inn outn 0.01821f
 C12 inn vdd 0.21688f
@@ -33,18 +33,19 @@ C14 inp mgate 0.12812f
 C15 inp outp 0.01821f
 C16 inp vdd 0.21688f
 C17 inp vss 9.76232f
-C18 mgate vss 0.12684p
-C19 nlp1 outp 0.75774f
-C20 nlp1 vdd 0.75958f
-C21 nlp1 vss 5.05693f
-C22 nlp2 outn 0.75774f
-C23 nlp2 vdd 0.75958f
-C24 nlp2 vss 5.05693f
-C25 outn vdd 0.37881f
-C26 outn vss 13.47044f
-C27 outp vdd 0.37881f
-C28 outp vss 13.54403f
-C29 vdd vss 0.13478p
+C18 mgate vdd 0.86488f
+C19 mgate vss 0.12304p
+C20 nlp1 outp 0.75774f
+C21 nlp1 vdd 0.75958f
+C22 nlp1 vss 5.05693f
+C23 nlp2 outn 0.75774f
+C24 nlp2 vdd 0.75958f
+C25 nlp2 vss 5.05693f
+C26 outn vdd 0.37881f
+C27 outn vss 13.41014f
+C28 outp vdd 0.37881f
+C29 outp vss 13.54403f
+C30 vdd vss 0.13456p
 Xcdeg e1 e2 cap_cmomi w=12.4252u l=12.4252u mmin=2 mmax=5 feed=same m=1
 Xl1 vdd nlp1 vss ind_shunt
 Xl2 vdd nlp2 vss ind_shunt

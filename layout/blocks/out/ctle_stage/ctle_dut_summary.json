@@ -1,9 +1,9 @@
 {
   "name": "ctle_dut",
   "bbox_um": {
-    "width": 344.5,
+    "width": 351.94,
     "height": 243.065,
-    "area": 83735.8925
+    "area": 85544.2961
   },
   "ports": {
     "inp": {
@@ -67,14 +67,14 @@
       "orientation": 90.0
     },
     "mgate": {
-      "name": "gate_contact",
-      "layer": "metal1_drw",
+      "name": "mgate",
+      "layer": "metal4_drw",
       "center": [
-        65.28,
+        -35.93,
         10.1
       ],
-      "width": 0.34,
-      "orientation": 90.0
+      "width": 2.88,
+      "orientation": 180.0
     }
   },
   "port_nets": [
@@ -1796,6 +1796,7 @@
     "coils face each other with vdd on top, so the supply is a short strap between two adjacent pins and each nlp leaves directly below its own vdd; their bodies extend outward and the channel between them is 42.0 um wide",
     "the coil pin row sits 54.0 um above the HBTs so the pwell-block markers clear their substrate ties",
     "outputs leave at the top edge on Metal5 and inputs at the bottom on Metal4, both passing under the ring rather than breaking it",
+    "mgate leaves at the left edge on Metal4 at gate_y, rising above the NMOS row to cross the mdiode array on Metal4 rather than breaking the ring",
     "ring squared about the axis at half-width 147.2 um and 10 um clearance, so it is equidistant from both coils; the bias diode sets the left side and the right widens to match",
     "drawn nlp interconnect 102.6 um per side against the 15.26 fF budget in params.inc"
   ],
@@ -1817,12 +1818,12 @@
     "metal1_drw": 1057,
     "metal1_nofill": 2,
     "metal1_pin": 520,
-    "metal2_drw": 713,
+    "metal2_drw": 715,
     "metal2_nofill": 2,
     "metal2_pin": 2,
-    "metal3_drw": 395,
+    "metal3_drw": 396,
     "metal3_nofill": 2,
-    "metal4_drw": 405,
+    "metal4_drw": 408,
     "metal4_nofill": 2,
     "metal4_pin": 1,
     "metal5_drw": 412,
@@ -1847,8 +1848,8 @@
     "topvia2_drw": 37,
     "trans_drw": 2,
     "via1_drw": 3660,
-    "via2_drw": 431,
-    "via3_drw": 431,
+    "via2_drw": 435,
+    "via3_drw": 435,
     "via4_drw": 433
   },
   "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",
@@ -2323,6 +2324,19 @@
         "utilisation": 0.0,
         "checkable": true,
         "ok": true
+      },
+      {
+        "net": "mgate",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "mirror gate bias out of the left cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
       }
     ],
     "failures": [],
@@ -2400,26 +2414,26 @@
     "netlist": "/workspace/layout/blocks/out/ctle_stage/pex_run/ctle_dut_pex.spice",
     "ok": true,
     "resistors": 0,
-    "capacitors": 34,
+    "capacitors": 35,
     "total_resistance_ohm": 0.0,
     "resistor_elements": [],
     "resistance_extracted": true,
     "physical": true,
     "negative_capacitors": [],
     "note": "",
-    "total_capacitance_f": 7.62943e-13,
+    "total_capacitance_f": 7.72e-13,
     "per_net_capacitance_f": {
-      "vss": 5.52928e-13,
-      "e2": 2.63277e-13,
-      "e1": 2.63161e-13,
-      "mgate": 2.11188e-13,
-      "vdd": 1.82088e-13,
-      "outp": 1.27122e-14,
-      "outn": 1.26861e-14,
+      "vss": 5.61099e-13,
+      "e2": 2.6307e-13,
+      "e1": 2.62921e-13,
+      "mgate": 2.21063e-13,
+      "vdd": 1.82733e-13,
+      "outn": 1.26733e-14,
+      "outp": 1.25943e-14,
       "inn": 1.22273e-14,
       "inp": 1.193e-14,
-      "rd1_R0_0/a_0_0#": 1.23077e-15,
       "rd2_M90_0/a_0_0#": 1.23077e-15,
+      "rd1_R0_0/a_0_0#": 1.23076e-15,
       "rdeg_R270_0/a_0_0#": 1.22714e-15
     },
     "log": "/workspace/layout/blocks/out/ctle_stage/pex_run/magic_pex.log",

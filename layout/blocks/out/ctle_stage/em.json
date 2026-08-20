@@ -419,6 +419,19 @@
       "utilisation": 0.0,
       "checkable": true,
       "ok": true
+    },
+    {
+      "net": "mgate",
+      "layer": "Metal4",
+      "kind": "ROUTING",
+      "current_a": 0.0,
+      "note": "mirror gate bias out of the left cell edge",
+      "width_um": 2.88,
+      "min_width_um": 0.0,
+      "capacity_a": 0.0057599999999999995,
+      "utilisation": 0.0,
+      "checkable": true,
+      "ok": true
     }
   ],
   "failures": [],

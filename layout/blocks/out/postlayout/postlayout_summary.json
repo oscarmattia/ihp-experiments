@@ -18,9 +18,9 @@
       "netlist": "layout/blocks/out/postlayout/postlayout_magic.cir",
       "core_netlist": "layout/blocks/out/postlayout/ctle_dut_core_magic.cir",
       "device_count": 8,
-      "parasitic_count": 30,
-      "capacitance_kept_fF": 472.7731,
-      "capacitance_dropped_fF": 3.0219,
+      "parasitic_count": 31,
+      "capacitance_kept_fF": 469.4222,
+      "capacitance_dropped_fF": 3.0218,
       "gates": {
         "pex_physical": true,
         "lvs_match": true
