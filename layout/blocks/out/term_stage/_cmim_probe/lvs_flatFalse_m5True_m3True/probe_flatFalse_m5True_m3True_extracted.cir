@@ -1,0 +1,6 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 11:09
+
+.SUBCKT probe vss vss$1
+C$1 \$I3 vss$1 cap_cmim w=20u l=20u A=400p P=80u m=1
+R$2 \$I4 vss \$3 rppd w=1u l=5u ps=0u b=0 m=1
+.ENDS probe

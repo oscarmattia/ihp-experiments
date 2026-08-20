@@ -30,6 +30,7 @@ from size_ctle import (  # noqa: E402
     hbt_caps_at_bias,
     miller_cin,
     size_mos_tail,
+    snap_drawable_mos_w,
 )
 from size_vga import pick_em_inductor, size_vga_for_chain  # noqa: E402
 from size_term import (  # noqa: E402
@@ -79,6 +80,7 @@ class DriverParams:
     l_bessel_target_ph: float = 0.0
     itail_a: float = ITAIL_TARGET_A
     mos_w_um: float = 0.0
+    tail_w_um: float = 0.0
     mos_l_um: float = 0.5
     mos_m: int = 2
     mos_vgs: float = 0.0
@@ -210,6 +212,8 @@ def size_driver(
     mos_w, mos_m_unit, mos_vgs, mos_l = size_mos_tail(
         paths["mos"], itail_a, vds_target=max(tail_vds, TAIL_VDS_V),
     )
+    mos_w = snap_drawable_mos_w(mos_w)
+    tail_w = snap_drawable_mos_w(2.0 * mos_w)
 
     vout_cm = vdd - (itail_a / 2.0) * rsil_r
     vce = vout_cm - (vbase - vbe)
@@ -243,6 +247,7 @@ def size_driver(
         l_bessel_target_ph=l_bessel_ph,
         itail_a=itail_a,
         mos_w_um=mos_w,
+        tail_w_um=tail_w,
         mos_l_um=mos_l,
         mos_m=1,
         mos_vgs=mos_vgs,
@@ -285,7 +290,7 @@ def extra_params(params: DriverParams) -> dict[str, str]:
         "MOS_L": f"{params.mos_l_um:.6g}",
         "MOS_W_m": f"{params.mos_w_um * 1e-6:.12g}",
         "MOS_L_m": f"{params.mos_l_um * 1e-6:.12g}",
-        "TAIL_W_m": f"{2.0 * params.mos_w_um * 1e-6:.12g}",
+        "TAIL_W_m": f"{params.tail_w_um * 1e-6:.12g}",
         "MOS_M": "1",
         "MOS_VGS": f"{params.mos_vgs:.6g}",
         "RSIL_W": f"{params.rsil_w_um * 1e-6:.12g}",
@@ -347,7 +352,7 @@ def print_summary(params: DriverParams) -> None:
         f"VGA FO2 budget={params.vga_fo2_ff:.1f} fF  "
         f"(+{params.vga_bw_penalty_pct:.0f}% load → VGA BW cost)"
     )
-    print(f"  MOS tail W={2*params.mos_w_um:.1f} µm (2× mirror W={params.mos_w_um:.1f} µm), m=1")
+    print(f"  MOS tail W={params.tail_w_um:.3f} µm (2× mirror W={params.mos_w_um:.3f} µm), m=1")
 
 
 def main() -> None:

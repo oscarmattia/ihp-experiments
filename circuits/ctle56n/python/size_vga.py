@@ -34,6 +34,7 @@ from size_ctle import (  # noqa: E402
     size_ctle,
     size_mos_tail,
     size_rppd,
+    snap_drawable_mos_w,
 )
 from size_term import VDD_DEFAULT_V  # noqa: E402
 
@@ -207,6 +208,8 @@ def size_vga(
     mos_w, mos_m, mos_vgs, mos_l = size_mos_tail(
         paths["mos"], ic, vds_target=tail_vds
     )
+    mos_w = snap_drawable_mos_w(mos_w)
+    steer_w = snap_drawable_mos_w(STEER_W_UM)
     rppd_w, rppd_l, _ = size_rppd(paths["rppd"], rd)
 
     vdd = VDD_V  # fixed supply — same rail as term / CTLE / chain
@@ -253,7 +256,7 @@ def size_vga(
         vbase=vbase,
         rppd_w_um=rppd_w,
         rppd_l_um=rppd_l,
-        steer_w_um=STEER_W_UM,
+        steer_w_um=steer_w,
         steer_l_um=STEER_L_UM,
         gain_ceiling_db=g_ceil,
         steer_ratio=steer_ratio,

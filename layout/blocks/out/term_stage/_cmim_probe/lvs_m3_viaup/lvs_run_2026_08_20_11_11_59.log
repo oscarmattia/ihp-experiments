@@ -1,0 +1,18 @@
+20-Aug-2026 11:11:59 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 11:11:59 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_cmim_probe/div_m3_viaup.gds on cell probe
+20-Aug-2026 11:12:00 | INFO    | ==============================================================================
+20-Aug-2026 11:12:00 | INFO    | Important Summary
+20-Aug-2026 11:12:00 | INFO    | +------------------+------------------------------------------------------------------+
+20-Aug-2026 11:12:00 | INFO    | | Status           | FAIL                                                             |
+20-Aug-2026 11:12:00 | INFO    | | Mode             | COMPARE                                                          |
+20-Aug-2026 11:12:00 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                   |
+20-Aug-2026 11:12:00 | INFO    | | Layout           | div_m3_viaup.gds                                                 |
+20-Aug-2026 11:12:00 | INFO    | | Top Cell         | probe                                                            |
+20-Aug-2026 11:12:00 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_cmim_probe/lvs_m3_viaup |
+20-Aug-2026 11:12:00 | INFO    | | Warnings         | 0                                                                |
+20-Aug-2026 11:12:00 | INFO    | | Errors           | 1                                                                |
+20-Aug-2026 11:12:00 | INFO    | | Run Time (s)     | 0.686                                                            |
+20-Aug-2026 11:12:00 | INFO    | +------------------+------------------------------------------------------------------+
+20-Aug-2026 11:12:00 | ERROR   | Key errors:
+20-Aug-2026 11:12:00 | ERROR   |   - 2026-08-20 11:12:00 +0000: Memory Usage (143920K) : ERROR : Netlists don't match
+20-Aug-2026 11:12:00 | INFO    | ==============================================================================

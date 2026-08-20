@@ -5,11 +5,11 @@
 .param VDD=1.6
 .param ITAIL=0.008
 .param ITAIL_HALF=0.004
-.param MOS_W=391.96
+.param MOS_W=392
 .param MOS_L=1
-.param MOS_W_m=0.0003919603712
+.param MOS_W_m=0.000392
 .param MOS_L_m=1e-06
-.param TAIL_W_m=0.0007839207424
+.param TAIL_W_m=0.000784075
 .param MOS_M=1
 .param MOS_VGS=0.638462
 .param RSIL_W=5e-07

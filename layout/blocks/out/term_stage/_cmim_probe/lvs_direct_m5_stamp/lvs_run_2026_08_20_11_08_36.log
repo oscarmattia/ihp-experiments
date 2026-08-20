@@ -1,0 +1,18 @@
+20-Aug-2026 11:08:36 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 11:08:36 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_cmim_probe/probe_direct_m5_stamp.gds on cell probe
+20-Aug-2026 11:08:36 | INFO    | ==============================================================================
+20-Aug-2026 11:08:36 | INFO    | Important Summary
+20-Aug-2026 11:08:36 | INFO    | +------------------+-------------------------------------------------------------------------+
+20-Aug-2026 11:08:36 | INFO    | | Status           | FAIL                                                                    |
+20-Aug-2026 11:08:36 | INFO    | | Mode             | COMPARE                                                                 |
+20-Aug-2026 11:08:36 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                          |
+20-Aug-2026 11:08:36 | INFO    | | Layout           | probe_direct_m5_stamp.gds                                               |
+20-Aug-2026 11:08:36 | INFO    | | Top Cell         | probe                                                                   |
+20-Aug-2026 11:08:36 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_cmim_probe/lvs_direct_m5_stamp |
+20-Aug-2026 11:08:36 | INFO    | | Warnings         | 0                                                                       |
+20-Aug-2026 11:08:36 | INFO    | | Errors           | 1                                                                       |
+20-Aug-2026 11:08:36 | INFO    | | Run Time (s)     | 0.693                                                                   |
+20-Aug-2026 11:08:36 | INFO    | +------------------+-------------------------------------------------------------------------+
+20-Aug-2026 11:08:36 | ERROR   | Key errors:
+20-Aug-2026 11:08:36 | ERROR   |   - 2026-08-20 11:08:36 +0000: Memory Usage (143592K) : ERROR : Netlists don't match
+20-Aug-2026 11:08:36 | INFO    | ==============================================================================

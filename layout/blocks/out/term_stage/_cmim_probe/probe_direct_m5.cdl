@@ -1,0 +1,5 @@
+* probe — generated from DeviceSpecs; do not edit by hand
+.SUBCKT probe vtt vss
+R1 vtt vss vss rppd m=1 l=5u w=1u
+C1 vtt vss cap_cmim w=20u l=20u
+.ENDS probe

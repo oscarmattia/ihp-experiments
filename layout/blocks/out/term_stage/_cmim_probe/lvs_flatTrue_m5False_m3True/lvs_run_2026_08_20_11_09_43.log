@@ -1,0 +1,18 @@
+20-Aug-2026 11:09:43 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 11:09:43 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_cmim_probe/probe_flatTrue_m5False_m3True.gds on cell probe
+20-Aug-2026 11:09:44 | INFO    | ==============================================================================
+20-Aug-2026 11:09:44 | INFO    | Important Summary
+20-Aug-2026 11:09:44 | INFO    | +------------------+---------------------------------------------------------------------------------+
+20-Aug-2026 11:09:44 | INFO    | | Status           | FAIL                                                                            |
+20-Aug-2026 11:09:44 | INFO    | | Mode             | COMPARE                                                                         |
+20-Aug-2026 11:09:44 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                                  |
+20-Aug-2026 11:09:44 | INFO    | | Layout           | probe_flatTrue_m5False_m3True.gds                                               |
+20-Aug-2026 11:09:44 | INFO    | | Top Cell         | probe                                                                           |
+20-Aug-2026 11:09:44 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_cmim_probe/lvs_flatTrue_m5False_m3True |
+20-Aug-2026 11:09:44 | INFO    | | Warnings         | 0                                                                               |
+20-Aug-2026 11:09:44 | INFO    | | Errors           | 1                                                                               |
+20-Aug-2026 11:09:44 | INFO    | | Run Time (s)     | 0.641                                                                           |
+20-Aug-2026 11:09:44 | INFO    | +------------------+---------------------------------------------------------------------------------+
+20-Aug-2026 11:09:44 | ERROR   | Key errors:
+20-Aug-2026 11:09:44 | ERROR   |   - 2026-08-20 11:09:44 +0000: Memory Usage (143652K) : ERROR : Netlists don't match
+20-Aug-2026 11:09:44 | INFO    | ==============================================================================

@@ -1,0 +1,18 @@
+20-Aug-2026 11:08:34 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 11:08:34 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_cmim_probe/probe_viaup_flat.gds on cell probe
+20-Aug-2026 11:08:34 | INFO    | ==============================================================================
+20-Aug-2026 11:08:34 | INFO    | Important Summary
+20-Aug-2026 11:08:34 | INFO    | +------------------+--------------------------------------------------------------------+
+20-Aug-2026 11:08:34 | INFO    | | Status           | FAIL                                                               |
+20-Aug-2026 11:08:34 | INFO    | | Mode             | COMPARE                                                            |
+20-Aug-2026 11:08:34 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                     |
+20-Aug-2026 11:08:34 | INFO    | | Layout           | probe_viaup_flat.gds                                               |
+20-Aug-2026 11:08:34 | INFO    | | Top Cell         | probe                                                              |
+20-Aug-2026 11:08:34 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_cmim_probe/lvs_viaup_flat |
+20-Aug-2026 11:08:34 | INFO    | | Warnings         | 0                                                                  |
+20-Aug-2026 11:08:34 | INFO    | | Errors           | 1                                                                  |
+20-Aug-2026 11:08:34 | INFO    | | Run Time (s)     | 0.621                                                              |
+20-Aug-2026 11:08:34 | INFO    | +------------------+--------------------------------------------------------------------+
+20-Aug-2026 11:08:34 | ERROR   | Key errors:
+20-Aug-2026 11:08:34 | ERROR   |   - 2026-08-20 11:08:34 +0000: Memory Usage (143376K) : ERROR : Netlists don't match
+20-Aug-2026 11:08:34 | INFO    | ==============================================================================

@@ -10,7 +10,7 @@ vga_pdk_VCE_V,0.8907
 vga_pdk_VDS_tail_V,0.4595
 vga_pdk_VGS_tail_V,0.4142
 vga_pdk_Ic_A,0.00125689
-vga_pdk_Id_tail_A,0.00574877
+vga_pdk_Id_tail_A,0.00574876
 vga_pdk_RD_realized_ohm,nan
 vga_pdk_m,nan
 vga_pdk_eye_height_mV,145.91

@@ -8,9 +8,9 @@
 .param LLOAD=6.29e-11
 .param CL=4.34696e-14
 .param ITAIL=0.00287812
-.param MOS_W=246.888
+.param MOS_W=246.875
 .param MOS_L=1
-.param MOS_W_m=0.00024688804091
+.param MOS_W_m=0.000246875
 .param MOS_L_m=1e-06
 .param MOS_M=1
 .param MOS_VGS=0.55

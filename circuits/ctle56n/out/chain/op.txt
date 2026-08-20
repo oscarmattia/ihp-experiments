@@ -18,8 +18,8 @@ Note: Dynamic gmin stepping completed
 
 No. of Data Rows : 1
 --- DC operating point ---
-v(outp) = 1.388812e+00
-v(outn) = 1.388812e+00
+v(outp) = 1.388791e+00
+v(outn) = 1.388791e+00
 v(inp) = 1.395690e+00
 v(inn) = 1.395690e+00
 v(vdd) = 1.600000e+00
@@ -31,27 +31,27 @@ v(xu1.xuterm.vtt) = 1.395712e+00
 v(xu1.xuctle.e1) = 4.384593e-01
 v(xu1.xuctle.e2) = 4.384593e-01
 v(xu1.ctle_mgate) = 4.164532e-01
-v(xu1.xuvga.em) = 4.572955e-01
-v(xu1.xuvga.ed1) = 4.411645e-01
-v(xu1.xuvga.ed2) = 4.411645e-01
-v(xu1.vga_mgate) = 4.142349e-01
-v(xu1.xudrv.em) = 4.245185e-01
-v(xu1.drv_mgate) = 3.934158e-01
+v(xu1.xuvga.em) = 4.572956e-01
+v(xu1.xuvga.ed1) = 4.411647e-01
+v(xu1.xuvga.ed2) = 4.411647e-01
+v(xu1.vga_mgate) = 4.142422e-01
+v(xu1.xudrv.em) = 4.245105e-01
+v(xu1.drv_mgate) = 3.934027e-01
 @q.xu1.xuctle.xq1.qnpn13g2[ic] = 2.888388e-03
 @q.xu1.xuctle.xq2.qnpn13g2[ic] = 2.888388e-03
-@q.xu1.xuvga.xq1.qnpn13g2[ic] = 1.258969e-03
-@q.xu1.xuvga.xq2.qnpn13g2[ic] = 1.258969e-03
-@q.xu1.xuvga.xqd1.qnpn13g2[ic] = 1.608816e-03
-@q.xu1.xuvga.xqd2.qnpn13g2[ic] = 1.608816e-03
-@q.xu1.xudrv.xq1.qnpn13g2[ic] = 4.171418e-03
-@q.xu1.xudrv.xq2.qnpn13g2[ic] = 4.171418e-03
+@q.xu1.xuvga.xq1.qnpn13g2[ic] = 1.258966e-03
+@q.xu1.xuvga.xq2.qnpn13g2[ic] = 1.258966e-03
+@q.xu1.xuvga.xqd1.qnpn13g2[ic] = 1.608813e-03
+@q.xu1.xuvga.xqd2.qnpn13g2[ic] = 1.608813e-03
+@q.xu1.xudrv.xq1.qnpn13g2[ic] = 4.171835e-03
+@q.xu1.xudrv.xq2.qnpn13g2[ic] = 4.171835e-03
 @n.xu1.xuctle.xtail1.nsg13_lv_nmos[ids] = 2.895971e-03
 @n.xu1.xuctle.xtail2.nsg13_lv_nmos[ids] = 2.895971e-03
-@n.xu1.xuvga.xtail1.nsg13_lv_nmos[ids] = 2.873024e-03
-@n.xu1.xuvga.xtail2.nsg13_lv_nmos[ids] = 2.873024e-03
-@n.xu1.xuvga.xps1.nsg13_lv_nmos[ids] = 1.261141e-03
-@n.xu1.xuvga.xpd1.nsg13_lv_nmos[ids] = 1.611883e-03
-@n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] = 1.261141e-03
-@n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids] = 1.611883e-03
-@n.xu1.xudrv.xtail.nsg13_lv_nmos[ids] = 8.361237e-03
+@n.xu1.xuvga.xtail1.nsg13_lv_nmos[ids] = 2.873018e-03
+@n.xu1.xuvga.xtail2.nsg13_lv_nmos[ids] = 2.873018e-03
+@n.xu1.xuvga.xps1.nsg13_lv_nmos[ids] = 1.261138e-03
+@n.xu1.xuvga.xpd1.nsg13_lv_nmos[ids] = 1.611880e-03
+@n.xu1.xuvga.xps2.nsg13_lv_nmos[ids] = 1.261138e-03
+@n.xu1.xuvga.xpd2.nsg13_lv_nmos[ids] = 1.611880e-03
+@n.xu1.xudrv.xtail.nsg13_lv_nmos[ids] = 8.362075e-03
 Note: Simulation executed from .control section 
