@@ -297,8 +297,17 @@ stacked bottom to top, and every stage script places its devices into these rows
 
 ```mermaid
 flowchart TB
-  outPin["out — top edge"]
-  vddPin["vdd — top edge"]
+  subgraph padBand ["Pad band — only where a stage has pads"]
+    direction TB
+    clamp["Rail clamp, on the axis"]
+    subgraph padRow ["Pad row"]
+      direction LR
+      padP["Pad P"]
+      esdP["ESD P — diodevdd + diodevss"]
+      esdN["ESD N — diodevdd + diodevss"]
+      padN["Pad N"]
+    end
+  end
   subgraph ring ["Power ring"]
     direction TB
     subgraph coilRow ["Coil row"]
@@ -315,27 +324,29 @@ flowchart TB
       sigN["Signal N"]
       dumN["Dummy N"]
     end
-    ctrlRow["Control channel"]
     subgraph guard ["Guard ring"]
       direction LR
       mdiode["Mirror diode"]
       tails["Tails and steering"]
     end
   end
+  outPin["out"]
+  vddPin["vdd"]
   inPin["in — bottom edge"]
   ctrlPin["ctrl — left edge"]
   irefPin["Iref, the mgate pin — left edge"]
 
+  padP --> esdP --> outPin
+  padN --> esdN --> outPin
   vddPin --> indP
   vddPin --> indN
   indP --> loadP --> sigP --> outPin
   indN --> loadN --> sigN --> outPin
   inPin --> sigP
   inPin --> sigN
-  ctrlPin --> ctrlRow
-  ctrlRow --> dumP
-  ctrlRow --> dumN
-  ctrlRow --> tails
+  ctrlPin --> dumP
+  ctrlPin --> dumN
+  ctrlPin --> tails
   irefPin --> mdiode
   tails --> sigP
   tails --> dumP
@@ -344,18 +355,53 @@ flowchart TB
 Pins leave on fixed edges so the stages cascade by abutment: **`out` and `vdd` at
 the top**, **`in` at the bottom**, **`ctrl` and `Iref` on the left**, `vss` at the
 bottom inside the ring. `Iref` is the `mgate` pin; `ctrl` is whatever bundle of
-references a stage needs — for the VGA that is `vicm`, `steerp` and `steern`.
+references a stage needs — for the VGA that is `vicm`, `steerp` and `steern`, and
+it runs horizontally at the pair row so it reaches the dummy bases on both sides.
 
 What each stage puts in each row:
 
 | Row | CTLE | VGA | Pad driver | Termination |
 | --- | --- | --- | --- | --- |
-| Above the coils | — | — | bond pads and their ESD | — |
+| Pad band | — | — | clamp, two pads, four ESD | clamp, two pads, four ESD |
 | Coil row | two coils, `rppd` loads | two coils, `rppd` loads | two coils, `rsil` loads | — |
 | Pair row | `npn13G2` pair | signal pair inboard, dummy pair outboard | `npn13G2` pair, `Nx=2` | — |
-| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | — | — |
-| MOS row | mirror diode, two tails | mirror diode, two tails, four steering | mirror diode, one double-width tail | rail clamp |
-| Below the ring | — | — | — | bond pads, ESD, 50 Ω terminators, `vtt` divider |
+| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | — | 50 Ω terminators, `vtt` divider |
+| MOS row | mirror diode, two tails | mirror diode, two tails, four steering | mirror diode, one double-width tail | — |
+
+### The pad band
+
+A stage with bond pads gets a band of its own, separated from the core by a run of
+the power ring, so the pads never sit inside the ring around the active devices.
+Within the band:
+
+- **Pad pitch is 130 um.** The pads are 70 um square, so their centres sit at
+  ±65 um from the axis and the channel between them is **60 um** wide. Everything
+  below has to fit in that 60 um.
+- The **clamp sits on the axis at the outer edge**, above both pads, tying `vdd`
+  to `vss`.
+- The **four ESD diodes sit in the channel between the pads**, as one column per
+  side just inboard of its own pad: `diodevdd_2kv` and `diodevss_2kv` stacked. The
+  `esd` PCell is 13.06 um wide and 37.05 um tall, so two columns take 26 um of the
+  60 um channel and leave about 34 um down the middle.
+- **`vdd`, `out` P, `out` N and `vss` run vertically in that middle**, `vdd` and
+  `vss` on the outside of the group and the two signals between them. `vdd` enters
+  the band at the outer edge beside the clamp and `vss` leaves at the inner edge
+  toward the core, so the supplies reach the core through the channel rather than
+  only around the ring.
+- `out` leaves each pad **inboard**, horizontally, to its own ESD column and then
+  onto its vertical in the middle group.
+
+Approaching from inboard is what keeps the pads legal: `Pad.fR_M1` through
+`Pad.fR_TM2` fire on anything drawn under the 70 um square, so a feed has to run
+along the pad's edge and stop outside it. Same class of constraint as the coil's
+`pwell_block` marker, and it wants the same answer — stay out of the footprint and
+come in from the side. The `bondpad` cell also anchors on its **centre**, so placing
+it by bottom-left coordinates puts it 35 um from where it was meant to go.
+
+For the termination the band is at the **bottom** rather than the top, because its
+pads are the chip inputs; the 50 Ω terminators and the `vtt` divider then occupy the
+control channel. For the pad driver the band is at the top, because its pads are the
+outputs.
 
 Two properties of the template are what make it routable, and both are departures
 from the CTLE as originally drawn:
