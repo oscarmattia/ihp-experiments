@@ -2992,20 +2992,20 @@
     "signal_resistance_ohm": 0,
     "pad_capacitance_f": {
       "outp": {
-        "pad_metal": 6.825000000000001e-17,
+        "pad_metal": 6.546825000000001e-14,
         "esd": 0.0,
         "coil": 1.2405e-17,
         "core": 4.099850000000001e-16,
         "supply": 7.644685e-15,
-        "other": 6.54e-14
+        "other": 0.0
       },
       "outn": {
-        "pad_metal": 6.825000000000001e-17,
+        "pad_metal": 6.488825e-14,
         "esd": 0.0,
         "coil": 1.2405e-17,
         "core": 3.493500000000001e-16,
         "supply": 7.628440000000001e-15,
-        "other": 6.482e-14
+        "other": 0.0
       }
     }
   }
