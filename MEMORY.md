@@ -477,6 +477,12 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **The extracted netlist carries parameters the models reject.** Extraction emits `A` and `P` on
   `cap_cmomi`, which declares neither, so a post-layout netlist has to be filtered against each
   model's own accepted parameter list rather than fed to ngspice raw.
+- **LVS `D$` instances are `.subckt` wrappers.** `diodevdd_2kv`, `diodevss_2kv` and `nmoscl_2` are
+  subcircuits, so a post-layout core has to rewrite the LVS `D$` prefix to `X` the same way it
+  rewrites `M$`/`Q$`/`R$`. Leave `D$` and ngspice treats them as primitive diodes `[model]`.
+- **Driver Magic flow must drop the testbench `PAD_C`.** The bond pad is metal, so C-only PEX already
+  has it; keeping the hand cap double-counts. The `* postlayout-cl-model: miller` marker is the
+  switch. KLayout (devices only) still needs the hand cap `[sim]`.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
   continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction. With the
   coil black-boxed the crash goes away and the pass completes on every cell, so the coil is the

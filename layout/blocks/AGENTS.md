@@ -19,6 +19,7 @@ changes.
 | `ctle_stage.py` | `ctle_dut` — full CTLE stage |
 | `vga_stage.py` | `vga_dut` — current-steering VGA |
 | `driver_stage.py` | `driver_dut` — pad driver |
+| `run_postlayout.py` | black-boxed sim view + KLayout/Magic DUT wrappers (`--stage ctle\|vga\|driver\|all`) |
 
 ## CTLE sub-blocks
 

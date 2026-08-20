@@ -57,6 +57,9 @@ from ctlelib import (  # noqa: E402
     DRIVER_DUT_BIAS,
     DRIVER_DUT_PORTS,
     DRIVER_NODESET,
+    declared_cl_model,
+    pass_out,
+    resolve_dut_path,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, verify_eye_phase_invariance  # noqa: E402
@@ -603,9 +606,14 @@ def run(
     out_dir: Path | None = None,
     *,
     no_tran: bool = False,
+    dut: Path | None = None,
+    pass_name: str | None = None,
 ) -> tuple[DriverParams, DriverSimMetrics]:
     spice_dir = _EXP / "spice"
-    pout = out_dir or driver_out()
+    if pass_name:
+        pout = pass_out(pass_name)
+    else:
+        pout = out_dir or driver_out()
     pout.mkdir(parents=True, exist_ok=True)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -619,10 +627,22 @@ def run(
     params = size_driver()
     ep = extra_params(params)
     print_summary(params)
-    _write_work_params(work, ep)
 
     models = pdk_models()
-    dut_cir = spice_dir / "driver_pdk.cir"
+    dut_cir = (
+        resolve_dut_path(dut, spice_dir, _REPO)
+        if dut is not None
+        else spice_dir / "driver_pdk.cir"
+    )
+    cl_mode = declared_cl_model(dut_cir) or "full"
+    if cl_mode == "miller":
+        # Magic already extracted the bond-pad metal; the hand PAD_C would
+        # double-count it. ESD junction C stays in the compact models.
+        ep["PAD_C"] = "0"
+        print(f"  load model: miller (PAD_C = 0; extracted pad metal stays in the DUT)")
+    elif dut is not None:
+        print(f"  load model: {cl_mode} (PAD_C = {ep['PAD_C']} F per pad)")
+    _write_work_params(work, ep)
 
     # --- DC ---
     tb_dc = _prepare_driver_tb(
@@ -821,9 +841,29 @@ def main() -> None:
         action="store_true",
         help="Run input amplitude sweep (implies transient sims)",
     )
+    parser.add_argument(
+        "--dut",
+        type=Path,
+        default=None,
+        help="External DUT netlist (post-layout .cir)",
+    )
+    parser.add_argument(
+        "--pass-name",
+        default=None,
+        help="Output directory name under out/ (required with --dut)",
+    )
     args = parser.parse_args()
+    if args.dut is not None and not args.pass_name:
+        parser.error("--pass-name is required with --dut")
 
-    params, sim = run(no_tran=args.no_tran and not args.drive_sweep)
+    params, sim = run(
+        no_tran=args.no_tran and not args.drive_sweep,
+        dut=args.dut,
+        pass_name=args.pass_name,
+    )
+
+    if args.dut is not None:
+        return
 
     if args.drive_sweep or not args.no_tran:
         spice_dir = _EXP / "spice"

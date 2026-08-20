@@ -341,11 +341,16 @@ def _split_element_tokens(line: str) -> tuple[str, list[str], str, list[str]]:
 
 
 def _as_subckt_instance(name: str) -> str:
-    """LVS writes ``R$``/``Q$``/``M$`` lines; PDK models are ``.subckt`` wrappers."""
+    """LVS writes ``R$``/``Q$``/``M$``/``D$`` lines; PDK models are ``.subckt`` wrappers.
+
+    ``D`` is required for the ESD diodes and the ``nmoscl_2`` clamp: their compact
+    models are subcircuits (``diodevdd_2kv``, ``diodevss_2kv``, ``nmoscl_2``), and
+    leaving the LVS ``D$`` prefix makes ngspice treat them as primitive diodes.
+    """
     prefix = name[0].upper()
     if prefix == "X":
         return name
-    if prefix in "RQMC":
+    if prefix in {"R", "Q", "M", "C", "D"}:
         return "X" + name[1:]
     return name
 
@@ -377,24 +382,92 @@ def normalise_element(line: str) -> str:
     return " ".join(parts)
 
 
-def rename_schematic_instances(line: str) -> str:
-    """Map LVS instance names to the schematic's ``XQ1``/``Xtail1``/… for ``save`` probes."""
-    _, nodes, model, param_tokens = _split_element_tokens(line)
-    model_l = model.lower()
-    new_name: str | None = None
+def _rename_ctle(nodes: list[str], model_l: str) -> str | None:
     if model_l == "npn13g2":
         node_set = set(nodes)
         if {"outp", "inp", "e1"}.issubset(node_set):
-            new_name = "XQ1"
-        elif {"outn", "inn", "e2"}.issubset(node_set):
-            new_name = "XQ2"
+            return "XQ1"
+        if {"outn", "inn", "e2"}.issubset(node_set):
+            return "XQ2"
     elif model_l == "sg13_lv_nmos":
         if len(nodes) >= 2 and nodes[0] == "mgate" and nodes[1] == "mgate":
-            new_name = "Xmdiode"
-        elif nodes and nodes[0] == "e1":
-            new_name = "Xtail1"
-        elif nodes and nodes[0] == "e2":
-            new_name = "Xtail2"
+            return "Xmdiode"
+        if nodes and nodes[0] == "e1":
+            return "Xtail1"
+        if nodes and nodes[0] == "e2":
+            return "Xtail2"
+    return None
+
+
+def _rename_vga(nodes: list[str], model_l: str) -> str | None:
+    if model_l == "npn13g2":
+        node_set = set(nodes)
+        if {"outp", "inp", "em"}.issubset(node_set):
+            return "XQ1"
+        if {"outn", "inn", "em"}.issubset(node_set):
+            return "XQ2"
+        if {"outp", "vicm", "ed1"}.issubset(node_set):
+            return "XQd1"
+        if {"outn", "vicm", "ed2"}.issubset(node_set):
+            return "XQd2"
+    elif model_l == "sg13_lv_nmos":
+        if len(nodes) >= 2 and nodes[0] == "mgate" and nodes[1] == "mgate":
+            return "Xmdiode"
+        if len(nodes) >= 3 and nodes[0] == "tx1" and nodes[1] == "mgate":
+            return "Xtail1"
+        if len(nodes) >= 3 and nodes[0] == "tx2" and nodes[1] == "mgate":
+            return "Xtail2"
+        if len(nodes) >= 3 and nodes[0] == "em" and nodes[1] == "steerp" and nodes[2] == "tx1":
+            return "Xps1"
+        if len(nodes) >= 3 and nodes[0] == "em" and nodes[1] == "steerp" and nodes[2] == "tx2":
+            return "Xps2"
+        if len(nodes) >= 3 and nodes[0] == "ed1" and nodes[1] == "steern" and nodes[2] == "tx1":
+            return "Xpd1"
+        if len(nodes) >= 3 and nodes[0] == "ed2" and nodes[1] == "steern" and nodes[2] == "tx2":
+            return "Xpd2"
+    return None
+
+
+def _rename_driver(nodes: list[str], model_l: str) -> str | None:
+    node_set = set(nodes)
+    if model_l == "npn13g2":
+        if {"outp", "inp", "em"}.issubset(node_set):
+            return "XQ1"
+        if {"outn", "inn", "em"}.issubset(node_set):
+            return "XQ2"
+    elif model_l == "sg13_lv_nmos":
+        if len(nodes) >= 2 and nodes[0] == "mgate" and nodes[1] == "mgate":
+            return "Xmdiode"
+        if len(nodes) >= 2 and nodes[0] == "em" and nodes[1] == "mgate":
+            return "Xtail"
+    elif model_l == "diodevdd_2kv":
+        if "outp" in node_set:
+            return "Xesd_vdd_p"
+        if "outn" in node_set:
+            return "Xesd_vdd_n"
+    elif model_l == "diodevss_2kv":
+        if "outp" in node_set:
+            return "Xesd_vss_p"
+        if "outn" in node_set:
+            return "Xesd_vss_n"
+    elif model_l == "nmoscl_2":
+        return "Xclamp"
+    return None
+
+
+_RENAME_BY_CELL = {
+    "ctle_dut": _rename_ctle,
+    "vga_dut": _rename_vga,
+    "driver_dut": _rename_driver,
+}
+
+
+def rename_schematic_instances(line: str, cell: str = "ctle_dut") -> str:
+    """Map LVS instance names to the schematic's ``XQ1``/``Xtail1``/… for ``save`` probes."""
+    _, nodes, model, _param_tokens = _split_element_tokens(line)
+    model_l = model.lower()
+    rename = _RENAME_BY_CELL.get(cell)
+    new_name = rename(nodes, model_l) if rename is not None else None
     if new_name is None:
         return line
     tokens = line.split()

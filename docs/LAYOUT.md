@@ -588,10 +588,10 @@ summary against the `CL_INTERCONNECT` budget in `params.inc`.
 ## Post-layout simulation
 
 The extracted layout is simulated through the *same* testbenches as the schematic,
-because the CTLE was made a device-only cell with pins
-`outp outn inp inn vdd vss mgate`: a post-layout netlist is just another `dut_cir`
-for `prepare_tb`, and `circuits/ctle56n/python/stage_postlayout.py` takes it by
-path so `circuits/` never imports from `layout/`.
+because each stage is a device-only cell (`ctle_dut`, `vga_dut`, `driver_dut`):
+a post-layout netlist is just another `dut_cir` for `prepare_tb`.
+`layout/blocks/run_postlayout.py --stage {ctle,vga,driver}` writes the wrappers;
+the circuit runners take them by path so `circuits/` never imports from `layout/`.
 
 Two device kinds cannot come from extraction and are black-boxed per kind in
 `simview.BLACK_BOX_KINDS`:
@@ -604,11 +604,11 @@ Two device kinds cannot come from extraction and are black-boxed per kind in
   is not.
 
 Removing them means the nets they touched must become pins of the extracted
-subcircuit, so `simview.promoted_nets()` derives `e1`, `e2`, `nlp1`, `nlp2` from the
-instances and a wrapper reconnects the compact models on those internal nodes while
-presenting the schematic's own seven pins.
+subcircuit, so `simview.promoted_nets()` derives `nlp1`/`nlp2` (and the CTLE's
+`e1`/`e2`) from the instances and a wrapper reconnects the compact models on those
+internal nodes while presenting the schematic's own pins.
 
-The simulation view is a build option, `build_ctle_stage(black_box=...)`, not a
+The simulation view is a build option, `build_*_stage(black_box=...)`, not a
 hand-maintained second view — which is the point of a generated layout, since the
 two cannot drift. It is gated on LVS against a *reduced* CDL derived from the same
 instance list, so every remaining device and all its connectivity is still verified.

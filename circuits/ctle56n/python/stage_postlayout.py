@@ -33,6 +33,7 @@ from ctlelib import (  # noqa: E402
     EyeMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
+    declared_cl_model,
     extract_sbr,
     group_delay_s,
     interp_db_at,
@@ -51,6 +52,7 @@ from ctlelib import (  # noqa: E402
     plot_tran_diff,
     plot_tran_se,
     prepare_tb,
+    resolve_dut_path,
     run_ngspice,
     verify_eye_phase_invariance,
     write_ac_diff_csv,
@@ -84,19 +86,7 @@ CL_MARKER = "* postlayout-cl-model:"
 
 
 def _declared_cl_model(dut: Path) -> str | None:
-    """The load model the netlist itself asks for, if it says.
-
-    A netlist that carries its own interconnect capacitance needs the Miller term
-    only; one that carries no parasitics needs the full CL. The generator knows
-    which it built and records it, so the right answer does not depend on the caller
-    remembering.
-    """
-    for line in dut.read_text().splitlines()[:8]:
-        if line.startswith(CL_MARKER):
-            value = line[len(CL_MARKER):].strip()
-            if value in ("full", "miller"):
-                return value
-    return None
+    return declared_cl_model(dut)
 
 
 def _resolve_cl_tb(spice_dir: Path, mode: str) -> str:
