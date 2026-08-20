@@ -58,6 +58,7 @@ done
 
 if [[ "$RUN_TERM" -eq 1 ]]; then
   echo "=== Termination stage ==="
+  "$PY" "$CTLE/python/size_term.py"
   "$PY" "$CTLE/python/stage_term.py" $NO_TRAN
 fi
 
@@ -69,6 +70,7 @@ fi
 
 if [[ "$RUN_VGA" -eq 1 ]]; then
   echo "=== VGA stage ==="
+  "$PY" "$CTLE/python/size_vga.py"
   VGA_ARGS=()
   [[ -n "$NO_TRAN" ]] && VGA_ARGS+=(--no-tran)
   [[ -n "$NO_PDK" ]] && VGA_ARGS+=(--no-pdk)
@@ -100,6 +102,9 @@ if [[ "$RUN_CHAIN" -eq 1 ]]; then
     echo "NOTE: --with-chain set but python/stage_chain.py not present; skipping"
   fi
 fi
+
+echo "=== Pad driver sizing ==="
+"$PY" "$CTLE/python/size_driver.py"
 
 echo "=== Summary aggregate ==="
 "$PY" "$CTLE/python/run_sims.py" --aggregate-summary
