@@ -2,8 +2,8 @@
   "name": "driver_dut",
   "bbox_um": {
     "width": 568.92,
-    "height": 307.77,
-    "area": 175096.5084
+    "height": 548.92,
+    "area": 312291.5664
   },
   "ports": {
     "inp": {
@@ -2236,17 +2236,17 @@
         195.16,
         221.56
       ],
-      "out_trunks": [
-        169.885,
-        242.435
+      "out_cols": [
+        196.085,
+        220.135
       ],
       "in_trunks": [
         193.885,
         218.435
       ],
       "loads": [
-        208.36,
-        208.36
+        196.085,
+        220.135
       ],
       "coil_feeds": [
         186.36,
@@ -2369,13 +2369,14 @@
     "single tail centred on x=208.36 um; the mirror diode sits to its left, outside the symmetric core because it carries no signal",
     "guard ring encloses the NMOS only and its taps are strapped to the vss rail, so the substrate really is vss",
     "coils rotated to face each other, so vdd is one straight TopMetal2 strap with the nlp feeds below it dropping onto the rsil loads",
+    "each output half is one vertical column (collector \u2192 rsil \u2192 coil \u2192 pad) on the HBT x; no offset collector trunks",
     "wire widths from the technology LEF at the operating point: 8.00 mA tail, 12.00 mA supply",
     "bond pads at outp/outn sit 18 um above the coil tops; ESD diodes and the clamp sit in the row beneath the pads",
     "the coil pin row sits 54.0 um above the HBTs so the pwell-block markers clear their substrate ties",
     "inputs leave at the bottom edge on Metal3; outputs are the bond pads on TopMetal2 at the top of the cell",
     "mgate leaves at the left edge on Metal4 at gate_y",
     "ring squared about the axis at half-width 254.5 um and 10 um clearance",
-    "drawn nlp interconnect 104.8 um per side"
+    "drawn nlp interconnect 84.8 um per side"
   ],
   "layers": {
     "activ_drw": 878,
@@ -2393,18 +2394,18 @@
     "ind_drw": 2,
     "ind_pin": 4,
     "lbe_drw": 2,
-    "metal1_drw": 1535,
+    "metal1_drw": 1528,
     "metal1_nofill": 2,
     "metal1_pin": 750,
-    "metal2_drw": 568,
+    "metal2_drw": 557,
     "metal2_nofill": 2,
     "metal2_pin": 10,
-    "metal3_drw": 56,
+    "metal3_drw": 44,
     "metal3_nofill": 2,
     "metal3_pin": 2,
-    "metal4_drw": 30,
+    "metal4_drw": 24,
     "metal4_nofill": 2,
-    "metal5_drw": 55,
+    "metal5_drw": 49,
     "metal5_nofill": 2,
     "nbulay_drw": 1,
     "norcx_drw": 2,
@@ -2420,18 +2421,18 @@
     "salblock_drw": 12,
     "substrate_drw": 500,
     "thickgateox_drw": 1,
-    "topmetal1_drw": 63,
+    "topmetal1_drw": 59,
     "topmetal1_nofill": 2,
     "topmetal2_drw": 68,
     "topmetal2_nofill": 2,
     "topmetal2_pin": 4,
-    "topvia1_drw": 483,
-    "topvia2_drw": 233,
+    "topvia1_drw": 484,
+    "topvia2_drw": 234,
     "trans_drw": 2,
-    "via1_drw": 7650,
-    "via2_drw": 855,
-    "via3_drw": 1035,
-    "via4_drw": 1031
+    "via1_drw": 7646,
+    "via2_drw": 829,
+    "via3_drw": 1034,
+    "via4_drw": 1030
   },
   "gds": "/workspace/layout/blocks/out/driver_stage/driver_dut.gds",
   "cdl": "/workspace/layout/blocks/out/driver_stage/driver_dut.cdl",
@@ -2627,7 +2628,7 @@
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.008,
-        "note": "coil feed continued inward, then down to the load",
+        "note": "coil feed straight above the load column",
         "width_um": 4.0,
         "min_width_um": 0.5,
         "capacity_a": 0.064,
@@ -2640,7 +2641,7 @@
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.008,
-        "note": "coil feed continued inward, then down to the load",
+        "note": "coil feed straight above the load column",
         "width_um": 4.0,
         "min_width_um": 0.5,
         "capacity_a": 0.064,
@@ -2770,11 +2771,11 @@
         "layer": "TopMetal2",
         "kind": "ROUTING",
         "current_a": 0.012,
-        "note": "source rail down to the ring, on the axis",
-        "width_um": 4.0,
+        "note": "Metal3 bus from the source rail to the ring, TM2 riser on the axis",
+        "width_um": 3.0,
         "min_width_um": 0.75,
-        "capacity_a": 0.064,
-        "utilisation": 0.1875,
+        "capacity_a": 0.048,
+        "utilisation": 0.25,
         "checkable": true,
         "ok": true
       },
@@ -2784,10 +2785,10 @@
         "kind": "ROUTING",
         "current_a": 0.012,
         "note": "coil strap up to the ring, crossing under the vss run",
-        "width_um": 4.0,
+        "width_um": 3.0,
         "min_width_um": 0.8,
-        "capacity_a": 0.06,
-        "utilisation": 0.2,
+        "capacity_a": 0.045,
+        "utilisation": 0.2667,
         "checkable": true,
         "ok": true
       },
@@ -2841,28 +2842,24 @@
     "gds": "/workspace/layout/blocks/out/driver_stage/driver_dut.gds",
     "clean": false,
     "strictly_clean": false,
-    "total_violations": 46,
-    "real_violations": 30,
+    "total_violations": 60,
+    "real_violations": 44,
     "by_rule": {
       "Gat.d": 2,
       "LBE.a": 16,
       "LBE.c": 10,
-      "TM1.b": 2,
-      "TM2.a": 2,
-      "TM2.b": 2,
-      "V2.b": 4,
-      "V3.b": 4,
-      "V4.b": 4
+      "M5.b": 8,
+      "V2.b": 8,
+      "V3.b": 8,
+      "V4.b": 8
     },
     "real_by_rule": {
       "Gat.d": 2,
       "LBE.c": 10,
-      "TM1.b": 2,
-      "TM2.a": 2,
-      "TM2.b": 2,
-      "V2.b": 4,
-      "V3.b": 4,
-      "V4.b": 4
+      "M5.b": 8,
+      "V2.b": 8,
+      "V3.b": 8,
+      "V4.b": 8
     },
     "context_by_rule": {
       "LBE.a": 16
@@ -2875,35 +2872,33 @@
         "edge-pair: (-3.846,10.48;-2.994,10.48)/(-3.03,10.54;-3.81,10.54)",
         "edge-pair: (-2.961,9.88;-3.879,9.88)/(-3.81,9.87;-3.03,9.87)"
       ],
+      "M5.b": [
+        "edge-pair: (195.735,47.58;195.94,47.58)|(195.94,47.6;195.526,47.6)",
+        "edge-pair: (196.23,47.58;196.435,47.58)|(196.644,47.6;196.23,47.6)",
+        "edge-pair: (219.785,47.58;219.99,47.58)|(219.99,47.6;219.576,47.6)",
+        "edge-pair: (220.28,47.58;220.485,47.58)|(220.694,47.6;220.28,47.6)",
+        "edge-pair: (-0.35,0.31;-0.145,0.31)|(-0.145,0.33;-0.559,0.33)"
+      ],
       "V2.b": [
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)",
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)"
+        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.11,-0.03;-0.11,-0.22)",
+        "edge-pair: (0.11,-0.22;0.11,-0.03)|(0.095,0.095;0.095,-0.095)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)",
+        "edge-pair: (0.11,0.11;0.11,0.3)|(0.095,0.425;0.095,0.235)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)"
       ],
       "V3.b": [
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)",
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)"
+        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.11,-0.03;-0.11,-0.22)",
+        "edge-pair: (0.11,-0.22;0.11,-0.03)|(0.095,0.095;0.095,-0.095)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)",
+        "edge-pair: (0.11,0.11;0.11,0.3)|(0.095,0.425;0.095,0.235)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)"
       ],
       "V4.b": [
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)",
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.18,0.095;-0.18,-0.095)",
-        "edge-pair: (0.18,-0.095;0.18,0.095)|(0.095,0.095;0.095,-0.095)"
-      ],
-      "TM1.b": [
-        "edge-pair: (-0.95,-0.95;-0.95,0.95)|(-1.37,0.95;-1.37,-0.95)",
-        "edge-pair: (1.37,-0.95;1.37,0.95)|(0.95,0.95;0.95,-0.95)"
-      ],
-      "TM2.a": [
-        "edge-pair: (206.36,-10.061;206.36,-9.18)|(207.04,-7.299;207.04,-8.18)",
-        "edge-pair: (206.36,-9.18;205.308,-9.18)|(207.04,-8.18;207.36,-8.18)"
-      ],
-      "TM2.b": [
-        "edge-pair: (-1,0;-1,1)|(-1.32,1;-1.32,0)",
-        "edge-pair: (1.32,0;1.32,1)|(1,1;1,0)"
+        "edge-pair: (-0.095,-0.095;-0.095,0.095)|(-0.11,-0.03;-0.11,-0.22)",
+        "edge-pair: (0.11,-0.22;0.11,-0.03)|(0.095,0.095;0.095,-0.095)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)",
+        "edge-pair: (0.11,0.11;0.11,0.3)|(0.095,0.425;0.095,0.235)",
+        "edge-pair: (-0.095,0.235;-0.095,0.425)|(-0.11,0.3;-0.11,0.11)"
       ],
       "LBE.a": [
         "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
@@ -2935,26 +2930,24 @@
     ],
     "remaining_violations": {
       "Gat.d": 2,
-      "TM1.b": 2,
-      "TM2.a": 2,
-      "TM2.b": 2,
-      "V2.b": 4,
-      "V3.b": 4,
-      "V4.b": 4
+      "M5.b": 8,
+      "V2.b": 8,
+      "V3.b": 8,
+      "V4.b": 8
     }
   },
   "lvs": {
     "cell": "driver_dut",
     "layout": "/workspace/layout/blocks/out/driver_stage/driver_dut.gds",
     "netlist": "/workspace/layout/blocks/out/driver_stage/driver_dut.cdl",
-    "clean": true,
+    "clean": false,
     "params_ok": true,
     "devices_matched": 0,
-    "summary": "Congratulations! Netlists match.",
+    "summary": "Netlists don't match",
     "extracted_netlist": "/workspace/layout/blocks/out/driver_stage/lvs_run/driver_dut_extracted.cir",
     "param_checks": [],
     "log": "/workspace/layout/blocks/out/driver_stage/lvs_run/lvs_run.log",
-    "error": ""
+    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/driver_stage/lvs_run/lvs_run.log"
   },
   "pex": {
     "cell": "driver_dut",
@@ -2962,45 +2955,48 @@
     "netlist": "/workspace/layout/blocks/out/driver_stage/pex_run/driver_dut_pex.spice",
     "ok": true,
     "resistors": 0,
-    "capacitors": 33,
+    "capacitors": 39,
     "total_resistance_ohm": 0.0,
     "resistor_elements": [],
     "resistance_extracted": true,
     "physical": true,
     "negative_capacitors": [],
     "note": "",
-    "total_capacitance_f": 1.32191e-12,
+    "total_capacitance_f": 1.37013e-12,
     "per_net_capacitance_f": {
-      "m2_n2338_28012#": 1.22693e-12,
-      "vdd": 4.15414e-13,
-      "mgate": 3.72687e-13,
-      "em": 2.66028e-13,
-      "outp": 1.47199e-13,
-      "outn": 1.45744e-13,
-      "inp": 3.31165e-14,
-      "inn": 3.24942e-14,
+      "m2_n2338_28012#": 1.29181e-12,
+      "vdd": 4.51656e-13,
+      "mgate": 3.75386e-13,
+      "em": 2.66013e-13,
+      "outn": 9.06851e-14,
+      "outp": 9.0639e-14,
+      "clamp_R0_0/sub": 6.87953e-14,
+      "inp": 3.31142e-14,
+      "inn": 3.22197e-14,
+      "esd_vss_n_R0_0/w_0_0#": 1.8189e-14,
+      "esd_vss_p_R0_0/w_0_0#": 1.75304e-14,
       "m7_11668_31548#": 1.52912e-15,
       "m7_69376_32648#": 1.52912e-15,
-      "rd1_R0_0/a_0_0#": 5.7434e-16,
-      "rd2_M90_0/a_0_0#": 5.7296e-16
+      "rd1_R0_0/a_0_0#": 5.8842e-16,
+      "rd2_M90_0/a_0_0#": 5.8842e-16
     },
     "log": "/workspace/layout/blocks/out/driver_stage/pex_run/magic_pex.log",
     "error": "",
     "signal_resistance_ohm": 0,
     "pad_capacitance_f": {
       "outp": {
-        "pad_metal": 6.825000000000001e-17,
-        "esd": 7.64981e-15,
-        "coil": 1.275e-17,
-        "core": 4.1884000000000007e-16,
+        "pad_metal": 0.0,
+        "esd": 4.046000000000001e-17,
+        "coil": 2.1575e-17,
+        "core": 2.6195000000000005e-16,
         "supply": 0.0,
         "other": 0.0
       },
       "outn": {
-        "pad_metal": 6.825000000000001e-17,
-        "esd": 7.62829e-15,
-        "coil": 1.206e-17,
-        "core": 3.4326000000000003e-16,
+        "pad_metal": 0.0,
+        "esd": 4.046000000000001e-17,
+        "coil": 2.1575e-17,
+        "core": 2.71155e-16,
         "supply": 0.0,
         "other": 0.0
       }

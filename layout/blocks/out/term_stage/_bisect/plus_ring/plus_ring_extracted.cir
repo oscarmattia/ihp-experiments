@@ -1,14 +1,14 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 11:01
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 14:27
 
-.SUBCKT term_dut vss vdd inp inn vtt
-D$1 vss vdd inn diodevdd_2kv m=1
-D$2 vss vdd inp diodevdd_2kv m=1
-R$3 inp vtt vss rsil w=0.5u l=2.35u ps=0u b=0 m=1
-D$4 vdd vss inp diodevss_2kv m=1
-C$5 \$46 vtt cap_cmim w=20u l=20u A=400p P=80u m=1
-R$6 vtt vss vss rppd w=1u l=5u ps=0u b=0 m=1
-R$7 vdd vtt vss rppd w=1u l=0.5u ps=0u b=0 m=1
-D$8 vss vdd nmoscl_2 m=1
-R$9 inn vtt vss rsil w=0.5u l=2.35u ps=0u b=0 m=1
-D$10 vdd vss inn diodevss_2kv m=1
+.SUBCKT term_dut inn|inp|vdd|vss|vtt vdd
+D$1 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt diodevdd_2kv m=2
+C$3 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt cap_cmim w=20u l=20u A=400p P=80u
++ m=1
+R$4 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt rppd w=1u l=5u
++ ps=0u b=0 m=1
+R$5 vdd inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt rppd w=1u l=0.5u ps=0u b=0 m=1
+R$6 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt rsil w=0.5u
++ l=2.35u ps=0u b=0 m=2
+D$8 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt diodevss_2kv m=2
+D$10 inn|inp|vdd|vss|vtt inn|inp|vdd|vss|vtt nmoscl_2 m=1
 .ENDS term_dut

@@ -1,0 +1,18 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 14:23
+
+.SUBCKT vga_dut
+M$1 \$1 \$12 \$8 \$8 sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
++ PS=510.5u PD=510.5u rfmode=0
+M$26 \$1 \$1 \$8 \$8 sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
++ PS=510.5u PD=510.5u rfmode=0
+M$51 \$1 \$1 \$I659 \$8 sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
++ PD=413.6u rfmode=0
+M$71 \$16 \$4 \$8 \$8 sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
++ PD=413.6u rfmode=0
+M$91 \$16 \$7 \$I660 \$8 sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
++ PD=413.6u rfmode=0
+M$111 \$16 \$1 \$8 \$8 sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
++ PS=510.5u PD=510.5u rfmode=0
+M$136 \$1 \$4 \$8 \$8 sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
++ PD=413.6u rfmode=0
+.ENDS vga_dut

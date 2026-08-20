@@ -5,24 +5,24 @@ The cell is ``driver_dut`` — the same name as the subcircuit in
 ``circuits/ctle56n/spice/driver_pdk.cir``. ``layout/common/parity.py`` checks
 that device for device on every run.
 
-Floorplan, centred on one vertical axis with the two differential halves as exact
-mirror images:
+Floorplan, symmetric about one vertical axis (template):
 
-              pad_p   pad_n                 bond pads are outp/outn (TopMetal2)
-    ╔═════════════╪═══════╪══════════════╗   ring: TopMetal2 horizontal,
-    ║  esd esd    │ clamp │    esd esd   ║   TopMetal1 vertical, tapped on
-    ║             └── vdd ──┘              ║   the axis
-    ║   coil ══════╤═╧╤══════════ coil     ║   M135 / R270, pins inboard,
-    ║   body     vdd  nlp        body      ║   vdd above nlp, bodies outboard
-    ║              └─┐ └─┐                 ║   rsil loads, mirrored
-    ║              rd1  rd2                ║
-    ║               Q1 ── Q2               ║   HBT pair, shared emitter em
-    ║   ┌───── guard ring (NMOS only) ──┐  ║
-    ║   │  diode │      tail             │  ║   mirror off-axis, tail on axis
-    ║   └───────────────┬────────────────┘ ║
-mgate ─┘                │                    Metal4, out of the left edge
-    ╚═══════════════════╪══════════════════╝   vss taps the ring here
-                  inp   │   inn                Metal3, out of the bottom edge
+                          out (pads)        vdd            top edge
+        ╔══════════════════╪═════════════════╪═══════════════╗  power ring
+        ║   pad + ESD                             pad + ESD   ║
+        ║  ┌────────────┐   ┌──vdd strap──┐   ┌────────────┐  ║
+        ║  │ INDUCTOR P │   │             │   │ INDUCTOR N │  ║
+        ║  │   M135     │   │ rd1 │ │ rd2 │   │   R270     │  ║
+        ║  └────────────┘   └─────┘ └─────┘   └────────────┘  ║
+        ║                     Q1  ┊  Q2                       ║  HBT row
+        ║  ┌──────────────────────────────────────────────┐  ║
+        ║  │      mdiode      │        tail                │  ║  MOS row
+        ║  └──────────────────── vss ───────────────────┘  ║  guard ring
+        ╚══════════════════╪═════════════════════════════════╝
+                           in                                    bottom edge
+
+Each output half is one vertical column (collector → rsil → coil → pad). ``in``
+runs from the bottom edge up to the bases; ``Iref`` (= ``mgate``) leaves the left.
 
 There is no degeneration row: both emitters meet on ``em`` and the single tail
 sinks the full ``ITAIL``. Outputs leave at the bond pads above the coil row.
@@ -76,9 +76,7 @@ PORT_NETS = ["outp", "outn", "inp", "inn", "vdd", "vss", "mgate"]
 ROW_GAP = 8.0
 COIL_PIN_GAP = 44.0
 PWB_TAP_CLEARANCE = 4.0
-LOAD_DX = 12.0
 HBT_DX = 8.0
-OUT_TRUNK_MARGIN = 8.0
 BASE_VIA_DX = 2.2
 PORT_METAL = "Metal4"
 PORT_REACH = 6.0
@@ -99,8 +97,7 @@ PAD_ROW_GAP = 18.0
 #: Gap from a pad edge to the nearest ESD cell, in um.
 ESD_OUTBOARD_GAP = 6.0
 
-#: Metal for the pad-side output bus; Metal5 matches the collector trunks and
-#: stays clear of inp/inn, which leave on Metal3 below the HBT row.
+#: Metal for the pad-side output column above the coil row.
 PAD_BUS_METAL = "Metal5"
 _PAD_STACK = ("Metal5", "TopMetal1", "TopMetal2")
 
@@ -140,26 +137,6 @@ def _edge_route(layout, cell, metal: str, x: float, y0: float, y1: float, width:
     rect(layout, cell, metal, x - width / 2, min(y0, y1), x + width / 2, max(y0, y1))
 
 
-def _ring_tie(
-    layout,
-    cell,
-    terminal: Terminal,
-    ring_y: float,
-    tap_x: float,
-    pin_metal: str,
-    route_metal: str,
-    width: float,
-) -> None:
-    """Reach a ring side port: horizontal at the pin, vertical at ``tap_x`` only."""
-    tx, ty = via_up(layout, cell, terminal, pin_metal)
-    rect(layout, cell, pin_metal, min(tx, tap_x) - width / 2, ty - width / 2,
-          max(tx, tap_x) + width / 2, ty + width / 2)
-    if pin_metal != route_metal:
-        via_between(layout, cell, tap_x, ty, pin_metal, route_metal)
-    _edge_route(layout, cell, route_metal, tap_x, ty, ring_y, width)
-    via_between(layout, cell, tap_x, ring_y, route_metal, "TopMetal1")
-
-
 def _supply_ring_tie(
     layout,
     cell,
@@ -180,68 +157,96 @@ def _supply_ring_tie(
     if pin_metal != route_metal:
         via_between(layout, cell, tx, ty, pin_metal, route_metal)
     _edge_route(layout, cell, vert_metal, tx, ty, feed_y, width)
-    stub_x = snap(ring_port_x + inboard_sign * (VIA_OFFSET + 3.0 * route_width(route_metal)))
-    rect(layout, cell, route_metal, min(tx, stub_x) - width / 2, feed_y - width / 2,
-          max(tx, stub_x) + width / 2, feed_y + width / 2)
+    rect(layout, cell, route_metal, min(tx, tap_x) - width / 2, feed_y - width / 2,
+          max(tx, tap_x) + width / 2, feed_y + width / 2)
+    stub_x = snap(ring_port_x + inboard_sign * VIA_OFFSET)
+    _edge_route(layout, cell, route_metal, tap_x, feed_y, stub_x, width)
     _edge_route(layout, cell, route_metal, stub_x, feed_y, ring_y, width)
-    via_between(layout, cell, stub_x, feed_y, route_metal, "TopMetal1", columns=1, rows=1)
+    via_between(layout, cell, stub_x, ring_y, route_metal, "TopMetal1", columns=1, rows=1)
     tm1_w = route_width("TopMetal1")
-    _edge_route(layout, cell, "TopMetal1", stub_x, feed_y, ring_y, tm1_w)
     rect(layout, cell, "TopMetal1", min(stub_x, ring_port_x) - tm1_w / 2, ring_y - tm1_w / 2,
           max(stub_x, ring_port_x) + tm1_w / 2, ring_y + tm1_w / 2)
 
 
-def _collector_trunk_net(
+def _tm2_column(
     layout,
     cell,
+    col_x: float,
+    y_bottom: float,
+    y_top: float,
+    width: float,
     terminals: list[Terminal],
-    trunk_x: float,
-    em_y: float,
+) -> None:
+    """One TopMetal2 column; each terminal joins with a vertical leg at its own y first."""
+    col_x = snap(col_x)
+    y0, y1 = snap(min(y_bottom, y_top)), snap(max(y_bottom, y_top))
+    for terminal in terminals:
+        land_x, land_y = via_up(layout, cell, terminal, "TopMetal2")
+        if abs(land_x - col_x) > 1e-6:
+            rect(layout, cell, "TopMetal2", min(land_x, col_x), land_y - width / 2,
+                  max(land_x, col_x), land_y + width / 2)
+        rect(layout, cell, "TopMetal2", col_x - width / 2, min(land_y, y1),
+              col_x + width / 2, max(land_y, y1))
+    rect(layout, cell, "TopMetal2", col_x - width / 2, y0, col_x + width / 2, y1)
+
+
+def _output_column(
+    layout,
+    cell,
+    col_x: float,
+    terminals: list[Terminal],
+    top_y: float,
     metal: str,
     width: float,
-) -> tuple[float, float]:
-    """Vertical collector trunk outboard of ``em``, with joins above the emitter bus.
+    *,
+    em_y: float | None = None,
+    metal_gap: tuple[float, float] | None = None,
+) -> float:
+    """One straight vertical output column through ``terminals`` at ``col_x``.
 
-    ``trunk_net`` stubs at each terminal's y; on an HBT that y sits on the same
-    Metal5 row as the shared emitter strap, so the collector width envelope crosses
-    ``em_y`` and LVS merges ``outp`` into ``em``. A via stack's Metal5 landing pad
-    does the same if it is dropped beside the collector land. Rise on the device
-    pin metal, transition to ``metal`` only at ``safe_y`` above the emitter strap.
+    HBT C/B/E share one x, so do not land ``metal`` on the collector pin: ``via_up``
+    stubs sit outside each land, rise on Metal2 at ``col_x`` to ``safe_y`` above the
+    emitter strap, then continue on ``metal``.
     """
     from layout.common.route import metal_of
 
-    w = width
-    trunk_x = snap(trunk_x)
-    safe_y = snap(em_y + w + 2.0)
+    col_x = snap(col_x)
+    top_y = snap(top_y)
+    safe_y = snap(em_y + width + 2.0) if em_y is not None else None
     rise_w = route_width("Metal2")
-    top_y = safe_y
+    join_y = safe_y if safe_y is not None else snap(min(t.center[1] for t in terminals))
     for terminal in terminals:
         tx, ty = terminal.center
         tx, ty = snap(tx), snap(ty)
         bottom = metal_of(terminal.layer)
-        stub_x = snap(tx - VIA_OFFSET if trunk_x < tx else tx + VIA_OFFSET)
-        top_y = snap(max(top_y, ty))
+        join_y = snap(max(join_y, ty))
         if bottom:
             bw = route_width(bottom)
-            rect(layout, cell, bottom, min(tx, stub_x), ty - bw / 2,
-                  max(tx, stub_x), ty + bw / 2)
-            if bottom != "Metal2":
-                via_between(layout, cell, stub_x, ty, bottom, "Metal2", columns=1, rows=1)
-        if ty < safe_y - 1e-6:
-            rect(layout, cell, "Metal2", stub_x - rise_w / 2, ty,
-                  stub_x + rise_w / 2, safe_y)
-        elif ty > safe_y + 1e-6:
-            rect(layout, cell, "Metal2", stub_x - rise_w / 2, safe_y,
-                  stub_x + rise_w / 2, ty)
-        ox2 = snap(stub_x + route_width("Metal2"))
-        ox3 = snap(stub_x + 2 * route_width("Metal2"))
-        via_between(layout, cell, stub_x, safe_y, "Metal2", "Metal3", columns=1, rows=1)
-        via_between(layout, cell, ox2, safe_y, "Metal3", "Metal4", columns=1, rows=1)
-        via_between(layout, cell, ox3, safe_y, "Metal4", metal, columns=1, rows=1)
-        rect(layout, cell, metal, min(ox3, trunk_x), safe_y - w / 2,
-              max(ox3, trunk_x), safe_y + w / 2)
-    rect(layout, cell, metal, trunk_x - w / 2, safe_y, trunk_x + w / 2, top_y)
-    return (safe_y, top_y)
+            if abs(tx - col_x) > 1e-6:
+                rect(layout, cell, bottom, min(tx, col_x) - bw / 2, ty - bw / 2,
+                      max(tx, col_x) + bw / 2, ty + bw / 2)
+            stub_x, stub_y = via_up(layout, cell, terminal, "Metal2")
+            if abs(stub_x - col_x) > 1e-6:
+                rect(layout, cell, "Metal2", min(stub_x, col_x) - rise_w / 2, stub_y - rise_w / 2,
+                      max(stub_x, col_x) + rise_w / 2, stub_y + rise_w / 2)
+        if safe_y is not None and ty < safe_y - 1e-6:
+            _edge_route(layout, cell, "Metal2", col_x, ty, safe_y, rise_w)
+        elif safe_y is not None and ty > safe_y + 1e-6:
+            _edge_route(layout, cell, "Metal2", col_x, safe_y, ty, rise_w)
+    if safe_y is not None and metal != "Metal2":
+        via_between(layout, cell, col_x, safe_y, "Metal2", metal, columns=1, rows=1)
+        column_bottom = safe_y
+    else:
+        column_bottom = snap(min(t.center[1] for t in terminals))
+    if metal_gap is not None:
+        gap_lo, gap_hi = snap(min(metal_gap)), snap(max(metal_gap))
+        if column_bottom < gap_lo - 1e-6:
+            _edge_route(layout, cell, metal, col_x, column_bottom, gap_lo, width)
+        if top_y > gap_hi + 1e-6:
+            _edge_route(layout, cell, metal, col_x, gap_hi, top_y, width)
+    else:
+        _edge_route(layout, cell, metal, col_x, column_bottom, top_y, width)
+    return top_y
 
 
 def build_driver_stage(params: dict[str, float] | None = None,
@@ -393,11 +398,13 @@ def build_driver_stage(params: dict[str, float] | None = None,
     ]
     hbt_top = snap(q_box.top)
 
-    # --- rsil loads near the axis ------------------------------------------------
+    # --- rsil loads directly above each HBT collector -------------------------
     rd1_t: dict[str, Terminal] = {}
     rd2_t: dict[str, Terminal] = {}
     load_top = hbt_top
     upper = lower = None
+    out_col_p_x = snap(q1_t["C"].center[0])
+    out_col_n_x = snap(q2_t["C"].center[0])
     if with_loads:
         row_y = snap(hbt_top + ROW_GAP)
         rd1 = load.with_name("rd1")
@@ -405,10 +412,12 @@ def build_driver_stage(params: dict[str, float] | None = None,
         load_terms = {t.name: t for t in derive_terminals(load, *build(load))}
         upper = max(load_terms.values(), key=lambda t: t.center[1])
         lower = min(load_terms.values(), key=lambda t: t.center[1])
-        rd_left = snap(axis - LOAD_DX - upper.center[0])
-        rd_right = snap(axis + LOAD_DX + upper.center[0])
-        rd1_t, rd_box = place(layout, cell, rd1, rd_left, row_y)
-        rd2_t, _ = place(layout, cell, rd2, rd_right, row_y, "M90")
+        rd1_dx = snap(out_col_p_x - lower.center[0])
+        rd2_dx = snap(out_col_n_x - lower.center[0])
+        rd1_t, rd_box = place(layout, cell, rd1, rd1_dx, row_y)
+        rd2_t, _ = place(layout, cell, rd2, rd2_dx, row_y, "M90")
+        out_col_p_x = snap(rd1_t[lower.name].center[0])
+        out_col_n_x = snap(rd2_t[lower.name].center[0])
         instances += [
             (rd1, {upper.name: "nlp1", lower.name: "outp", "sub": "vss"}),
             (rd2, {upper.name: "nlp2", lower.name: "outn", "sub": "vss"}),
@@ -428,7 +437,6 @@ def build_driver_stage(params: dict[str, float] | None = None,
     coil_half_h = 0.0
     coil_row_y = snap(load_top + ROW_GAP)
     coil_bb = False
-    rd_left = rd_right = snap(axis)
     if with_coils:
         _, coil_probe = build(coil)
         coil_probe_box = coil_probe.dbbox()
@@ -468,28 +476,43 @@ def build_driver_stage(params: dict[str, float] | None = None,
 
         if with_loads and upper is not None and lower is not None:
             nlp_w = snap(l1_t["MINUS"].width)
-            for coil_pin, load_pin, name, turn_x in (
-                (l1_t["MINUS"], rd1_t[upper.name], "nlp1", snap(axis - LOAD_DX)),
-                (l2_t["MINUS"], rd2_t[upper.name], "nlp2", snap(axis + LOAD_DX)),
+            for coil_pin, load_pin, name, col_x in (
+                (l1_t["MINUS"], rd1_t[upper.name], "nlp1", out_col_p_x),
+                (l2_t["MINUS"], rd2_t[upper.name], "nlp2", out_col_n_x),
             ):
                 feed_x, feed_y = coil_pin.center
                 land_x, land_y = via_up(layout, cell, load_pin, "TopMetal2")
-                rect(layout, cell, "TopMetal2", min(feed_x, turn_x), feed_y - nlp_w / 2,
-                      max(feed_x, turn_x), feed_y + nlp_w / 2)
-                rect(layout, cell, "TopMetal2", turn_x - nlp_w / 2, min(feed_y, land_y),
-                      turn_x + nlp_w / 2, max(feed_y, land_y))
-                if abs(turn_x - land_x) > 1e-6:
-                    rect(layout, cell, "TopMetal2", min(turn_x, land_x), land_y - nlp_w / 2,
-                          max(turn_x, land_x), land_y + nlp_w / 2)
-                interconnect_um += abs(feed_x - turn_x) + abs(feed_y - land_y)
+                _edge_route(layout, cell, "TopMetal2", col_x, land_y, feed_y, nlp_w)
+                if abs(feed_x - col_x) > 1e-6:
+                    rect(layout, cell, "TopMetal2", min(feed_x, col_x) - nlp_w / 2, feed_y - nlp_w / 2,
+                          max(feed_x, col_x) + nlp_w / 2, feed_y + nlp_w / 2)
+                interconnect_um += abs(feed_y - land_y)
                 em_segments.append(
                     em.Segment(name, "TopMetal2", width_um=nlp_w, current_a=i_tail,
-                               note="coil feed continued inward, then down to the load")
+                               note="coil feed straight above the load column")
                 )
 
     sig_w = snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
 
-    # --- base taps (sideways, before em) -----------------------------------------
+    def _out_col_targets(pad_net: str) -> list[Terminal]:
+        targets = [q1_t["C"] if pad_net == "outp" else q2_t["C"]]
+        if with_loads and lower is not None:
+            targets.append(rd1_t[lower.name] if pad_net == "outp" else rd2_t[lower.name])
+        return targets
+
+    out_col_x_by_net = {"outp": out_col_p_x, "outn": out_col_n_x}
+
+    def _out_col_gap(pad_net: str) -> tuple[float, float] | None:
+        if not (with_loads and upper is not None):
+            return None
+        from layout.common.route import metal_of
+
+        rd_t = rd1_t if pad_net == "outp" else rd2_t
+        upper_y = snap(rd_t[upper.name].center[1])
+        uw = route_width(metal_of(rd_t[upper.name].layer))
+        return (snap(upper_y - uw / 2), snap(upper_y + uw / 2))
+
+    # --- base taps sideways along the bar, before em ---------------------------
     in_trunk_x: dict[str, float] = {}
     for base, sign, name in ((q1_t["B"], -1.0, "inp"), (q2_t["B"], -1.0, "inn")):
         bx, by = base.center
@@ -529,11 +552,6 @@ def build_driver_stage(params: dict[str, float] | None = None,
     em_segments.append(em.Segment("em", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
                                   note="shared emitter strap with inp/inn corridor gap"))
 
-    em_left_extent = snap(min(q1x, gap_left))
-    em_right_extent = snap(max(q2x, gap_right))
-    out_trunk_p_x = snap(em_left_extent - sig_w - OUT_TRUNK_MARGIN)
-    out_trunk_n_x = snap(em_right_extent + sig_w + OUT_TRUNK_MARGIN)
-
     pad_ports: dict[str, Terminal] = {}
     pad_terminals: dict[str, Terminal] = {}
     pad_cx_by_net = {"outp": snap(axis - PAD_DX), "outn": snap(axis + PAD_DX)}
@@ -546,12 +564,6 @@ def build_driver_stage(params: dict[str, float] | None = None,
     esd_h = 0.0
     esd_bus_w = snap(max(route_width("Metal2") * 3.0, 2.0))
     tm2_feed_w = route_width("TopMetal2")
-
-    def _collector_trunk_targets(pad_net: str) -> list[Terminal]:
-        targets = [q1_t["C"] if pad_net == "outp" else q2_t["C"]]
-        if with_loads and lower is not None:
-            targets.append(rd1_t[lower.name] if pad_net == "outp" else rd2_t[lower.name])
-        return targets
 
     if with_tapeout:
         # --- rail clamp in the coil channel --------------------------------------------
@@ -595,7 +607,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
                 ("n", +1.0, "outn", "n"),
             ):
                 pad_cx = pad_cx_by_net[pad_net]
-                trunk_x = out_trunk_p_x if pad_net == "outp" else out_trunk_n_x
+                col_x = out_col_x_by_net[pad_net]
                 inboard_x = snap(pad_cx - sign * pad_half)
                 tm2_x = snap(inboard_x + sign * (_PAD_KEEPOUT + tm2_feed_w / 2))
                 pad_anchor_y = snap(pad_bottom_y + pad_half)
@@ -634,16 +646,20 @@ def build_driver_stage(params: dict[str, float] | None = None,
                     continue
 
                 evdd_t, evss_t = esd_terms[pad_net]
-                _, trunk_top = _collector_trunk_net(
-                    layout, cell, _collector_trunk_targets(pad_net),
-                    trunk_x=trunk_x, em_y=em_y, metal=ROUTE_METAL, width=sig_w,
+                rise_w = route_width("Metal2")
+                _output_column(
+                    layout, cell, col_x, _out_col_targets(pad_net),
+                    snap(load_top), "Metal2", rise_w, em_y=em_y,
                 )
-                bus_y = snap(max(trunk_top + sig_w, bus_y_nom))
-
-                _edge_route(layout, cell, ROUTE_METAL, trunk_x, trunk_top, bus_y, sig_w)
+                m5_y0 = snap(load_top + ROW_GAP / 4.0)
+                via_between(layout, cell, col_x, m5_y0, "Metal2", ROUTE_METAL, columns=1, rows=1)
+                _edge_route(layout, cell, ROUTE_METAL, col_x, m5_y0, bus_y_nom, sig_w)
+                bus_y = snap(max(m5_y0 + sig_w, bus_y_nom))
+                if m5_y0 < bus_y - 1e-6:
+                    _edge_route(layout, cell, ROUTE_METAL, col_x, m5_y0, bus_y, sig_w)
                 rect(layout, cell, ROUTE_METAL,
-                      min(trunk_x, inboard_x) - sig_w / 2, bus_y - sig_w / 2,
-                      max(trunk_x, inboard_x) + sig_w / 2, bus_y + sig_w / 2)
+                      min(col_x, inboard_x) - sig_w / 2, bus_y - sig_w / 2,
+                      max(col_x, inboard_x) + sig_w / 2, bus_y + sig_w / 2)
                 _edge_route(layout, cell, ROUTE_METAL, inboard_x, bus_y, stack_y, sig_w)
                 _via_chain(layout, cell, inboard_x, stack_y, _PAD_STACK)
                 _edge_route(layout, cell, "TopMetal2", tm2_x, stack_y, pad_bottom_y, tm2_feed_w)
@@ -667,17 +683,15 @@ def build_driver_stage(params: dict[str, float] | None = None,
             pad_half = snap(pad_bbox.width() / 2.0)
             pad_bottom_y = snap(coil_top + PAD_ROW_GAP)
             pad_top_y = snap(pad_bottom_y + pad_bbox.height())
-            for pad_net, trunk_x in (("outp", out_trunk_p_x), ("outn", out_trunk_n_x)):
-                _collector_trunk_net(
-                    layout, cell, _collector_trunk_targets(pad_net),
-                    trunk_x=trunk_x, em_y=em_y, metal=ROUTE_METAL, width=sig_w,
-                )
+
     else:
-        for pad_net, trunk_x in (("outp", out_trunk_p_x), ("outn", out_trunk_n_x)):
-            _collector_trunk_net(
-                layout, cell, _collector_trunk_targets(pad_net),
-                trunk_x=trunk_x, em_y=em_y, metal=ROUTE_METAL, width=sig_w,
-            )
+        if with_loads:
+            rise_w = route_width("Metal2")
+            for pad_net in ("outp", "outn"):
+                _output_column(
+                    layout, cell, out_col_x_by_net[pad_net], _out_col_targets(pad_net),
+                    snap(load_top), "Metal2", rise_w, em_y=em_y,
+                )
 
     em_segments += [
         em.Segment(net, ROUTE_METAL, width_um=sig_w, current_a=i_tail, note="collector run")
@@ -737,15 +751,11 @@ def build_driver_stage(params: dict[str, float] | None = None,
 
     if clamp_t is not None:
         clamp_vdd_x, clamp_vdd_y = clamp_t["VDD"].center
-        vdd_stub_x, vdd_stub_y = via_up(layout, cell, clamp_t["VDD"], "Metal3")
-        _edge_route(layout, cell, "Metal3", clamp_vdd_x, vdd_stub_y, vdd_y, m3_w)
-        if abs(vdd_stub_x - clamp_vdd_x) > 1e-6:
-            rect(layout, cell, "Metal3", min(vdd_stub_x, clamp_vdd_x) - m3_w / 2, vdd_stub_y - m3_w / 2,
-                  max(vdd_stub_x, clamp_vdd_x) + m3_w / 2, vdd_stub_y + m3_w / 2)
-        if abs(clamp_vdd_x - axis) > 1e-6:
-            rect(layout, cell, "Metal3", min(clamp_vdd_x, axis) - m3_w / 2, vdd_y - m3_w / 2,
-                  max(clamp_vdd_x, axis) + m3_w / 2, vdd_y + m3_w / 2)
-        _via_chain(layout, cell, axis, vdd_y, ("Metal3", "Metal4", "Metal5", "TopMetal1", "TopMetal2"))
+        vdd_stub_x, vdd_stub_y = via_up(layout, cell, clamp_t["VDD"], "Metal2")
+        rect(layout, cell, "Metal2", min(vdd_stub_x, axis) - m3_w / 2, vdd_stub_y - m3_w / 2,
+              max(vdd_stub_x, axis) + m3_w / 2, vdd_stub_y + m3_w / 2)
+        _edge_route(layout, cell, "Metal2", axis, vdd_stub_y, vdd_y, m3_w)
+        via_between(layout, cell, axis, vdd_y, "Metal2", "TopMetal2", columns=1, rows=1)
         rect(layout, cell, "TopMetal2", min(axis, clamp_vdd_x) - tm2_riser_w / 2, vdd_y - tm2_riser_w / 2,
               max(axis, clamp_vdd_x) + tm2_riser_w / 2, vdd_y + tm2_riser_w / 2)
 
@@ -770,25 +780,11 @@ def build_driver_stage(params: dict[str, float] | None = None,
             vdd_port = ring.ports["vdd"][3]
             vss_port = ring.ports["vss"][3]
             inboard_sign = -1.0
-        evdd_x, evdd_y = via_up(layout, cell, evdd_t["VDD"], "Metal2")
-        evss_vdd_x, evss_vdd_y = via_up(layout, cell, evss_t["VDD"], "Metal2")
-        vdd_link_y = snap(max(evdd_y, evss_vdd_y) + esd_bus_w)
-        _edge_route(layout, cell, "Metal2", evdd_x, evdd_y, vdd_link_y, esd_bus_w)
-        _edge_route(layout, cell, "Metal2", evss_vdd_x, evss_vdd_y, vdd_link_y, esd_bus_w)
-        rect(layout, cell, "Metal2", min(evdd_x, evss_vdd_x) - esd_bus_w / 2, vdd_link_y - esd_bus_w / 2,
-              max(evdd_x, evss_vdd_x) + esd_bus_w / 2, vdd_link_y + esd_bus_w / 2)
         _supply_ring_tie(
             layout, cell, evdd_t["VDD"], esd_vdd_feed_y, vdd_port.center[1], vdd_port.center[0],
             "Metal2", "Metal2", esd_bus_w,
             ring_port_x=vdd_port.center[0], inboard_sign=inboard_sign,
         )
-        evdd_vss_x, evdd_vss_y = via_up(layout, cell, evdd_t["VSS"], "Metal3")
-        evss_x, evss_y = via_up(layout, cell, evss_t["VSS"], "Metal3")
-        vss_link_y = snap(min(evdd_vss_y, evss_y) - esd_bus_w)
-        _edge_route(layout, cell, "Metal3", evdd_vss_x, evdd_vss_y, vss_link_y, esd_bus_w)
-        _edge_route(layout, cell, "Metal3", evss_x, evss_y, vss_link_y, esd_bus_w)
-        rect(layout, cell, "Metal3", min(evdd_vss_x, evss_x) - esd_bus_w / 2, vss_link_y - esd_bus_w / 2,
-              max(evdd_vss_x, evss_x) + esd_bus_w / 2, vss_link_y + esd_bus_w / 2)
         _supply_ring_tie(
             layout, cell, evss_t["VSS"], esd_vss_feed_y, vss_port.center[1], vss_port.center[0],
             "Metal2", "Metal3", esd_bus_w,
@@ -800,10 +796,10 @@ def build_driver_stage(params: dict[str, float] | None = None,
     port_top = snap(ring_box[3] + PORT_REACH)
     signal_ports: dict[str, Terminal] = dict(pad_ports)
     if not signal_ports:
-        for name, trunk_x in (("outp", out_trunk_p_x), ("outn", out_trunk_n_x)):
+        for name, col_x in (("outp", out_col_p_x), ("outn", out_col_n_x)):
             signal_ports[name] = Terminal(
                 name=name, layer=f"{PORT_METAL.lower()}_drw",
-                center=(trunk_x, port_top), width=sig_w, orientation=90.0,
+                center=(col_x, port_top), width=sig_w, orientation=90.0,
             )
 
     for name, x, y_from, y_to in (
@@ -874,11 +870,11 @@ def build_driver_stage(params: dict[str, float] | None = None,
 
     sym_pairs: dict[str, list[float]] = {
         "hbt": [q_left, q_right],
-        "out_trunks": [out_trunk_p_x, out_trunk_n_x],
+        "out_cols": [out_col_p_x, out_col_n_x],
         "in_trunks": [in_trunk_x["inp"], in_trunk_x["inn"]],
     }
     if with_loads:
-        sym_pairs["loads"] = [rd_left, rd_right]
+        sym_pairs["loads"] = [out_col_p_x, out_col_n_x]
     if with_coils:
         sym_pairs["coil_feeds"] = [l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]]
     if with_tapeout:
@@ -904,6 +900,8 @@ def build_driver_stage(params: dict[str, float] | None = None,
             "vss rail, so the substrate really is vss",
             "coils rotated to face each other, so vdd is one straight TopMetal2 "
             "strap with the nlp feeds below it dropping onto the rsil loads",
+            "each output half is one vertical column (collector → rsil → coil → pad) "
+            "on the HBT x; no offset collector trunks",
             f"wire widths from the technology LEF at the operating point: "
             f"{i_tail * 1e3:.2f} mA tail, {i_supply * 1e3:.2f} mA supply",
             f"bond pads at outp/outn sit {PAD_ROW_GAP:.0f} um above the coil tops; "

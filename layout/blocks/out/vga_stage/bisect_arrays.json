@@ -1,0 +1,26 @@
+{
+  "mos_count": 7,
+  "mos_widths_um": [
+    246.75,
+    246.75,
+    200.0,
+    200.0,
+    200.0,
+    246.75,
+    200.0
+  ],
+  "hbt_count": 0,
+  "load_count": 0,
+  "coil_count": 0,
+  "drain_nets": [
+    "\\$1",
+    "\\$16"
+  ],
+  "has_em": false,
+  "has_ed1": false,
+  "has_ed2": false,
+  "has_tx1": false,
+  "has_tx2": false,
+  "lvs_clean": false,
+  "lvs_summary": "Netlists don't match"
+}

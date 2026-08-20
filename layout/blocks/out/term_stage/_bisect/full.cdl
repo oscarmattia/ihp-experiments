@@ -1,12 +1,12 @@
 * term_dut — generated from DeviceSpecs; do not edit by hand
 .SUBCKT term_dut inp inn vdd vss
-D1 vdd inp vss diodevdd_2kv m=1
-D2 vdd inp vss diodevss_2kv m=1
-D3 vdd inn vss diodevdd_2kv m=1
-D4 vdd inn vss diodevss_2kv m=1
+D1 vdd vss nmoscl_2 m=1
+D2 vdd inp vss diodevdd_2kv m=1
+D3 vdd inp vss diodevss_2kv m=1
+D4 vdd inn vss diodevdd_2kv m=1
+D5 vdd inn vss diodevss_2kv m=1
 R1 inp vtt vss rsil m=1 l=2.35u w=0.5u
 R2 inn vtt vss rsil m=1 l=2.35u w=0.5u
-D5 vss vdd nmoscl_2 m=1
 R3 vdd vtt vss rppd m=1 l=0.5u w=1u
 R4 vtt vss vss rppd m=1 l=5u w=1u
 C1 vtt vss cap_cmim w=20u l=20u

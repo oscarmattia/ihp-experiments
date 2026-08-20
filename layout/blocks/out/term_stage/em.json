@@ -148,6 +148,32 @@
       "ok": true
     },
     {
+      "net": "inp.vdd",
+      "layer": "Metal2",
+      "kind": "ROUTING",
+      "current_a": 0.0,
+      "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+      "width_um": 2.0,
+      "min_width_um": 0.0,
+      "capacity_a": 0.004,
+      "utilisation": 0.0,
+      "checkable": true,
+      "ok": true
+    },
+    {
+      "net": "inp.vss",
+      "layer": "Metal2",
+      "kind": "ROUTING",
+      "current_a": 0.0,
+      "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+      "width_um": 2.0,
+      "min_width_um": 0.0,
+      "capacity_a": 0.004,
+      "utilisation": 0.0,
+      "checkable": true,
+      "ok": true
+    },
+    {
       "net": "inp.vss",
       "layer": "Metal2",
       "kind": "ROUTING",
@@ -162,6 +188,32 @@
     },
     {
       "net": "inn.vdd",
+      "layer": "Metal2",
+      "kind": "ROUTING",
+      "current_a": 0.0,
+      "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+      "width_um": 2.0,
+      "min_width_um": 0.0,
+      "capacity_a": 0.004,
+      "utilisation": 0.0,
+      "checkable": true,
+      "ok": true
+    },
+    {
+      "net": "inn.vdd",
+      "layer": "Metal2",
+      "kind": "ROUTING",
+      "current_a": 0.0,
+      "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+      "width_um": 2.0,
+      "min_width_um": 0.0,
+      "capacity_a": 0.004,
+      "utilisation": 0.0,
+      "checkable": true,
+      "ok": true
+    },
+    {
+      "net": "inn.vss",
       "layer": "Metal2",
       "kind": "ROUTING",
       "current_a": 0.0,
