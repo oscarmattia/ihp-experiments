@@ -2,8 +2,12 @@
 
 Physical layout generation and signoff for IHP SG13G2.
 
-**Coordinator:** the run's assigned coordinator model. Non-trivial code should go
-through Composer 2.5 sub-agents.
+**Coordinator:** the run's assigned coordinator model. Non-trivial code here goes
+through **Claude Sonnet 5 thinking** sub-agents
+(`model: "claude-sonnet-5-thinking-high"`), not Composer 2.5: layout is finished by
+diagnosis rather than code generation, and the root
+[`../AGENTS.md`](../AGENTS.md) records why. Split the work in two — floorplan, then
+LVS — and commit in between.
 
 **Before opening a PR that changes this directory, update this file** if the
 device registry, port derivation, gate structure, or run commands change. Read

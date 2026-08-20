@@ -20,12 +20,29 @@ same PR as the code.
 | Role | Who | Responsibilities |
 | --- | --- | --- |
 | **Coordinator** | The coordinator model assigned for the run (Cursor Grok or Claude Opus 5) | Plan and scope work; review diffs; merge decisions; run git/PR/env tools; delegate implementation. |
-| **Implementers** | **Composer 2.5** sub-agents (`Task` tool with `model: "composer-2.5"` or `composer-2.5-fast`) | Write/edit code, scripts, netlists, and tests from the coordinator’s plan. |
+| **Implementers, `layout/`** | **Claude Sonnet 5 thinking** sub-agents (`Task` tool with `model: "claude-sonnet-5-thinking-high"`) | Physical layout: placement, routing, and driving DRC/LVS/PEX to clean. |
+| **Implementers, everywhere else** | **Composer 2.5** sub-agents (`Task` tool with `model: "composer-2.5"` or `"composer-2.5-fast"`) | Write/edit code, scripts, netlists, tests, and docs from the coordinator’s plan. |
+
+**Why layout is different.** Layout work is not mostly code generation; it is
+diagnosis. A stage is finished by reading an extracted netlist's merged nets back
+to geometry and finding which run crosses which on what layer, over and over.
+Composer 2.5 produced structurally reasonable floorplans but did not reason
+through those failures: on the VGA it left the coordinator and the user to find
+five separate shorts it had introduced, which cost more than writing the routing
+would have. Use the stronger reasoning model where the work is debugging, and keep
+Composer 2.5 where the work is writing code to a specification.
 
 **Rules**
 
-- Prefer **parallel Composer 2.5** sub-agents when workstreams are independent.
-- Do **not** have the coordinator silently implement large code changes when Composer 2.5 sub-agents can do it.
+- Prefer **parallel** sub-agents when workstreams are independent.
+- Do **not** have the coordinator silently implement large code changes when a
+  sub-agent can do it.
+- **Split a layout task in two** and commit in between: "put it on the floorplan"
+  gated on parity + DRC, then "make LVS match". See `MEMORY.md` — asking for both
+  at once produces blocks that are structurally right and electrically shorted.
+- Give a layout sub-agent the **failure signature**, not the failing rule: the
+  extracted netlist line, the `MEMORY.md` entry describing the same failure, and
+  the layer budget it has to respect.
 
 ## AGENTS.md maintenance (required before every PR)
 
@@ -78,6 +95,7 @@ source ~/.local/share/ihp-eda/env.sh
 ### Pre-PR checklist
 
 1. Affected `AGENTS.md` files reviewed/updated (root + nested).
-2. Implementation landed via Composer 2.5 sub-agents when the change was non-trivial code.
+2. Implementation landed via sub-agents when the change was non-trivial code —
+   Claude Sonnet 5 thinking for `layout/`, Composer 2.5 elsewhere.
 3. Commit + push on `cursor/<name>-b7e8`.
 4. Create/update PR with ManagePullRequest; mention AGENTS.md changes if contracts moved.

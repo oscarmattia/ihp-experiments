@@ -96,8 +96,8 @@ from a PDK model file, `[est]` when still unverified.
    to a specific Cloud Agent run. Use the suffix given in the current run's instructions; never copy an
    old one.
 7. **The coordinator model is not fixed.** Root `AGENTS.md` named Grok; runs also use Claude Opus 5 as
-   coordinator. What matters is the split: coordinator plans/reviews/runs git and PR tools, Composer 2.5
-   sub-agents write the code.
+   coordinator. What matters is the split: coordinator plans/reviews/runs git and PR tools, sub-agents
+   write the code — **Claude Sonnet 5 thinking for `layout/`, Composer 2.5 elsewhere.**
 8. **`pdk/` is not a populated submodule** — it is gitignored and empty. The PDK lives at `$PDK_ROOT`.
 9. **`sg13g2_bondpad.lib` is an empty placeholder** with no electrical content `[model]`; pad
    capacitance has to be hand-modelled.
@@ -535,7 +535,14 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 
 ## Agent workflow
 
-- Coordinator plans, reviews, and runs git/PR tooling; **Composer 2.5 sub-agents implement**.
+- Coordinator plans, reviews, and runs git/PR tooling; **sub-agents implement**.
+- **Match the implementer model to the kind of work, not to the repo.** Composer 2.5 is the default, but
+  `layout/` goes to **Claude Sonnet 5 thinking** (`model: "claude-sonnet-5-thinking-high"`). Layout is
+  finished by diagnosis — reading an extracted netlist's merged nets back to geometry and finding which
+  run crosses which on what layer — and Composer 2.5 did not reason through that. On the VGA it produced
+  a structurally reasonable two-row floorplan and five shorts, and left the coordinator and the user to
+  find all five; the debugging cost more than writing the routing would have. It remains the right tool
+  where the work is writing code to a specification.
 - **Commit each verified sub-agent result before launching another agent over the same files.** A broad
   multi-task agent that regresses something is otherwise unrevertable, because the good intermediate state
   was never a commit. This happened here: a final agent covering three tasks at once broke the VGA bias
