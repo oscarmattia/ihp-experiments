@@ -362,11 +362,16 @@ What each stage puts in each row:
 
 | Row | CTLE | VGA | Pad driver | Termination |
 | --- | --- | --- | --- | --- |
-| Pad band | — | — | clamp, two pads, four ESD | clamp, two pads, four ESD |
+| Pad band | — | — | clamp, two pads, four ESD, at the **top** | clamp, two pads, four ESD, at the **bottom** |
 | Coil row | two coils, `rppd` loads | two coils, `rppd` loads | two coils, `rsil` loads | — |
-| Pair row | `npn13G2` pair | signal pair inboard, dummy pair outboard | `npn13G2` pair, `Nx=2` | — |
-| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | — | 50 Ω terminators, `vtt` divider |
+| Pair row | `npn13G2` pair | signal pair inboard, dummy pair outboard | `npn13G2` pair, `Nx=2`, no dummies | — |
+| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | routing only, no devices | 50 Ω terminators, `vtt` divider |
 | MOS row | mirror diode, two tails | mirror diode, two tails, four steering | mirror diode, one double-width tail | — |
+
+A stage draws only the rows it needs, and the rows it does not need collapse rather
+than being left as gaps. The pad driver has no dummy devices flanking its pair and
+no control nets at all, so its pair row is just the two transistors and its control
+channel carries only the `in` column and the tail current path.
 
 ### The pad band
 
