@@ -960,7 +960,7 @@ def _pad_cap_breakdown(pex_spice: Path) -> dict[str, dict[str, float]]:
 
     def _bucket(other: str) -> str:
         name = other.lower()
-        if "pad" in name or name.startswith("m7_"):
+        if "pad" in name or name.startswith("m7_") or "m2_n" in name:
             return "pad_metal"
         if "esd" in name or name.startswith("d$") or "diode" in name:
             return "esd"
