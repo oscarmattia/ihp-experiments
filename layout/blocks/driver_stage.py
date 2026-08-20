@@ -199,8 +199,7 @@ def _rail_tap(
 
 
 def _place_at(layout, cell, spec: DeviceSpec, orientation: str = "R0", *,
-              left: float | None = None, right: float | None = None,
-              bottom: float | None = None):
+              bottom: float, left: float | None = None, right: float | None = None):
     """Place a device by an edge of its placed bounding box rather than by ``dx``."""
     box = device_bbox_at(spec, 0.0, 0.0, orientation)
     dx = snap(left - box.left) if left is not None else snap(right - box.right)
