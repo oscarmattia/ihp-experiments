@@ -375,33 +375,50 @@ channel carries only the `in` column and the tail current path.
 
 ### The pad band
 
-A stage with bond pads gets a band of its own, separated from the core by a run of
-the power ring, so the pads never sit inside the ring around the active devices.
-Within the band:
+A stage with bond pads gets a band of its own **and a power grid of its own**, so
+the pads never sit inside the ring around the active devices and the clamp and the
+ESD diodes tie to a rail conductor a few um away rather than reaching down into
+the core. Within the band:
 
-- **Pad pitch is 130 um.** The pads are 70 um square, so their centres sit at
-  ±65 um from the axis and the channel between them is **60 um** wide. Everything
-  below has to fit in that 60 um.
+- **Pad pitch is 180 um.** The pads are 70 um square, so their centres sit at
+  ±90 um from the axis and the channel between them is **110 um** wide. That is
+  what lets the ESD columns sit between the pads at the pads' own height rather
+  than in a row of their own below them.
 - The **clamp sits on the axis at the outer edge**, above both pads, tying `vdd`
-  to `vss`.
+  to `vss`, and its two Metal3 taps reach the band ring's top runs in 20 and 55 um.
+  Against the core ring that tie was a 240 um horizontal.
 - The **four ESD diodes sit in the channel between the pads**, as one column per
-  side just inboard of its own pad: `diodevdd_2kv` and `diodevss_2kv` stacked. The
-  `esd` PCell is 13.06 um wide and 37.05 um tall, so two columns take 26 um of the
-  60 um channel and leave about 34 um down the middle.
-- **`vdd`, `out` P, `out` N and `vss` run vertically in that middle**, `vdd` and
-  `vss` on the outside of the group and the two signals between them. `vdd` enters
-  the band at the outer edge beside the clamp and `vss` leaves at the inner edge
-  toward the core, so the supplies reach the core through the channel rather than
-  only around the ring.
-- `out` leaves each pad **inboard**, horizontally, to its own ESD column and then
-  onto its vertical in the middle group.
+  side just inboard of its own pad. The `esd` PCell is 13.06 um wide and 37.05 um
+  tall, so two columns take 26 um of the 110 um channel.
+- **Stack the column `diodevss` below `diodevdd`.** Each cell brings one rail out
+  on Metal1 at an edge and the other on Metal2 at a side, and in that order both
+  Metal1 pins — `diodevss`'s VDD on its top edge, `diodevdd`'s VSS on its bottom —
+  come out into the gap between the two cells, where they join the Metal2 pins on
+  the column's inboard edge. One vdd tap and one vss tap then run down to the band
+  ring. Put them at the same x on **Metal2 and Metal3**, which have no spacing
+  rule against each other, and each net stays on its own layer end to end so
+  neither has to dodge the other.
+- **`out` leaves each pad on Metal5** and runs inboard over its ESD column. The
+  `bondpad` PCell is a filled Metal3-to-TopMetal2 via stack, so a feed leaves on
+  whichever of those layers suits it with no stack of its own.
 
-Approaching from inboard is what keeps the pads legal: `Pad.fR_M1` through
-`Pad.fR_TM2` fire on anything drawn under the 70 um square, so a feed has to run
-along the pad's edge and stop outside it. Same class of constraint as the coil's
-`pwell_block` marker, and it wants the same answer — stay out of the footprint and
-come in from the side. The `bondpad` cell also anchors on its **centre**, so placing
-it by bottom-left coordinates puts it 35 um from where it was meant to go.
+`Pad.fR` is an **exit length, not a keepout**: it wants any metal that leaves the
+pad to run at least 7 um past the pad edge before it stops or turns, and a pad with
+no feed at all reports nothing. So a feed does not have to approach from a
+distance — it just must not stop short. The `bondpad` cell anchors on its
+**centre**, so placing it by bottom-left coordinates puts it 35 um from where it
+was meant to go.
+
+The two rings are stitched over the gap between them on **TopMetal1**, vdd on the
+axis and vss either side of it, so a strap passes under the other net's TopMetal2
+horizontal instead of routing around it. Two details are not optional:
+
+- **Take the strap from the ring's `top` port, not its `bottom` one.**
+  `PowerRing.ports[net]` is ordered `[top, bottom, left, right]`; index 1 sent a
+  TopMetal1 bar the length of the core, straight over the coils.
+- **Run the strap the full width of both conductors it lands on**, not centre to
+  centre. A via field is placed about its centre, so its outer row of TopMetal1
+  pads otherwise sits outside the strap as islands 1.1 um away, which is `TM1.b`.
 
 For the termination the band is at the **bottom** rather than the top, because its
 pads are the chip inputs; the 50 Ω terminators and the `vtt` divider then occupy the
@@ -420,6 +437,13 @@ the axis costs turns and puts horizontal runs at heights where other nets rise.
 the load column is `coil -> load -> collector` with no horizontal run. The CTLE
 places its loads near the axis and brings `nlp` inward from each coil feed
 instead, which is where 135 um of its output interconnect went.
+
+**A pad feed cannot continue that column past the load.** The load's `nlp` pin
+sits directly above its `out` pin, and the via stack taking `nlp` up to TopMetal2
+passes through Metal5 on the way, so a Metal5 riser at the column's own x shorts
+the load out — LVS reports `nlp1|outp` with the resistor's two terminals on one
+net. Bring the riser down a few um inboard of the column, inside the coil channel,
+and jog across at the collector row.
 
 ### Order devices so every net rises in a straight column
 
@@ -504,6 +528,12 @@ Two things constrain that, and neither is a tuning knob.
 it and any p-tap. Facing the coils inward means each body reaches as far down as it
 reaches up, so the pin row sits a full half-height above the HBTs, whose substrate
 ties are the highest p-taps in the cell.
+
+`PWB.f` is 0.24 um, though, so satisfying it exactly leaves the coil body sitting
+on those ties. The pad driver adds `COIL_ACTIVE_GAP`, 10 um the deck does not ask
+for, on top of the `PWB.f` distance. The cost is `nlp`: the coil pin row rises with
+the coil, so 10 um of clearance is 10 um more drawn interconnect per side —
+76.9 um became 96.9 um.
 
 **A coil pin must be left colinear with its feed.** The deck derives `w`, `s` and
 `d` from the winding geometry inside `ind_drw`, so a connection meeting the feed

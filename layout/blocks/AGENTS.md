@@ -51,7 +51,7 @@ next revision will move.
 | `term_dut` | `term_pdk.cir` | `inp inn vdd vss` | 314.2 × 291.1 um | 10 | ok | ok | **clean, no waivers** | match | 28 C |
 | `ctle_dut` | `ctle_pdk.cir` | `outp outn inp inn vdd vss mgate` | (see summary) | 11 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 95 C |
 | `vga_dut` | `vga_pdk.cir` | `outp outn inp inn vicm steerp steern vdd vss mgate` | 586.7 × 221.0 um | 15 | ok | ok | 44 left (`CntB.a`, `CntB.a1`, `Gat.b`, `M2.b`, `M2.e`, `M3.b`, `M4.b`, `M5.a`) | **does not match** | 129 C |
-| `driver_dut` | `driver_pdk.cir` | `outp outn inp inn vdd vss mgate` | 568.9 × 307.8 um | 13 | ok | ok | 22 left (`Gat.d`, `TM1.b`, `TM2.a`, `TM2.b`, `V2.b`, `V3.b`, `V4.b`) beyond the `LBE.a`/`LBE.c` coil waiver | match | 33 C |
+| `driver_dut` | `driver_pdk.cir` | `outp outn inp inn vdd vss mgate` | 497.9 × 391.6 um | 13 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 27 C |
 
 **Contracts worth keeping straight:**
 
@@ -64,6 +64,10 @@ next revision will move.
   currents through the testbench `{DUT_BIAS}` tokens in `ngs.py`.
 - **Pad capacitance** is parasitic metal, not a CDL device. Layout draws a `bondpad`
   PCell on the net; ngspice gets hand caps from the testbench.
+- **`driver_dut` draws two power grids**, one per band, and `Block.pad_ring` carries
+  the second one into the summary as `pad_power_ring`. `power_ring.add_power_ring`
+  is called twice; nothing about it is driver-specific, so any stage with a pad band
+  can do the same.
 
 Summaries land under `layout/blocks/out/<stage>/` as `{cell}_summary.json` plus
 `parity.json`, `em.json`, and the tool run directories.
@@ -101,6 +105,10 @@ Summaries land under `layout/blocks/out/<stage>/` as `{cell}_summary.json` plus
 - **One device per array in the CDL.** The extractor merges drawn parallel units
   into a single device of the total width, so `MosArray.total_spec` is the netlist
   form — and it is the same form the schematic uses.
+- **Place a guard ring off the placed boxes, never off the placement offsets.** A
+  `mos_array` cell box starts 4 um left of its own origin, because the gate strap
+  inside it overhangs the source rail. A ring placed off the offsets sat on that
+  strap and reported `Gat.d` against the tap activ either side of it.
 
 ## CTLE stage (`ctle_dut`)
 
@@ -173,3 +181,45 @@ to trip; every other context rule, latch-up included, is enforced.
 
 Magic extracts capacitance only here, because `extresist` segfaults on DC-shorted
 ports and a coil is one continuous piece of TopMetal2.
+
+## Pad driver stage (`driver_dut`)
+
+Cell name is **`driver_dut`**, pins `outp outn inp inn vdd vss mgate`. It is the
+only stage so far that carries both a pad band and coils, and it is the reference
+for the pad band as `docs/LAYOUT.md` now describes it.
+
+**Two power grids, one per band.** The core ring encloses the active devices; a
+second ring of the same `add_power_ring` encloses the pad band. That is what makes
+the clamp's rail taps 20 and 55 um of Metal3 instead of a 240 um horizontal to the
+core ring's right side, and it is also what removed the pad-channel `vss` trunk —
+TopMetal2 running straight through the core ring's TopMetal2 `vdd` run, which is
+the short LVS was reporting as merged rails. The two rings are stitched over the
+10 um gap between them with TopMetal1 straps, `vdd` on the axis and `vss` at ±40 um.
+
+**180 um pad pitch.** The 110 um channel holds both ESD columns at the pads' own
+height. Each column is `diodevss` below `diodevdd`; see `docs/LAYOUT.md` for why
+that order and not the other.
+
+**`outp`/`outn` are one Metal5 run from the collector to the pad**, brought down
+`OUT_FEED_DX` inboard of the output column because the column itself cannot pass
+the load — the load's `nlp` via stack goes through Metal5.
+
+**The coil row sits `COIL_ACTIVE_GAP` above what `PWB.f` requires.** 10 um, chosen
+because the tighter spacing reported no violations; the cost is 10 um of `nlp` per
+side.
+
+### Gates
+
+| Gate | Result | File |
+| --- | --- | --- |
+| parity | 13 devices match, ports match | `parity.json` |
+| EM | every conductor within its LEF limit | `em.json` |
+| DRC | clean apart from `LBE.a`/`LBE.c` | `drc_run/` |
+| LVS | netlists match | `lvs_run/` |
+| PEX | 27 C totalling 1390.9 fF | `pex_run/` |
+
+`out/driver_stage/` holds the same six committed artifacts as the other stages and
+nothing else. The LVS bisection scratch that had accumulated there — 1449 tracked
+files under `probe*/`, `bisect*/`, `check*/`, `lvs_*/` — is gone; extraction
+investigations worth keeping belong in `layout/debug_pex/` with a findings note,
+per `../AGENTS.md`.

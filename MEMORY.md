@@ -501,6 +501,32 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **gdsfactory needs a PDK activated before anything else.** It resolves its default from `$PDK`,
   which `env.sh` sets to `ihp-sg13g2` for the SPICE flow and which is not an importable module.
   Cross-sections must be registered as factories, not instances.
+- **`Pad.fR` is a minimum exit length, not a keepout.** The deck takes the metal touching a pad,
+  subtracts `dfpad`, and asks whether what is left covers 7 um outward from the pad edge. A pad with
+  no feed reports nothing, and a feed only has to run 7 um before it stops or turns. Treating it as a
+  7 um exclusion ring around the pad — which the driver's `_PAD_KEEPOUT` did — costs channel width for
+  no reason. And the `bondpad_70um` PCell is a *filled* Metal3-to-TopMetal2 via stack over the whole
+  70 × 70 um, so a feed leaves on whichever of those five layers is convenient with no stack of its own.
+- **A vertical on the ring's own horizontal metal shorts the two supplies.** `add_power_ring` puts
+  both nets' horizontals on TopMetal2, so a TopMetal2 trunk crossing the ring joins vdd to vss. The
+  driver's pad-channel `vss` trunk did exactly that. Cross a ring on TopMetal1 or below, or give the
+  band its own ring and stitch the two with TopMetal1 straps.
+- **`PowerRing.ports[net]` is ordered `[top, bottom, left, right]`.** Index 1 is the *bottom*. Using it
+  for a strap up to a band above the ring drew a TopMetal1 bar the length of the core, over the coils.
+- **A via field is placed about its centre, so the conductor has to be as wide as the field.** Landing a
+  2 × 2 TopVia2 field on a run centre-to-centre leaves its outer row of TopMetal1 pads 1.1 um outside the
+  strap as islands: 24 × `TM1.b`. Run the strap the full width of both conductors it lands on.
+- **A `mos_array` cell box starts 4 um left of its own origin**, because the gate strap inside it
+  overhangs the source rail. Derive a guard ring from the placed boxes; off the placement offsets the
+  ring sat on that strap and reported `Gat.d` against the tap activ either side of it.
+- **A shunt-peaked load cannot have its output column continued past it.** `nlp` sits directly above
+  `out` on the same x, and the via stack taking `nlp` up to TopMetal2 passes through Metal5, so a
+  Metal5 riser at the column's x shorts the resistor out — LVS reports `nlp1|outp` with both terminals
+  of `R` on one net. Offset the riser and jog across at the collector row.
+- **`place()` transforms a terminal's centre but not its recorded orientation.** After `M90` a pin that
+  reads `orientation=0` is on the cell's *left*. `via_up` derives its stub direction from that field, so
+  on a mirrored device it walks the stub into the cell body and onto whatever net is there. It is still
+  correct for pins at 90/270, which `M90` does not move.
 - **Post-layout numbers measured here** `[sim]`: the rppd load goes 86.71 → 90.68 Ω (+4.6%, exactly
   the 2 × 1.98 Ω of terminal metal), the 0.5 µm-wide rsil 86.63 → 116.8 Ω (+34.9%, the same contact
   resistance the LUT underestimates), the MIM decap +1.2%. Magic and `klayout.pex` agree on a routed

@@ -137,7 +137,7 @@ python layout/blocks/gen_blocks.py
 python layout/blocks/term_stage.py       # term_dut
 python layout/blocks/ctle_stage.py       # ctle_dut
 python layout/blocks/vga_stage.py        # vga_dut (LVS still open)
-python layout/blocks/driver_stage.py     # driver_dut (22 DRC left)
+python layout/blocks/driver_stage.py     # driver_dut (all five gates pass)
 ./layout/run_all.sh                      # devices + blocks + ctle stage (+ postlayout)
 ```
 
