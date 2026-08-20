@@ -1,0 +1,28 @@
+{
+  "cell": "nmos_vga_wide_unit",
+  "layout": "/workspace/layout/devices/out/gds/nmos_vga_wide_unit.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/nmos_vga_wide_unit.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_vga_wide_unit/nmos_vga_wide_unit_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 9.87e-06,
+      "extracted": 9.869999999999999e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 1e-06,
+      "extracted": 1e-06,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/nmos_vga_wide_unit/lvs_run.log",
+  "error": ""
+}

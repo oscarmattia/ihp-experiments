@@ -1,0 +1,17 @@
+{
+  "cell": "cmim_vtt_decap",
+  "gds": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/cmim_vtt_decap/cmim_vtt_decap_cmim_vtt_decap_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/cmim_vtt_decap/drc_run.log",
+  "error": ""
+}

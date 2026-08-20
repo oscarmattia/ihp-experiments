@@ -1,0 +1,28 @@
+{
+  "cell": "nmos_vga_steer_unit",
+  "layout": "/workspace/layout/devices/out/gds/nmos_vga_steer_unit.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/nmos_vga_steer_unit.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_vga_steer_unit/nmos_vga_steer_unit_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 1e-05,
+      "extracted": 9.999999999999999e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 5e-07,
+      "extracted": 5e-07,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/nmos_vga_steer_unit/lvs_run.log",
+  "error": ""
+}

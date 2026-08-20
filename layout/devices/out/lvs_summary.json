@@ -1,6 +1,6 @@
 {
   "clean": true,
-  "total_devices": 16,
+  "total_devices": 25,
   "failed": [],
   "by_device": {
     "rppd_load": {
@@ -117,6 +117,13 @@
           "extracted": 7e-08,
           "rel_error": 0.0,
           "ok": true
+        },
+        {
+          "param": "nx",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
         }
       ],
       "log": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/lvs_run.log",
@@ -190,6 +197,279 @@
         }
       ],
       "log": "/workspace/layout/devices/out/lvs_run/inductor_turn1_d40/lvs_run.log",
+      "error": ""
+    },
+    "rsil_term": {
+      "cell": "rsil_term",
+      "layout": "/workspace/layout/devices/out/gds/rsil_term.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/rsil_term.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rsil_term/rsil_term_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 5e-07,
+          "extracted": 5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 2.35e-06,
+          "extracted": 2.35e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "m",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/rsil_term/lvs_run.log",
+      "error": ""
+    },
+    "rppd_vtt_top": {
+      "cell": "rppd_vtt_top",
+      "layout": "/workspace/layout/devices/out/gds/rppd_vtt_top.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/rppd_vtt_top.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rppd_vtt_top/rppd_vtt_top_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 5e-07,
+          "extracted": 5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "m",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/rppd_vtt_top/lvs_run.log",
+      "error": ""
+    },
+    "rppd_vtt_bot": {
+      "cell": "rppd_vtt_bot",
+      "layout": "/workspace/layout/devices/out/gds/rppd_vtt_bot.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/rppd_vtt_bot.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/rppd_vtt_bot/rppd_vtt_bot_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 5e-06,
+          "extracted": 4.9999999999999996e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "m",
+          "intended": 1.0,
+          "extracted": 1.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/rppd_vtt_bot/lvs_run.log",
+      "error": ""
+    },
+    "cmim_vtt_decap": {
+      "cell": "cmim_vtt_decap",
+      "layout": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/cmim_vtt_decap.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmim_vtt_decap/cmim_vtt_decap_extracted.cir",
+      "param_checks": [
+        {
+          "param": "area",
+          "intended": 4.0000000000000007e-10,
+          "extracted": 3.999999999999999e-10,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/cmim_vtt_decap/lvs_run.log",
+      "error": ""
+    },
+    "nmos_vga_wide_unit": {
+      "cell": "nmos_vga_wide_unit",
+      "layout": "/workspace/layout/devices/out/gds/nmos_vga_wide_unit.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_vga_wide_unit.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_vga_wide_unit/nmos_vga_wide_unit_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 9.87e-06,
+          "extracted": 9.869999999999999e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_vga_wide_unit/lvs_run.log",
+      "error": ""
+    },
+    "nmos_vga_steer_unit": {
+      "cell": "nmos_vga_steer_unit",
+      "layout": "/workspace/layout/devices/out/gds/nmos_vga_steer_unit.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_vga_steer_unit.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_vga_steer_unit/nmos_vga_steer_unit_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 1e-05,
+          "extracted": 9.999999999999999e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 5e-07,
+          "extracted": 5e-07,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_vga_steer_unit/lvs_run.log",
+      "error": ""
+    },
+    "npn13G2_driver": {
+      "cell": "npn13G2_driver",
+      "layout": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/npn13G2_driver.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_driver/npn13G2_driver_extracted.cir",
+      "param_checks": [
+        {
+          "param": "le",
+          "intended": 9e-07,
+          "extracted": 9.000000000000001e-07,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "we",
+          "intended": 7e-08,
+          "extracted": 7e-08,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "nx",
+          "intended": 2.0,
+          "extracted": 2.0,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/npn13G2_driver/lvs_run.log",
+      "error": ""
+    },
+    "nmos_driver_mirror_unit": {
+      "cell": "nmos_driver_mirror_unit",
+      "layout": "/workspace/layout/devices/out/gds/nmos_driver_mirror_unit.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_driver_mirror_unit.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_driver_mirror_unit/nmos_driver_mirror_unit_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 9.8e-06,
+          "extracted": 9.800000000000001e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_driver_mirror_unit/lvs_run.log",
+      "error": ""
+    },
+    "nmos_driver_tail_unit": {
+      "cell": "nmos_driver_tail_unit",
+      "layout": "/workspace/layout/devices/out/gds/nmos_driver_tail_unit.gds",
+      "netlist": "/workspace/layout/devices/out/cdl/nmos_driver_tail_unit.cdl",
+      "clean": true,
+      "params_ok": true,
+      "devices_matched": 0,
+      "summary": "Congratulations! Netlists match.",
+      "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_driver_tail_unit/nmos_driver_tail_unit_extracted.cir",
+      "param_checks": [
+        {
+          "param": "w",
+          "intended": 9.92e-06,
+          "extracted": 9.92e-06,
+          "rel_error": 0.0,
+          "ok": true
+        },
+        {
+          "param": "l",
+          "intended": 1e-06,
+          "extracted": 1e-06,
+          "rel_error": 0.0,
+          "ok": true
+        }
+      ],
+      "log": "/workspace/layout/devices/out/lvs_run/nmos_driver_tail_unit/lvs_run.log",
       "error": ""
     },
     "esd_diodevdd_2kv": {

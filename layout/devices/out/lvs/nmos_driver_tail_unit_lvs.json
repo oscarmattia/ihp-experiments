@@ -1,0 +1,28 @@
+{
+  "cell": "nmos_driver_tail_unit",
+  "layout": "/workspace/layout/devices/out/gds/nmos_driver_tail_unit.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/nmos_driver_tail_unit.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/nmos_driver_tail_unit/nmos_driver_tail_unit_extracted.cir",
+  "param_checks": [
+    {
+      "param": "w",
+      "intended": 9.92e-06,
+      "extracted": 9.92e-06,
+      "rel_error": 0.0,
+      "ok": true
+    },
+    {
+      "param": "l",
+      "intended": 1e-06,
+      "extracted": 1e-06,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/nmos_driver_tail_unit/lvs_run.log",
+  "error": ""
+}

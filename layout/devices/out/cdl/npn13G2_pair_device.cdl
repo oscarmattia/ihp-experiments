@@ -1,4 +1,4 @@
 * npn13G2_pair_device — generated from DeviceSpec; do not edit by hand
 .SUBCKT npn13G2_pair_device C B E
-Q1 C B E sub npn13G2 le=0.9u we=0.07u m=1
+Q1 C B E sub npn13G2 le=0.9u we=0.07u Nx=1 m=1
 .ENDS npn13G2_pair_device

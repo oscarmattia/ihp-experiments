@@ -1,12 +1,12 @@
 {
-  "cell": "npn13G2_pair_device",
-  "layout": "/workspace/layout/devices/out/gds/npn13G2_pair_device.gds",
-  "netlist": "/workspace/layout/devices/out/cdl/npn13G2_pair_device.cdl",
+  "cell": "npn13G2_driver",
+  "layout": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/npn13G2_driver.cdl",
   "clean": true,
   "params_ok": true,
   "devices_matched": 0,
   "summary": "Congratulations! Netlists match.",
-  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/npn13G2_pair_device_extracted.cir",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/npn13G2_driver/npn13G2_driver_extracted.cir",
   "param_checks": [
     {
       "param": "le",
@@ -24,12 +24,12 @@
     },
     {
       "param": "nx",
-      "intended": 1.0,
-      "extracted": 1.0,
+      "intended": 2.0,
+      "extracted": 2.0,
       "rel_error": 0.0,
       "ok": true
     }
   ],
-  "log": "/workspace/layout/devices/out/lvs_run/npn13G2_pair_device/lvs_run.log",
+  "log": "/workspace/layout/devices/out/lvs_run/npn13G2_driver/lvs_run.log",
   "error": ""
 }

@@ -1,0 +1,4 @@
+* cmim_vtt_decap — generated from DeviceSpec; do not edit by hand
+.SUBCKT cmim_vtt_decap PLUS MINUS
+C1 PLUS MINUS cap_cmim w=20u l=20u
+.ENDS cmim_vtt_decap

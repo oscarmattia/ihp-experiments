@@ -168,12 +168,13 @@ def _npn_pcell(p: dict[str, Any]) -> dict[str, Any]:
 
 
 def _npn_cdl(p: dict[str, Any]) -> dict[str, str]:
-    # The LVS testcase writes le/we, not Nx; Nx becomes multiple emitter
-    # stripes in layout and is reported through the device count.
+    # Emitter stripe count (Nx) and netlist multiplicity (m) are independent
+    # parameters; see npn_adv.cdl in the BJT LVS unit testcases.
     return {
         "le": um(p.get("le", 0.9e-6)),
         "we": um(p.get("we", 0.07e-6)),
-        "m": str(int(p.get("m", 1)) * int(p.get("Nx", 1))),
+        "Nx": str(int(p.get("Nx", 1))),
+        "m": str(int(p.get("m", 1))),
     }
 
 
@@ -273,7 +274,11 @@ def _ind_extracted(p: dict[str, Any]) -> dict[str, float]:
 
 
 def _npn_extracted(p: dict[str, Any]) -> dict[str, float]:
-    return {"le": p.get("le", 0.9e-6), "we": p.get("we", 0.07e-6)}
+    return {
+        "le": p.get("le", 0.9e-6),
+        "we": p.get("we", 0.07e-6),
+        "Nx": float(int(p.get("Nx", 1))),
+    }
 
 
 # --- registry --------------------------------------------------------------

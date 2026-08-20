@@ -1,0 +1,17 @@
+{
+  "cell": "npn13G2_driver",
+  "gds": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/npn13G2_driver/npn13G2_driver_npn13G2_driver_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/npn13G2_driver/drc_run.log",
+  "error": ""
+}

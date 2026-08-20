@@ -215,6 +215,7 @@
       "cdl_params": {
         "le": "0.9u",
         "we": "0.07u",
+        "Nx": "1",
         "m": "1"
       },
       "bbox_um": {
@@ -422,6 +423,638 @@
       },
       "gds": "gds/inductor_turn1_d40.gds",
       "cdl": "cdl/inductor_turn1_d40.cdl",
+      "png": null
+    },
+    {
+      "name": "rsil_term",
+      "kind": "rsil",
+      "pcell": "rsil",
+      "spice_model": "rsil",
+      "note": "Termination 50 ohm shunt per leg, RSRC_LEG=50 ohm (term_params.inc RSIL_W/L)",
+      "params": {
+        "w": 5e-07,
+        "l": 2.35e-06
+      },
+      "pcell_params": {
+        "Calculate": "R",
+        "w": "0.5u",
+        "l": "2.35u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "m": "1",
+        "l": "2.35u",
+        "w": "0.5u"
+      },
+      "bbox_um": {
+        "width": 0.86,
+        "height": 3.41,
+        "area": 2.9326
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            -0.2
+          ],
+          "width": 0.46,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.25,
+            2.55
+          ],
+          "width": 0.46,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 2,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "polyres_drw": 1,
+        "res_drw": 1
+      },
+      "gds": "gds/rsil_term.gds",
+      "cdl": "cdl/rsil_term.cdl",
+      "png": null
+    },
+    {
+      "name": "rppd_vtt_top",
+      "kind": "rppd",
+      "pcell": "rppd",
+      "spice_model": "rppd",
+      "note": "VTT divider upper leg to VDD (term_params.inc VTT_RTOP_W/L, w=1.0 um l=0.5 um)",
+      "params": {
+        "w": 1e-06,
+        "l": 5e-07
+      },
+      "pcell_params": {
+        "Calculate": "R",
+        "w": "1u",
+        "l": "0.5u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "m": "1",
+        "l": "0.5u",
+        "w": "1u"
+      },
+      "bbox_um": {
+        "width": 1.4,
+        "height": 1.72,
+        "area": 2.408
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.5,
+            -0.28
+          ],
+          "width": 0.96,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.5,
+            0.78
+          ],
+          "width": 0.96,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 4,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "polyres_drw": 1,
+        "psd_drw": 3,
+        "salblock_drw": 1
+      },
+      "gds": "gds/rppd_vtt_top.gds",
+      "cdl": "cdl/rppd_vtt_top.cdl",
+      "png": null
+    },
+    {
+      "name": "rppd_vtt_bot",
+      "kind": "rppd",
+      "pcell": "rppd",
+      "spice_model": "rppd",
+      "note": "VTT divider lower leg to VSS (term_params.inc VTT_RBOT_W/L, w=1.0 um l=5.0 um)",
+      "params": {
+        "w": 1e-06,
+        "l": 5e-06
+      },
+      "pcell_params": {
+        "Calculate": "R",
+        "w": "1u",
+        "l": "5u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "m": "1",
+        "l": "5u",
+        "w": "1u"
+      },
+      "bbox_um": {
+        "width": 1.4,
+        "height": 6.22,
+        "area": 8.708
+      },
+      "terminals": [
+        {
+          "name": "PLUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.5,
+            -0.28
+          ],
+          "width": 0.96,
+          "orientation": 270.0
+        },
+        {
+          "name": "MINUS",
+          "layer": "metal1_pin",
+          "center": [
+            0.5,
+            5.279999999999999
+          ],
+          "width": 0.96,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "cont_drw": 2,
+        "extblock_drw": 3,
+        "gatpoly_drw": 4,
+        "heatres_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2,
+        "polyres_drw": 1,
+        "psd_drw": 3,
+        "salblock_drw": 1
+      },
+      "gds": "gds/rppd_vtt_bot.gds",
+      "cdl": "cdl/rppd_vtt_bot.cdl",
+      "png": null
+    },
+    {
+      "name": "cmim_vtt_decap",
+      "kind": "cmim",
+      "pcell": "cmim",
+      "spice_model": "cap_cmim",
+      "note": "VTT rail MIM decap, CL=10.36 fF (term_params.inc VTT_CAP_W/L)",
+      "params": {
+        "w": 2e-05,
+        "l": 2e-05
+      },
+      "pcell_params": {
+        "Calculate": "C",
+        "w": "20u",
+        "l": "20u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "20u",
+        "l": "20u"
+      },
+      "bbox_um": {
+        "width": 21.2,
+        "height": 21.2,
+        "area": 449.44
+      },
+      "terminals": [
+        {
+          "name": "MINUS",
+          "layer": "metal5_drw",
+          "center": [
+            -0.6,
+            10.0
+          ],
+          "width": 21.2,
+          "orientation": 180.0
+        },
+        {
+          "name": "PLUS",
+          "layer": "topmetal1_drw",
+          "center": [
+            10.0,
+            19.45
+          ],
+          "width": 18.9,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "metal5_drw": 1,
+        "mim_drw": 1,
+        "topmetal1_drw": 1,
+        "vmim_drw": 225
+      },
+      "gds": "gds/cmim_vtt_decap.gds",
+      "cdl": "cdl/cmim_vtt_decap.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_vga_wide_unit",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "VGA mirror and tail unit, W=9.870 um x L=1.00 um; 25 of these make the 246.8 um wide devices (vga_params.inc MOS_W_m, sizing asked for 246.888 um)",
+      "params": {
+        "w": 9.87e-06,
+        "l": 1e-06,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "9.87u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "9.87u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 1.68,
+        "height": 10.23,
+        "area": 17.1864
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            4.9350000000000005
+          ],
+          "width": 9.87,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.53,
+            4.9350000000000005
+          ],
+          "width": 9.87,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.8400000000000001,
+            4.9350000000000005
+          ],
+          "width": 10.23,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 58,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_vga_wide_unit.gds",
+      "cdl": "cdl/nmos_vga_wide_unit.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_vga_steer_unit",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "VGA steering device unit, W=10.000 um x L=0.50 um; 20 of these make the 200.0 um steer pair (vga_params.inc STEER_W_m, sizing asked for 200.000 um)",
+      "params": {
+        "w": 1e-05,
+        "l": 5e-07,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "10u",
+        "l": "0.5u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "10u",
+        "l": "0.5u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 1.18,
+        "height": 10.36,
+        "area": 12.2248
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            5.0
+          ],
+          "width": 10.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.03,
+            5.0
+          ],
+          "width": 10.0,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.59,
+            5.0
+          ],
+          "width": 10.36,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 58,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_vga_steer_unit.gds",
+      "cdl": "cdl/nmos_vga_steer_unit.cdl",
+      "png": null
+    },
+    {
+      "name": "npn13G2_driver",
+      "kind": "npn13G2",
+      "pcell": "npn13G2",
+      "spice_model": "npn13G2",
+      "note": "Pad driver differential pair HBT, Nx=2 (driver_params.inc)",
+      "params": {
+        "Nx": 2
+      },
+      "pcell_params": {
+        "Nx": 2,
+        "Ny": 1,
+        "le": "0.9u",
+        "we": "0.07u",
+        "m": "1"
+      },
+      "cdl_params": {
+        "le": "0.9u",
+        "we": "0.07u",
+        "Nx": "2",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 8.55,
+        "height": 7.11,
+        "area": 60.7905
+      },
+      "terminals": [
+        {
+          "name": "C",
+          "layer": "metal1_pin",
+          "center": [
+            0.9249999999999999,
+            1.24
+          ],
+          "width": 3.7,
+          "orientation": 90.0
+        },
+        {
+          "name": "B",
+          "layer": "metal1_pin",
+          "center": [
+            0.925,
+            -1.1400000000000001
+          ],
+          "width": 3.8,
+          "orientation": 270.0
+        },
+        {
+          "name": "E",
+          "layer": "metal2_pin",
+          "center": [
+            0.925,
+            -0.007500000000000007
+          ],
+          "width": 3.34,
+          "orientation": 270.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 3,
+        "activ_mask": 2,
+        "cont_drw": 4,
+        "emwind_drw": 2,
+        "heattrans_drw": 2,
+        "metal1_drw": 4,
+        "metal1_pin": 2,
+        "metal2_drw": 1,
+        "metal2_pin": 1,
+        "nsd_block": 2,
+        "psd_drw": 1,
+        "trans_drw": 1,
+        "via1_drw": 16
+      },
+      "gds": "gds/npn13G2_driver.gds",
+      "cdl": "cdl/npn13G2_driver.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_driver_mirror_unit",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "Pad driver mirror diode unit, W=9.800 um x L=1.00 um; 40 of these make the 392.0 um mirror (driver_params.inc MOS_W_m, sizing asked for 391.960 um)",
+      "params": {
+        "w": 9.8e-06,
+        "l": 1e-06,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "9.8u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "9.8u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 1.68,
+        "height": 10.16,
+        "area": 17.0688
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            4.9
+          ],
+          "width": 9.8,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.53,
+            4.9
+          ],
+          "width": 9.8,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.8400000000000001,
+            4.9
+          ],
+          "width": 10.16,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 56,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_driver_mirror_unit.gds",
+      "cdl": "cdl/nmos_driver_mirror_unit.cdl",
+      "png": null
+    },
+    {
+      "name": "nmos_driver_tail_unit",
+      "kind": "nmos_lv",
+      "pcell": "nmos",
+      "spice_model": "sg13_lv_nmos",
+      "note": "Pad driver tail unit, W=9.920 um x L=1.00 um; 79 of these make the 783.7 um tail (driver_params.inc TAIL_W_m, sizing asked for 783.921 um)",
+      "params": {
+        "w": 9.92e-06,
+        "l": 1e-06,
+        "ng": 1
+      },
+      "pcell_params": {
+        "w": "9.92u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "cdl_params": {
+        "w": "9.92u",
+        "l": "1u",
+        "ng": "1",
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 1.68,
+        "height": 10.28,
+        "area": 17.2704
+      },
+      "terminals": [
+        {
+          "name": "D",
+          "layer": "metal1_pin",
+          "center": [
+            0.15000000000000002,
+            4.96
+          ],
+          "width": 9.92,
+          "orientation": 180.0
+        },
+        {
+          "name": "S",
+          "layer": "metal1_pin",
+          "center": [
+            1.53,
+            4.96
+          ],
+          "width": 9.92,
+          "orientation": 0.0
+        },
+        {
+          "name": "G",
+          "layer": "gatpoly_pin",
+          "center": [
+            0.8400000000000001,
+            4.96
+          ],
+          "width": 10.28,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [
+        "G"
+      ],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 58,
+        "gatpoly_drw": 1,
+        "gatpoly_pin": 1,
+        "heattrans_drw": 1,
+        "metal1_drw": 2,
+        "metal1_pin": 2
+      },
+      "gds": "gds/nmos_driver_tail_unit.gds",
+      "cdl": "cdl/nmos_driver_tail_unit.cdl",
       "png": null
     },
     {

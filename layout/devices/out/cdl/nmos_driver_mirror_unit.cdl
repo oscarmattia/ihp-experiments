@@ -1,0 +1,4 @@
+* nmos_driver_mirror_unit — generated from DeviceSpec; do not edit by hand
+.SUBCKT nmos_driver_mirror_unit D G S
+M1 D G S sub sg13_lv_nmos w=9.8u l=1u ng=1 m=1
+.ENDS nmos_driver_mirror_unit

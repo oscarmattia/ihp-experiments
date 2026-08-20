@@ -1,0 +1,4 @@
+* rppd_vtt_top — generated from DeviceSpec; do not edit by hand
+.SUBCKT rppd_vtt_top PLUS MINUS
+R1 PLUS MINUS sub rppd m=1 l=0.5u w=1u
+.ENDS rppd_vtt_top

@@ -59,6 +59,90 @@
     "note": "shunt-peaking coil at the EM-characterized geometry (~66.4 pH at 28 GHz per ind_shunt.inc)"
   },
   {
+    "name": "rsil_term",
+    "kind": "rsil",
+    "params": {
+      "w": 5e-07,
+      "l": 2.35e-06
+    },
+    "note": "Termination 50 ohm shunt per leg, RSRC_LEG=50 ohm (term_params.inc RSIL_W/L)"
+  },
+  {
+    "name": "rppd_vtt_top",
+    "kind": "rppd",
+    "params": {
+      "w": 1e-06,
+      "l": 5e-07
+    },
+    "note": "VTT divider upper leg to VDD (term_params.inc VTT_RTOP_W/L, w=1.0 um l=0.5 um)"
+  },
+  {
+    "name": "rppd_vtt_bot",
+    "kind": "rppd",
+    "params": {
+      "w": 1e-06,
+      "l": 5e-06
+    },
+    "note": "VTT divider lower leg to VSS (term_params.inc VTT_RBOT_W/L, w=1.0 um l=5.0 um)"
+  },
+  {
+    "name": "cmim_vtt_decap",
+    "kind": "cmim",
+    "params": {
+      "w": 2e-05,
+      "l": 2e-05
+    },
+    "note": "VTT rail MIM decap, CL=10.36 fF (term_params.inc VTT_CAP_W/L)"
+  },
+  {
+    "name": "nmos_vga_wide_unit",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 9.87e-06,
+      "l": 1e-06,
+      "ng": 1
+    },
+    "note": "VGA mirror and tail unit, W=9.870 um x L=1.00 um; 25 of these make the 246.8 um wide devices (vga_params.inc MOS_W_m, sizing asked for 246.888 um)"
+  },
+  {
+    "name": "nmos_vga_steer_unit",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 1e-05,
+      "l": 5e-07,
+      "ng": 1
+    },
+    "note": "VGA steering device unit, W=10.000 um x L=0.50 um; 20 of these make the 200.0 um steer pair (vga_params.inc STEER_W_m, sizing asked for 200.000 um)"
+  },
+  {
+    "name": "npn13G2_driver",
+    "kind": "npn13G2",
+    "params": {
+      "Nx": 2
+    },
+    "note": "Pad driver differential pair HBT, Nx=2 (driver_params.inc)"
+  },
+  {
+    "name": "nmos_driver_mirror_unit",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 9.8e-06,
+      "l": 1e-06,
+      "ng": 1
+    },
+    "note": "Pad driver mirror diode unit, W=9.800 um x L=1.00 um; 40 of these make the 392.0 um mirror (driver_params.inc MOS_W_m, sizing asked for 391.960 um)"
+  },
+  {
+    "name": "nmos_driver_tail_unit",
+    "kind": "nmos_lv",
+    "params": {
+      "w": 9.92e-06,
+      "l": 1e-06,
+      "ng": 1
+    },
+    "note": "Pad driver tail unit, W=9.920 um x L=1.00 um; 79 of these make the 783.7 um tail (driver_params.inc TAIL_W_m, sizing asked for 783.921 um)"
+  },
+  {
     "name": "esd_diodevdd_2kv",
     "kind": "esd_diodevdd",
     "params": {

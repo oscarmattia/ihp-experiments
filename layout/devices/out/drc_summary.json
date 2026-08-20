@@ -1,6 +1,6 @@
 {
   "clean": true,
-  "total_devices": 17,
+  "total_devices": 26,
   "failed": [],
   "density_checked": false,
   "antenna_checked": false,
@@ -130,6 +130,199 @@
       "tables": [],
       "report": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/inductor_turn1_d40_inductor_turn1_d40_main.lyrdb",
       "log": "/workspace/layout/devices/out/drc_run/inductor_turn1_d40/drc_run.log",
+      "error": ""
+    },
+    "rsil_term": {
+      "cell": "rsil_term",
+      "gds": "/workspace/layout/devices/out/gds/rsil_term.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/rsil_term/rsil_term_rsil_term_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/rsil_term/drc_run.log",
+      "error": ""
+    },
+    "rppd_vtt_top": {
+      "cell": "rppd_vtt_top",
+      "gds": "/workspace/layout/devices/out/gds/rppd_vtt_top.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/rppd_vtt_top/rppd_vtt_top_rppd_vtt_top_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/rppd_vtt_top/drc_run.log",
+      "error": ""
+    },
+    "rppd_vtt_bot": {
+      "cell": "rppd_vtt_bot",
+      "gds": "/workspace/layout/devices/out/gds/rppd_vtt_bot.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/rppd_vtt_bot/rppd_vtt_bot_rppd_vtt_bot_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/rppd_vtt_bot/drc_run.log",
+      "error": ""
+    },
+    "cmim_vtt_decap": {
+      "cell": "cmim_vtt_decap",
+      "gds": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/cmim_vtt_decap/cmim_vtt_decap_cmim_vtt_decap_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/cmim_vtt_decap/drc_run.log",
+      "error": ""
+    },
+    "nmos_vga_wide_unit": {
+      "cell": "nmos_vga_wide_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_vga_wide_unit.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,9.87;1.68,9.87;1.68,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_vga_wide_unit/nmos_vga_wide_unit_nmos_vga_wide_unit_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_vga_wide_unit/drc_run.log",
+      "error": ""
+    },
+    "nmos_vga_steer_unit": {
+      "cell": "nmos_vga_steer_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_vga_steer_unit.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,10;1.18,10;1.18,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_vga_steer_unit/nmos_vga_steer_unit_nmos_vga_steer_unit_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_vga_steer_unit/drc_run.log",
+      "error": ""
+    },
+    "npn13G2_driver": {
+      "cell": "npn13G2_driver",
+      "gds": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+      "clean": true,
+      "strictly_clean": true,
+      "total_violations": 0,
+      "real_violations": 0,
+      "by_rule": {},
+      "real_by_rule": {},
+      "context_by_rule": {},
+      "context_rule_reasons": {},
+      "examples": {},
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/npn13G2_driver/npn13G2_driver_npn13G2_driver_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/npn13G2_driver/drc_run.log",
+      "error": ""
+    },
+    "nmos_driver_mirror_unit": {
+      "cell": "nmos_driver_mirror_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_driver_mirror_unit.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,9.8;1.68,9.8;1.68,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_driver_mirror_unit/nmos_driver_mirror_unit_nmos_driver_mirror_unit_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_driver_mirror_unit/drc_run.log",
+      "error": ""
+    },
+    "nmos_driver_tail_unit": {
+      "cell": "nmos_driver_tail_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_driver_tail_unit.gds",
+      "clean": true,
+      "strictly_clean": false,
+      "total_violations": 1,
+      "real_violations": 0,
+      "by_rule": {
+        "LU.b": 1
+      },
+      "real_by_rule": {},
+      "context_by_rule": {
+        "LU.b": 1
+      },
+      "context_rule_reasons": {
+        "LU.b": "latch-up: max 20 um from N+Activ in PWell to a pSD-PWell tie. A lone device has no tie; guard rings satisfy it at block level."
+      },
+      "examples": {
+        "LU.b": [
+          "polygon: (0,0;0,9.92;1.68,9.92;1.68,0)"
+        ]
+      },
+      "tables": [],
+      "report": "/workspace/layout/devices/out/drc_run/nmos_driver_tail_unit/nmos_driver_tail_unit_nmos_driver_tail_unit_main.lyrdb",
+      "log": "/workspace/layout/devices/out/drc_run/nmos_driver_tail_unit/drc_run.log",
       "error": ""
     },
     "esd_diodevdd_2kv": {

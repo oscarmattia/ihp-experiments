@@ -1,0 +1,17 @@
+{
+  "cell": "rsil_term",
+  "gds": "/workspace/layout/devices/out/gds/rsil_term.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/rsil_term/rsil_term_rsil_term_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/rsil_term/drc_run.log",
+  "error": ""
+}

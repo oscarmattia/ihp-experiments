@@ -1,0 +1,21 @@
+{
+  "cell": "cmim_vtt_decap",
+  "layout": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/cmim_vtt_decap.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/cmim_vtt_decap/cmim_vtt_decap_extracted.cir",
+  "param_checks": [
+    {
+      "param": "area",
+      "intended": 4.0000000000000007e-10,
+      "extracted": 3.999999999999999e-10,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/cmim_vtt_decap/lvs_run.log",
+  "error": ""
+}

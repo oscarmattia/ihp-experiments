@@ -1,17 +1,21 @@
 """The device catalog: every device the front end actually instantiates.
 
-Sizes are read from ``circuits/ctle56n/spice/params.inc`` rather than copied,
-so a resize in ``size_ctle.py`` flows into layout without touching this file.
-The catalog also carries a few ``char/mos`` sweep corners, so the MOS geometry
-that the LUTs were characterized at is covered by DRC and LVS too.
+Sizes are read from the stage ``*_params.inc`` files rather than copied, so a
+resize in the sizing scripts flows into layout without touching this file. The
+catalog also carries a few ``char/mos`` sweep corners, so the MOS geometry that
+the LUTs were characterized at is covered by DRC and LVS too.
 """
 
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
+from layout.common.paths import repo_root
 from layout.common.sizing import metres, read_params
 from layout.common.spec import DeviceSpec
+
+_SPICE = repo_root() / "circuits" / "ctle56n" / "spice"
 
 #: Per-finger width for the fingered tail devices, in metres. The tail is
 #: ~243 um wide in total, which cannot be drawn as one finger; MEMORY.md records
@@ -35,6 +39,16 @@ MOS_W_GRID = 5e-9
 #: 1-turn TopMetal2 octagon at this geometry, which is what ``ind_shunt.inc``
 #: was fitted from and what ctle_pdk.cir instantiates.
 COIL = {"d": 40.0e-6, "w": 4.0e-6, "s": 2.1e-6, "nr_r": 1}
+
+
+def drawable_finger_w(unit_w: float) -> float:
+    """Return the finger width the nmos PCell actually draws.
+
+    ``plan_units`` snaps onto 5 nm, but the PCell resolves ``w`` to 0.01 um, so a
+    request like 9.875 um becomes 9.87 um in layout. The CDL must carry the drawn
+    value or LVS compares against a width that was never built.
+    """
+    return math.floor(unit_w * 1e8 + 1e-12) / 1e8
 
 
 def plan_fingers(
@@ -130,6 +144,140 @@ def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
     ]
 
 
+def term_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
+    """Devices instantiated by the termination stage, at their sized geometry."""
+    p = params or read_params(_SPICE / "term_params.inc")
+
+    return [
+        DeviceSpec(
+            name="rsil_term",
+            kind="rsil",
+            params={"w": p["RSIL_W"], "l": p["RSIL_L"]},
+            note=(
+                f"Termination 50 ohm shunt per leg, RSRC_LEG={p['RSRC_LEG']:.0f} ohm "
+                f"(term_params.inc RSIL_W/L)"
+            ),
+        ),
+        DeviceSpec(
+            name="rppd_vtt_top",
+            kind="rppd",
+            params={"w": p["VTT_RTOP_W"], "l": p["VTT_RTOP_L"]},
+            note=(
+                "VTT divider upper leg to VDD "
+                f"(term_params.inc VTT_RTOP_W/L, w={p['VTT_RTOP_W'] * 1e6:.1f} um "
+                f"l={p['VTT_RTOP_L'] * 1e6:.1f} um)"
+            ),
+        ),
+        DeviceSpec(
+            name="rppd_vtt_bot",
+            kind="rppd",
+            params={"w": p["VTT_RBOT_W"], "l": p["VTT_RBOT_L"]},
+            note=(
+                "VTT divider lower leg to VSS "
+                f"(term_params.inc VTT_RBOT_W/L, w={p['VTT_RBOT_W'] * 1e6:.1f} um "
+                f"l={p['VTT_RBOT_L'] * 1e6:.1f} um)"
+            ),
+        ),
+        DeviceSpec(
+            name="cmim_vtt_decap",
+            kind="cmim",
+            params={"w": p["VTT_CAP_W"], "l": p["VTT_CAP_L"]},
+            note=(
+                f"VTT rail MIM decap, CL={p['CL'] * 1e15:.2f} fF "
+                f"(term_params.inc VTT_CAP_W/L)"
+            ),
+        ),
+    ]
+
+
+def vga_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
+    """Devices instantiated by the VGA stage, at their sized geometry."""
+    p = params or read_params(_SPICE / "vga_params.inc")
+    from layout.blocks.mos_array import plan_units
+
+    tail_w = metres(p, "MOS_W")
+    tail_l = metres(p, "MOS_L")
+    steer_w = metres(p, "STEER_W")
+    steer_l = metres(p, "STEER_L")
+    tail_units, tail_unit_w = plan_units(tail_w)
+    steer_units, steer_unit_w = plan_units(steer_w)
+    tail_unit_w = drawable_finger_w(tail_unit_w)
+    steer_unit_w = drawable_finger_w(steer_unit_w)
+
+    return [
+        # Mirror diode and both tail devices share MOS_W_m; rppd loads, the HBT
+        # pair and the shunt coil match CTLE catalog entries and are omitted.
+        DeviceSpec(
+            name="nmos_vga_wide_unit",
+            kind="nmos_lv",
+            params={"w": tail_unit_w, "l": tail_l, "ng": 1},
+            note=(
+                f"VGA mirror and tail unit, W={tail_unit_w * 1e6:.3f} um x "
+                f"L={tail_l * 1e6:.2f} um; {tail_units} of these make the "
+                f"{tail_units * tail_unit_w * 1e6:.1f} um wide devices "
+                f"(vga_params.inc MOS_W_m, sizing asked for {tail_w * 1e6:.3f} um)"
+            ),
+        ),
+        DeviceSpec(
+            name="nmos_vga_steer_unit",
+            kind="nmos_lv",
+            params={"w": steer_unit_w, "l": steer_l, "ng": 1},
+            note=(
+                f"VGA steering device unit, W={steer_unit_w * 1e6:.3f} um x "
+                f"L={steer_l * 1e6:.2f} um; {steer_units} of these make the "
+                f"{steer_units * steer_unit_w * 1e6:.1f} um steer pair "
+                f"(vga_params.inc STEER_W_m, sizing asked for {steer_w * 1e6:.3f} um)"
+            ),
+        ),
+    ]
+
+
+def driver_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
+    """Devices instantiated by the pad driver stage, at their sized geometry."""
+    p = params or read_params(_SPICE / "driver_params.inc")
+    from layout.blocks.mos_array import plan_units
+
+    mirror_w = metres(p, "MOS_W")
+    mirror_l = metres(p, "MOS_L")
+    tail_w = p["TAIL_W_m"]
+    mirror_units, mirror_unit_w = plan_units(mirror_w)
+    tail_units, tail_unit_w = plan_units(tail_w)
+    mirror_unit_w = drawable_finger_w(mirror_unit_w)
+    tail_unit_w = drawable_finger_w(tail_unit_w)
+
+    return [
+        # rsil loads match rsil_term; coils, ESD and the clamp are in esd_devices.
+        DeviceSpec(
+            name="npn13G2_driver",
+            kind="npn13G2",
+            params={"Nx": int(p["Nx"])},
+            note=f"Pad driver differential pair HBT, Nx={int(p['Nx'])} (driver_params.inc)",
+        ),
+        DeviceSpec(
+            name="nmos_driver_mirror_unit",
+            kind="nmos_lv",
+            params={"w": mirror_unit_w, "l": mirror_l, "ng": 1},
+            note=(
+                f"Pad driver mirror diode unit, W={mirror_unit_w * 1e6:.3f} um x "
+                f"L={mirror_l * 1e6:.2f} um; {mirror_units} of these make the "
+                f"{mirror_units * mirror_unit_w * 1e6:.1f} um mirror "
+                f"(driver_params.inc MOS_W_m, sizing asked for {mirror_w * 1e6:.3f} um)"
+            ),
+        ),
+        DeviceSpec(
+            name="nmos_driver_tail_unit",
+            kind="nmos_lv",
+            params={"w": tail_unit_w, "l": mirror_l, "ng": 1},
+            note=(
+                f"Pad driver tail unit, W={tail_unit_w * 1e6:.3f} um x "
+                f"L={mirror_l * 1e6:.2f} um; {tail_units} of these make the "
+                f"{tail_units * tail_unit_w * 1e6:.1f} um tail "
+                f"(driver_params.inc TAIL_W_m, sizing asked for {tail_w * 1e6:.3f} um)"
+            ),
+        ),
+    ]
+
+
 def esd_devices() -> list[DeviceSpec]:
     """ESD and bond-pad devices used by the termination and driver stages."""
     pad_diameter = 70.0e-6
@@ -197,10 +345,31 @@ def char_mos_corners() -> list[DeviceSpec]:
     return out
 
 
+def _device_key(spec: DeviceSpec) -> tuple:
+    return (spec.kind, tuple(sorted(spec.params.items())))
+
+
 def full_catalog(params: dict[str, float] | None = None) -> list[DeviceSpec]:
-    return [
-        *ctle_devices(params),
-        *esd_devices(),
-        *support_devices(),
-        *char_mos_corners(),
+    # One entry per distinct (kind, params): the gates check drawable geometry,
+    # not how many schematic instances share it. Earlier groups win on collision
+    # so CTLE keeps rppd_load, npn13G2_pair_device and inductor_turn1_d40 when
+    # a later stage sizes the same PCell the same way.
+    groups = [
+        ctle_devices(params),
+        term_devices(),
+        vga_devices(),
+        driver_devices(),
+        esd_devices(),
+        support_devices(),
+        char_mos_corners(),
     ]
+    seen: set[tuple] = set()
+    out: list[DeviceSpec] = []
+    for group in groups:
+        for spec in group:
+            key = _device_key(spec)
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(spec)
+    return out

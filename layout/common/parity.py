@@ -69,7 +69,7 @@ COMPARED_PARAMS: dict[str, tuple[str, ...]] = {
     "rsil": ("w", "l"),
     "cap_cmomi": ("w", "l"),
     "cap_cmim": ("w", "l"),
-    "npn13G2": (),  # sized by Nx, which the CDL folds into the device count
+    "npn13G2": ("Nx",),
     "inductor": ("w", "s", "d"),
 }
 
@@ -201,13 +201,14 @@ def _params_of(model: str, tokens: list[str]) -> tuple[tuple[str, float], ...]:
     wanted = COMPARED_PARAMS.get(model)
     if not wanted:
         return ()
+    wanted_lower = {name.lower() for name in wanted}
     found: dict[str, float] = {}
     for token in tokens:
         if "=" not in token:
             continue
         key, _, value = token.partition("=")
         key = key.strip().lower()
-        if key in wanted:
+        if key in wanted_lower:
             parsed = parse_si(value)
             if parsed is not None:
                 found[key] = parsed
