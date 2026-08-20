@@ -644,9 +644,13 @@ On `vga_dut` the same filter drops far more — **388 fF of 936 fF** — because
 `m2_*#` and the rewrite cannot keep them. That is internal-node C on the
 dummy-steer collectors, not output `C_L`; do not add labels just to recover it.
 
-On `driver_dut` Magic keeps **819 fF** (almost all pad metal) and drops 0.76 fF.
-The Magic wrapper therefore zeros the testbench `PAD_C` so the extracted pad is
-not counted twice.
+On `driver_dut` Magic keeps **819 fF** cell-total (almost all of it `mgate` /
+`em` / pad-to-`vss`) and drops 0.76 fF. The load that sets BW is **144 fF
+`outp`–`vss`**, not the deck total. The Magic wrapper zeros the testbench
+`PAD_C` so that pad metal is not counted twice; the ESD compact models stay.
+The schematic's 27.68 fF hand pad is TM1 area-to-sub only and is why schematic
+BW is 91 GHz against Magic's 35 GHz — see
+[../layout/debug_pex/FINDINGS.md](../layout/debug_pex/FINDINGS.md).
 
 Two things a post-layout netlist must do before ngspice will accept it, both handled
 by `postlayout.normalise_element()`:

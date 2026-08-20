@@ -111,4 +111,12 @@ Extraction gates: LVS against the reduced CDL **match**, capacitance physical **
 The shunt coils are replaced by the EM-fitted ``ind_shunt`` compact model; ESD
 diodes and the rail clamp stay in the extracted core.
 
+The 91 → 35 GHz bandwidth drop is the pad-metal model, not a missing ESD
+device and not the collector feed. Both netlists already instantiate the
+``diodevdd_2kv`` / ``diodevss_2kv`` pair (50.9 fF). Schematic ``PAD_C`` is
+27.68 fF of TM1 area-to-substrate only; Magic extracts 144 fF ``outp``–``vss``
+(pad stack + pad-band ``vss`` ring). Putting that 144 fF on the schematic
+lands at 35.6 GHz. The 819 fF Magic total is mostly ``mgate`` / ``em`` and
+is not ``C_L``. See ``layout/debug_pex/FINDINGS.md``.
+
 Plots and waveforms: `out/postlayout_driver_klayout/`, `out/postlayout_driver_magic/`, same file names as the schematic pass.

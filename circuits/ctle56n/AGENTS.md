@@ -61,8 +61,10 @@ the netlists come from `layout/blocks/run_postlayout.py --stage {ctle,vga,driver
 
 Post-layout numbers live in `vga_report.md` / `driver_report.md` (KLayout
 matches schematic; Magic is the layout cost). VGA Magic drops 388 fF on
-unlabeled `tx1`/`tx2` — see MEMORY.md. Both stages now have DC+AC+PRBS/SBR.
-Artifacts: `out/postlayout_{vga,driver}_{klayout,magic}/`.
+unlabeled `tx1`/`tx2` — see MEMORY.md. The driver's 91 → 35 GHz BW drop is
+the pad model (27.7 fF hand TM1-area vs 144 fF Magic `outp`–`vss`); ESD is
+in both netlists. Both stages have DC+AC+PRBS/SBR. Artifacts:
+`out/postlayout_{vga,driver}_{klayout,magic}/`.
 
 ## Targets
 

@@ -13,6 +13,7 @@ question recurs. Both write only to a scratch directory.
 source ~/.local/share/ihp-eda/env.sh
 python layout/debug_pex/probe_unit_sweep.py          # does it scale with device count?
 python layout/debug_pex/probe_extract_settings.py    # is it how we asked?
+python layout/debug_pex/probe_driver_pad_bw.py       # driver 91→35 GHz: pad model, not ESD
 ```
 
 ## It is not the device count
@@ -315,3 +316,46 @@ layout knows every terminal coordinate. That work is open.
   degeneration capacitor's 37 um Metal5 plate for four different nets at once,
   because the tolerance grew with the polygon. Requiring a narrow width first fixed
   it.
+
+## Driver post-layout BW is the pad model, not missing ESD
+
+`probe_driver_pad_bw.py` against the committed Magic wrapper. The schematic
+already has both pieces of the load: a 27.68 fF hand `PAD_C` (TM1 area to
+substrate only — `sg13g2_bondpad.lib` is empty) and the `diodevdd_2kv` +
+`diodevss_2kv` compact pair at **50.9 fF**. Magic zeros `PAD_C` and keeps those
+same ESD subcircuits, then adds extracted metal C.
+
+The 819 fF Magic total is the usual deck-total trap. Per-node:
+
+| Node | Extracted C | Role |
+| --- | --- | --- |
+| `mgate` | 282 fF | MOS gate strap — not `C_L` |
+| `em` | 242 fF | tail/emitter — not `C_L` |
+| `outp` / `outn` | 147 fF each | **this is the load** |
+| `inp` / `inn` | 21 fF each | input wiring |
+| `nlp*` | 7.5 fF each | coil port, already out of `C_L` |
+
+Of the 147 fF on `outp`, **143.56 fF is `outp`–`vss`**. The collector-to-pad
+feed and Miller terms are 2.56 fF (`nlp1`–`outp`) + 0.68 fF (`em`–`outp`) +
+0.05 fF (`inp`–`outp`). Wiring is not the story.
+
+Schematic AC, ESD compact models left in, only `PAD_C` swept `[sim]`:
+
+| `PAD_C` | DC | 28 GHz | f_−3dB |
+| --- | --- | --- | --- |
+| 0 (ESD only) | −0.83 dB | +0.46 dB | **127.69 GHz** |
+| 27.68 fF (hand, committed schematic) | −0.83 dB | +0.24 dB | **90.69 GHz** |
+| 143.56 fF (Magic `outp`–`vss`) | −0.83 dB | −1.59 dB | **35.60 GHz** |
+| Magic extracted DUT | −0.83 dB | −1.67 dB | **34.88 GHz** |
+
+`PAD_C=0` gets *wider*, so the schematic is not missing the ESD junctions.
+Putting the Magic pad-to-vss term on the schematic lands 0.7 GHz from the
+extracted DUT; the leftover is the 3 fF of feed coupling. Effective `C_L`
+goes 78.6 → 194.5 fF/side (2.47×) and BW falls 90.7 → 35.6 GHz (2.55×),
+which is the RC ratio, not \(1/\sqrt{C}\).
+
+The hand 27.68 fF is `70 × 70 × 5.649 aF/µm²` — TM1 plate to substrate, no
+fringe, no TM2, no coupling to the pad-band `vss` ring that surrounds a
+filled Metal3–TopMetal2 stack. Magic's 144 fF is that geometry. Do not
+retune the cell to the hand number; retune the *model* if a smaller pad C
+is believed.

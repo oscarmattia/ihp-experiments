@@ -485,6 +485,13 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **Driver Magic flow must drop the testbench `PAD_C`.** The bond pad is metal, so C-only PEX already
   has it; keeping the hand cap double-counts. The `* postlayout-cl-model: miller` marker is the
   switch. KLayout (devices only) still needs the hand cap `[sim]`.
+- **The driver's 91 → 35 GHz BW drop is the pad model, not missing ESD and not the feed.**
+  Schematic already has ESD compact models (50.9 fF/pair) plus a 27.68 fF TM1-area `PAD_C`.
+  Magic keeps those ESD subcircuits and extracts **143.56 fF `outp`–`vss`**. Sweeping
+  schematic `PAD_C` to that value lands at 35.60 GHz against Magic's 34.88 GHz. `PAD_C=0`
+  *widens* the schematic to 128 GHz, so ESD was never omitted. Collector-to-pad wiring
+  is 2.56 fF (`nlp`–`out`). The 819 fF Magic total is `mgate`+`em`+pads; do not quote it
+  as `C_L`. See `layout/debug_pex/FINDINGS.md` and `probe_driver_pad_bw.py` `[sim]`.
 - **VGA Magic drops unlabeled `tx1`/`tx2`.** Those dummy-steer collectors are drawn but never
   labelled, so PEX emits `m2_7492_3498#` / `m2_36168_2698#` (~80 fF each to `vss`, plus coupling
   to `em`/`ed*`) and the C-only rewrite throws them away: kept 548 fF, dropped 388 fF. The
