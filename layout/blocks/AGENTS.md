@@ -17,8 +17,8 @@ changes.
 | `gen_blocks.py` | build all CTLE sub-blocks and gate them on DRC, LVS and PEX |
 | `term_stage.py` | `term_dut` — bond pads, ESD, 50 Ω termination (in progress) |
 | `ctle_stage.py` | `ctle_dut` — full CTLE stage |
-| `vga_stage.py` | `vga_dut` — current-steering VGA (in progress) |
-| `driver_stage.py` | `driver_dut` — pad driver (in progress) |
+| `vga_stage.py` | `vga_dut` — current-steering VGA |
+| `driver_stage.py` | `driver_dut` — pad driver |
 
 ## CTLE sub-blocks
 
@@ -50,7 +50,7 @@ next revision will move.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `term_dut` | `term_pdk.cir` | `inp inn vdd vss` | 314.2 × 291.1 um | 10 | ok | ok | **clean, no waivers** | match | 28 C |
 | `ctle_dut` | `ctle_pdk.cir` | `outp outn inp inn vdd vss mgate` | (see summary) | 11 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 95 C |
-| `vga_dut` | `vga_pdk.cir` | `outp outn inp inn vicm steerp steern vdd vss mgate` | 586.7 × 221.0 um | 15 | ok | ok | 44 left (`CntB.a`, `CntB.a1`, `Gat.b`, `M2.b`, `M2.e`, `M3.b`, `M4.b`, `M5.a`) | **does not match** | 129 C |
+| `vga_dut` | `vga_pdk.cir` | `outp outn inp inn vicm steerp steern vdd vss mgate` | 357.7 × 251.4 um | 15 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 70 C |
 | `driver_dut` | `driver_pdk.cir` | `outp outn inp inn vdd vss mgate` | 497.9 × 391.6 um | 13 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 27 C |
 
 **Contracts worth keeping straight:**
@@ -223,3 +223,39 @@ nothing else. The LVS bisection scratch that had accumulated there — 1449 trac
 files under `probe*/`, `bisect*/`, `check*/`, `lvs_*/` — is gone; extraction
 investigations worth keeping belong in `layout/debug_pex/` with a findings note,
 per `../AGENTS.md`.
+
+## VGA stage (`vga_dut`)
+
+Cell name is **`vga_dut`**, pins `outp outn inp inn vicm steerp steern vdd vss
+mgate`. It is the only stage with dummy devices and the only one with two MOS
+rows.
+
+**The steering devices get a row of their own, above the tails.** That is what
+makes every net a vertical between adjacent rails — see `docs/LAYOUT.md` for the
+argument from the schematic. Row order is `mdiode | tail1 ┊ tail2` below and
+`pd1 | ps1 ┊ ps2 | pd2` above, each row inside its own `ptap1` ring, because the
+steering devices are N+ active and `LU.b` wants a tie within 20 um.
+
+**Three lanes cross the band between the steering row and the pair row:** `em`,
+then `ed1`/`ed2`, then `vicm`. The pair row's y comes from that stack rather than
+from `ROW_GAP` — a lane's via stack reaches Metal3 and Metal4 on the way up, so
+`vicm` has to clear the lanes even though it is on a different layer.
+
+**`tx1`/`tx2` run in the gap between the two MOS rows,** and the row pitch comes
+from what that lane needs. Running the horizontal at the steering source rails'
+own y instead bridged two arrays — every array in that row has a rail there.
+
+**The substrate ties drop on the axis,** the one column clear in both rows.
+
+### Gates
+
+| Gate | Result | File |
+| --- | --- | --- |
+| parity | 15 devices match, ports match | `parity.json` |
+| EM | every conductor within its LEF limit | `em.json` |
+| DRC | clean apart from `LBE.a`/`LBE.c` | `drc_run/` |
+| LVS | netlists match | `lvs_run/` |
+| PEX | 70 C totalling 1072.1 fF | `pex_run/` |
+
+`out/vga_stage/` holds the same six committed artifacts as the other stages and
+nothing else.

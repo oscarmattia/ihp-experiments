@@ -355,8 +355,10 @@ flowchart TB
 Pins leave on fixed edges so the stages cascade by abutment: **`out` and `vdd` at
 the top**, **`in` at the bottom**, **`ctrl` and `Iref` on the left**, `vss` at the
 bottom inside the ring. `Iref` is the `mgate` pin; `ctrl` is whatever bundle of
-references a stage needs — for the VGA that is `vicm`, `steerp` and `steern`, and
-it runs horizontally at the pair row so it reaches the dummy bases on both sides.
+references a stage needs — for the VGA that is `vicm`, `steerp` and `steern`, all
+three leaving the left edge on Metal3 at three separate y. `vicm` cannot go on
+Metal4 with `inp`/`inn`: the dummy bases sit either side of the axis, so its bus
+has to cross the middle, and the input trunks run down through there.
 
 What each stage puts in each row:
 
@@ -365,8 +367,9 @@ What each stage puts in each row:
 | Pad band | — | — | clamp, two pads, four ESD, at the **top** | clamp, two pads, four ESD, at the **bottom** |
 | Coil row | two coils, `rppd` loads | two coils, `rppd` loads | two coils, `rsil` loads | — |
 | Pair row | `npn13G2` pair | signal pair inboard, dummy pair outboard | `npn13G2` pair, `Nx=2`, no dummies | — |
-| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | routing only, no devices | 50 Ω terminators, `vtt` divider |
-| MOS row | mirror diode, two tails | mirror diode, two tails, four steering | mirror diode, one double-width tail | — |
+| Control channel | `rsil ‖ cmomi` degeneration | `em`, `ed1`/`ed2` and `vicm` lanes | routing only, no devices | 50 Ω terminators, `vtt` divider |
+| Steering row | — | `pd1 \| ps1 ┊ ps2 \| pd2`, own guard ring | — | — |
+| MOS row | mirror diode, two tails | mirror diode, two tails | mirror diode, one double-width tail | — |
 
 A stage draws only the rows it needs, and the rows it does not need collapse rather
 than being left as gaps. The pad driver has no dummy devices flanking its pair and
@@ -447,28 +450,61 @@ and jog across at the collector row.
 
 ### Order devices so every net rises in a straight column
 
-The row order within the MOS block is not free. The VGA's is
-`mdiode | pd1 | tail1 | ps1 ┊ ps2 | tail2 | pd2`, with the axis at `┊`, chosen so
-that each tail sits between the two steering devices it feeds, the two `em` drains
-are the innermost pair, and `ed1`/`ed2` are the outermost. The pair row is then
-`Qd1 | Q1 ┊ Q2 | Qd2` so the dummies line up over `ed1`/`ed2` and the signal pair
-over `em`. Every net then leaves its device on that device's own x.
+**Split rows so that each net is a vertical between adjacent rails.** A
+`mos_array` puts its drain rail on top and its source rail on the bottom, so which
+row a device goes in decides how far its nets have to travel. The VGA reads
+`Xtail1 tx1 mgate vss vss` and `Xps1 em steerp tx1 vss` — a tail's drain and a
+steering device's source are the same net — so with the steering devices in a row
+of their own **above** the tails, `tx1` is tail1's top rail meeting ps1's and
+pd1's bottom rails, and `em`/`ed1`/`ed2` are the steering row's top rails facing
+the HBT emitters. Nothing needs a horizontal at another array's x.
 
-That matters because the recurring failure in these blocks is **a horizontal run
-sharing a y with another net's vertical run on the same metal**. A stub leaving one
-tail's drain that passes through the next array's x merged two 246.75 um devices
-into one 493.5 um device; a Metal5 horizontal at the drain row crossed the Metal4
-input trunks and merged the inputs into the tail drains. `draw.trunk_net` drops
-exactly such a stub at each terminal's own y, so it is safe only where nothing else
-occupies that y — which is true in the CTLE, with its single MOS row and outboard
-trunks, and false in the VGA and the driver.
+The rows are `mdiode | tail1 ┊ tail2` and `pd1 | ps1 ┊ ps2 | pd2`, with the axis
+at `┊`: `ps1`/`ps2` inboard so `em` is the innermost pair under the signal HBTs,
+`pd1`/`pd2` outboard so `ed1`/`ed2` sit under the dummies, and the pair row
+`Qd1 | Q1 ┊ Q2 | Qd2` above them. The earlier single row
+`mdiode | pd1 | ps1 | tail1 | tail2 | ps2 | pd2` needed a horizontal at the
+steering source rails' own y to join each tail to its steering pair — and every
+array in that row has a rail at that y, so it bridged them and merged `tx1` with
+`tx2`.
+
+That is the recurring failure in these blocks: **a run sharing a y (or a layer)
+with another net's run**. Collected instances, all paid for:
+
+- A stub leaving one tail's drain that passed through the next array's x merged
+  two 246.75 um devices into one 493.5 um device.
+- A Metal5 horizontal at the drain row crossed the Metal4 input trunks and merged
+  the inputs into the tail drains.
+- A supply drop sized `vss_rail_w` (8.6 um) and placed as if it were a thin wire
+  landed 0.3 um inside an array box, touching that array's source *and* drain
+  rails on the way past.
+- Two nets that must cross in x cannot share a y. `em` and `ed1`/`ed2` both climb
+  from the steering row to the same emitter row, and each steering drain sits
+  outboard of the emitter it feeds, so they take two lanes — `em` the lower one,
+  so `em`'s riser crosses `ed`'s lane at a y where `ed`'s horizontal has already
+  stopped, and `ed`'s riser sits entirely above `em`'s lane.
+- **A via stack shorts on the layers it passes through, not just its endpoints.**
+  A Metal2-to-Metal5 stack has Metal3 and Metal4 pads. One of those landed in the
+  `vicm` bus and merged `vicm` into `outp` and `outn`; another sat 0.04 um from it
+  and reported `M3.b`. Count a lane's via pads when you budget a band's height.
+
+`draw.trunk_net` drops exactly such a stub at each terminal's own y, so it is safe
+only where nothing else occupies that y — true in the CTLE, with its single MOS
+row and outboard trunks, and false in the VGA and the driver.
+
+**Route a bus on the side its device's pin faces.** An HBT's base is its *bottom*
+terminal, so `vicm` belongs below the pair row; bussing it above dragged every
+riser up past that device's own emitter and collector. The mirror gate is the same
+argument horizontally: tapping it on `mdiode`'s right, when the port leaves on the
+left, put the whole route inside the row and it came back merged with the
+substrate and `tx1`.
 
 The gate nets are the other place this bites. In the CTLE every gate is `mgate`, so
-one poly strap across all three arrays works. In the VGA the gates read
-`mgate, steern, mgate, steerp ┊ steerp, mgate, steern`, so they interleave and need
-separate metals. Run them at gate height, where `mos_array` puts the source rail
-below and the drain rail above, so a bus there is crossed by nothing provided every
-riser starts at the drain rail.
+one poly strap across all three arrays works. In the VGA the MOS row is all
+`mgate` and the steering row reads `steern, steerp ┊ steerp, steern`, so the two
+control nets interleave and need separate metals. Run them at gate height, where
+`mos_array` puts the source rail below and the drain rail above, so a bus there is
+crossed by nothing provided every riser starts at the drain rail.
 
 ## Power grid and metal budget
 
