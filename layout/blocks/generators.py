@@ -48,6 +48,8 @@ class Block:
     em_segments: list[Any] = field(default_factory=list)
     #: Power ring geometry, when the block draws one.
     ring: Any = None
+    #: Second ring, when a block bands its pads off behind their own grid.
+    pad_ring: Any = None
 
     def write(self, gds_dir: Path) -> Path:
         return write_gds(
@@ -71,6 +73,7 @@ class Block:
             "guard_ring": self.guard,
             "symmetry": self.symmetry,
             "power_ring": self.ring.summary() if self.ring is not None else None,
+            "pad_power_ring": self.pad_ring.summary() if self.pad_ring is not None else None,
             "notes": self.notes,
             "layers": layer_summary(self.layout, self.cell),
         }
