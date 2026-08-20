@@ -393,5 +393,7 @@ column.
 
 **Driver schematic sizing** (2026-08): `size_driver.py` now uses the in-situ
 143.56 fF Magic pad metal for `PAD_C` and Butterworth m = 0.414 shunt L
-(`turn1` / `ind_shunt_drv.inc`). CTLE/VGA stay Bessel m = 0.32 in
-`ind_shunt.inc`. See `circuits/ctle56n/python/size_driver.py`.
+(`turn1` ~215 pH / `ind_shunt_drv.inc`). After the retune, schematic and
+Magic agree at 43.67 / 43.61 GHz and +0.07 / +0.06 dB @ 28 GHz (was
+34.88 GHz / −1.67 dB with the 63 pH coil). CTLE/VGA stay Bessel m = 0.32
+in `ind_shunt.inc`. Layout GDS coil is still `turn1_d40`.

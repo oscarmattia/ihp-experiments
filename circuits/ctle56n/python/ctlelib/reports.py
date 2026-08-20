@@ -794,15 +794,18 @@ drops the testbench ``PAD_C`` so the extracted pad is not counted twice.
 The shunt coils are replaced by the EM-fitted ``ind_shunt`` compact model; ESD
 diodes and the rail clamp stay in the extracted core.
 
-The 91 → 35 GHz bandwidth drop is extra C on the pad node, not a missing ESD
-device and not the collector feed. Both netlists already instantiate the
-``diodevdd_2kv`` / ``diodevss_2kv`` pair (50.9 fF). Schematic ``PAD_C`` is
-27.68 fF of TM1 area-to-substrate only. Magic's 144 fF ``outp``–``vss`` is
+The old 91 → 35 GHz drop was extra C on the pad node, not a missing ESD
+device. Both netlists instantiate the ``diodevdd_2kv`` / ``diodevss_2kv``
+pair (50.9 fF). Schematic ``PAD_C`` is now the Magic in-situ metal
+(143.56 fF); ``C_L`` ≈ 194 fF/side. Magic's 144 fF ``outp``–``vss`` is
 **80 fF from the isolated ``bondpad_70um``** plus **21 fF from the tied ESD
-column** plus ~42 fF still in the pad band (a lone TM2 ``vss`` ring adds
-4 fF; an unconnected ESD column adds nothing). Putting 144 fF on the
-schematic lands at 35.6 GHz. The 819 fF Magic total is mostly ``mgate`` /
-``em`` and is not ``C_L``. See ``layout/debug_pex/FINDINGS.md``.
+column** plus ~42 fF still in the pad band. Shunt L is Butterworth
+``m = 0.414`` → EM ``turn1`` ~215 pH in ``ind_shunt_drv`` (CTLE/VGA stay
+Bessel in shared ``ind_shunt``). Schematic and Magic now agree at
+**43.7 GHz / +0.07 dB @ 28 GHz** (was 34.9 GHz / −1.67 dB with the 63 pH
+coil). The laid-out coil is still ``turn1_d40``. The 819 fF Magic total is
+mostly ``mgate`` / ``em`` and is not ``C_L``. See
+``layout/debug_pex/FINDINGS.md``.
 
 Plots and waveforms: {plots}, same file names as the schematic pass.
 """

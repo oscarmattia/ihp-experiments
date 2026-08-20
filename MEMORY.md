@@ -498,8 +498,10 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   of the pad band. See `layout/debug_pex/FINDINGS.md` `[sim]`. **Driver schematic
   sizing now uses that Magic in-situ metal (143.56 fF `PAD_C`) and Butterworth
   shunt peaking m = 0.414 → EM case `turn1` ~215 pH in `ind_shunt_drv.inc`. CTLE/VGA
-  stay Bessel m = 0.32 in shared `ind_shunt.inc`. Layout GDS coil is still
-  `turn1_d40`; termination still uses the hand 27.7 fF TM1-area formula.
+  stay Bessel m = 0.32 in shared `ind_shunt.inc`. After the retune, schematic
+  and Magic agree at **43.67 / 43.61 GHz** and **+0.07 / +0.06 dB @ 28 GHz**
+  (was 34.88 GHz / −1.67 dB with the 63 pH coil) `[sim]`. Layout GDS coil is
+  still `turn1_d40`; termination still uses the hand 27.7 fF TM1-area formula.
 - **VGA Magic drops unlabeled `tx1`/`tx2`.** Those dummy-steer collectors are drawn but never
   labelled, so PEX emits `m2_7492_3498#` / `m2_36168_2698#` (~80 fF each to `vss`, plus coupling
   to `em`/`ed*`) and the C-only rewrite throws them away: kept 548 fF, dropped 388 fF. The
