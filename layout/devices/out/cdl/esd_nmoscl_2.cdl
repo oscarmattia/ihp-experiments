@@ -1,0 +1,4 @@
+* esd_nmoscl_2 — generated from DeviceSpec; do not edit by hand
+.SUBCKT esd_nmoscl_2 VDD VSS
+D1 VDD VSS nmoscl_2 m=1
+.ENDS esd_nmoscl_2

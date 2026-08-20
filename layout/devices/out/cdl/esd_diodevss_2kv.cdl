@@ -1,0 +1,4 @@
+* esd_diodevss_2kv — generated from DeviceSpec; do not edit by hand
+.SUBCKT esd_diodevss_2kv VDD PAD VSS
+D1 VDD PAD VSS diodevss_2kv m=1
+.ENDS esd_diodevss_2kv

@@ -1,0 +1,21 @@
+{
+  "cell": "esd_diodevss_2kv",
+  "layout": "/workspace/layout/devices/out/gds/esd_diodevss_2kv.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/esd_diodevss_2kv.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/esd_diodevss_2kv/esd_diodevss_2kv_extracted.cir",
+  "param_checks": [
+    {
+      "param": "m",
+      "intended": 1.0,
+      "extracted": 1.0,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/esd_diodevss_2kv/lvs_run.log",
+  "error": ""
+}

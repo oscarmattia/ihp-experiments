@@ -59,6 +59,41 @@
     "note": "shunt-peaking coil at the EM-characterized geometry (~66.4 pH at 28 GHz per ind_shunt.inc)"
   },
   {
+    "name": "esd_diodevdd_2kv",
+    "kind": "esd_diodevdd",
+    "params": {
+      "model": "diodevdd_2kv",
+      "m": 1
+    },
+    "note": "VDD-side ESD diode for termination and driver pads (term_pdk.cir)"
+  },
+  {
+    "name": "esd_diodevss_2kv",
+    "kind": "esd_diodevss",
+    "params": {
+      "model": "diodevss_2kv",
+      "m": 1
+    },
+    "note": "VSS-side ESD diode for termination and driver pads (term_pdk.cir)"
+  },
+  {
+    "name": "esd_nmoscl_2",
+    "kind": "esd_nmoscl",
+    "params": {
+      "model": "nmoscl_2",
+      "m": 1
+    },
+    "note": "VDD/VSS rail clamp shared by termination and driver (term_pdk.cir)"
+  },
+  {
+    "name": "bondpad_70um",
+    "kind": "bondpad",
+    "params": {
+      "diameter": 7e-05
+    },
+    "note": "stacked TM1+TM2 bond pad at 70 um diameter (70 um per size_term.py and size_driver.py)"
+  },
+  {
     "name": "ntap1_guard",
     "kind": "ntap1",
     "params": {

@@ -220,6 +220,20 @@ def _no_cdl(p: dict[str, Any]) -> dict[str, str]:
     return {}
 
 
+def _esd_pcell(p: dict[str, Any]) -> dict[str, Any]:
+    model, = _require(p, "model")
+    return {"model": str(model)}
+
+
+def _esd_cdl(p: dict[str, Any]) -> dict[str, str]:
+    return {"m": str(int(p.get("m", 1)))}
+
+
+def _bondpad_pcell(p: dict[str, Any]) -> dict[str, Any]:
+    diameter = p.get("diameter", 80.0e-6)
+    return {"diameter": um(diameter)}
+
+
 # --- expected extraction values --------------------------------------------
 
 
@@ -394,6 +408,45 @@ DEVICE_KINDS: dict[str, DeviceKind] = {
         cdl_prefix="X",
         terminals=("BOTTOM", "TOP"),
         to_pcell=_via_pcell,
+        to_cdl=_no_cdl,
+    ),
+    # ESD diode forms follow esd_ptap.cdl and the unit testcase netlists under
+    # tech/lvs/testing/testcases/unit/esd_devices/netlist/.
+    "esd_diodevdd": DeviceKind(
+        key="esd_diodevdd",
+        pcell="esd",
+        spice_model="diodevdd_2kv",
+        cdl_prefix="D",
+        terminals=("VDD", "PAD", "VSS"),
+        to_pcell=_esd_pcell,
+        to_cdl=_esd_cdl,
+    ),
+    "esd_diodevss": DeviceKind(
+        key="esd_diodevss",
+        pcell="esd",
+        spice_model="diodevss_2kv",
+        cdl_prefix="D",
+        terminals=("VDD", "PAD", "VSS"),
+        to_pcell=_esd_pcell,
+        to_cdl=_esd_cdl,
+    ),
+    "esd_nmoscl": DeviceKind(
+        key="esd_nmoscl",
+        pcell="esd",
+        spice_model="nmoscl_2",
+        cdl_prefix="D",
+        terminals=("VDD", "VSS"),
+        to_pcell=_esd_pcell,
+        to_cdl=_esd_cdl,
+    ),
+    # The bond pad is a metal stack, not an LVS device class.
+    "bondpad": DeviceKind(
+        key="bondpad",
+        pcell="bondpad",
+        spice_model="",
+        cdl_prefix="X",
+        terminals=("PAD",),
+        to_pcell=_bondpad_pcell,
         to_cdl=_no_cdl,
     ),
 }

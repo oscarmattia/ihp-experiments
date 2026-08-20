@@ -130,6 +130,40 @@ def ctle_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
     ]
 
 
+def esd_devices() -> list[DeviceSpec]:
+    """ESD and bond-pad devices used by the termination and driver stages."""
+    pad_diameter = 70.0e-6
+    return [
+        DeviceSpec(
+            name="esd_diodevdd_2kv",
+            kind="esd_diodevdd",
+            params={"model": "diodevdd_2kv", "m": 1},
+            note="VDD-side ESD diode for termination and driver pads (term_pdk.cir)",
+        ),
+        DeviceSpec(
+            name="esd_diodevss_2kv",
+            kind="esd_diodevss",
+            params={"model": "diodevss_2kv", "m": 1},
+            note="VSS-side ESD diode for termination and driver pads (term_pdk.cir)",
+        ),
+        DeviceSpec(
+            name="esd_nmoscl_2",
+            kind="esd_nmoscl",
+            params={"model": "nmoscl_2", "m": 1},
+            note="VDD/VSS rail clamp shared by termination and driver (term_pdk.cir)",
+        ),
+        DeviceSpec(
+            name="bondpad_70um",
+            kind="bondpad",
+            params={"diameter": pad_diameter},
+            note=(
+                "stacked TM1+TM2 bond pad at 70 um diameter "
+                f"({pad_diameter * 1e6:.0f} um per size_term.py and size_driver.py)"
+            ),
+        ),
+    ]
+
+
 def support_devices() -> list[DeviceSpec]:
     """Guard-ring taps and a via stack, needed once blocks are assembled."""
     return [
@@ -164,4 +198,9 @@ def char_mos_corners() -> list[DeviceSpec]:
 
 
 def full_catalog(params: dict[str, float] | None = None) -> list[DeviceSpec]:
-    return [*ctle_devices(params), *support_devices(), *char_mos_corners()]
+    return [
+        *ctle_devices(params),
+        *esd_devices(),
+        *support_devices(),
+        *char_mos_corners(),
+    ]

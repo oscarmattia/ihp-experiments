@@ -171,6 +171,12 @@ TERMINAL_RULES: dict[str, dict[str, object]] = {
     "ptap1": {"names": ("PLUS",), "sort": "y"},
     "inductor": {"names": ("PLUS", "MINUS"), "sort": "x"},
     "cmomi": {"names": ("PLUS", "MINUS"), "sort": "y"},
+    # ESD PCells label their pins on text_drw but the labels do not always sit
+    # on the pin centres within LABEL_MATCH_TOL, so names are assigned by layer
+    # and position instead. CDL order is VDD PAD VSS (esd_ptap.cdl).
+    "esd_diodevdd": {"names": ("VSS", "PAD", "VDD"), "sort": "x"},
+    "esd_diodevss": {"names": ("VDD", "PAD", "VSS"), "sort": "x"},
+    "esd_nmoscl": {"names": ("VSS", "VDD"), "sort": "y"},
 }
 
 #: Devices whose terminals are plates rather than pin shapes. ``cmim`` draws no
@@ -183,6 +189,7 @@ PLATE_TERMINALS: dict[str, tuple[tuple[str, str, str], ...]] = {
         ("MINUS", "metal5_drw", "left"),
         ("PLUS", "topmetal1_drw", "top"),
     ),
+    "bondpad": (("PAD", "topmetal2_drw", "top"),),
 }
 
 _EDGE_ORIENTATION = {"left": 180.0, "right": 0.0, "bottom": 270.0, "top": 90.0}

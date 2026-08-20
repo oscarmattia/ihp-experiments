@@ -1,0 +1,17 @@
+{
+  "cell": "esd_nmoscl_2",
+  "gds": "/workspace/layout/devices/out/gds/esd_nmoscl_2.gds",
+  "clean": true,
+  "strictly_clean": true,
+  "total_violations": 0,
+  "real_violations": 0,
+  "by_rule": {},
+  "real_by_rule": {},
+  "context_by_rule": {},
+  "context_rule_reasons": {},
+  "examples": {},
+  "tables": [],
+  "report": "/workspace/layout/devices/out/drc_run/esd_nmoscl_2/esd_nmoscl_2_esd_nmoscl_2_main.lyrdb",
+  "log": "/workspace/layout/devices/out/drc_run/esd_nmoscl_2/drc_run.log",
+  "error": ""
+}

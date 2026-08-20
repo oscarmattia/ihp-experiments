@@ -62,7 +62,7 @@
       },
       "gds": "gds/rppd_load.gds",
       "cdl": "cdl/rppd_load.cdl",
-      "png": "png/rppd_load.png"
+      "png": null
     },
     {
       "name": "rsil_degen",
@@ -125,7 +125,7 @@
       },
       "gds": "gds/rsil_degen.gds",
       "cdl": "cdl/rsil_degen.cdl",
-      "png": "png/rsil_degen.png"
+      "png": null
     },
     {
       "name": "cmomi_cs",
@@ -194,7 +194,7 @@
       },
       "gds": "gds/cmomi_cs.gds",
       "cdl": "cdl/cmomi_cs.cdl",
-      "png": "png/cmomi_cs.png"
+      "png": null
     },
     {
       "name": "npn13G2_pair_device",
@@ -272,7 +272,7 @@
       },
       "gds": "gds/npn13G2_pair_device.gds",
       "cdl": "cdl/npn13G2_pair_device.cdl",
-      "png": "png/npn13G2_pair_device.png"
+      "png": null
     },
     {
       "name": "nmos_tail_unit",
@@ -348,7 +348,7 @@
       },
       "gds": "gds/nmos_tail_unit.gds",
       "cdl": "cdl/nmos_tail_unit.cdl",
-      "png": "png/nmos_tail_unit.png"
+      "png": null
     },
     {
       "name": "inductor_turn1_d40",
@@ -422,7 +422,261 @@
       },
       "gds": "gds/inductor_turn1_d40.gds",
       "cdl": "cdl/inductor_turn1_d40.cdl",
-      "png": "png/inductor_turn1_d40.png"
+      "png": null
+    },
+    {
+      "name": "esd_diodevdd_2kv",
+      "kind": "esd_diodevdd",
+      "pcell": "esd",
+      "spice_model": "diodevdd_2kv",
+      "note": "VDD-side ESD diode for termination and driver pads (term_pdk.cir)",
+      "params": {
+        "model": "diodevdd_2kv",
+        "m": 1
+      },
+      "pcell_params": {
+        "model": "diodevdd_2kv"
+      },
+      "cdl_params": {
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 13.06,
+        "height": 37.05,
+        "area": 483.873
+      },
+      "terminals": [
+        {
+          "name": "VSS",
+          "layer": "metal1_pin",
+          "center": [
+            4.86,
+            0.675
+          ],
+          "width": 9.72,
+          "orientation": 270.0
+        },
+        {
+          "name": "PAD",
+          "layer": "metal2_pin",
+          "center": [
+            -0.32000000000000006,
+            18.535
+          ],
+          "width": 21.56,
+          "orientation": 180.0
+        },
+        {
+          "name": "VDD",
+          "layer": "metal2_pin",
+          "center": [
+            9.14,
+            18.535
+          ],
+          "width": 29.6,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 1079,
+        "metal1_drw": 3,
+        "metal1_pin": 1,
+        "metal2_drw": 2,
+        "metal2_pin": 2,
+        "nwell_drw": 1,
+        "psd_drw": 2,
+        "recog_esd": 1,
+        "via1_drw": 216
+      },
+      "gds": "gds/esd_diodevdd_2kv.gds",
+      "cdl": "cdl/esd_diodevdd_2kv.cdl",
+      "png": null
+    },
+    {
+      "name": "esd_diodevss_2kv",
+      "kind": "esd_diodevss",
+      "pcell": "esd",
+      "spice_model": "diodevss_2kv",
+      "note": "VSS-side ESD diode for termination and driver pads (term_pdk.cir)",
+      "params": {
+        "model": "diodevss_2kv",
+        "m": 1
+      },
+      "pcell_params": {
+        "model": "diodevss_2kv"
+      },
+      "cdl_params": {
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 13.06,
+        "height": 37.05,
+        "area": 483.873
+      },
+      "terminals": [
+        {
+          "name": "VDD",
+          "layer": "metal1_pin",
+          "center": [
+            4.86,
+            36.375
+          ],
+          "width": 9.72,
+          "orientation": 90.0
+        },
+        {
+          "name": "PAD",
+          "layer": "metal2_pin",
+          "center": [
+            -0.28,
+            18.525
+          ],
+          "width": 21.56,
+          "orientation": 180.0
+        },
+        {
+          "name": "VSS",
+          "layer": "metal2_pin",
+          "center": [
+            9.18,
+            18.525000000000002
+          ],
+          "width": 29.6,
+          "orientation": 0.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 1079,
+        "metal1_drw": 3,
+        "metal1_pin": 1,
+        "metal2_drw": 2,
+        "metal2_pin": 2,
+        "nwell_drw": 1,
+        "psd_drw": 1,
+        "recog_esd": 1,
+        "via1_drw": 216
+      },
+      "gds": "gds/esd_diodevss_2kv.gds",
+      "cdl": "cdl/esd_diodevss_2kv.cdl",
+      "png": null
+    },
+    {
+      "name": "esd_nmoscl_2",
+      "kind": "esd_nmoscl",
+      "pcell": "esd",
+      "spice_model": "nmoscl_2",
+      "note": "VDD/VSS rail clamp shared by termination and driver (term_pdk.cir)",
+      "params": {
+        "model": "nmoscl_2",
+        "m": 1
+      },
+      "pcell_params": {
+        "model": "nmoscl_2"
+      },
+      "cdl_params": {
+        "m": "1"
+      },
+      "bbox_um": {
+        "width": 37.21,
+        "height": 23.7,
+        "area": 881.877
+      },
+      "terminals": [
+        {
+          "name": "VSS",
+          "layer": "metal3_pin",
+          "center": [
+            16.285,
+            -1.57
+          ],
+          "width": 32.99,
+          "orientation": 270.0
+        },
+        {
+          "name": "VDD",
+          "layer": "metal3_pin",
+          "center": [
+            16.295,
+            18.425
+          ],
+          "width": 33.81,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "activ_drw": 3,
+        "cont_drw": 1423,
+        "gatpoly_drw": 1,
+        "metal1_drw": 8,
+        "metal2_drw": 8,
+        "metal3_drw": 2,
+        "metal3_pin": 2,
+        "nbulay_drw": 1,
+        "nwell_drw": 1,
+        "psd_drw": 1,
+        "recog_drw": 1,
+        "recog_esd": 1,
+        "salblock_drw": 12,
+        "thickgateox_drw": 1,
+        "via1_drw": 1010,
+        "via2_drw": 780
+      },
+      "gds": "gds/esd_nmoscl_2.gds",
+      "cdl": "cdl/esd_nmoscl_2.cdl",
+      "png": null
+    },
+    {
+      "name": "bondpad_70um",
+      "kind": "bondpad",
+      "pcell": "bondpad",
+      "spice_model": "",
+      "note": "stacked TM1+TM2 bond pad at 70 um diameter (70 um per size_term.py and size_driver.py)",
+      "params": {
+        "diameter": 7e-05
+      },
+      "pcell_params": {
+        "diameter": "70u"
+      },
+      "cdl_params": {},
+      "bbox_um": {
+        "width": 70.0,
+        "height": 70.01,
+        "area": 4900.7
+      },
+      "terminals": [
+        {
+          "name": "PAD",
+          "layer": "topmetal2_drw",
+          "center": [
+            0.0,
+            35.005
+          ],
+          "width": 70.0,
+          "orientation": 90.0
+        }
+      ],
+      "unlabelled_terminals": [],
+      "layers": {
+        "dfpad_drw": 1,
+        "metal3_drw": 1,
+        "metal4_drw": 1,
+        "metal5_drw": 1,
+        "passiv_drw": 1,
+        "topmetal1_drw": 1,
+        "topmetal2_drw": 1,
+        "topvia1_drw": 236,
+        "topvia2_drw": 96,
+        "via3_drw": 488,
+        "via4_drw": 488
+      },
+      "gds": "gds/bondpad_70um.gds",
+      "cdl": "cdl/bondpad_70um.cdl",
+      "png": null
     },
     {
       "name": "ntap1_guard",
@@ -473,7 +727,7 @@
       },
       "gds": "gds/ntap1_guard.gds",
       "cdl": "cdl/ntap1_guard.cdl",
-      "png": "png/ntap1_guard.png"
+      "png": null
     },
     {
       "name": "ptap1_guard",
@@ -523,7 +777,7 @@
       },
       "gds": "gds/ptap1_guard.gds",
       "cdl": "cdl/ptap1_guard.cdl",
-      "png": "png/ptap1_guard.png"
+      "png": null
     },
     {
       "name": "cmim_decap",
@@ -581,7 +835,7 @@
       },
       "gds": "gds/cmim_decap.gds",
       "cdl": "cdl/cmim_decap.cdl",
-      "png": "png/cmim_decap.png"
+      "png": null
     },
     {
       "name": "nmos_char_l0p13",
@@ -657,7 +911,7 @@
       },
       "gds": "gds/nmos_char_l0p13.gds",
       "cdl": "cdl/nmos_char_l0p13.cdl",
-      "png": "png/nmos_char_l0p13.png"
+      "png": null
     },
     {
       "name": "nmos_char_l0p18",
@@ -733,7 +987,7 @@
       },
       "gds": "gds/nmos_char_l0p18.gds",
       "cdl": "cdl/nmos_char_l0p18.cdl",
-      "png": "png/nmos_char_l0p18.png"
+      "png": null
     },
     {
       "name": "nmos_char_l0p25",
@@ -809,7 +1063,7 @@
       },
       "gds": "gds/nmos_char_l0p25.gds",
       "cdl": "cdl/nmos_char_l0p25.cdl",
-      "png": "png/nmos_char_l0p25.png"
+      "png": null
     },
     {
       "name": "nmos_char_l0p5",
@@ -885,7 +1139,7 @@
       },
       "gds": "gds/nmos_char_l0p5.gds",
       "cdl": "cdl/nmos_char_l0p5.cdl",
-      "png": "png/nmos_char_l0p5.png"
+      "png": null
     }
   ],
   "failures": []

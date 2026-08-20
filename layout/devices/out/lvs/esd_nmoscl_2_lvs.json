@@ -1,0 +1,21 @@
+{
+  "cell": "esd_nmoscl_2",
+  "layout": "/workspace/layout/devices/out/gds/esd_nmoscl_2.gds",
+  "netlist": "/workspace/layout/devices/out/cdl/esd_nmoscl_2.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/devices/out/lvs_run/esd_nmoscl_2/esd_nmoscl_2_extracted.cir",
+  "param_checks": [
+    {
+      "param": "m",
+      "intended": 1.0,
+      "extracted": 1.0,
+      "rel_error": 0.0,
+      "ok": true
+    }
+  ],
+  "log": "/workspace/layout/devices/out/lvs_run/esd_nmoscl_2/lvs_run.log",
+  "error": ""
+}

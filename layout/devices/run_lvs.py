@@ -28,7 +28,7 @@ OUT_DIR = Path(__file__).resolve().parent / "out"
 
 #: Devices with no LVS device class to compare against. ``via_stack`` is pure
 #: interconnect, so there is nothing for the deck to extract as a device.
-SKIP = {"via_stack"}
+SKIP = {"via_stack", "bondpad"}
 
 
 def main(argv: list[str] | None = None) -> int:

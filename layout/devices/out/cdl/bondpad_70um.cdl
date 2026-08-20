@@ -1,0 +1,4 @@
+* bondpad_70um — generated from DeviceSpec; do not edit by hand
+.SUBCKT bondpad_70um PAD
+X1 PAD 
+.ENDS bondpad_70um
