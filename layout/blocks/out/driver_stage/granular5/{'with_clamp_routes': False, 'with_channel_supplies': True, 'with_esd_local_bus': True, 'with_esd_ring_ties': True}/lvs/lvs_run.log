@@ -1,0 +1,28 @@
+$ /home/ubuntu/.local/share/ihp-eda/venv/bin/python /home/ubuntu/.local/share/ihp-eda/IHP-Open-PDK/ihp-sg13g2/libs.tech/klayout/tech/lvs/run_lvs.py --layout=/workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/driver_dut.gds --netlist=/workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/x.cdl --run_dir=/workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/lvs --run_mode=deep --topcell=driver_dut --implicit_nets=sub,sub! --ignore_top_ports_mismatch --disable_tap_extraction
+
+--- stdout ---
+ERROR: Unable to open file: /workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/lvs/False, (errno=2)
+
+--- stderr ---
+20-Aug-2026 17:25:39 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 17:25:39 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/driver_dut.gds on cell driver_dut
+20-Aug-2026 17:25:39 | ERROR   | KLayout run failed with exit code 1.
+20-Aug-2026 17:25:39 | ERROR   | KLayout stderr: ERROR: Unable to open file: /workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/lvs/False, (errno=2)
+20-Aug-2026 17:25:39 | INFO    | ==============================================================================
+20-Aug-2026 17:25:39 | INFO    | Important Summary
+20-Aug-2026 17:25:39 | INFO    | +------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+20-Aug-2026 17:25:39 | INFO    | | Status           | UNKNOWN                                                                                                                                                                     |
+20-Aug-2026 17:25:39 | INFO    | | Mode             | COMPARE                                                                                                                                                                     |
+20-Aug-2026 17:25:39 | INFO    | | Outcome          | Comparison mode: outcome unknown (layout log not found).                                                                                                                    |
+20-Aug-2026 17:25:39 | INFO    | | Layout           | driver_dut.gds                                                                                                                                                              |
+20-Aug-2026 17:25:39 | INFO    | | Top Cell         | driver_dut                                                                                                                                                                  |
+20-Aug-2026 17:25:39 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/lvs |
+20-Aug-2026 17:25:39 | INFO    | | Warnings         | 0                                                                                                                                                                           |
+20-Aug-2026 17:25:39 | INFO    | | Errors           | 2                                                                                                                                                                           |
+20-Aug-2026 17:25:39 | INFO    | | Run Time (s)     | 0.259                                                                                                                                                                       |
+20-Aug-2026 17:25:39 | INFO    | +------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+20-Aug-2026 17:25:39 | ERROR   | Key errors:
+20-Aug-2026 17:25:39 | ERROR   |   - KLayout run failed with exit code 1.
+20-Aug-2026 17:25:39 | ERROR   |   - KLayout stderr: ERROR: Unable to open file: /workspace/layout/blocks/out/driver_stage/granular5/{'with_clamp_routes': False, 'with_channel_supplies': True, 'with_esd_local_bus': True, 'with_esd_ring_ties': True}/lvs/False, (errno=2)
+20-Aug-2026 17:25:39 | INFO    | ==============================================================================
+

@@ -1,0 +1,14 @@
+Technology SG13_dev is loaded.
+GRID : 0.01
+GRID inverse : 100.0
+EPSILON1  : 0.001
+EPSILON2  : 1e-9
+Success.
+INFO: Callback function not completely executed due to an expression/variable in the parameters!
+INFO: Callback function not completely executed due to an expression/variable in the parameters!
+INFO: Callback function not completely executed due to an expression/variable in the parameters!
+INFO: Callback function not completely executed due to an expression/variable in the parameters!
+INFO: Callback function not completely executed due to an expression/variable in the parameters!
+vss_top 169.74
+vdd_top 178.74
+ring_left (-28.615, 69.86)

@@ -328,6 +328,14 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   shorting the nets through an intermediate metal of the stack.
 - **Put via stacks on a stub outside the device.** A stack's landing pads are wider than a pin, so
   dropping one on a pin pushes contact and via spacing rules against the device's own geometry.
+- **A via stack is an obstruction on every layer it spans, not just its two endpoints.** Measured
+  `[sim]`: `via_stack` from `Metal3` to `TopMetal1` draws metal on Metal3, Metal4, Metal5 *and*
+  TopMetal1; `Metal2` to `Metal5` draws all four. So a run described as "the TopMetal1 vertical" is
+  really a blockage on four layers wherever it changes level, and any horizontal on any of them
+  crossing that x shorts into it. This is what merged `vdd` into `vss` in the driver's pad band, where
+  Metal3 ESD and clamp ties crossed the channel's supply verticals at their transition points. Two
+  consequences: give each vertical in a crowded channel its own metal for the whole run, and give each
+  one a **unique y for its single layer transition**, so no horizontal ever crosses a stack.
 - **Snap everything to the 5 nm grid**, including guard-ring tap positions. Distributing taps evenly
   produced offgrid violations on activ, cont, metal1, psd and substrate at once. This is the database
   grid for drawn geometry and is a different thing from the MOS `w` grid above, which is 0.01 µm.

@@ -1,0 +1,19 @@
+20-Aug-2026 17:25:27 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 17:25:27 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/granular4/[('with_channel_supplies', False), ('with_clamp_routes', False)]/driver_dut.gds on cell driver_dut
+20-Aug-2026 17:25:27 | ERROR   | KLayout run failed with exit code 2.
+20-Aug-2026 17:25:27 | INFO    | ==============================================================================
+20-Aug-2026 17:25:27 | INFO    | Important Summary
+20-Aug-2026 17:25:27 | INFO    | +------------------+--------------------------------------------------------------------------------------------------------------------------+
+20-Aug-2026 17:25:27 | INFO    | | Status           | UNKNOWN                                                                                                                  |
+20-Aug-2026 17:25:27 | INFO    | | Mode             | COMPARE                                                                                                                  |
+20-Aug-2026 17:25:27 | INFO    | | Outcome          | Comparison mode: outcome unknown (layout log not found).                                                                 |
+20-Aug-2026 17:25:27 | INFO    | | Layout           | driver_dut.gds                                                                                                           |
+20-Aug-2026 17:25:27 | INFO    | | Top Cell         | driver_dut                                                                                                               |
+20-Aug-2026 17:25:27 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/granular4/[('with_channel_supplies', False), ('with_clamp_routes', False)]/lvs |
+20-Aug-2026 17:25:27 | INFO    | | Warnings         | 0                                                                                                                        |
+20-Aug-2026 17:25:27 | INFO    | | Errors           | 1                                                                                                                        |
+20-Aug-2026 17:25:27 | INFO    | | Run Time (s)     | 0.029                                                                                                                    |
+20-Aug-2026 17:25:27 | INFO    | +------------------+--------------------------------------------------------------------------------------------------------------------------+
+20-Aug-2026 17:25:27 | ERROR   | Key errors:
+20-Aug-2026 17:25:27 | ERROR   |   - KLayout run failed with exit code 2.
+20-Aug-2026 17:25:27 | INFO    | ==============================================================================

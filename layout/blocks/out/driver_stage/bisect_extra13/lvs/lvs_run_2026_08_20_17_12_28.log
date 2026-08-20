@@ -1,0 +1,18 @@
+20-Aug-2026 17:12:28 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 17:12:28 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/bisect_extra13/driver_dut.gds on cell driver_dut
+20-Aug-2026 17:12:32 | INFO    | ==============================================================================
+20-Aug-2026 17:12:32 | INFO    | Important Summary
+20-Aug-2026 17:12:32 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 17:12:32 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 17:12:32 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 17:12:32 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 17:12:32 | INFO    | | Layout           | driver_dut.gds                                               |
+20-Aug-2026 17:12:32 | INFO    | | Top Cell         | driver_dut                                                   |
+20-Aug-2026 17:12:32 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/bisect_extra13/lvs |
+20-Aug-2026 17:12:32 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 17:12:32 | INFO    | | Errors           | 1                                                            |
+20-Aug-2026 17:12:32 | INFO    | | Run Time (s)     | 3.311                                                        |
+20-Aug-2026 17:12:32 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 17:12:32 | ERROR   | Key errors:
+20-Aug-2026 17:12:32 | ERROR   |   - 2026-08-20 17:12:32 +0000: Memory Usage (147040K) : ERROR : Netlists don't match
+20-Aug-2026 17:12:32 | INFO    | ==============================================================================

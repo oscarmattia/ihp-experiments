@@ -1,0 +1,18 @@
+20-Aug-2026 16:34:52 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 16:34:52 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/probe2/pads_no_esd/driver_dut.gds on cell driver_dut
+20-Aug-2026 16:34:54 | INFO    | ==============================================================================
+20-Aug-2026 16:34:54 | INFO    | Important Summary
+20-Aug-2026 16:34:54 | INFO    | +------------------+------------------------------------------------------------------+
+20-Aug-2026 16:34:54 | INFO    | | Status           | FAIL                                                             |
+20-Aug-2026 16:34:54 | INFO    | | Mode             | COMPARE                                                          |
+20-Aug-2026 16:34:54 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                   |
+20-Aug-2026 16:34:54 | INFO    | | Layout           | driver_dut.gds                                                   |
+20-Aug-2026 16:34:54 | INFO    | | Top Cell         | driver_dut                                                       |
+20-Aug-2026 16:34:54 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/probe2/pads_no_esd/lvs |
+20-Aug-2026 16:34:54 | INFO    | | Warnings         | 0                                                                |
+20-Aug-2026 16:34:54 | INFO    | | Errors           | 1                                                                |
+20-Aug-2026 16:34:54 | INFO    | | Run Time (s)     | 2.092                                                            |
+20-Aug-2026 16:34:54 | INFO    | +------------------+------------------------------------------------------------------+
+20-Aug-2026 16:34:54 | ERROR   | Key errors:
+20-Aug-2026 16:34:54 | ERROR   |   - 2026-08-20 16:34:54 +0000: Memory Usage (146772K) : ERROR : Netlists don't match
+20-Aug-2026 16:34:54 | INFO    | ==============================================================================

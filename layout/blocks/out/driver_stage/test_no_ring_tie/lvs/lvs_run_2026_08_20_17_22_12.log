@@ -1,0 +1,18 @@
+20-Aug-2026 17:22:12 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 17:22:12 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/test_no_ring_tie/driver_dut.gds on cell driver_dut
+20-Aug-2026 17:22:16 | INFO    | ==============================================================================
+20-Aug-2026 17:22:16 | INFO    | Important Summary
+20-Aug-2026 17:22:16 | INFO    | +------------------+----------------------------------------------------------------+
+20-Aug-2026 17:22:16 | INFO    | | Status           | FAIL                                                           |
+20-Aug-2026 17:22:16 | INFO    | | Mode             | COMPARE                                                        |
+20-Aug-2026 17:22:16 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                 |
+20-Aug-2026 17:22:16 | INFO    | | Layout           | driver_dut.gds                                                 |
+20-Aug-2026 17:22:16 | INFO    | | Top Cell         | driver_dut                                                     |
+20-Aug-2026 17:22:16 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/test_no_ring_tie/lvs |
+20-Aug-2026 17:22:16 | INFO    | | Warnings         | 0                                                              |
+20-Aug-2026 17:22:16 | INFO    | | Errors           | 1                                                              |
+20-Aug-2026 17:22:16 | INFO    | | Run Time (s)     | 3.282                                                          |
+20-Aug-2026 17:22:16 | INFO    | +------------------+----------------------------------------------------------------+
+20-Aug-2026 17:22:16 | ERROR   | Key errors:
+20-Aug-2026 17:22:16 | ERROR   |   - 2026-08-20 17:22:16 +0000: Memory Usage (146788K) : ERROR : Netlists don't match
+20-Aug-2026 17:22:16 | INFO    | ==============================================================================

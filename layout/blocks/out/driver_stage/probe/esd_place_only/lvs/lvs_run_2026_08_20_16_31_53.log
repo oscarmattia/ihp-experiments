@@ -1,0 +1,18 @@
+20-Aug-2026 16:31:53 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 16:31:53 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/probe/esd_place_only/driver_dut.gds on cell driver_dut
+20-Aug-2026 16:31:56 | INFO    | ==============================================================================
+20-Aug-2026 16:31:56 | INFO    | Important Summary
+20-Aug-2026 16:31:56 | INFO    | +------------------+--------------------------------------------------------------------+
+20-Aug-2026 16:31:56 | INFO    | | Status           | FAIL                                                               |
+20-Aug-2026 16:31:56 | INFO    | | Mode             | COMPARE                                                            |
+20-Aug-2026 16:31:56 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).                     |
+20-Aug-2026 16:31:56 | INFO    | | Layout           | driver_dut.gds                                                     |
+20-Aug-2026 16:31:56 | INFO    | | Top Cell         | driver_dut                                                         |
+20-Aug-2026 16:31:56 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/probe/esd_place_only/lvs |
+20-Aug-2026 16:31:56 | INFO    | | Warnings         | 0                                                                  |
+20-Aug-2026 16:31:56 | INFO    | | Errors           | 1                                                                  |
+20-Aug-2026 16:31:56 | INFO    | | Run Time (s)     | 2.798                                                              |
+20-Aug-2026 16:31:56 | INFO    | +------------------+--------------------------------------------------------------------+
+20-Aug-2026 16:31:56 | ERROR   | Key errors:
+20-Aug-2026 16:31:56 | ERROR   |   - 2026-08-20 16:31:56 +0000: Memory Usage (147888K) : ERROR : Netlists don't match
+20-Aug-2026 16:31:56 | INFO    | ==============================================================================

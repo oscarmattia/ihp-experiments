@@ -1,0 +1,16 @@
+20-Aug-2026 17:00:04 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 17:00:04 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/driver_stage/bisect_extra2/clamp_only/driver_dut.gds on cell driver_dut
+20-Aug-2026 17:00:06 | INFO    | ==============================================================================
+20-Aug-2026 17:00:06 | INFO    | Important Summary
+20-Aug-2026 17:00:06 | INFO    | +------------------+------------------------------------------------------------------------+
+20-Aug-2026 17:00:06 | INFO    | | Status           | PASS                                                                   |
+20-Aug-2026 17:00:06 | INFO    | | Mode             | COMPARE                                                                |
+20-Aug-2026 17:00:06 | INFO    | | Outcome          | Comparison mode: PASS (netlists match).                                |
+20-Aug-2026 17:00:06 | INFO    | | Layout           | driver_dut.gds                                                         |
+20-Aug-2026 17:00:06 | INFO    | | Top Cell         | driver_dut                                                             |
+20-Aug-2026 17:00:06 | INFO    | | Results Dir      | /workspace/layout/blocks/out/driver_stage/bisect_extra2/clamp_only/lvs |
+20-Aug-2026 17:00:06 | INFO    | | Warnings         | 0                                                                      |
+20-Aug-2026 17:00:06 | INFO    | | Errors           | 0                                                                      |
+20-Aug-2026 17:00:06 | INFO    | | Run Time (s)     | 1.59                                                                   |
+20-Aug-2026 17:00:06 | INFO    | +------------------+------------------------------------------------------------------------+
+20-Aug-2026 17:00:06 | INFO    | ==============================================================================
