@@ -18,6 +18,19 @@ source ~/.local/share/ihp-eda/env.sh
 
 Environment details: [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
 
+## Lint
+
+Pull requests and pushes to `main` run **`ruff check`** via GitHub Actions (see
+[`.github/workflows/lint.yml`](.github/workflows/lint.yml)). Config: [`pyproject.toml`](pyproject.toml).
+
+Local:
+
+```bash
+uv tool run ruff check
+```
+
+This is a Python style/import gate only — not sim or layout CI (see [docs/CI-CD-PLAN.md](docs/CI-CD-PLAN.md)).
+
 ## Device characterization LUTs
 
 Precomputed MOS + BJT + passive R/L/C tables for fast design-space browsing (no SPICE on every look-up).

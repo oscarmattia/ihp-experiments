@@ -23,7 +23,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from layout.blocks.ctle_stage import CELL, PORT_NETS, build_ctle_stage
+from layout.blocks.ctle_stage import CELL, build_ctle_stage
+from layout.common import simview
 from layout.common.lvs import run_lvs
 from layout.common.pex import run_magic_pex
 from layout.common.postlayout import (
@@ -34,7 +35,6 @@ from layout.common.postlayout import (
     rename_schematic_instances,
     write_core,
 )
-from layout.common import simview
 
 DEFAULT_OUT = Path(__file__).resolve().parent / "out" / "postlayout"
 
@@ -83,7 +83,6 @@ def _inline_core(wrapper_path: Path, core_path: Path) -> None:
 
 def _is_black_box_line(line: str) -> bool:
     tokens = line.split()
-    params: list[str] = []
     body = tokens[1:]
     while body and "=" in body[-1]:
         body.pop()

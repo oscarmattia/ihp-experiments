@@ -28,9 +28,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ctlelib import (  # noqa: E402
     PSRR_MAX_DB,
+    EyeMetrics,
     SbrResult,
     SimMetrics,
-    EyeMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,

@@ -15,7 +15,6 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from layout.blocks.mos_array import plan_units
-
 from size_ctle import snap_drawable_mos_w
 
 

@@ -24,25 +24,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ctlelib import (  # noqa: E402
     SbrResult,
+    assert_unit_diff_source,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,
     eye_metrics_rows,
-    verify_eye_phase_invariance,
     group_delay_s,
     interp_db_at,
-    assert_unit_diff_source,
     parse_ac_raw,
     parse_ac_vm_vp_raw,
     parse_dc_log,
     parse_tran_raw,
+    pdk_models,
     plot_eye_diff,
     plot_eye_se,
     plot_sbr,
     plot_tran_diff,
     plot_tran_se,
-    pdk_models,
     run_ngspice,
+    verify_eye_phase_invariance,
     write_ac_diff_csv,
     write_eye_csvs,
     write_prbs_stim,
@@ -50,13 +50,13 @@ from ctlelib import (  # noqa: E402
     write_sbr_taps_csv,
     write_tran_csv,
 )
-from ctlelib.ngs import apply_params  # noqa: E402
 from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EyeMetrics  # noqa: E402
+from ctlelib.ngs import apply_params  # noqa: E402
 from size_term import (  # noqa: E402
     NYQUIST_HZ,
     RSRC_LEG_OHM,
-    TermParams,
     Z0_DIFF_OHM,
+    TermParams,
     measure_esd_leak_a,
     print_summary,
     shunt_cap_accounting_ff,

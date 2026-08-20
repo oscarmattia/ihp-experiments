@@ -16,19 +16,16 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import numpy as np
-
 _REPO = Path(__file__).resolve().parents[3]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import load_lut  # noqa: E402
-
 from size_ctle import (  # noqa: E402
-    CtleParams,
     MFD,
     MOS_VTH_V,
     TAIL_VDS_V,
+    CtleParams,
     ctle_collector_cm,
     hbt_caps_at_bias,
     size_ctle,
@@ -338,7 +335,6 @@ def extra_params(params: VgaParams, vctrl: float | None = None) -> dict[str, str
 
 
 def print_summary(params: VgaParams) -> None:
-    vov = params.mos_vgs - MOS_VTH_V
     print("=== VGA sizing (tail-current steering) ===")
     print(f"  Nx={params.nx} (FO1 — signal pair only; dummy bases at VBASE)")
     print(f"  VBE={params.vbe:.4f} V  Ic_max={params.ic:.4e} A  gm={params.gm:.4e} S")

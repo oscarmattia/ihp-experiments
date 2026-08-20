@@ -18,10 +18,8 @@ if str(_REPO) not in sys.path:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from char.common.lut import load_lut  # noqa: E402
-
-from ctlelib import pass_out, parse_tran_raw, compute_eye_metrics  # noqa: E402
+from ctlelib import compute_eye_metrics, pass_out  # noqa: E402
 from ctlelib.stim import SWING_DIFF_V, UI_S  # noqa: E402
-
 from size_vga import VgaParams, size_vga  # noqa: E402
 from stage_vga import run_ac_at_vctrl, run_dc_sweep, run_sbr, run_tran  # noqa: E402
 
