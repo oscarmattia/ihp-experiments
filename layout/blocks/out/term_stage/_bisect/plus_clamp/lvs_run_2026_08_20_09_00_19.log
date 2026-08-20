@@ -1,0 +1,19 @@
+20-Aug-2026 09:00:19 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 09:00:19 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_bisect/plus_clamp.gds on cell term_dut
+20-Aug-2026 09:00:20 | INFO    | ==============================================================================
+20-Aug-2026 09:00:20 | INFO    | Important Summary
+20-Aug-2026 09:00:20 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:00:20 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 09:00:20 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 09:00:20 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 09:00:20 | INFO    | | Layout           | plus_clamp.gds                                               |
+20-Aug-2026 09:00:20 | INFO    | | Top Cell         | term_dut                                                     |
+20-Aug-2026 09:00:20 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_bisect/plus_clamp   |
+20-Aug-2026 09:00:20 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 09:00:20 | INFO    | | Errors           | 2                                                            |
+20-Aug-2026 09:00:20 | INFO    | | Run Time (s)     | 1.735                                                        |
+20-Aug-2026 09:00:20 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:00:20 | ERROR   | Key errors:
+20-Aug-2026 09:00:20 | ERROR   |   - 2026-08-20 08:55:37 +0000: Memory Usage (146612K) : ERROR : Netlists don't match
+20-Aug-2026 09:00:20 | ERROR   |   - 2026-08-20 09:00:20 +0000: Memory Usage (146132K) : ERROR : Netlists don't match
+20-Aug-2026 09:00:20 | INFO    | ==============================================================================

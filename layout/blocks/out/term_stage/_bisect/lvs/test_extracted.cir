@@ -1,0 +1,14 @@
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 07:00
+
+.SUBCKT term_dut inp|vdd|vss inn vtt
+D$1 inp|vdd|vss inp|vdd|vss inn diodevdd_2kv m=1
+D$2 inp|vdd|vss inp|vdd|vss inp|vdd|vss diodevdd_2kv m=1
+R$3 inp|vdd|vss vtt inp|vdd|vss rsil w=0.5u l=2.35u ps=0u b=0 m=1
+D$4 inp|vdd|vss inp|vdd|vss nmoscl_2 m=1
+D$5 \$I130 inp|vdd|vss inp|vdd|vss diodevss_2kv m=1
+C$6 \$35 vtt cap_cmim w=20u l=20u A=400p P=80u m=1
+R$7 vtt inp|vdd|vss inp|vdd|vss rppd w=1u l=5u ps=0u b=0 m=1
+R$8 inp|vdd|vss vtt inp|vdd|vss rppd w=1u l=0.5u ps=0u b=0 m=1
+R$9 inn vtt inp|vdd|vss rsil w=0.5u l=2.35u ps=0u b=0 m=1
+D$10 \$I131 inp|vdd|vss inn diodevss_2kv m=1
+.ENDS term_dut

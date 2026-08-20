@@ -1,0 +1,18 @@
+20-Aug-2026 09:09:01 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 09:09:01 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_bisect/new_vdd_only.gds on cell term_dut
+20-Aug-2026 09:09:03 | INFO    | ==============================================================================
+20-Aug-2026 09:09:03 | INFO    | Important Summary
+20-Aug-2026 09:09:03 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:09:03 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 09:09:03 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 09:09:03 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 09:09:03 | INFO    | | Layout           | new_vdd_only.gds                                             |
+20-Aug-2026 09:09:03 | INFO    | | Top Cell         | term_dut                                                     |
+20-Aug-2026 09:09:03 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_bisect/new_vdd_only |
+20-Aug-2026 09:09:03 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 09:09:03 | INFO    | | Errors           | 1                                                            |
+20-Aug-2026 09:09:03 | INFO    | | Run Time (s)     | 1.901                                                        |
+20-Aug-2026 09:09:03 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:09:03 | ERROR   | Key errors:
+20-Aug-2026 09:09:03 | ERROR   |   - 2026-08-20 09:09:03 +0000: Memory Usage (145736K) : ERROR : Netlists don't match
+20-Aug-2026 09:09:03 | INFO    | ==============================================================================

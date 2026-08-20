@@ -1,0 +1,1135 @@
+{
+  "name": "term_dut",
+  "bbox_um": {
+    "width": 314.18,
+    "height": 291.19,
+    "area": 91486.0742
+  },
+  "ports": {
+    "inp_pad": {
+      "name": "inp_pad",
+      "layer": "metal4_drw",
+      "center": [
+        75.0,
+        -25.005
+      ],
+      "width": 0.3,
+      "orientation": 270.0
+    },
+    "inp_top": {
+      "name": "inp_top",
+      "layer": "metal4_drw",
+      "center": [
+        75.0,
+        265.185
+      ],
+      "width": 0.3,
+      "orientation": 90.0
+    },
+    "inn_pad": {
+      "name": "inn_pad",
+      "layer": "metal4_drw",
+      "center": [
+        85.0,
+        -25.005
+      ],
+      "width": 0.3,
+      "orientation": 270.0
+    },
+    "inn_top": {
+      "name": "inn_top",
+      "layer": "metal4_drw",
+      "center": [
+        85.0,
+        265.185
+      ],
+      "width": 0.3,
+      "orientation": 90.0
+    },
+    "inp": {
+      "name": "inp_pad",
+      "layer": "metal4_drw",
+      "center": [
+        75.0,
+        -25.005
+      ],
+      "width": 0.3,
+      "orientation": 270.0
+    },
+    "inn": {
+      "name": "inn_pad",
+      "layer": "metal4_drw",
+      "center": [
+        85.0,
+        -25.005
+      ],
+      "width": 0.3,
+      "orientation": 270.0
+    },
+    "vdd": {
+      "name": "vdd_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        80.0,
+        257.685
+      ],
+      "width": 3.0,
+      "orientation": 90.0
+    },
+    "vss": {
+      "name": "vss_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        80.0,
+        251.685
+      ],
+      "width": 3.0,
+      "orientation": 90.0
+    }
+  },
+  "port_nets": [
+    "inp",
+    "inn",
+    "vdd",
+    "vss"
+  ],
+  "devices": [
+    {
+      "name": "esd_vdd_p",
+      "kind": "esd_diodevdd",
+      "nets": {
+        "VDD": "vdd",
+        "PAD": "inp",
+        "VSS": "vss"
+      }
+    },
+    {
+      "name": "esd_vss_p",
+      "kind": "esd_diodevss",
+      "nets": {
+        "VDD": "vdd",
+        "PAD": "inp",
+        "VSS": "vss"
+      }
+    },
+    {
+      "name": "esd_vdd_n",
+      "kind": "esd_diodevdd",
+      "nets": {
+        "VDD": "vdd",
+        "PAD": "inn",
+        "VSS": "vss"
+      }
+    },
+    {
+      "name": "esd_vss_n",
+      "kind": "esd_diodevss",
+      "nets": {
+        "VDD": "vdd",
+        "PAD": "inn",
+        "VSS": "vss"
+      }
+    },
+    {
+      "name": "rt_p",
+      "kind": "rsil",
+      "nets": {
+        "PLUS": "inp",
+        "MINUS": "vtt",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rt_n",
+      "kind": "rsil",
+      "nets": {
+        "PLUS": "inn",
+        "MINUS": "vtt",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "clamp",
+      "kind": "esd_nmoscl",
+      "nets": {
+        "VDD": "vdd",
+        "VSS": "vss"
+      }
+    },
+    {
+      "name": "rtt_top",
+      "kind": "rppd",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "vtt",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rtt_bot",
+      "kind": "rppd",
+      "nets": {
+        "PLUS": "vtt",
+        "MINUS": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "vtt_decap",
+      "kind": "cmim",
+      "nets": {
+        "PLUS": "vtt",
+        "MINUS": "vss"
+      }
+    }
+  ],
+  "guard_ring": {
+    "kind": "ptap1",
+    "taps": 100,
+    "clearance_um": 2.0,
+    "pitch_um": 1.4,
+    "outer_box_um": [
+      -53.09,
+      162.245,
+      -10.2,
+      191.625
+    ],
+    "tap_centres_um": [
+      [
+        -52.67,
+        162.665
+      ],
+      [
+        -52.67,
+        164.09
+      ],
+      [
+        -52.67,
+        165.52
+      ],
+      [
+        -52.67,
+        166.945
+      ],
+      [
+        -52.67,
+        168.375
+      ],
+      [
+        -52.67,
+        169.8
+      ],
+      [
+        -52.67,
+        171.225
+      ],
+      [
+        -52.67,
+        172.655
+      ],
+      [
+        -52.67,
+        174.08
+      ],
+      [
+        -52.67,
+        175.51
+      ],
+      [
+        -52.67,
+        176.935
+      ],
+      [
+        -52.67,
+        178.36
+      ],
+      [
+        -52.67,
+        179.79
+      ],
+      [
+        -52.67,
+        181.215
+      ],
+      [
+        -52.67,
+        182.645
+      ],
+      [
+        -52.67,
+        184.07
+      ],
+      [
+        -52.67,
+        185.495
+      ],
+      [
+        -52.67,
+        186.925
+      ],
+      [
+        -52.67,
+        188.35
+      ],
+      [
+        -52.67,
+        189.78
+      ],
+      [
+        -52.67,
+        191.205
+      ],
+      [
+        -51.27,
+        162.665
+      ],
+      [
+        -51.27,
+        191.205
+      ],
+      [
+        -49.865,
+        162.665
+      ],
+      [
+        -49.865,
+        191.205
+      ],
+      [
+        -48.465,
+        162.665
+      ],
+      [
+        -48.465,
+        191.205
+      ],
+      [
+        -47.065,
+        162.665
+      ],
+      [
+        -47.065,
+        191.205
+      ],
+      [
+        -45.66,
+        162.665
+      ],
+      [
+        -45.66,
+        191.205
+      ],
+      [
+        -44.26,
+        162.665
+      ],
+      [
+        -44.26,
+        191.205
+      ],
+      [
+        -42.86,
+        162.665
+      ],
+      [
+        -42.86,
+        191.205
+      ],
+      [
+        -41.455,
+        162.665
+      ],
+      [
+        -41.455,
+        191.205
+      ],
+      [
+        -40.055,
+        162.665
+      ],
+      [
+        -40.055,
+        191.205
+      ],
+      [
+        -38.655,
+        162.665
+      ],
+      [
+        -38.655,
+        191.205
+      ],
+      [
+        -37.25,
+        162.665
+      ],
+      [
+        -37.25,
+        191.205
+      ],
+      [
+        -35.85,
+        162.665
+      ],
+      [
+        -35.85,
+        191.205
+      ],
+      [
+        -34.45,
+        162.665
+      ],
+      [
+        -34.45,
+        191.205
+      ],
+      [
+        -33.045,
+        162.665
+      ],
+      [
+        -33.045,
+        191.205
+      ],
+      [
+        -31.645,
+        162.665
+      ],
+      [
+        -31.645,
+        191.205
+      ],
+      [
+        -30.245,
+        162.665
+      ],
+      [
+        -30.245,
+        191.205
+      ],
+      [
+        -28.84,
+        162.665
+      ],
+      [
+        -28.84,
+        191.205
+      ],
+      [
+        -27.44,
+        162.665
+      ],
+      [
+        -27.44,
+        191.205
+      ],
+      [
+        -26.04,
+        162.665
+      ],
+      [
+        -26.04,
+        191.205
+      ],
+      [
+        -24.635,
+        162.665
+      ],
+      [
+        -24.635,
+        191.205
+      ],
+      [
+        -23.235,
+        162.665
+      ],
+      [
+        -23.235,
+        191.205
+      ],
+      [
+        -21.835,
+        162.665
+      ],
+      [
+        -21.835,
+        191.205
+      ],
+      [
+        -20.43,
+        162.665
+      ],
+      [
+        -20.43,
+        191.205
+      ],
+      [
+        -19.03,
+        162.665
+      ],
+      [
+        -19.03,
+        191.205
+      ],
+      [
+        -17.63,
+        162.665
+      ],
+      [
+        -17.63,
+        191.205
+      ],
+      [
+        -16.225,
+        162.665
+      ],
+      [
+        -16.225,
+        191.205
+      ],
+      [
+        -14.825,
+        162.665
+      ],
+      [
+        -14.825,
+        191.205
+      ],
+      [
+        -13.425,
+        162.665
+      ],
+      [
+        -13.425,
+        191.205
+      ],
+      [
+        -12.02,
+        162.665
+      ],
+      [
+        -12.02,
+        191.205
+      ],
+      [
+        -10.62,
+        162.665
+      ],
+      [
+        -10.62,
+        164.09
+      ],
+      [
+        -10.62,
+        165.52
+      ],
+      [
+        -10.62,
+        166.945
+      ],
+      [
+        -10.62,
+        168.375
+      ],
+      [
+        -10.62,
+        169.8
+      ],
+      [
+        -10.62,
+        171.225
+      ],
+      [
+        -10.62,
+        172.655
+      ],
+      [
+        -10.62,
+        174.08
+      ],
+      [
+        -10.62,
+        175.51
+      ],
+      [
+        -10.62,
+        176.935
+      ],
+      [
+        -10.62,
+        178.36
+      ],
+      [
+        -10.62,
+        179.79
+      ],
+      [
+        -10.62,
+        181.215
+      ],
+      [
+        -10.62,
+        182.645
+      ],
+      [
+        -10.62,
+        184.07
+      ],
+      [
+        -10.62,
+        185.495
+      ],
+      [
+        -10.62,
+        186.925
+      ],
+      [
+        -10.62,
+        188.35
+      ],
+      [
+        -10.62,
+        189.78
+      ],
+      [
+        -10.62,
+        191.205
+      ]
+    ],
+    "tap_size_um": [
+      0.84,
+      0.84
+    ],
+    "worst_distance_to_tie_um": 13.85,
+    "latchup_limit_um": 20.0,
+    "within_latchup_limit": true
+  },
+  "symmetry": {
+    "axis_x_um": 80.0,
+    "pairs": {
+      "pads": [
+        35.0,
+        125.0
+      ],
+      "signal_trunks": [
+        75.0,
+        85.0
+      ]
+    }
+  },
+  "power_ring": {
+    "outer_box_um": [
+      -77.09,
+      -19.005,
+      237.09,
+      259.185
+    ],
+    "widths_um": {
+      "vss": 3.0,
+      "vdd": 3.0
+    },
+    "h_metal": "TopMetal2",
+    "v_metal": "TopMetal1",
+    "corner_via": "TopVia2",
+    "corner_vias_per_corner": 1,
+    "ports": {
+      "vss": [
+        {
+          "name": "vss_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            80.0,
+            251.685
+          ],
+          "width": 3.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vss_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            80.0,
+            -11.505
+          ],
+          "width": 3.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vss_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -69.59,
+            120.09
+          ],
+          "width": 3.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vss_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            229.59,
+            120.09
+          ],
+          "width": 3.0,
+          "orientation": 0.0
+        }
+      ],
+      "vdd": [
+        {
+          "name": "vdd_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            80.0,
+            257.685
+          ],
+          "width": 3.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vdd_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            80.0,
+            -17.505
+          ],
+          "width": 3.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vdd_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -75.59,
+            120.09
+          ],
+          "width": 3.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vdd_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            235.59,
+            120.09
+          ],
+          "width": 3.0,
+          "orientation": 0.0
+        }
+      ]
+    },
+    "notes": [
+      "TopMetal2 horizontal, TopMetal1 vertical, TopVia2 stitched 1 cut(s) per corner",
+      "ring width is set by the PDK minimum width, not by electromigration: 0.01 mA needs only 0.000 um of TopMetal2"
+    ]
+  },
+  "notes": [
+    "cell name is term_dut, shared with the schematic subcircuit",
+    "bond pads set the half-width at 35.0 um with 20 um gap",
+    "ESD outboard of each pad; vtt divider, decap and clamp sit left of the axis",
+    "ESD straps drawn at 2.00 um for 2 kV discharge, not LEF average current",
+    "differential trunks in the 20.0 um pad gap",
+    "clamp guard ring ties substrate on the divider vss bus only",
+    "ring squared about x=80.00 um at half-width 138.1 um"
+  ],
+  "layers": {
+    "activ_drw": 115,
+    "cont_drw": 6147,
+    "dfpad_drw": 2,
+    "extblock_drw": 12,
+    "gatpoly_drw": 13,
+    "heatres_drw": 4,
+    "metal1_drw": 245,
+    "metal1_pin": 112,
+    "metal2_drw": 35,
+    "metal2_pin": 8,
+    "metal3_drw": 31,
+    "metal3_pin": 2,
+    "metal4_drw": 23,
+    "metal5_drw": 45,
+    "mim_drw": 1,
+    "nbulay_drw": 1,
+    "nwell_drw": 5,
+    "passiv_drw": 2,
+    "polyres_drw": 4,
+    "psd_drw": 113,
+    "recog_drw": 1,
+    "recog_esd": 5,
+    "res_drw": 2,
+    "salblock_drw": 14,
+    "substrate_drw": 100,
+    "thickgateox_drw": 1,
+    "topmetal1_drw": 27,
+    "topmetal2_drw": 23,
+    "topvia1_drw": 480,
+    "topvia2_drw": 209,
+    "via1_drw": 1907,
+    "via2_drw": 826,
+    "via3_drw": 1030,
+    "via4_drw": 1022,
+    "vmim_drw": 225
+  },
+  "gds": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.gds",
+  "cdl": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.cdl",
+  "parity": {
+    "subckt": "term_dut",
+    "spice_file": "circuits/ctle56n/spice/term_pdk.cir",
+    "cdl_file": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.cdl",
+    "ok": true,
+    "ports_match": true,
+    "devices_match": true,
+    "spice_ports": [
+      "inp",
+      "inn",
+      "vdd",
+      "vss"
+    ],
+    "cdl_ports": [
+      "inp",
+      "inn",
+      "vdd",
+      "vss"
+    ],
+    "matched_devices": [
+      "cap_cmim l=2e-05 w=2e-05",
+      "diodevdd_2kv",
+      "diodevdd_2kv",
+      "diodevss_2kv",
+      "diodevss_2kv",
+      "nmoscl_2",
+      "rppd l=5e-06 w=1e-06",
+      "rppd l=5e-07 w=1e-06",
+      "rsil l=2.35e-06 w=5e-07",
+      "rsil l=2.35e-06 w=5e-07"
+    ],
+    "only_in_spice": [],
+    "only_in_cdl": [],
+    "independent_sources_in_spice": [],
+    "model_aliases": {
+      "ind_shunt": "inductor"
+    },
+    "notes": [
+      "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+    ],
+    "error": ""
+  },
+  "em": {
+    "ok": true,
+    "source": "/home/ubuntu/.local/share/ihp-eda/IHP-Open-PDK/ihp-sg13g2/libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef",
+    "derate_required": 1.0,
+    "derate_used_for_sizing": 2.0,
+    "segments": [
+      {
+        "net": "inp",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "differential pad/ESD/resistor trunk",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "differential pad/ESD/resistor trunk",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "vss top/bottom run",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.048,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "vss left/right run",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.045,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 5e-06,
+        "note": "vss corner stitch",
+        "cuts": 1,
+        "min_cuts": 1,
+        "capacity_a": 0.01,
+        "utilisation": 0.0005,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "vdd top/bottom run",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.048,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "vdd left/right run",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.045,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 5e-06,
+        "note": "vdd corner stitch",
+        "cuts": 1,
+        "min_cuts": 1,
+        "capacity_a": 0.01,
+        "utilisation": 0.0005,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vss.riser",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "divider vss bus down to the ring bottom at the axis",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.048,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vdd.riser",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 5e-06,
+        "note": "divider vdd bus up to the ring top, crossing under the vss run",
+        "width_um": 3.0,
+        "min_width_um": 0.0003,
+        "capacity_a": 0.045,
+        "utilisation": 0.0001,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp.vdd",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+        "width_um": 2.0,
+        "min_width_um": 0.0,
+        "capacity_a": 0.004,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp.vss",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+        "width_um": 2.0,
+        "min_width_um": 0.0,
+        "capacity_a": 0.004,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn.vdd",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+        "width_um": 2.0,
+        "min_width_um": 0.0,
+        "capacity_a": 0.004,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn.vss",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "ESD rail tie; width is for 2 kV discharge, not LEF DC rating",
+        "width_um": 2.0,
+        "min_width_um": 0.0,
+        "capacity_a": 0.004,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp_top",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "same net as the bond pad, out of the top edge",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp_pad",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "bond-pad side of the differential net",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn_top",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "same net as the bond pad, out of the top edge",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn_pad",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "bond-pad side of the differential net",
+        "width_um": 0.3,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0006,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      }
+    ],
+    "failures": [],
+    "unchecked_layers": [],
+    "uncheckable_reasons": {}
+  },
+  "png": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.png",
+  "drc": {
+    "cell": "term_dut",
+    "gds": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.gds",
+    "clean": true,
+    "strictly_clean": true,
+    "total_violations": 0,
+    "real_violations": 0,
+    "by_rule": {},
+    "real_by_rule": {},
+    "context_by_rule": {},
+    "context_rule_reasons": {},
+    "examples": {},
+    "tables": [],
+    "report": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/drc_run/term_dut_term_dut_main.lyrdb",
+    "log": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/drc_run/drc_run.log",
+    "error": "",
+    "ok": true,
+    "allowed_chip_level_rules": [],
+    "enforced_context_rules": [
+      "LBE.a",
+      "LU.a",
+      "LU.b"
+    ],
+    "remaining_violations": {}
+  },
+  "lvs": {
+    "cell": "term_dut",
+    "layout": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.cdl",
+    "clean": false,
+    "params_ok": true,
+    "devices_matched": 0,
+    "summary": "Netlists don't match",
+    "extracted_netlist": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/lvs_run/term_dut_extracted.cir",
+    "param_checks": [],
+    "log": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/lvs_run/lvs_run.log",
+    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/lvs_run/lvs_run.log"
+  },
+  "pex": {
+    "cell": "term_dut",
+    "gds": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/pex_run/term_dut_pex.spice",
+    "ok": true,
+    "resistors": 0,
+    "capacitors": 33,
+    "total_resistance_ohm": 0.0,
+    "resistor_elements": [],
+    "resistance_extracted": true,
+    "physical": true,
+    "negative_capacitors": [],
+    "note": "",
+    "total_capacitance_f": 5.64309e-13,
+    "per_net_capacitance_f": {
+      "w_n15418_n5201#": 5.31996e-13,
+      "inp": 1.39539e-13,
+      "inn": 1.38699e-13,
+      "vdd": 1.36121e-13,
+      "clamp_R0_0/sub": 6.30423e-14,
+      "vtt": 3.16411e-14,
+      "esd_vdd_n_R0_0/w_312_312#": 2.18662e-14,
+      "esd_vdd_p_R0_0/w_312_312#": 2.18662e-14,
+      "esd_vss_p_R0_0/w_0_0#": 1.80914e-14,
+      "esd_vss_n_R0_0/w_0_0#": 1.80525e-14,
+      "m6_n5046_47545#": 4.95263e-15,
+      "rtt_bot_R0_0/a_0_0#": 1.42022e-15,
+      "rt_p_R270_0/a_0_0#": 6.3139e-16,
+      "rt_n_M90_0/a_0_0#": 5.6812e-16,
+      "rtt_top_R0_0/a_0_0#": 1.3161e-16
+    },
+    "log": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/pex_run/magic_pex.log",
+    "error": "",
+    "signal_resistance_ohm": 0
+  }
+}

@@ -1,0 +1,18 @@
+20-Aug-2026 09:06:26 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 09:06:26 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_bisect/ring_only.gds on cell term_dut
+20-Aug-2026 09:06:28 | INFO    | ==============================================================================
+20-Aug-2026 09:06:28 | INFO    | Important Summary
+20-Aug-2026 09:06:28 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:06:28 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 09:06:28 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 09:06:28 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 09:06:28 | INFO    | | Layout           | ring_only.gds                                                |
+20-Aug-2026 09:06:28 | INFO    | | Top Cell         | term_dut                                                     |
+20-Aug-2026 09:06:28 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_bisect/ring_only    |
+20-Aug-2026 09:06:28 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 09:06:28 | INFO    | | Errors           | 1                                                            |
+20-Aug-2026 09:06:28 | INFO    | | Run Time (s)     | 1.905                                                        |
+20-Aug-2026 09:06:28 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:06:28 | ERROR   | Key errors:
+20-Aug-2026 09:06:28 | ERROR   |   - 2026-08-20 09:06:28 +0000: Memory Usage (145512K) : ERROR : Netlists don't match
+20-Aug-2026 09:06:28 | INFO    | ==============================================================================

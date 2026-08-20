@@ -1,0 +1,42 @@
+{
+  "subckt": "term_dut",
+  "spice_file": "circuits/ctle56n/spice/term_pdk.cir",
+  "cdl_file": "/workspace/layout/blocks/out/term_stage/_isolate/out/term_stage/term_dut.cdl",
+  "ok": true,
+  "ports_match": true,
+  "devices_match": true,
+  "spice_ports": [
+    "inp",
+    "inn",
+    "vdd",
+    "vss"
+  ],
+  "cdl_ports": [
+    "inp",
+    "inn",
+    "vdd",
+    "vss"
+  ],
+  "matched_devices": [
+    "cap_cmim l=2e-05 w=2e-05",
+    "diodevdd_2kv",
+    "diodevdd_2kv",
+    "diodevss_2kv",
+    "diodevss_2kv",
+    "nmoscl_2",
+    "rppd l=5e-06 w=1e-06",
+    "rppd l=5e-07 w=1e-06",
+    "rsil l=2.35e-06 w=5e-07",
+    "rsil l=2.35e-06 w=5e-07"
+  ],
+  "only_in_spice": [],
+  "only_in_cdl": [],
+  "independent_sources_in_spice": [],
+  "model_aliases": {
+    "ind_shunt": "inductor"
+  },
+  "notes": [
+    "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+  ],
+  "error": ""
+}

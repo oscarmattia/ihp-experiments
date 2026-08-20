@@ -1,0 +1,20 @@
+20-Aug-2026 09:23:34 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 09:23:34 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/term_stage/_bisect/full.gds on cell term_dut
+20-Aug-2026 09:23:36 | INFO    | ==============================================================================
+20-Aug-2026 09:23:36 | INFO    | Important Summary
+20-Aug-2026 09:23:36 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:23:36 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 09:23:36 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 09:23:36 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 09:23:36 | INFO    | | Layout           | full.gds                                                     |
+20-Aug-2026 09:23:36 | INFO    | | Top Cell         | term_dut                                                     |
+20-Aug-2026 09:23:36 | INFO    | | Results Dir      | /workspace/layout/blocks/out/term_stage/_bisect/full         |
+20-Aug-2026 09:23:36 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 09:23:36 | INFO    | | Errors           | 3                                                            |
+20-Aug-2026 09:23:36 | INFO    | | Run Time (s)     | 1.912                                                        |
+20-Aug-2026 09:23:36 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:23:36 | ERROR   | Key errors:
+20-Aug-2026 09:23:36 | ERROR   |   - 2026-08-20 08:55:42 +0000: Memory Usage (145636K) : ERROR : Netlists don't match
+20-Aug-2026 09:23:36 | ERROR   |   - 2026-08-20 09:00:25 +0000: Memory Usage (146208K) : ERROR : Netlists don't match
+20-Aug-2026 09:23:36 | ERROR   |   - 2026-08-20 09:23:36 +0000: Memory Usage (146220K) : ERROR : Netlists don't match
+20-Aug-2026 09:23:36 | INFO    | ==============================================================================
