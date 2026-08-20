@@ -793,8 +793,9 @@ The 91 → 35 GHz bandwidth drop is extra C on the pad node, not a missing ESD
 device and not the collector feed. Both netlists already instantiate the
 ``diodevdd_2kv`` / ``diodevss_2kv`` pair (50.9 fF). Schematic ``PAD_C`` is
 27.68 fF of TM1 area-to-substrate only. Magic's 144 fF ``outp``–``vss`` is
-**80 fF from the isolated ``bondpad_70um``** plus ~64 fF of pad-band
-neighbours (a lone TM2 ``vss`` ring adds only 4 fF). Putting 144 fF on the
+**80 fF from the isolated ``bondpad_70um``** plus **21 fF from the tied ESD
+column** plus ~42 fF still in the pad band (a lone TM2 ``vss`` ring adds
+4 fF; an unconnected ESD column adds nothing). Putting 144 fF on the
 schematic lands at 35.6 GHz. The 819 fF Magic total is mostly ``mgate`` /
 ``em`` and is not ``C_L``. See ``layout/debug_pex/FINDINGS.md``.
 

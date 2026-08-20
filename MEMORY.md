@@ -492,9 +492,10 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   *widens* the schematic to 128 GHz, so ESD was never omitted. Collector-to-pad wiring
   is 2.56 fF (`nlp`–`out`). The 819 fF Magic total is `mgate`+`em`+pads; do not quote it
   as `C_L`. **144 fF is not the pad alone:** `probe_standalone_pad.py` extracts the
-  same `bondpad_70um` at **80.45 fF** to substrate; a TM2 vss ring at 6 um adds 4 fF.
-  The other ~63 fF is the pad band. The isolated PCell is still 3× the 27.7 fF hand
-  TM1-area number. See `layout/debug_pex/FINDINGS.md` `[sim]`.
+  same `bondpad_70um` at **80.45 fF** to substrate. Tying the ESD column (9 um
+  gap, Metal2 PAD bar) adds **21 fF** of `pad`–`vss` (101.6 fF). An unconnected
+  column adds nothing. A TM2 vss ring at 6 um adds 4 fF. The remaining ~42 fF is
+  still the rest of the pad band. See `layout/debug_pex/FINDINGS.md` `[sim]`.
 - **VGA Magic drops unlabeled `tx1`/`tx2`.** Those dummy-steer collectors are drawn but never
   labelled, so PEX emits `m2_7492_3498#` / `m2_36168_2698#` (~80 fF each to `vss`, plus coupling
   to `em`/`ed*`) and the C-only rewrite throws them away: kept 548 fF, dropped 388 fF. The

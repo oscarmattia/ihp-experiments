@@ -647,10 +647,11 @@ dummy-steer collectors, not output `C_L`; do not add labels just to recover it.
 On `driver_dut` Magic keeps **819 fF** cell-total (almost all of it `mgate` /
 `em` / pad-to-`vss`) and drops 0.76 fF. The load that sets BW is **144 fF
 `outp`–`vss`**, not the deck total. That 144 fF is **not the pad alone**:
-the same `bondpad_70um` PCell extracts at **80 fF** in isolation; a TM2
-`vss` ring at 6 um adds 4 fF; the rest is the pad band. The schematic's
-27.68 fF hand pad is TM1 area-to-sub only (even a lone TM1 plate extracts
-at 38 fF). See
+the same `bondpad_70um` PCell extracts at **80 fF** in isolation; tying the
+ESD column adds **21 fF** of `pad`–`vss`; a TM2 `vss` ring at 6 um adds
+4 fF; ~42 fF is still the rest of the pad band. The schematic's 27.68 fF
+hand pad is TM1 area-to-sub only (even a lone TM1 plate extracts at 38 fF).
+See
 [../layout/debug_pex/FINDINGS.md](../layout/debug_pex/FINDINGS.md).
 
 Two things a post-layout netlist must do before ngspice will accept it, both handled

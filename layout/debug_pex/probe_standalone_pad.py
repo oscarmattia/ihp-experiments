@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""Extract the catalog 70 um bond pad alone, and two plate controls.
+"""Extract the catalog 70 um bond pad alone, with its ESD column, and plate controls.
 
-The driver Magic deck has 144 fF ``outp``–``vss``. The hand ``PAD_C`` is
-27.68 fF of TM1 area-to-sub. This asks whether a standalone ``bondpad_70um``
-(Metal3–TM2 stacked octagon, PDK defaults) really extracts at 144 fF, or
-whether that number is the pad sitting inside the driver's vss ring.
-
-Controls:
-  * TM1 70×70 square — the geometry the hand formula assumes
-  * Metal3 70×70 square — the stack's actual bottom plate if Magic shields
+The driver Magic deck has 144 fF ``outp``–``vss``. A lone ``bondpad_70um`` is
+80 fF. This adds the driver's ESD column (``diodevdd`` over ``diodevss``,
+9 um gap, Metal2 PAD bar) to see how much of the remaining 64 fF is those
+diodes.
 
 Nothing is written into the repo; GDS and PEX go to a scratch directory.
 
@@ -20,6 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -27,7 +24,16 @@ REPO = Path(__file__).resolve().parents[2]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from layout.blocks.draw import place
+from layout.blocks.draw import place, rect, snap, via_between
+from layout.blocks.driver_stage import (
+    ESD_BUS_W,
+    ESD_PAD_GAP,
+    ESD_STACK_GAP,
+    PAD_EXIT_LENGTH,
+    PAD_FEED_METAL,
+    _place_at,
+)
+from layout.common.devices import build
 from layout.common.gds import stamp_net_labels, write_for_magic, write_gds
 from layout.common.layers import layer_map
 from layout.common.pdk import new_layout, pya_module
@@ -123,6 +129,109 @@ def pad_in_vss_ring(out: Path, clearance_um: float = 6.0):
     }
 
 
+def _catalog():
+    by_name = {spec.name: spec for spec in esd_devices()}
+    return by_name["bondpad_70um"], by_name["esd_diodevdd_2kv"], by_name["esd_diodevss_2kv"]
+
+
+def _label_esd(layout, cell, evdd_t, evss_t, pad_name: str) -> None:
+    mapping = {"PAD": pad_name, "VDD": "vdd", "VSS": "vss"}
+    stamp_net_labels(layout, cell, list(evdd_t.values()), mapping)
+    stamp_net_labels(layout, cell, list(evss_t.values()), mapping)
+
+
+def _connect_esd_to_pad(layout, cell, pad_box, evdd_t, evss_t) -> None:
+    """Driver PAD bar: Metal2 in the 9 um gap, stacked up to the pad's Metal5."""
+    pad_inner = pad_box.right
+    bar_x = snap(pad_inner + ESD_PAD_GAP / 2.0)
+    pad_row_y = snap((pad_box.top + pad_box.bottom) / 2.0)
+    pad_pin_ys = [evss_t["PAD"].center[1], evdd_t["PAD"].center[1]]
+    rect(layout, cell, "Metal2", bar_x - ESD_BUS_W / 2, min(pad_pin_ys),
+         bar_x + ESD_BUS_W / 2, max(pad_pin_ys))
+    for pin in (evss_t["PAD"], evdd_t["PAD"]):
+        px, py = pin.center
+        rect(layout, cell, "Metal2", min(px, bar_x) - ESD_BUS_W / 2,
+             py - ESD_BUS_W / 2, max(px, bar_x) + ESD_BUS_W / 2, py + ESD_BUS_W / 2)
+    via_between(layout, cell, bar_x, pad_row_y, "Metal2", PAD_FEED_METAL)
+    feed_from = snap(pad_inner - PAD_EXIT_LENGTH / 2.0)
+    sig_w = route_width(PAD_FEED_METAL)
+    rect(layout, cell, PAD_FEED_METAL, min(feed_from, bar_x),
+         pad_row_y - sig_w / 2, max(feed_from, bar_x), pad_row_y + sig_w / 2)
+
+
+def pad_plus_esd(out: Path, *, connect: bool) -> dict:
+    """One pad and its ESD column at the driver's 9 um gap and stack pitch."""
+    pad_spec, evdd_spec, evss_spec = _catalog()
+    layout = new_layout()
+    name = "pad_esd_tied" if connect else "pad_esd_near"
+    cell = layout.create_cell(name)
+    pad_t, pad_box = place(layout, cell, pad_spec, 0.0, 0.0)
+    stamp_net_labels(layout, cell, list(pad_t.values()), {"PAD": "pad"})
+
+    _, esd_probe = build(evdd_spec)
+    esd_h = snap(esd_probe.dbbox().height())
+    esd_col_h = snap(2.0 * esd_h + ESD_STACK_GAP)
+    cy = (pad_box.top + pad_box.bottom) / 2.0
+    band_y0 = snap(cy - esd_col_h / 2.0)
+    col_outer = snap(pad_box.right + ESD_PAD_GAP)
+    evss_t, _ = _place_at(
+        layout, cell, evss_spec.with_name("esd_vss"), "R0",
+        bottom=band_y0, left=col_outer,
+    )
+    evdd_t, _ = _place_at(
+        layout, cell, evdd_spec.with_name("esd_vdd"), "R0",
+        bottom=snap(band_y0 + esd_h + ESD_STACK_GAP), left=col_outer,
+    )
+    _label_esd(layout, cell, evdd_t, evss_t, "pad" if connect else "esd_pad")
+    if connect:
+        _connect_esd_to_pad(layout, cell, pad_box, evdd_t, evss_t)
+
+    result = extract_gds(layout, cell, name, out)
+    how = "tied (M2 bar + M5 feed)" if connect else "placed only, no bar"
+    return {
+        "label": f"bondpad_70um + ESD column, {how}",
+        "result": result,
+        "bbox": (pad_box.width(), pad_box.height()),
+        "expect_shielded_fF": AREA_AF["Metal3"] * OCT_AREA * 1e-3,
+        "expect_unshielded_fF": sum(AREA_AF[m] for m in STACK) * OCT_AREA * 1e-3,
+        "expect_hand_fF": pad_capacitance_f(70.0, 70.0) * 1e15,
+    }
+
+
+def esd_column_only(out: Path) -> dict:
+    """The two diodes and their PAD bar, no bond pad."""
+    _, evdd_spec, evss_spec = _catalog()
+    layout = new_layout()
+    cell = layout.create_cell("esd_col")
+    _, esd_probe = build(evdd_spec)
+    esd_h = snap(esd_probe.dbbox().height())
+    evss_t, evss_box = _place_at(
+        layout, cell, evss_spec.with_name("esd_vss"), "R0", bottom=0.0, left=0.0,
+    )
+    evdd_t, evdd_box = _place_at(
+        layout, cell, evdd_spec.with_name("esd_vdd"), "R0",
+        bottom=snap(esd_h + ESD_STACK_GAP), left=0.0,
+    )
+    _label_esd(layout, cell, evdd_t, evss_t, "pad")
+    bar_x = snap((evss_t["PAD"].center[0] + evss_box.left) / 2.0)
+    pad_pin_ys = [evss_t["PAD"].center[1], evdd_t["PAD"].center[1]]
+    rect(layout, cell, "Metal2", bar_x - ESD_BUS_W / 2, min(pad_pin_ys),
+         bar_x + ESD_BUS_W / 2, max(pad_pin_ys))
+    for pin in (evss_t["PAD"], evdd_t["PAD"]):
+        px, py = pin.center
+        rect(layout, cell, "Metal2", min(px, bar_x) - ESD_BUS_W / 2,
+             py - ESD_BUS_W / 2, max(px, bar_x) + ESD_BUS_W / 2, py + ESD_BUS_W / 2)
+    result = extract_gds(layout, cell, "esd_col", out)
+    return {
+        "label": "ESD column alone (diodevdd + diodevss + PAD bar)",
+        "result": result,
+        "bbox": (evdd_box.width(), evdd_box.height() + evss_box.height()),
+        "expect_shielded_fF": float("nan"),
+        "expect_unshielded_fF": float("nan"),
+        "expect_hand_fF": float("nan"),
+    }
+
+
 def plate(metal: str, side_um: float, out: Path, name: str):
     pya = pya_module()
     lm = layer_map()
@@ -152,9 +261,10 @@ def summarize(case: dict) -> None:
     result = case["result"]
     print(f"\n{case['label']}")
     print(f"  bbox {case['bbox'][0]:.2f} × {case['bbox'][1]:.2f} um")
-    print(f"  area-only predict  shielded={case['expect_shielded_fF']:.2f} fF"
-          f"  unshielded-stack={case['expect_unshielded_fF']:.2f} fF"
-          f"  hand-TM1={case['expect_hand_fF']:.2f} fF")
+    if not math.isnan(case.get("expect_shielded_fF", float("nan"))):
+        print(f"  area-only predict  shielded={case['expect_shielded_fF']:.2f} fF"
+              f"  unshielded-stack={case['expect_unshielded_fF']:.2f} fF"
+              f"  hand-TM1={case['expect_hand_fF']:.2f} fF")
     if not result.ok:
         print(f"  EXTRACTION FAILED: {result.error}")
         return
@@ -162,7 +272,9 @@ def summarize(case: dict) -> None:
     totals = per_net(items)
     raw = sum(v for _, _, v in items)
     pad_c = totals.get("pad")
-    print(f"  Magic: {len(items)} C  raw-sum={_ff(raw)}  pad-node={_ff(pad_c) if pad_c is not None else '—'}")
+    pad_vss = sum(v for a, b, v in items if {a, b} == {"pad", "vss"})
+    print(f"  Magic: {len(items)} C  raw-sum={_ff(raw)}  pad-node={_ff(pad_c) if pad_c is not None else '—'}"
+          + (f"  pad–vss={_ff(pad_vss)}" if pad_vss else ""))
     for a, b, v in sorted(items, key=lambda t: -t[2]):
         print(f"    {a:16s} — {b:16s}  {_ff(v)}")
 
@@ -181,6 +293,9 @@ def main(argv: list[str] | None = None) -> int:
 
     cases = [
         catalog_pad(args.out),
+        pad_plus_esd(args.out, connect=False),
+        pad_plus_esd(args.out, connect=True),
+        esd_column_only(args.out),
         pad_in_vss_ring(args.out),
         plate("TopMetal1", 70.0, args.out, "tm1_sq70"),
         plate("Metal3", 70.0, args.out, "m3_sq70"),
