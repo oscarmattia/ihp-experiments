@@ -30,25 +30,14 @@ TAIL_FINGER_W = 2.0e-6
 #: PCell draws 100 fingers of 2.425u, i.e. 242.5u.
 MOS_MAX_NG = 100
 
-#: Per-finger width snaps to this grid, so a total width that does not divide
-#: onto it is silently rounded down. Choosing the total to land on the grid
-#: keeps drawn width equal to requested width.
-MOS_W_GRID = 5e-9
+#: Per-finger width grid for the nmos PCell — same value as
+#: ``layout/blocks/mos_array.MOS_W_GRID``.
+MOS_W_GRID = 0.01e-6
 
 #: EM-characterized shunt-peaking coil. MEMORY.md records ~66 pH at 28 GHz for a
 #: 1-turn TopMetal2 octagon at this geometry, which is what ``ind_shunt.inc``
 #: was fitted from and what ctle_pdk.cir instantiates.
 COIL = {"d": 40.0e-6, "w": 4.0e-6, "s": 2.1e-6, "nr_r": 1}
-
-
-def drawable_finger_w(unit_w: float) -> float:
-    """Return the finger width the nmos PCell actually draws.
-
-    ``plan_units`` snaps onto 5 nm, but the PCell resolves ``w`` to 0.01 um, so a
-    request like 9.875 um becomes 9.87 um in layout. The CDL must carry the drawn
-    value or LVS compares against a width that was never built.
-    """
-    return math.floor(unit_w * 1e8 + 1e-12) / 1e8
 
 
 def plan_fingers(
@@ -66,7 +55,7 @@ def plan_fingers(
     for, rather than a silently rounded-down one.
     """
     ng = min(max_ng, max(1, int(math.ceil(total_w / finger_w))))
-    per_finger = round(total_w / ng / MOS_W_GRID) * MOS_W_GRID
+    per_finger = math.floor(total_w / ng / MOS_W_GRID + 1e-12) * MOS_W_GRID
     return ng, per_finger * ng
 
 
@@ -201,8 +190,6 @@ def vga_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
     steer_l = metres(p, "STEER_L")
     tail_units, tail_unit_w = plan_units(tail_w)
     steer_units, steer_unit_w = plan_units(steer_w)
-    tail_unit_w = drawable_finger_w(tail_unit_w)
-    steer_unit_w = drawable_finger_w(steer_unit_w)
 
     return [
         # Mirror diode and both tail devices share MOS_W_m; rppd loads, the HBT
@@ -242,8 +229,6 @@ def driver_devices(params: dict[str, float] | None = None) -> list[DeviceSpec]:
     tail_w = p["TAIL_W_m"]
     mirror_units, mirror_unit_w = plan_units(mirror_w)
     tail_units, tail_unit_w = plan_units(tail_w)
-    mirror_unit_w = drawable_finger_w(mirror_unit_w)
-    tail_unit_w = drawable_finger_w(tail_unit_w)
 
     return [
         # rsil loads match rsil_term; coils, ESD and the clamp are in esd_devices.

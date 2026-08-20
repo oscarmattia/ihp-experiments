@@ -1,0 +1,44 @@
+{
+  "cell": "nmos_vga_steer_unit",
+  "gds": "/workspace/layout/devices/out/gds/nmos_vga_steer_unit.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/nmos_vga_steer_unit/nmos_vga_steer_unit_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 10795.71608,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_n26_n36.n0",
+      "b": "w_n26_n36.t0",
+      "ohm": 10791.7
+    },
+    {
+      "name": "R0",
+      "a": "S",
+      "b": "S.t0",
+      "ohm": 2.00804
+    },
+    {
+      "name": "R1",
+      "a": "D",
+      "b": "D.t0",
+      "ohm": 2.00804
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 3.61222e-15,
+  "per_net_capacitance_f": {
+    "0": 2.76463e-15,
+    "D": 1.17944e-15,
+    "S": 1.17944e-15,
+    "a_68_n36#": 9.0259e-16,
+    "D.t0": 5.9917e-16,
+    "S.t0": 5.9917e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/nmos_vga_steer_unit/magic_pex.log",
+  "error": ""
+}

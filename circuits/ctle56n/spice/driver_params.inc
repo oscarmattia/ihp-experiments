@@ -9,7 +9,7 @@
 .param MOS_L=1
 .param MOS_W_m=0.000392
 .param MOS_L_m=1e-06
-.param TAIL_W_m=0.000784075
+.param TAIL_W_m=0.00078368
 .param MOS_M=1
 .param MOS_VGS=0.638462
 .param RSIL_W=5e-07

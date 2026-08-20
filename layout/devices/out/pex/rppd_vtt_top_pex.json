@@ -1,0 +1,54 @@
+{
+  "cell": "rppd_vtt_top",
+  "gds": "/workspace/layout/devices/out/gds/rppd_vtt_top.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/rppd_vtt_top/rppd_vtt_top_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 2050.353,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_0_n86.n0",
+      "b": "w_0_n86.t0",
+      "ohm": 2040.0
+    },
+    {
+      "name": "R0",
+      "a": "PLUS",
+      "b": "PLUS.t0",
+      "ohm": 5.1765
+    },
+    {
+      "name": "R1",
+      "a": "MINUS",
+      "b": "MINUS.t0",
+      "ohm": 5.1765
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 6.5558e-16,
+  "per_net_capacitance_f": {
+    "0": 5.7613e-16,
+    "MINUS": 2.6817e-16,
+    "PLUS": 2.6817e-16,
+    "a_0_0#": 1.2321e-16,
+    "MINUS.t0": 3.774e-17,
+    "PLUS.t0": 3.774e-17
+  },
+  "log": "/workspace/layout/devices/out/pex_run/rppd_vtt_top/magic_pex.log",
+  "error": "",
+  "comparison": {
+    "quantity": "resistance",
+    "unit": "ohm",
+    "ok": true,
+    "schematic": 199.2273,
+    "post_layout": 209.5801,
+    "delta": 10.352799999999974,
+    "rel_change": 0.05196476587295001,
+    "rel_change_pct": 5.196476587295001
+  }
+}

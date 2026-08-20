@@ -1,0 +1,160 @@
+{
+  "cell": "esd_diodevdd_2kv",
+  "gds": "/workspace/layout/devices/out/gds/esd_diodevdd_2kv.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/esd_diodevdd_2kv/esd_diodevdd_2kv_pex.spice",
+  "ok": true,
+  "resistors": 588,
+  "capacitors": 238,
+  "total_resistance_ohm": 2561.436729,
+  "resistor_elements": [
+    {
+      "name": "R152",
+      "a": "VDD.n157",
+      "b": "VDD.n156",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R153",
+      "a": "VDD.n156",
+      "b": "VDD.n88",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R154",
+      "a": "VDD.n86",
+      "b": "VDD.n75",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R155",
+      "a": "VDD.n86",
+      "b": "VDD.n85",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R156",
+      "a": "VDD.n155",
+      "b": "VDD.n65",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R157",
+      "a": "VDD.n165",
+      "b": "VDD.n65",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R158",
+      "a": "VDD.n156",
+      "b": "VDD.n155",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R159",
+      "a": "VDD.n166",
+      "b": "VDD.n62",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R160",
+      "a": "VDD.n161",
+      "b": "VDD.n64",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R161",
+      "a": "VDD.n164",
+      "b": "VDD.n163",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R162",
+      "a": "VDD.n163",
+      "b": "VDD.n68",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R163",
+      "a": "VDD.n163",
+      "b": "VDD.n64",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R164",
+      "a": "VDD.n88",
+      "b": "VDD.n64",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R165",
+      "a": "VDD.n81",
+      "b": "VDD.n80",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R166",
+      "a": "VDD.n80",
+      "b": "VDD.n79",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R167",
+      "a": "VDD.n81",
+      "b": "VDD.n78",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R168",
+      "a": "VDD.n79",
+      "b": "VDD.n78",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R169",
+      "a": "VDD.n81",
+      "b": "VDD.n51",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R170",
+      "a": "VDD.n79",
+      "b": "VDD.n51",
+      "ohm": 17.0005
+    },
+    {
+      "name": "R171",
+      "a": "VDD.n64",
+      "b": "VDD.n63",
+      "ohm": 17.0005
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 4.49381e-14,
+  "per_net_capacitance_f": {
+    "VSS": 3.50388e-14,
+    "VDD": 2.06272e-14,
+    "PAD": 1.4568e-14,
+    "VDD.n88": 3.49739e-15,
+    "PAD.n63": 2.13026e-15,
+    "PAD.n57": 1.73493e-15,
+    "PAD.n62": 1.29294e-15,
+    "PAD.n64": 1.17858e-15,
+    "VDD.n164": 7.407e-16,
+    "VDD.n166": 6.719e-16,
+    "PAD.n0": 2.8993e-16,
+    "PAD.n1": 2.8993e-16,
+    "PAD.n30": 2.8405e-16,
+    "PAD.n61": 2.8136e-16,
+    "VDD.n176": 2.1362e-16,
+    "VDD.n177": 2.1362e-16,
+    "VDD.n185": 2.1362e-16,
+    "VDD.n186": 2.1362e-16,
+    "VDD.n194": 2.1362e-16,
+    "VDD.n195": 2.1362e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/esd_diodevdd_2kv/magic_pex.log",
+  "error": ""
+}

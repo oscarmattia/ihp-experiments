@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "total_devices": 13,
+  "total_devices": 26,
   "failed": [],
   "klayout_pex_wire_cross_check": {
     "klayout_pex": {
@@ -414,6 +414,908 @@
       "log": "/workspace/layout/devices/out/pex_run/inductor_turn1_d40_nores/magic_pex.log",
       "error": "",
       "authority_note": "Coil behaviour comes from openEMS plus the fitted ind_shunt model, not from Magic \u2014 see MEMORY.md. Magic contributes substrate capacitance only, which is a useful independent check on the EM port capacitance."
+    },
+    "rsil_term": {
+      "cell": "rsil_term",
+      "gds": "/workspace/layout/devices/out/gds/rsil_term.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/rsil_term/rsil_term_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 9180.1956,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_0_n70.n0",
+          "b": "w_0_n70.t0",
+          "ohm": 9150.0
+        },
+        {
+          "name": "R0",
+          "a": "PLUS",
+          "b": "PLUS.t0",
+          "ohm": 15.0978
+        },
+        {
+          "name": "R1",
+          "a": "MINUS",
+          "b": "MINUS.t0",
+          "ohm": 15.0978
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 6.1296e-16,
+      "per_net_capacitance_f": {
+        "0": 5.7252e-16,
+        "a_0_0#": 3.4688e-16,
+        "MINUS": 1.3953e-16,
+        "PLUS": 1.3953e-16,
+        "MINUS.t0": 1.373e-17,
+        "PLUS.t0": 1.373e-17
+      },
+      "log": "/workspace/layout/devices/out/pex_run/rsil_term/magic_pex.log",
+      "error": "",
+      "comparison": {
+        "quantity": "resistance",
+        "unit": "ohm",
+        "ok": true,
+        "schematic": 50.25494,
+        "post_layout": 80.45051,
+        "delta": 30.195569999999996,
+        "rel_change": 0.6008477972513746,
+        "rel_change_pct": 60.08477972513746
+      }
+    },
+    "rppd_vtt_top": {
+      "cell": "rppd_vtt_top",
+      "gds": "/workspace/layout/devices/out/gds/rppd_vtt_top.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/rppd_vtt_top/rppd_vtt_top_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 2050.353,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_0_n86.n0",
+          "b": "w_0_n86.t0",
+          "ohm": 2040.0
+        },
+        {
+          "name": "R0",
+          "a": "PLUS",
+          "b": "PLUS.t0",
+          "ohm": 5.1765
+        },
+        {
+          "name": "R1",
+          "a": "MINUS",
+          "b": "MINUS.t0",
+          "ohm": 5.1765
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 6.5558e-16,
+      "per_net_capacitance_f": {
+        "0": 5.7613e-16,
+        "MINUS": 2.6817e-16,
+        "PLUS": 2.6817e-16,
+        "a_0_0#": 1.2321e-16,
+        "MINUS.t0": 3.774e-17,
+        "PLUS.t0": 3.774e-17
+      },
+      "log": "/workspace/layout/devices/out/pex_run/rppd_vtt_top/magic_pex.log",
+      "error": "",
+      "comparison": {
+        "quantity": "resistance",
+        "unit": "ohm",
+        "ok": true,
+        "schematic": 199.2273,
+        "post_layout": 209.5801,
+        "delta": 10.352799999999974,
+        "rel_change": 0.05196476587295001,
+        "rel_change_pct": 5.196476587295001
+      }
+    },
+    "rppd_vtt_bot": {
+      "cell": "rppd_vtt_bot",
+      "gds": "/workspace/layout/devices/out/gds/rppd_vtt_bot.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/rppd_vtt_bot/rppd_vtt_bot_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 8800.353,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_0_n86.n0",
+          "b": "w_0_n86.t0",
+          "ohm": 8790.0
+        },
+        {
+          "name": "R0",
+          "a": "PLUS",
+          "b": "PLUS.t0",
+          "ohm": 5.1765
+        },
+        {
+          "name": "R1",
+          "a": "MINUS",
+          "b": "MINUS.t0",
+          "ohm": 5.1765
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 1.41329e-15,
+      "per_net_capacitance_f": {
+        "0": 1.33263e-15,
+        "a_0_0#": 9.5771e-16,
+        "MINUS": 2.4188e-16,
+        "PLUS": 2.4188e-16,
+        "MINUS.t0": 2.624e-17,
+        "PLUS.t0": 2.624e-17
+      },
+      "log": "/workspace/layout/devices/out/pex_run/rppd_vtt_bot/magic_pex.log",
+      "error": "",
+      "comparison": {
+        "quantity": "resistance",
+        "unit": "ohm",
+        "ok": true,
+        "schematic": 1362.247,
+        "post_layout": 1372.6,
+        "delta": 10.352999999999838,
+        "rel_change": 0.00759994332892628,
+        "rel_change_pct": 0.759994332892628
+      }
+    },
+    "cmim_vtt_decap": {
+      "cell": "cmim_vtt_decap",
+      "gds": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/cmim_vtt_decap/cmim_vtt_decap_pex.spice",
+      "ok": true,
+      "resistors": 1,
+      "capacitors": 4,
+      "total_resistance_ohm": 0.0445,
+      "resistor_elements": [
+        {
+          "name": "R0",
+          "a": "MINUS",
+          "b": "MINUS.t0",
+          "ohm": 0.0445
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 1.03849e-14,
+      "per_net_capacitance_f": {
+        "w_n120_n120#": 9.31587e-15,
+        "MINUS": 6.87777e-15,
+        "PLUS": 3.77437e-15,
+        "MINUS.t0": 8.0177e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/cmim_vtt_decap/magic_pex.log",
+      "error": "",
+      "comparison": {
+        "quantity": "capacitance",
+        "unit": "F",
+        "ok": true,
+        "schematic": 6.032e-13,
+        "post_layout": 6.061887e-13,
+        "delta": 2.9887000000000274e-15,
+        "rel_change": 0.004954741379310391,
+        "rel_change_pct": 0.49547413793103906
+      }
+    },
+    "nmos_vga_wide_unit": {
+      "cell": "nmos_vga_wide_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_vga_wide_unit.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/nmos_vga_wide_unit/nmos_vga_wide_unit_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 7913.78246,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_n26_n36.n0",
+          "b": "w_n26_n36.t0",
+          "ohm": 7909.79
+        },
+        {
+          "name": "R0",
+          "a": "S",
+          "b": "S.t0",
+          "ohm": 1.99623
+        },
+        {
+          "name": "R1",
+          "a": "D",
+          "b": "D.t0",
+          "ohm": 1.99623
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 3.86941e-15,
+      "per_net_capacitance_f": {
+        "0": 3.05598e-15,
+        "a_68_n36#": 1.56122e-15,
+        "D": 1.07112e-15,
+        "S": 1.07112e-15,
+        "D.t0": 4.8969e-16,
+        "S.t0": 4.8969e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/nmos_vga_wide_unit/magic_pex.log",
+      "error": ""
+    },
+    "nmos_vga_steer_unit": {
+      "cell": "nmos_vga_steer_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_vga_steer_unit.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/nmos_vga_steer_unit/nmos_vga_steer_unit_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 10795.71608,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_n26_n36.n0",
+          "b": "w_n26_n36.t0",
+          "ohm": 10791.7
+        },
+        {
+          "name": "R0",
+          "a": "S",
+          "b": "S.t0",
+          "ohm": 2.00804
+        },
+        {
+          "name": "R1",
+          "a": "D",
+          "b": "D.t0",
+          "ohm": 2.00804
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 3.61222e-15,
+      "per_net_capacitance_f": {
+        "0": 2.76463e-15,
+        "D": 1.17944e-15,
+        "S": 1.17944e-15,
+        "a_68_n36#": 9.0259e-16,
+        "D.t0": 5.9917e-16,
+        "S.t0": 5.9917e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/nmos_vga_steer_unit/magic_pex.log",
+      "error": ""
+    },
+    "npn13G2_driver": {
+      "cell": "npn13G2_driver",
+      "gds": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/npn13G2_driver/npn13G2_driver_pex.spice",
+      "ok": true,
+      "resistors": 0,
+      "capacitors": 6,
+      "total_resistance_ohm": 0.0,
+      "resistor_elements": [],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 2.84712e-15,
+      "per_net_capacitance_f": {
+        "w_n656_n652#": 2.23293e-15,
+        "E": 1.68053e-15,
+        "C": 9.187e-16,
+        "B": 8.6208e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/npn13G2_driver/magic_pex.log",
+      "error": ""
+    },
+    "nmos_driver_mirror_unit": {
+      "cell": "nmos_driver_mirror_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_driver_mirror_unit.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/nmos_driver_mirror_unit/nmos_driver_mirror_unit_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 7859.71546,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_n26_n36.n0",
+          "b": "w_n26_n36.t0",
+          "ohm": 7855.67
+        },
+        {
+          "name": "R0",
+          "a": "S",
+          "b": "S.t0",
+          "ohm": 2.02273
+        },
+        {
+          "name": "R1",
+          "a": "D",
+          "b": "D.t0",
+          "ohm": 2.02273
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 3.83839e-15,
+      "per_net_capacitance_f": {
+        "0": 3.03072e-15,
+        "a_68_n36#": 1.55124e-15,
+        "D": 1.06224e-15,
+        "S": 1.06224e-15,
+        "D.t0": 4.8517e-16,
+        "S.t0": 4.8517e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/nmos_driver_mirror_unit/magic_pex.log",
+      "error": ""
+    },
+    "nmos_driver_tail_unit": {
+      "cell": "nmos_driver_tail_unit",
+      "gds": "/workspace/layout/devices/out/gds/nmos_driver_tail_unit.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/nmos_driver_tail_unit/nmos_driver_tail_unit_pex.spice",
+      "ok": true,
+      "resistors": 3,
+      "capacitors": 8,
+      "total_resistance_ohm": 7952.45136,
+      "resistor_elements": [
+        {
+          "name": "R2",
+          "a": "w_n26_n36.n0",
+          "b": "w_n26_n36.t0",
+          "ohm": 7948.45
+        },
+        {
+          "name": "R0",
+          "a": "S",
+          "b": "S.t0",
+          "ohm": 2.00068
+        },
+        {
+          "name": "R1",
+          "a": "D",
+          "b": "D.t0",
+          "ohm": 2.00068
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 3.8872e-15,
+      "per_net_capacitance_f": {
+        "0": 3.06965e-15,
+        "a_68_n36#": 1.56835e-15,
+        "D": 1.07591e-15,
+        "S": 1.07591e-15,
+        "D.t0": 4.9229e-16,
+        "S.t0": 4.9229e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/nmos_driver_tail_unit/magic_pex.log",
+      "error": ""
+    },
+    "esd_diodevdd_2kv": {
+      "cell": "esd_diodevdd_2kv",
+      "gds": "/workspace/layout/devices/out/gds/esd_diodevdd_2kv.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/esd_diodevdd_2kv/esd_diodevdd_2kv_pex.spice",
+      "ok": true,
+      "resistors": 588,
+      "capacitors": 238,
+      "total_resistance_ohm": 2561.436729,
+      "resistor_elements": [
+        {
+          "name": "R152",
+          "a": "VDD.n157",
+          "b": "VDD.n156",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R153",
+          "a": "VDD.n156",
+          "b": "VDD.n88",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R154",
+          "a": "VDD.n86",
+          "b": "VDD.n75",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R155",
+          "a": "VDD.n86",
+          "b": "VDD.n85",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R156",
+          "a": "VDD.n155",
+          "b": "VDD.n65",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R157",
+          "a": "VDD.n165",
+          "b": "VDD.n65",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R158",
+          "a": "VDD.n156",
+          "b": "VDD.n155",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R159",
+          "a": "VDD.n166",
+          "b": "VDD.n62",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R160",
+          "a": "VDD.n161",
+          "b": "VDD.n64",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R161",
+          "a": "VDD.n164",
+          "b": "VDD.n163",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R162",
+          "a": "VDD.n163",
+          "b": "VDD.n68",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R163",
+          "a": "VDD.n163",
+          "b": "VDD.n64",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R164",
+          "a": "VDD.n88",
+          "b": "VDD.n64",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R165",
+          "a": "VDD.n81",
+          "b": "VDD.n80",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R166",
+          "a": "VDD.n80",
+          "b": "VDD.n79",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R167",
+          "a": "VDD.n81",
+          "b": "VDD.n78",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R168",
+          "a": "VDD.n79",
+          "b": "VDD.n78",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R169",
+          "a": "VDD.n81",
+          "b": "VDD.n51",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R170",
+          "a": "VDD.n79",
+          "b": "VDD.n51",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R171",
+          "a": "VDD.n64",
+          "b": "VDD.n63",
+          "ohm": 17.0005
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 4.49381e-14,
+      "per_net_capacitance_f": {
+        "VSS": 3.50388e-14,
+        "VDD": 2.06272e-14,
+        "PAD": 1.4568e-14,
+        "VDD.n88": 3.49739e-15,
+        "PAD.n63": 2.13026e-15,
+        "PAD.n57": 1.73493e-15,
+        "PAD.n62": 1.29294e-15,
+        "PAD.n64": 1.17858e-15,
+        "VDD.n164": 7.407e-16,
+        "VDD.n166": 6.719e-16,
+        "PAD.n0": 2.8993e-16,
+        "PAD.n1": 2.8993e-16,
+        "PAD.n30": 2.8405e-16,
+        "PAD.n61": 2.8136e-16,
+        "VDD.n176": 2.1362e-16,
+        "VDD.n177": 2.1362e-16,
+        "VDD.n185": 2.1362e-16,
+        "VDD.n186": 2.1362e-16,
+        "VDD.n194": 2.1362e-16,
+        "VDD.n195": 2.1362e-16
+      },
+      "log": "/workspace/layout/devices/out/pex_run/esd_diodevdd_2kv/magic_pex.log",
+      "error": ""
+    },
+    "esd_diodevss_2kv": {
+      "cell": "esd_diodevss_2kv",
+      "gds": "/workspace/layout/devices/out/gds/esd_diodevss_2kv.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/esd_diodevss_2kv/esd_diodevss_2kv_pex.spice",
+      "ok": true,
+      "resistors": 818,
+      "capacitors": 86,
+      "total_resistance_ohm": 4104.235895,
+      "resistor_elements": [
+        {
+          "name": "R179",
+          "a": "VSS.n135",
+          "b": "VSS.n55",
+          "ohm": 210.638
+        },
+        {
+          "name": "R180",
+          "a": "VSS.n253",
+          "b": "VSS.n252",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R181",
+          "a": "VSS.n252",
+          "b": "VSS.n105",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R182",
+          "a": "VSS.n132",
+          "b": "VSS.n117",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R183",
+          "a": "VSS.n133",
+          "b": "VSS.n132",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R184",
+          "a": "VSS.n131",
+          "b": "VSS.n117",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R185",
+          "a": "VSS.n141",
+          "b": "VSS.n117",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R186",
+          "a": "VSS.n133",
+          "b": "VSS.n131",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R187",
+          "a": "VSS.n117",
+          "b": "VSS.n114",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R188",
+          "a": "VSS.n117",
+          "b": "VSS.n50",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R189",
+          "a": "VSS.n133",
+          "b": "VSS.n114",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R190",
+          "a": "VSS.n251",
+          "b": "VSS.n108",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R191",
+          "a": "VSS.n263",
+          "b": "VSS.n108",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R192",
+          "a": "VSS.n252",
+          "b": "VSS.n251",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R193",
+          "a": "VSS.n258",
+          "b": "VSS.n107",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R194",
+          "a": "VSS.n262",
+          "b": "VSS.n260",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R195",
+          "a": "VSS.n260",
+          "b": "VSS.n107",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R196",
+          "a": "VSS.n107",
+          "b": "VSS.n105",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R197",
+          "a": "VSS.n139",
+          "b": "VSS.n120",
+          "ohm": 17.0005
+        },
+        {
+          "name": "R198",
+          "a": "VSS.n140",
+          "b": "VSS.n139",
+          "ohm": 17.0005
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 3.25396e-14,
+      "per_net_capacitance_f": {
+        "VSS": 2.97632e-14,
+        "VDD": 1.90544e-14,
+        "PAD": 1.35393e-14,
+        "PAD.n81": 6.1905e-16,
+        "PAD.n68": 5.0644e-16,
+        "PAD.n80": 3.7426e-16,
+        "PAD.n82": 3.4285e-16,
+        "PAD.n0": 8.085e-17,
+        "PAD.n1": 8.085e-17,
+        "PAD.n79": 7.197e-17,
+        "PAD.n32": 6.894e-17,
+        "PAD.n35": 4.428e-17,
+        "PAD.n61": 4.428e-17,
+        "PAD.n45": 4.242e-17,
+        "PAD.n6": 4.242e-17,
+        "PAD.n34": 4.232e-17,
+        "PAD.n60": 4.232e-17,
+        "PAD.n33": 1.333e-17,
+        "PAD.n43": 1.333e-17,
+        "PAD.n70": 1.333e-17
+      },
+      "log": "/workspace/layout/devices/out/pex_run/esd_diodevss_2kv/magic_pex.log",
+      "error": ""
+    },
+    "esd_nmoscl_2": {
+      "cell": "esd_nmoscl_2",
+      "gds": "/workspace/layout/devices/out/gds/esd_nmoscl_2.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/esd_nmoscl_2/esd_nmoscl_2_pex.spice",
+      "ok": true,
+      "resistors": 3918,
+      "capacitors": 2313,
+      "total_resistance_ohm": 12552.756265,
+      "resistor_elements": [
+        {
+          "name": "R0",
+          "a": "VSS.n672",
+          "b": "VSS.t3",
+          "ohm": 71.3348
+        },
+        {
+          "name": "R1",
+          "a": "VSS.n672",
+          "b": "VSS.t9",
+          "ohm": 66.5289
+        },
+        {
+          "name": "R2",
+          "a": "VSS.n425",
+          "b": "VSS.t23",
+          "ohm": 64.9334
+        },
+        {
+          "name": "R3",
+          "a": "VSS.n671",
+          "b": "VSS.t11",
+          "ohm": 63.3286
+        },
+        {
+          "name": "R4",
+          "a": "VSS.n311",
+          "b": "VSS.t21",
+          "ohm": 60.129
+        },
+        {
+          "name": "R5",
+          "a": "VSS.n551",
+          "b": "VSS.t13",
+          "ohm": 58.5359
+        },
+        {
+          "name": "R6",
+          "a": "VSS.t7",
+          "b": "VSS.n66",
+          "ohm": 58.5257
+        },
+        {
+          "name": "R7",
+          "a": "VSS.t1",
+          "b": "VSS.n309",
+          "ohm": 52.1247
+        },
+        {
+          "name": "R8",
+          "a": "VSS.t15",
+          "b": "VSS.n69",
+          "ohm": 50.5286
+        },
+        {
+          "name": "R9",
+          "a": "VSS.t19",
+          "b": "VSS.n544",
+          "ohm": 47.329
+        },
+        {
+          "name": "R10",
+          "a": "VSS.t17",
+          "b": "VSS.n189",
+          "ohm": 45.7359
+        },
+        {
+          "name": "R11",
+          "a": "VSS.n547",
+          "b": "VSS.t17",
+          "ohm": 39.3247
+        },
+        {
+          "name": "R12",
+          "a": "VSS.n547",
+          "b": "VSS.t19",
+          "ohm": 37.7286
+        },
+        {
+          "name": "R13",
+          "a": "VSS.n189",
+          "b": "VSS.t15",
+          "ohm": 34.529
+        },
+        {
+          "name": "R14",
+          "a": "VSS.n544",
+          "b": "VSS.t1",
+          "ohm": 32.9359
+        },
+        {
+          "name": "R15",
+          "a": "VSS.n67",
+          "b": "VSS.t7",
+          "ohm": 26.5368
+        },
+        {
+          "name": "R16",
+          "a": "VSS.t13",
+          "b": "VSS.n69",
+          "ohm": 26.5247
+        },
+        {
+          "name": "R17",
+          "a": "VSS.t21",
+          "b": "VSS.n309",
+          "ohm": 24.9286
+        },
+        {
+          "name": "R18",
+          "a": "VSS.t11",
+          "b": "VSS.n551",
+          "ohm": 21.729
+        },
+        {
+          "name": "R19",
+          "a": "VSS.t23",
+          "b": "VSS.n311",
+          "ohm": 20.1359
+        }
+      ],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 1.55907e-13,
+      "per_net_capacitance_f": {
+        "w_n450_n604#": 1.07446e-13,
+        "VDD": 5.94695e-14,
+        "VSS": 4.85046e-14,
+        "VDD.n1330": 8.48346e-15,
+        "VSS.t0": 2.77145e-15,
+        "VSS.n792": 1.95543e-15,
+        "VSS.n189": 1.76421e-15,
+        "VSS.n544": 1.76288e-15,
+        "VSS.n67": 1.75351e-15,
+        "VSS.n551": 1.74059e-15,
+        "VSS.n311": 1.73425e-15,
+        "VSS.n672": 1.69295e-15,
+        "VSS.n425": 1.35357e-15,
+        "VDD.n1395": 1.23517e-15,
+        "VSS.n547": 1.0765e-15,
+        "VSS.n69": 1.06584e-15,
+        "VSS.n309": 1.06232e-15,
+        "VSS.n66": 1.03974e-15,
+        "VDD.n1389": 1.0208e-15,
+        "VDD.n394": 1.0208e-15
+      },
+      "log": "/workspace/layout/devices/out/pex_run/esd_nmoscl_2/magic_pex.log",
+      "error": ""
+    },
+    "bondpad_70um": {
+      "cell": "bondpad_70um",
+      "gds": "/workspace/layout/devices/out/gds/bondpad_70um.gds",
+      "netlist": "/workspace/layout/devices/out/pex_run/bondpad_70um/bondpad_70um_pex.spice",
+      "ok": true,
+      "resistors": 0,
+      "capacitors": 1,
+      "total_resistance_ohm": 0.0,
+      "resistor_elements": [],
+      "resistance_extracted": true,
+      "physical": true,
+      "negative_capacitors": [],
+      "note": "",
+      "total_capacitance_f": 8.04511e-14,
+      "per_net_capacitance_f": {
+        "PAD": 8.04511e-14,
+        "w_n7000_n7001#": 8.04511e-14
+      },
+      "log": "/workspace/layout/devices/out/pex_run/bondpad_70um/magic_pex.log",
+      "error": ""
     },
     "ntap1_guard": {
       "cell": "ntap1_guard",

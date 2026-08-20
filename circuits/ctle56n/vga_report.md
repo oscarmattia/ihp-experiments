@@ -17,7 +17,7 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ 1.35036** from `params.inc`).
 - Gain range **≥ 10 dB at 28 GHz** (never quoted at DC)
 - CMRR **> 6 dB**, PSRR **> 20 dB**
 - Transient stimulus: **PRBS9** (x^9+x^5+1), **511 UI** (one full period), **100 mVpp,diff**, ~4.5 ps edges. AC sweep **1 MHz–300 GHz**. CMRR **> 6 dB**, PSRR **> 20 dB**.
-Measured **28 GHz small-signal gain range = 9.99 dB** (-6.69 … 3.29 dB) from `out/vga_pdk/gain_vs_vctrl_table.csv`.
+Measured **28 GHz small-signal gain range = 11.24 dB** (-6.69 … 4.54 dB) from `out/vga_pdk/gain_vs_vctrl_table.csv`.
 
 ## Measurement summary
 
@@ -31,7 +31,7 @@ Waveforms: `out/vga_ideal/`.
 | Gain @ 28 GHz | A_v28 | 0.71 dB | small-signal AC |
 | Peaking @ 28 GHz | — | 0.33 dB | vs DC |
 | Peak AC gain | G_peak | 1.38 dB |  |
-| Peak frequency | f_peak | 805.6 MHz |  |
+| Peak frequency | f_peak | 796.4 MHz |  |
 | −3 dB bandwidth | f_{−3dB} | 63.28 GHz |  |
 | CMRR | — | 35.00 dB | > 6 dB |
 | PSRR | — | 120.00 dB | > 20 dB |
@@ -53,19 +53,19 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_{-3} pre | -3 | -0.000 | 0.0000 | no |
 | h_{-2} pre | -2 | -0.000 | 0.0000 | no |
 | h_{-1} pre | -1 | 0.107 | -0.0009 | no |
-| **h_0 cursor** | 0 | -115.668 | 1.000 | yes |
-| h_1 post | 1 | 0.034 | -0.0003 | no |
-| h_2 post | 2 | 0.032 | -0.0003 | no |
-| h_3 post | 3 | 0.015 | -0.0001 | no |
+| **h_0 cursor** | 0 | -115.678 | 1.000 | yes |
+| h_1 post | 1 | 0.033 | -0.0003 | no |
+| h_2 post | 2 | 0.031 | -0.0003 | no |
+| h_3 post | 3 | 0.014 | -0.0001 | no |
 | h_4 post | 4 | 0.005 | -0.0000 | no |
 | h_5 post | 5 | -0.001 | 0.0000 | no |
-| h_6 post | 6 | -0.006 | 0.0000 | no |
+| h_6 post | 6 | -0.006 | 0.0001 | no |
 | h_7 post | 7 | -0.009 | 0.0001 | no |
 | h_8 post | 8 | -0.012 | 0.0001 | no |
 | h_9 post | 9 | -0.014 | 0.0001 | no |
 | h_10 post | 10 | -0.015 | 0.0001 | no |
 
-- Main cursor h_0 = **-115.67 mV** at t = **0.504 UI** after pulse start
+- Main cursor h_0 = **-115.68 mV** at t = **0.504 UI** after pulse start
 - Normalized total ISI = Σ h_k / h_0 = **-0.0000** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.0000** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
@@ -80,9 +80,9 @@ Waveforms: `out/vga_pdk/`.
 | Gain @ 28 GHz | A_v28 | 2.11 dB | small-signal AC |
 | Peaking @ 28 GHz | — | -0.65 dB | vs DC |
 | Peak AC gain | G_peak | 3.64 dB |  |
-| Peak frequency | f_peak | 576.9 MHz |  |
-| −3 dB bandwidth | f_{−3dB} | 42.52 GHz |  |
-| CMRR | — | 35.10 dB | > 6 dB |
+| Peak frequency | f_peak | 570.3 MHz |  |
+| −3 dB bandwidth | f_{−3dB} | 42.51 GHz |  |
+| CMRR | — | 35.11 dB | > 6 dB |
 | PSRR | — | 120.00 dB | > 20 dB |
 | HBT VCE | V_CE | 0.891 V | signal pair |
 | Tail VDS | V_DS,tail | 0.460 V |  |
@@ -102,19 +102,19 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_{-3} pre | -3 | -0.000 | 0.0000 | no |
 | h_{-2} pre | -2 | -0.000 | 0.0000 | no |
 | h_{-1} pre | -1 | 0.021 | -0.0001 | no |
-| **h_0 cursor** | 0 | -147.739 | 1.000 | yes |
-| h_1 post | 1 | -2.168 | 0.0147 | yes |
-| h_2 post | 2 | 0.045 | -0.0003 | no |
-| h_3 post | 3 | 0.025 | -0.0002 | no |
+| **h_0 cursor** | 0 | -147.752 | 1.000 | yes |
+| h_1 post | 1 | -2.169 | 0.0147 | yes |
+| h_2 post | 2 | 0.044 | -0.0003 | no |
+| h_3 post | 3 | 0.024 | -0.0002 | no |
 | h_4 post | 4 | 0.011 | -0.0001 | no |
-| h_5 post | 5 | 0.003 | -0.0000 | no |
+| h_5 post | 5 | 0.002 | -0.0000 | no |
 | h_6 post | 6 | -0.004 | 0.0000 | no |
 | h_7 post | 7 | -0.009 | 0.0001 | no |
 | h_8 post | 8 | -0.012 | 0.0001 | no |
 | h_9 post | 9 | -0.015 | 0.0001 | no |
 | h_10 post | 10 | -0.017 | 0.0001 | no |
 
-- Main cursor h_0 = **-147.74 mV** at t = **0.504 UI** after pulse start
+- Main cursor h_0 = **-147.75 mV** at t = **0.504 UI** after pulse start
 - Normalized total ISI = Σ h_k / h_0 = **0.0147** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.0147** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.

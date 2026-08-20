@@ -1,0 +1,40 @@
+{
+  "cell": "cmim_vtt_decap",
+  "gds": "/workspace/layout/devices/out/gds/cmim_vtt_decap.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/cmim_vtt_decap/cmim_vtt_decap_pex.spice",
+  "ok": true,
+  "resistors": 1,
+  "capacitors": 4,
+  "total_resistance_ohm": 0.0445,
+  "resistor_elements": [
+    {
+      "name": "R0",
+      "a": "MINUS",
+      "b": "MINUS.t0",
+      "ohm": 0.0445
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 1.03849e-14,
+  "per_net_capacitance_f": {
+    "w_n120_n120#": 9.31587e-15,
+    "MINUS": 6.87777e-15,
+    "PLUS": 3.77437e-15,
+    "MINUS.t0": 8.0177e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/cmim_vtt_decap/magic_pex.log",
+  "error": "",
+  "comparison": {
+    "quantity": "capacitance",
+    "unit": "F",
+    "ok": true,
+    "schematic": 6.032e-13,
+    "post_layout": 6.061887e-13,
+    "delta": 2.9887000000000274e-15,
+    "rel_change": 0.004954741379310391,
+    "rel_change_pct": 0.49547413793103906
+  }
+}

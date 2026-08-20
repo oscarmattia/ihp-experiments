@@ -42,6 +42,11 @@ from layout.common.spec import DeviceSpec, Terminal
 #: at or below it.
 MAX_FINGER_W = 10.0e-6
 
+#: Per-finger width grid for the nmos PCell, in metres. Measured by building
+#: the PCell and reading ``activ_drw`` height — not from ``rules.py``, because
+#: this is PCell behaviour rather than a design-rule limit.
+MOS_W_GRID = 0.01e-6
+
 #: Clearance from the device rows to the Metal2 rails, in um.
 RAIL_CLEARANCE = 2.0
 
@@ -156,12 +161,12 @@ class MosArray:
 def plan_units(total_w: float, max_unit_w: float = MAX_FINGER_W) -> tuple[int, float]:
     """Split a total width into equal single-finger units.
 
-    Returns ``(units, unit_width)`` with the unit width snapped to the PCell's
-    5 nm width grid so the drawn total matches the requested total.
+    Returns ``(units, unit_width)`` with the unit width floored to the PCell's
+    0.01 um width grid so the drawn total matches the requested total.
     ``size_ctle.snap_drawable_mos_w`` mirrors this on the schematic side.
     """
     units = max(1, int(math.ceil(total_w / max_unit_w)))
-    unit_w = round(total_w / units / 5e-9) * 5e-9
+    unit_w = math.floor(total_w / units / MOS_W_GRID + 1e-12) * MOS_W_GRID
     return units, unit_w
 
 

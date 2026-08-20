@@ -266,8 +266,9 @@ def lut_interp_id(
 MOS_UNIT_W_MAX_UM = 10.0
 
 #: Per-finger width snaps to this grid inside the PCell, so a total that does not
-#: divide onto it comes out narrower than asked.
-MOS_W_GRID_UM = 0.005
+#: divide onto it comes out narrower than asked. Measured against the PCell, not
+#: from a rule deck — see ``layout/blocks/mos_array.MOS_W_GRID``.
+MOS_W_GRID_UM = 0.01
 
 
 def snap_drawable_mos_w(w_um: float) -> float:
@@ -276,11 +277,11 @@ def snap_drawable_mos_w(w_um: float) -> float:
     The LVS deck compares MOS ``w`` and ``l`` with essentially no tolerance —
     242.988 um against a drawn 243.000 um is a mismatch — so the schematic has to
     carry the drawable number rather than leaving layout to round it. Mirrors
-    ``plan_units`` in ``layout/blocks/mos_array.py``; ``layout/common/parity.py``
-    fails the build if the two ever disagree.
+    ``plan_units`` in ``layout/blocks/mos_array.py``; ``check_mos_w_grid.py``
+    fails if the two ever disagree.
     """
     units = max(1, math.ceil(w_um / MOS_UNIT_W_MAX_UM))
-    unit_w = round(w_um / units / MOS_W_GRID_UM) * MOS_W_GRID_UM
+    unit_w = math.floor(w_um / units / MOS_W_GRID_UM + 1e-12) * MOS_W_GRID_UM
     return units * unit_w
 
 

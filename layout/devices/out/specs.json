@@ -102,7 +102,7 @@
       "l": 1e-06,
       "ng": 1
     },
-    "note": "VGA mirror and tail unit, W=9.870 um x L=1.00 um; 25 of these make the 246.8 um wide devices (vga_params.inc MOS_W_m, sizing asked for 246.888 um)"
+    "note": "VGA mirror and tail unit, W=9.870 um x L=1.00 um; 25 of these make the 246.8 um wide devices (vga_params.inc MOS_W_m, sizing asked for 246.750 um)"
   },
   {
     "name": "nmos_vga_steer_unit",
@@ -126,11 +126,11 @@
     "name": "nmos_driver_mirror_unit",
     "kind": "nmos_lv",
     "params": {
-      "w": 9.8e-06,
+      "w": 9.800000000000001e-06,
       "l": 1e-06,
       "ng": 1
     },
-    "note": "Pad driver mirror diode unit, W=9.800 um x L=1.00 um; 40 of these make the 392.0 um mirror (driver_params.inc MOS_W_m, sizing asked for 391.960 um)"
+    "note": "Pad driver mirror diode unit, W=9.800 um x L=1.00 um; 40 of these make the 392.0 um mirror (driver_params.inc MOS_W_m, sizing asked for 392.000 um)"
   },
   {
     "name": "nmos_driver_tail_unit",
@@ -140,7 +140,7 @@
       "l": 1e-06,
       "ng": 1
     },
-    "note": "Pad driver tail unit, W=9.920 um x L=1.00 um; 79 of these make the 783.7 um tail (driver_params.inc TAIL_W_m, sizing asked for 783.921 um)"
+    "note": "Pad driver tail unit, W=9.920 um x L=1.00 um; 79 of these make the 783.7 um tail (driver_params.inc TAIL_W_m, sizing asked for 783.680 um)"
   },
   {
     "name": "esd_diodevdd_2kv",

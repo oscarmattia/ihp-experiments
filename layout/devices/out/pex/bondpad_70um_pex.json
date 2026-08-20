@@ -1,0 +1,21 @@
+{
+  "cell": "bondpad_70um",
+  "gds": "/workspace/layout/devices/out/gds/bondpad_70um.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/bondpad_70um/bondpad_70um_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 1,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 8.04511e-14,
+  "per_net_capacitance_f": {
+    "PAD": 8.04511e-14,
+    "w_n7000_n7001#": 8.04511e-14
+  },
+  "log": "/workspace/layout/devices/out/pex_run/bondpad_70um/magic_pex.log",
+  "error": ""
+}

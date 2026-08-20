@@ -39,9 +39,6 @@ Bond pad (stacked TM1/TM2), primary ESD (`diodevdd_2kv` + `diodevss_2kv`) with `
 | Zin −3 dB | f_Zin | 34.67 GHz |  |
 | SBR cursor | h_0 | 50.06 mV | 1 UI pulse |
 | SBR ISI (norm) | Σh/h_0 | 0.0000 | kept taps |
-| Eye height | — | 50.13 mV | phase-centred fold |
-| Eye width | — | 0.8525 UI | 15.22 ps |
-| Eye pp swing | — | 50.13 mV |  |
 
 Plots and waveforms: `out/term/` (`zin.png`, `ac_diff`, PRBS transient, eye, SBR).
 

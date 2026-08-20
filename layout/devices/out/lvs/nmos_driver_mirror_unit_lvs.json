@@ -10,7 +10,7 @@
   "param_checks": [
     {
       "param": "w",
-      "intended": 9.8e-06,
+      "intended": 9.800000000000001e-06,
       "extracted": 9.800000000000001e-06,
       "rel_error": 0.0,
       "ok": true

@@ -1,0 +1,44 @@
+{
+  "cell": "nmos_driver_tail_unit",
+  "gds": "/workspace/layout/devices/out/gds/nmos_driver_tail_unit.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/nmos_driver_tail_unit/nmos_driver_tail_unit_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 7952.45136,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_n26_n36.n0",
+      "b": "w_n26_n36.t0",
+      "ohm": 7948.45
+    },
+    {
+      "name": "R0",
+      "a": "S",
+      "b": "S.t0",
+      "ohm": 2.00068
+    },
+    {
+      "name": "R1",
+      "a": "D",
+      "b": "D.t0",
+      "ohm": 2.00068
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 3.8872e-15,
+  "per_net_capacitance_f": {
+    "0": 3.06965e-15,
+    "a_68_n36#": 1.56835e-15,
+    "D": 1.07591e-15,
+    "S": 1.07591e-15,
+    "D.t0": 4.9229e-16,
+    "S.t0": 4.9229e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/nmos_driver_tail_unit/magic_pex.log",
+  "error": ""
+}

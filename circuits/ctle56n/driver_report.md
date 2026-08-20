@@ -39,7 +39,7 @@ no emitter degeneration. EM-fitted shunt inductor (`ind_shunt`) for Bessel peaki
 | HBT VCE | V_CE | 0.963 V | per side |
 | Return loss DC | RL | 38.85 dB | pad, 100 Ω diff |
 | Return loss @ 28 GHz | RL_28G | 26.53 dB |  |
-| Pad swing (pp) | — | 113.18 mV | PRBS |
+| Pad swing (pp) | — | 113.20 mV | PRBS |
 | Pad eye height | — | 98.71 mV |  |
 | Pad eye width | — | 0.8400 UI |  |
 
@@ -60,7 +60,7 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_{-3} pre | -3 | -0.000 | 0.0000 | no |
 | h_{-2} pre | -2 | -0.000 | 0.0000 | no |
 | h_{-1} pre | -1 | -0.000 | 0.0000 | no |
-| **h_0 cursor** | 0 | -105.586 | 1.000 | yes |
+| **h_0 cursor** | 0 | -105.591 | 1.000 | yes |
 | h_1 post | 1 | 0.796 | -0.0075 | yes |
 | h_2 post | 2 | -0.040 | 0.0004 | no |
 | h_3 post | 3 | -0.049 | 0.0005 | no |

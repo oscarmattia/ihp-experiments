@@ -1,0 +1,44 @@
+{
+  "cell": "nmos_vga_wide_unit",
+  "gds": "/workspace/layout/devices/out/gds/nmos_vga_wide_unit.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/nmos_vga_wide_unit/nmos_vga_wide_unit_pex.spice",
+  "ok": true,
+  "resistors": 3,
+  "capacitors": 8,
+  "total_resistance_ohm": 7913.78246,
+  "resistor_elements": [
+    {
+      "name": "R2",
+      "a": "w_n26_n36.n0",
+      "b": "w_n26_n36.t0",
+      "ohm": 7909.79
+    },
+    {
+      "name": "R0",
+      "a": "S",
+      "b": "S.t0",
+      "ohm": 1.99623
+    },
+    {
+      "name": "R1",
+      "a": "D",
+      "b": "D.t0",
+      "ohm": 1.99623
+    }
+  ],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 3.86941e-15,
+  "per_net_capacitance_f": {
+    "0": 3.05598e-15,
+    "a_68_n36#": 1.56122e-15,
+    "D": 1.07112e-15,
+    "S": 1.07112e-15,
+    "D.t0": 4.8969e-16,
+    "S.t0": 4.8969e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/nmos_vga_wide_unit/magic_pex.log",
+  "error": ""
+}

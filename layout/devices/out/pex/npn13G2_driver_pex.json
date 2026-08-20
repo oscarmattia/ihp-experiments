@@ -1,0 +1,23 @@
+{
+  "cell": "npn13G2_driver",
+  "gds": "/workspace/layout/devices/out/gds/npn13G2_driver.gds",
+  "netlist": "/workspace/layout/devices/out/pex_run/npn13G2_driver/npn13G2_driver_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 6,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 2.84712e-15,
+  "per_net_capacitance_f": {
+    "w_n656_n652#": 2.23293e-15,
+    "E": 1.68053e-15,
+    "C": 9.187e-16,
+    "B": 8.6208e-16
+  },
+  "log": "/workspace/layout/devices/out/pex_run/npn13G2_driver/magic_pex.log",
+  "error": ""
+}

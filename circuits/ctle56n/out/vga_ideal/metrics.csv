@@ -2,21 +2,14 @@ parameter,value
 vga_ideal_dc_gain_dB,0.384
 vga_ideal_peaking_28G_dB,0.325
 vga_ideal_G_peak_dB,1.381
-vga_ideal_f_peak_Hz,7.87266e+08
-vga_ideal_f_3dB_Hz,6.3278e+10
-vga_ideal_CMRR_dB,35.003
+vga_ideal_f_peak_Hz,7.96386e+08
+vga_ideal_f_3dB_Hz,6.32781e+10
+vga_ideal_CMRR_dB,35.004
 vga_ideal_PSRR_dB,120.000
 vga_ideal_VCE_V,0.9469
 vga_ideal_VDS_tail_V,0.4602
-vga_ideal_VGS_tail_V,0.4142
-vga_ideal_Ic_A,0.00125517
-vga_ideal_Id_tail_A,0.00574969
+vga_ideal_VGS_tail_V,0.4143
+vga_ideal_Ic_A,0.00125515
+vga_ideal_Id_tail_A,0.00574958
 vga_ideal_RD_realized_ohm,nan
 vga_ideal_m,nan
-vga_ideal_eye_height_mV,112.04
-vga_ideal_eye_width_UI,0.5150
-vga_ideal_eye_width_ps,9.196
-vga_ideal_eye_pp_swing_mV,119.74
-vga_ideal_eye_sample_phase_UI,0.2179
-eye_phase_invariance_ok,yes
-eye_phase_invariance,height_err/pp=0.0000 (tol 0.02) width_err=0.0000 (tol 0.05)

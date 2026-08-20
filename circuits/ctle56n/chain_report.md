@@ -37,16 +37,16 @@ Each stage reuses committed sizing tokens; VGA `vicm` is wired to CTLE output CM
 | ctle_in_CM | 1.3957 | 1.3957 | CTLE base CM post-term |
 | ctle_VDS_tail | 0.4385 | 0.4457 | emitter VDS |
 | ctle_Vout_CM | 1.3483 | 1.3504 | CTLE collector CM → VGA input |
-| ctle_Ic | 0.00288838 |  | per HBT |
-| ctle_VCE | 0.9504 |  | signal HBT |
+| ctle_Ic | 0.00288839 |  | per HBT |
+| ctle_VCE | 0.9503 |  | signal HBT |
 | vga_VBASE | 1.3504 | 1.3504 | dummy-pair + input CM reference |
 | vga_Vout_CM | 1.3495 |  | VGA → driver interface |
 | vga_Ic_signal | 0.00125897 |  | avg signal pair @ mid VCTRL |
-| vga_Ic_dummy | 0.00160882 |  | avg dummy pair @ mid VCTRL |
+| vga_Ic_dummy | 0.00160881 |  | avg dummy pair @ mid VCTRL |
 | vga_VCE_signal | 0.9315 |  |  |
 | vga_VCE_dummy | 0.9476 |  |  |
 | driver_Vout_CM | 1.3888 | 1.3990 | output pad CM |
-| driver_Ic | 0.00417142 | 0.004 | per HBT @ ITAIL/2 |
+| driver_Ic | 0.00417183 | 0.004 | per HBT @ ITAIL/2 |
 | driver_VCE | 0.9643 | 0.9986 | signal HBT |
 
 ## Per-stage gain @ 28 GHz (chain vs standalone)
@@ -55,11 +55,11 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 
 | Stage | Metric | Chain | Standalone | Δ |
 | --- | --- | --- | --- | --- |
-| term_IL | gain_28GHz | -0.000 | 6.683 | -6.683 |
-| ctle | gain_28GHz | 5.241 | 5.154 | 0.087 |
+| term_IL | gain_28GHz | 0.000 | 6.683 | -6.683 |
+| ctle | gain_28GHz | 5.241 | 4.761 | 0.480 |
 | vga_mid | gain_28GHz | 2.686 | 2.110 | 0.576 |
-| chain_e2e_pad | gain_28GHz | 8.167 | nan | nan |
-| chain_e2e_src | gain_28GHz | 1.429 | nan | nan |
+| chain_e2e_pad | gain_28GHz | 8.168 | nan | nan |
+| chain_e2e_src | gain_28GHz | 1.430 | nan | nan |
 
 ## Gain settings
 
@@ -70,15 +70,15 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | VCTRL | **0.15 V** |
 | E2E gain (source) @ 28 GHz | -6.95 dB |
 | E2E gain (pad) @ 28 GHz | -0.22 dB |
-| Term @ 28 GHz | -0.00 dB |
+| Term @ 28 GHz | 0.00 dB |
 | CTLE @ 28 GHz | 5.47 dB |
 | VGA @ 28 GHz | -5.93 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | — |
-| Pad swing (pp) | — |
-| Eye height | — |
-| Eye width | nan UI |
-| SBR ISI (norm) | nan |
+| Drive swing (pp) | 52.62 mV |
+| Pad swing (pp) | 56.53 mV |
+| Eye height | 27.85 mV |
+| Eye width | 0.7100 UI |
+| SBR ISI (norm) | -0.2671 |
 ### Mid gain (VCTRL mid)
 
 | Metric | Value |
@@ -90,11 +90,11 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | CTLE @ 28 GHz | 5.24 dB |
 | VGA @ 28 GHz | 2.69 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | — |
-| Pad swing (pp) | — |
-| Eye height | — |
-| Eye width | nan UI |
-| SBR ISI (norm) | nan |
+| Drive swing (pp) | 145.00 mV |
+| Pad swing (pp) | 155.18 mV |
+| Eye height | 77.32 mV |
+| Eye width | 0.7650 UI |
+| SBR ISI (norm) | -0.2853 |
 ### Maximum gain (VCTRL max)
 
 | Metric | Value |
@@ -102,15 +102,15 @@ From `out/chain/stage_compare.csv` at mid VGA setting.
 | VCTRL | **0.65 V** |
 | E2E gain (source) @ 28 GHz | 2.53 dB |
 | E2E gain (pad) @ 28 GHz | 9.27 dB |
-| Term @ 28 GHz | -0.00 dB |
+| Term @ 28 GHz | 0.00 dB |
 | CTLE @ 28 GHz | 5.17 dB |
 | VGA @ 28 GHz | 3.85 dB |
 | Driver @ 28 GHz | 0.24 dB |
-| Drive swing (pp) | — |
-| Pad swing (pp) | — |
-| Eye height | — |
-| Eye width | nan UI |
-| SBR ISI (norm) | nan |
+| Drive swing (pp) | 166.13 mV |
+| Pad swing (pp) | 177.17 mV |
+| Eye height | 88.21 mV |
+| Eye width | 0.7650 UI |
+| SBR ISI (norm) | -0.2830 |
 
 Plots and waveforms: `out/chain/` (AC, Zin, transient, eye, SBR at each VCTRL).
 ISI comparison: `out/chain/isi_analysis.csv`.
@@ -130,19 +130,19 @@ Sample **3 pre-cursors + cursor + 10 post-cursors** every UI; drop taps with
 | h_{-3} pre | -3 | 0.001 | -0.0000 | no |
 | h_{-2} pre | -2 | 0.001 | -0.0000 | no |
 | h_{-1} pre | -1 | 0.001 | -0.0000 | no |
-| **h_0 cursor** | 0 | -114.184 | 1.000 | yes |
-| h_1 post | 1 | 23.309 | -0.2041 | yes |
-| h_2 post | 2 | 7.791 | -0.0682 | yes |
+| **h_0 cursor** | 0 | -114.206 | 1.000 | yes |
+| h_1 post | 1 | 23.311 | -0.2041 | yes |
+| h_2 post | 2 | 7.792 | -0.0682 | yes |
 | h_3 post | 3 | 1.483 | -0.0130 | yes |
 | h_4 post | 4 | 0.240 | -0.0021 | no |
-| h_5 post | 5 | -0.003 | 0.0000 | no |
+| h_5 post | 5 | -0.002 | 0.0000 | no |
 | h_6 post | 6 | -0.049 | 0.0004 | no |
-| h_7 post | 7 | -0.058 | 0.0005 | no |
-| h_8 post | 8 | -0.059 | 0.0005 | no |
-| h_9 post | 9 | -0.058 | 0.0005 | no |
+| h_7 post | 7 | -0.057 | 0.0005 | no |
+| h_8 post | 8 | -0.058 | 0.0005 | no |
+| h_9 post | 9 | -0.057 | 0.0005 | no |
 | h_10 post | 10 | -0.057 | 0.0005 | no |
 
-- Main cursor h_0 = **-114.18 mV** at t = **0.504 UI** after pulse start
+- Main cursor h_0 = **-114.21 mV** at t = **0.504 UI** after pulse start
 - Normalized total ISI = Σ h_k / h_0 = **-0.2853** (k≠0, kept taps only)
 - Σ|h_k|/|h_0| = **0.2853** (same taps)
 - Taps with |h| < 0.5% of |cursor| are omitted from the ISI sums.
