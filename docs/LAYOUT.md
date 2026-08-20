@@ -290,6 +290,111 @@ gdsfactory needs its members at class-definition time. Everything else parses
 `rule_decks/layers_def.drc`. `layers.validate_routing_layers()` compares the two
 and verification fails on drift.
 
+## Stage floorplan template
+
+All four RX stages use one floorplan. It is symmetric about a single vertical axis,
+stacked bottom to top, and every stage script places its devices into these rows.
+
+```mermaid
+flowchart TB
+  outPin["out — top edge"]
+  vddPin["vdd — top edge"]
+  subgraph ring ["Power ring"]
+    direction TB
+    subgraph coilRow ["Coil row"]
+      direction LR
+      indP["Inductor P, M135"]
+      loadP["Load P"]
+      loadN["Load N"]
+      indN["Inductor N, R270"]
+    end
+    subgraph pairRow ["Pair row"]
+      direction LR
+      dumP["Dummy P"]
+      sigP["Signal P"]
+      sigN["Signal N"]
+      dumN["Dummy N"]
+    end
+    ctrlRow["Control channel"]
+    subgraph guard ["Guard ring"]
+      direction LR
+      mdiode["Mirror diode"]
+      tails["Tails and steering"]
+    end
+  end
+  inPin["in — bottom edge"]
+  ctrlPin["ctrl — left edge"]
+  irefPin["Iref, the mgate pin — left edge"]
+
+  vddPin --> indP
+  vddPin --> indN
+  indP --> loadP --> sigP --> outPin
+  indN --> loadN --> sigN --> outPin
+  inPin --> sigP
+  inPin --> sigN
+  ctrlPin --> ctrlRow
+  ctrlRow --> dumP
+  ctrlRow --> dumN
+  ctrlRow --> tails
+  irefPin --> mdiode
+  tails --> sigP
+  tails --> dumP
+```
+
+Pins leave on fixed edges so the stages cascade by abutment: **`out` and `vdd` at
+the top**, **`in` at the bottom**, **`ctrl` and `Iref` on the left**, `vss` at the
+bottom inside the ring. `Iref` is the `mgate` pin; `ctrl` is whatever bundle of
+references a stage needs — for the VGA that is `vicm`, `steerp` and `steern`.
+
+What each stage puts in each row:
+
+| Row | CTLE | VGA | Pad driver | Termination |
+| --- | --- | --- | --- | --- |
+| Above the coils | — | — | bond pads and their ESD | — |
+| Coil row | two coils, `rppd` loads | two coils, `rppd` loads | two coils, `rsil` loads | — |
+| Pair row | `npn13G2` pair | signal pair inboard, dummy pair outboard | `npn13G2` pair, `Nx=2` | — |
+| Control channel | `rsil ‖ cmomi` degeneration | routing only, no devices | — | — |
+| MOS row | mirror diode, two tails | mirror diode, two tails, four steering | mirror diode, one double-width tail | rail clamp |
+| Below the ring | — | — | — | bond pads, ESD, 50 Ω terminators, `vtt` divider |
+
+Two properties of the template are what make it routable, and both are departures
+from the CTLE as originally drawn:
+
+**The signal is one straight column on the axis.** `in` runs from the bottom edge
+up to the bases and `out` from the collectors up to the top edge, both inside the
+channel between the two coil bodies. Offsetting the output trunks either side of
+the axis costs turns and puts horizontal runs at heights where other nets rise.
+
+**The loads sit directly above the pair and directly below the coil strap**, so
+the load column is `coil -> load -> collector` with no horizontal run. The CTLE
+places its loads near the axis and brings `nlp` inward from each coil feed
+instead, which is where 135 um of its output interconnect went.
+
+### Order devices so every net rises in a straight column
+
+The row order within the MOS block is not free. The VGA's is
+`mdiode | pd1 | tail1 | ps1 ┊ ps2 | tail2 | pd2`, with the axis at `┊`, chosen so
+that each tail sits between the two steering devices it feeds, the two `em` drains
+are the innermost pair, and `ed1`/`ed2` are the outermost. The pair row is then
+`Qd1 | Q1 ┊ Q2 | Qd2` so the dummies line up over `ed1`/`ed2` and the signal pair
+over `em`. Every net then leaves its device on that device's own x.
+
+That matters because the recurring failure in these blocks is **a horizontal run
+sharing a y with another net's vertical run on the same metal**. A stub leaving one
+tail's drain that passes through the next array's x merged two 246.75 um devices
+into one 493.5 um device; a Metal5 horizontal at the drain row crossed the Metal4
+input trunks and merged the inputs into the tail drains. `draw.trunk_net` drops
+exactly such a stub at each terminal's own y, so it is safe only where nothing else
+occupies that y — which is true in the CTLE, with its single MOS row and outboard
+trunks, and false in the VGA and the driver.
+
+The gate nets are the other place this bites. In the CTLE every gate is `mgate`, so
+one poly strap across all three arrays works. In the VGA the gates read
+`mgate, steern, mgate, steerp ┊ steerp, mgate, steern`, so they interleave and need
+separate metals. Run them at gate height, where `mos_array` puts the source rail
+below and the drain rail above, so a bus there is crossed by nothing provided every
+riser starts at the drain rail.
+
 ## Power grid and metal budget
 
 The CTLE stage assigns metals so that no two structures contend for one layer:
