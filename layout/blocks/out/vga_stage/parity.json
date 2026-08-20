@@ -1,0 +1,59 @@
+{
+  "subckt": "vga_dut",
+  "spice_file": "circuits/ctle56n/spice/vga_pdk.cir",
+  "cdl_file": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
+  "ok": true,
+  "ports_match": true,
+  "devices_match": true,
+  "spice_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vicm",
+    "steerp",
+    "steern",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "cdl_ports": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vicm",
+    "steerp",
+    "steern",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "matched_devices": [
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "inductor d=4e-05 s=2.1e-06 w=4e-06",
+    "npn13G2 nx=1",
+    "npn13G2 nx=1",
+    "npn13G2 nx=1",
+    "npn13G2 nx=1",
+    "rppd l=1.4e-06 w=5e-06",
+    "rppd l=1.4e-06 w=5e-06",
+    "sg13_lv_nmos l=1e-06 w=0.000246875",
+    "sg13_lv_nmos l=1e-06 w=0.000246875",
+    "sg13_lv_nmos l=1e-06 w=0.000246875",
+    "sg13_lv_nmos l=5e-07 w=0.0002",
+    "sg13_lv_nmos l=5e-07 w=0.0002",
+    "sg13_lv_nmos l=5e-07 w=0.0002",
+    "sg13_lv_nmos l=5e-07 w=0.0002"
+  ],
+  "only_in_spice": [],
+  "only_in_cdl": [],
+  "independent_sources_in_spice": [],
+  "model_aliases": {
+    "ind_shunt": "inductor"
+  },
+  "notes": [
+    "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+  ],
+  "error": ""
+}

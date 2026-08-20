@@ -1,0 +1,17 @@
+{
+  "mos_count": 6,
+  "widths_um": [
+    50.0,
+    300.0,
+    246.75,
+    200.0,
+    200.0,
+    493.5
+  ],
+  "drain_nets": [
+    "\\$2",
+    "mgate"
+  ],
+  "has_em_split": false,
+  "has_vicm": false
+}

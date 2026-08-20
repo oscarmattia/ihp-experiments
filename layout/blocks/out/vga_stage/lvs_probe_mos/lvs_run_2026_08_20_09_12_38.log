@@ -1,0 +1,18 @@
+20-Aug-2026 09:12:38 | INFO    | Your Klayout version is: KLayout 0.30.5 (required >= 0.30.5)
+20-Aug-2026 09:12:38 | INFO    | Running SG13G2 LVS checks on design /workspace/layout/blocks/out/vga_stage/vga_dut.gds on cell vga_dut
+20-Aug-2026 09:12:39 | INFO    | ==============================================================================
+20-Aug-2026 09:12:39 | INFO    | Important Summary
+20-Aug-2026 09:12:39 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:12:39 | INFO    | | Status           | FAIL                                                         |
+20-Aug-2026 09:12:39 | INFO    | | Mode             | COMPARE                                                      |
+20-Aug-2026 09:12:39 | INFO    | | Outcome          | Comparison mode: FAIL (netlists do not match).               |
+20-Aug-2026 09:12:39 | INFO    | | Layout           | vga_dut.gds                                                  |
+20-Aug-2026 09:12:39 | INFO    | | Top Cell         | vga_dut                                                      |
+20-Aug-2026 09:12:39 | INFO    | | Results Dir      | /workspace/layout/blocks/out/vga_stage/lvs_probe_mos         |
+20-Aug-2026 09:12:39 | INFO    | | Warnings         | 0                                                            |
+20-Aug-2026 09:12:39 | INFO    | | Errors           | 1                                                            |
+20-Aug-2026 09:12:39 | INFO    | | Run Time (s)     | 1.24                                                         |
+20-Aug-2026 09:12:39 | INFO    | +------------------+--------------------------------------------------------------+
+20-Aug-2026 09:12:39 | ERROR   | Key errors:
+20-Aug-2026 09:12:39 | ERROR   |   - 2026-08-20 09:12:39 +0000: Memory Usage (144020K) : ERROR : Netlists don't match
+20-Aug-2026 09:12:39 | INFO    | ==============================================================================

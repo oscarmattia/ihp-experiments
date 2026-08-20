@@ -1,0 +1,2930 @@
+{
+  "name": "vga_dut",
+  "bbox_um": {
+    "width": 451.12,
+    "height": 242.285,
+    "area": 109299.6092
+  },
+  "ports": {
+    "outp": {
+      "name": "outp",
+      "layer": "metal4_drw",
+      "center": [
+        43.96,
+        197.63
+      ],
+      "width": 2.88,
+      "orientation": 90.0
+    },
+    "outn": {
+      "name": "outn",
+      "layer": "metal4_drw",
+      "center": [
+        334.36,
+        197.63
+      ],
+      "width": 2.88,
+      "orientation": 90.0
+    },
+    "inp": {
+      "name": "inp",
+      "layer": "metal4_drw",
+      "center": [
+        133.17,
+        -44.655
+      ],
+      "width": 2.88,
+      "orientation": 270.0
+    },
+    "inn": {
+      "name": "inn",
+      "layer": "metal4_drw",
+      "center": [
+        151.47,
+        -44.655
+      ],
+      "width": 2.88,
+      "orientation": 270.0
+    },
+    "vicm": {
+      "name": "vicm",
+      "layer": "metal3_drw",
+      "center": [
+        366.8,
+        61.31
+      ],
+      "width": 1.44,
+      "orientation": 0.0
+    },
+    "steerp": {
+      "name": "steerp",
+      "layer": "metal3_drw",
+      "center": [
+        366.8,
+        49.31
+      ],
+      "width": 1.44,
+      "orientation": 0.0
+    },
+    "steern": {
+      "name": "steern",
+      "layer": "metal3_drw",
+      "center": [
+        366.8,
+        25.31
+      ],
+      "width": 1.44,
+      "orientation": 0.0
+    },
+    "vdd": {
+      "name": "vdd_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        142.32,
+        188.63
+      ],
+      "width": 6.0,
+      "orientation": 90.0
+    },
+    "vss": {
+      "name": "vss_top",
+      "layer": "topmetal2_drw",
+      "center": [
+        142.32,
+        179.63
+      ],
+      "width": 6.0,
+      "orientation": 90.0
+    },
+    "mgate": {
+      "name": "mgate",
+      "layer": "metal4_drw",
+      "center": [
+        -82.16,
+        10.25
+      ],
+      "width": 2.88,
+      "orientation": 180.0
+    }
+  },
+  "port_nets": [
+    "outp",
+    "outn",
+    "inp",
+    "inn",
+    "vicm",
+    "steerp",
+    "steern",
+    "vdd",
+    "vss",
+    "mgate"
+  ],
+  "devices": [
+    {
+      "name": "mdiode",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "mgate",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "tail1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx1",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "tail2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx2",
+        "G": "mgate",
+        "S": "vss",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "ps1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx1",
+        "G": "steerp",
+        "S": "em",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "ps2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx2",
+        "G": "steerp",
+        "S": "em",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "pd1",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx1",
+        "G": "steern",
+        "S": "ed1",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "pd2",
+      "kind": "nmos_lv",
+      "nets": {
+        "D": "tx2",
+        "G": "steern",
+        "S": "ed2",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "q1",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outp",
+        "B": "inp",
+        "E": "em",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "q2",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outn",
+        "B": "inn",
+        "E": "em",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "qd1",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outp",
+        "B": "vicm",
+        "E": "ed1",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "qd2",
+      "kind": "npn13G2",
+      "nets": {
+        "C": "outn",
+        "B": "vicm",
+        "E": "ed2",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rd1",
+      "kind": "rppd",
+      "nets": {
+        "MINUS": "nlp1",
+        "PLUS": "outp",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "rd2",
+      "kind": "rppd",
+      "nets": {
+        "MINUS": "nlp2",
+        "PLUS": "outn",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "l1",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp1",
+        "sub": "vss"
+      }
+    },
+    {
+      "name": "l2",
+      "kind": "inductor",
+      "nets": {
+        "PLUS": "vdd",
+        "MINUS": "nlp2",
+        "sub": "vss"
+      }
+    }
+  ],
+  "guard_ring": {
+    "kind": "ptap1",
+    "taps": 382,
+    "clearance_um": 2.0,
+    "pitch_um": 1.4,
+    "outer_box_um": [
+      -3.84,
+      -13.655,
+      235.76,
+      17.77
+    ],
+    "tap_centres_um": [
+      [
+        -3.42,
+        -13.235
+      ],
+      [
+        -3.42,
+        -11.78
+      ],
+      [
+        -3.42,
+        -10.32
+      ],
+      [
+        -3.42,
+        -8.865
+      ],
+      [
+        -3.42,
+        -7.41
+      ],
+      [
+        -3.42,
+        -5.955
+      ],
+      [
+        -3.42,
+        -4.495
+      ],
+      [
+        -3.42,
+        -3.04
+      ],
+      [
+        -3.42,
+        -1.585
+      ],
+      [
+        -3.42,
+        -0.125
+      ],
+      [
+        -3.42,
+        1.33
+      ],
+      [
+        -3.42,
+        2.785
+      ],
+      [
+        -3.42,
+        4.24
+      ],
+      [
+        -3.42,
+        5.7
+      ],
+      [
+        -3.42,
+        7.155
+      ],
+      [
+        -3.42,
+        8.61
+      ],
+      [
+        -3.42,
+        10.07
+      ],
+      [
+        -3.42,
+        11.525
+      ],
+      [
+        -3.42,
+        12.98
+      ],
+      [
+        -3.42,
+        14.435
+      ],
+      [
+        -3.42,
+        15.895
+      ],
+      [
+        -3.42,
+        17.35
+      ],
+      [
+        -2.015,
+        -13.235
+      ],
+      [
+        -2.015,
+        17.35
+      ],
+      [
+        -0.61,
+        -13.235
+      ],
+      [
+        -0.61,
+        17.35
+      ],
+      [
+        0.795,
+        -13.235
+      ],
+      [
+        0.795,
+        17.35
+      ],
+      [
+        2.2,
+        -13.235
+      ],
+      [
+        2.2,
+        17.35
+      ],
+      [
+        3.6,
+        -13.235
+      ],
+      [
+        3.6,
+        17.35
+      ],
+      [
+        5.005,
+        -13.235
+      ],
+      [
+        5.005,
+        17.35
+      ],
+      [
+        6.41,
+        -13.235
+      ],
+      [
+        6.41,
+        17.35
+      ],
+      [
+        7.815,
+        -13.235
+      ],
+      [
+        7.815,
+        17.35
+      ],
+      [
+        9.22,
+        -13.235
+      ],
+      [
+        9.22,
+        17.35
+      ],
+      [
+        10.625,
+        -13.235
+      ],
+      [
+        10.625,
+        17.35
+      ],
+      [
+        12.03,
+        -13.235
+      ],
+      [
+        12.03,
+        17.35
+      ],
+      [
+        13.435,
+        -13.235
+      ],
+      [
+        13.435,
+        17.35
+      ],
+      [
+        14.84,
+        -13.235
+      ],
+      [
+        14.84,
+        17.35
+      ],
+      [
+        16.245,
+        -13.235
+      ],
+      [
+        16.245,
+        17.35
+      ],
+      [
+        17.645,
+        -13.235
+      ],
+      [
+        17.645,
+        17.35
+      ],
+      [
+        19.05,
+        -13.235
+      ],
+      [
+        19.05,
+        17.35
+      ],
+      [
+        20.455,
+        -13.235
+      ],
+      [
+        20.455,
+        17.35
+      ],
+      [
+        21.86,
+        -13.235
+      ],
+      [
+        21.86,
+        17.35
+      ],
+      [
+        23.265,
+        -13.235
+      ],
+      [
+        23.265,
+        17.35
+      ],
+      [
+        24.67,
+        -13.235
+      ],
+      [
+        24.67,
+        17.35
+      ],
+      [
+        26.075,
+        -13.235
+      ],
+      [
+        26.075,
+        17.35
+      ],
+      [
+        27.48,
+        -13.235
+      ],
+      [
+        27.48,
+        17.35
+      ],
+      [
+        28.885,
+        -13.235
+      ],
+      [
+        28.885,
+        17.35
+      ],
+      [
+        30.285,
+        -13.235
+      ],
+      [
+        30.285,
+        17.35
+      ],
+      [
+        31.69,
+        -13.235
+      ],
+      [
+        31.69,
+        17.35
+      ],
+      [
+        33.095,
+        -13.235
+      ],
+      [
+        33.095,
+        17.35
+      ],
+      [
+        34.5,
+        -13.235
+      ],
+      [
+        34.5,
+        17.35
+      ],
+      [
+        35.905,
+        -13.235
+      ],
+      [
+        35.905,
+        17.35
+      ],
+      [
+        37.31,
+        -13.235
+      ],
+      [
+        37.31,
+        17.35
+      ],
+      [
+        38.715,
+        -13.235
+      ],
+      [
+        38.715,
+        17.35
+      ],
+      [
+        40.12,
+        -13.235
+      ],
+      [
+        40.12,
+        17.35
+      ],
+      [
+        41.525,
+        -13.235
+      ],
+      [
+        41.525,
+        17.35
+      ],
+      [
+        42.93,
+        -13.235
+      ],
+      [
+        42.93,
+        17.35
+      ],
+      [
+        44.33,
+        -13.235
+      ],
+      [
+        44.33,
+        17.35
+      ],
+      [
+        45.735,
+        -13.235
+      ],
+      [
+        45.735,
+        17.35
+      ],
+      [
+        47.14,
+        -13.235
+      ],
+      [
+        47.14,
+        17.35
+      ],
+      [
+        48.545,
+        -13.235
+      ],
+      [
+        48.545,
+        17.35
+      ],
+      [
+        49.95,
+        -13.235
+      ],
+      [
+        49.95,
+        17.35
+      ],
+      [
+        51.355,
+        -13.235
+      ],
+      [
+        51.355,
+        17.35
+      ],
+      [
+        52.76,
+        -13.235
+      ],
+      [
+        52.76,
+        17.35
+      ],
+      [
+        54.165,
+        -13.235
+      ],
+      [
+        54.165,
+        17.35
+      ],
+      [
+        55.57,
+        -13.235
+      ],
+      [
+        55.57,
+        17.35
+      ],
+      [
+        56.97,
+        -13.235
+      ],
+      [
+        56.97,
+        17.35
+      ],
+      [
+        58.375,
+        -13.235
+      ],
+      [
+        58.375,
+        17.35
+      ],
+      [
+        59.78,
+        -13.235
+      ],
+      [
+        59.78,
+        17.35
+      ],
+      [
+        61.185,
+        -13.235
+      ],
+      [
+        61.185,
+        17.35
+      ],
+      [
+        62.59,
+        -13.235
+      ],
+      [
+        62.59,
+        17.35
+      ],
+      [
+        63.995,
+        -13.235
+      ],
+      [
+        63.995,
+        17.35
+      ],
+      [
+        65.4,
+        -13.235
+      ],
+      [
+        65.4,
+        17.35
+      ],
+      [
+        66.805,
+        -13.235
+      ],
+      [
+        66.805,
+        17.35
+      ],
+      [
+        68.21,
+        -13.235
+      ],
+      [
+        68.21,
+        17.35
+      ],
+      [
+        69.61,
+        -13.235
+      ],
+      [
+        69.61,
+        17.35
+      ],
+      [
+        71.015,
+        -13.235
+      ],
+      [
+        71.015,
+        17.35
+      ],
+      [
+        72.42,
+        -13.235
+      ],
+      [
+        72.42,
+        17.35
+      ],
+      [
+        73.825,
+        -13.235
+      ],
+      [
+        73.825,
+        17.35
+      ],
+      [
+        75.23,
+        -13.235
+      ],
+      [
+        75.23,
+        17.35
+      ],
+      [
+        76.635,
+        -13.235
+      ],
+      [
+        76.635,
+        17.35
+      ],
+      [
+        78.04,
+        -13.235
+      ],
+      [
+        78.04,
+        17.35
+      ],
+      [
+        79.445,
+        -13.235
+      ],
+      [
+        79.445,
+        17.35
+      ],
+      [
+        80.85,
+        -13.235
+      ],
+      [
+        80.85,
+        17.35
+      ],
+      [
+        82.255,
+        -13.235
+      ],
+      [
+        82.255,
+        17.35
+      ],
+      [
+        83.655,
+        -13.235
+      ],
+      [
+        83.655,
+        17.35
+      ],
+      [
+        85.06,
+        -13.235
+      ],
+      [
+        85.06,
+        17.35
+      ],
+      [
+        86.465,
+        -13.235
+      ],
+      [
+        86.465,
+        17.35
+      ],
+      [
+        87.87,
+        -13.235
+      ],
+      [
+        87.87,
+        17.35
+      ],
+      [
+        89.275,
+        -13.235
+      ],
+      [
+        89.275,
+        17.35
+      ],
+      [
+        90.68,
+        -13.235
+      ],
+      [
+        90.68,
+        17.35
+      ],
+      [
+        92.085,
+        -13.235
+      ],
+      [
+        92.085,
+        17.35
+      ],
+      [
+        93.49,
+        -13.235
+      ],
+      [
+        93.49,
+        17.35
+      ],
+      [
+        94.895,
+        -13.235
+      ],
+      [
+        94.895,
+        17.35
+      ],
+      [
+        96.295,
+        -13.235
+      ],
+      [
+        96.295,
+        17.35
+      ],
+      [
+        97.7,
+        -13.235
+      ],
+      [
+        97.7,
+        17.35
+      ],
+      [
+        99.105,
+        -13.235
+      ],
+      [
+        99.105,
+        17.35
+      ],
+      [
+        100.51,
+        -13.235
+      ],
+      [
+        100.51,
+        17.35
+      ],
+      [
+        101.915,
+        -13.235
+      ],
+      [
+        101.915,
+        17.35
+      ],
+      [
+        103.32,
+        -13.235
+      ],
+      [
+        103.32,
+        17.35
+      ],
+      [
+        104.725,
+        -13.235
+      ],
+      [
+        104.725,
+        17.35
+      ],
+      [
+        106.13,
+        -13.235
+      ],
+      [
+        106.13,
+        17.35
+      ],
+      [
+        107.535,
+        -13.235
+      ],
+      [
+        107.535,
+        17.35
+      ],
+      [
+        108.94,
+        -13.235
+      ],
+      [
+        108.94,
+        17.35
+      ],
+      [
+        110.34,
+        -13.235
+      ],
+      [
+        110.34,
+        17.35
+      ],
+      [
+        111.745,
+        -13.235
+      ],
+      [
+        111.745,
+        17.35
+      ],
+      [
+        113.15,
+        -13.235
+      ],
+      [
+        113.15,
+        17.35
+      ],
+      [
+        114.555,
+        -13.235
+      ],
+      [
+        114.555,
+        17.35
+      ],
+      [
+        115.96,
+        -13.235
+      ],
+      [
+        115.96,
+        17.35
+      ],
+      [
+        117.365,
+        -13.235
+      ],
+      [
+        117.365,
+        17.35
+      ],
+      [
+        118.77,
+        -13.235
+      ],
+      [
+        118.77,
+        17.35
+      ],
+      [
+        120.175,
+        -13.235
+      ],
+      [
+        120.175,
+        17.35
+      ],
+      [
+        121.58,
+        -13.235
+      ],
+      [
+        121.58,
+        17.35
+      ],
+      [
+        122.98,
+        -13.235
+      ],
+      [
+        122.98,
+        17.35
+      ],
+      [
+        124.385,
+        -13.235
+      ],
+      [
+        124.385,
+        17.35
+      ],
+      [
+        125.79,
+        -13.235
+      ],
+      [
+        125.79,
+        17.35
+      ],
+      [
+        127.195,
+        -13.235
+      ],
+      [
+        127.195,
+        17.35
+      ],
+      [
+        128.6,
+        -13.235
+      ],
+      [
+        128.6,
+        17.35
+      ],
+      [
+        130.005,
+        -13.235
+      ],
+      [
+        130.005,
+        17.35
+      ],
+      [
+        131.41,
+        -13.235
+      ],
+      [
+        131.41,
+        17.35
+      ],
+      [
+        132.815,
+        -13.235
+      ],
+      [
+        132.815,
+        17.35
+      ],
+      [
+        134.22,
+        -13.235
+      ],
+      [
+        134.22,
+        17.35
+      ],
+      [
+        135.625,
+        -13.235
+      ],
+      [
+        135.625,
+        17.35
+      ],
+      [
+        137.025,
+        -13.235
+      ],
+      [
+        137.025,
+        17.35
+      ],
+      [
+        138.43,
+        -13.235
+      ],
+      [
+        138.43,
+        17.35
+      ],
+      [
+        139.835,
+        -13.235
+      ],
+      [
+        139.835,
+        17.35
+      ],
+      [
+        141.24,
+        -13.235
+      ],
+      [
+        141.24,
+        17.35
+      ],
+      [
+        142.645,
+        -13.235
+      ],
+      [
+        142.645,
+        17.35
+      ],
+      [
+        144.05,
+        -13.235
+      ],
+      [
+        144.05,
+        17.35
+      ],
+      [
+        145.455,
+        -13.235
+      ],
+      [
+        145.455,
+        17.35
+      ],
+      [
+        146.86,
+        -13.235
+      ],
+      [
+        146.86,
+        17.35
+      ],
+      [
+        148.265,
+        -13.235
+      ],
+      [
+        148.265,
+        17.35
+      ],
+      [
+        149.665,
+        -13.235
+      ],
+      [
+        149.665,
+        17.35
+      ],
+      [
+        151.07,
+        -13.235
+      ],
+      [
+        151.07,
+        17.35
+      ],
+      [
+        152.475,
+        -13.235
+      ],
+      [
+        152.475,
+        17.35
+      ],
+      [
+        153.88,
+        -13.235
+      ],
+      [
+        153.88,
+        17.35
+      ],
+      [
+        155.285,
+        -13.235
+      ],
+      [
+        155.285,
+        17.35
+      ],
+      [
+        156.69,
+        -13.235
+      ],
+      [
+        156.69,
+        17.35
+      ],
+      [
+        158.095,
+        -13.235
+      ],
+      [
+        158.095,
+        17.35
+      ],
+      [
+        159.5,
+        -13.235
+      ],
+      [
+        159.5,
+        17.35
+      ],
+      [
+        160.905,
+        -13.235
+      ],
+      [
+        160.905,
+        17.35
+      ],
+      [
+        162.31,
+        -13.235
+      ],
+      [
+        162.31,
+        17.35
+      ],
+      [
+        163.71,
+        -13.235
+      ],
+      [
+        163.71,
+        17.35
+      ],
+      [
+        165.115,
+        -13.235
+      ],
+      [
+        165.115,
+        17.35
+      ],
+      [
+        166.52,
+        -13.235
+      ],
+      [
+        166.52,
+        17.35
+      ],
+      [
+        167.925,
+        -13.235
+      ],
+      [
+        167.925,
+        17.35
+      ],
+      [
+        169.33,
+        -13.235
+      ],
+      [
+        169.33,
+        17.35
+      ],
+      [
+        170.735,
+        -13.235
+      ],
+      [
+        170.735,
+        17.35
+      ],
+      [
+        172.14,
+        -13.235
+      ],
+      [
+        172.14,
+        17.35
+      ],
+      [
+        173.545,
+        -13.235
+      ],
+      [
+        173.545,
+        17.35
+      ],
+      [
+        174.95,
+        -13.235
+      ],
+      [
+        174.95,
+        17.35
+      ],
+      [
+        176.35,
+        -13.235
+      ],
+      [
+        176.35,
+        17.35
+      ],
+      [
+        177.755,
+        -13.235
+      ],
+      [
+        177.755,
+        17.35
+      ],
+      [
+        179.16,
+        -13.235
+      ],
+      [
+        179.16,
+        17.35
+      ],
+      [
+        180.565,
+        -13.235
+      ],
+      [
+        180.565,
+        17.35
+      ],
+      [
+        181.97,
+        -13.235
+      ],
+      [
+        181.97,
+        17.35
+      ],
+      [
+        183.375,
+        -13.235
+      ],
+      [
+        183.375,
+        17.35
+      ],
+      [
+        184.78,
+        -13.235
+      ],
+      [
+        184.78,
+        17.35
+      ],
+      [
+        186.185,
+        -13.235
+      ],
+      [
+        186.185,
+        17.35
+      ],
+      [
+        187.59,
+        -13.235
+      ],
+      [
+        187.59,
+        17.35
+      ],
+      [
+        188.99,
+        -13.235
+      ],
+      [
+        188.99,
+        17.35
+      ],
+      [
+        190.395,
+        -13.235
+      ],
+      [
+        190.395,
+        17.35
+      ],
+      [
+        191.8,
+        -13.235
+      ],
+      [
+        191.8,
+        17.35
+      ],
+      [
+        193.205,
+        -13.235
+      ],
+      [
+        193.205,
+        17.35
+      ],
+      [
+        194.61,
+        -13.235
+      ],
+      [
+        194.61,
+        17.35
+      ],
+      [
+        196.015,
+        -13.235
+      ],
+      [
+        196.015,
+        17.35
+      ],
+      [
+        197.42,
+        -13.235
+      ],
+      [
+        197.42,
+        17.35
+      ],
+      [
+        198.825,
+        -13.235
+      ],
+      [
+        198.825,
+        17.35
+      ],
+      [
+        200.23,
+        -13.235
+      ],
+      [
+        200.23,
+        17.35
+      ],
+      [
+        201.635,
+        -13.235
+      ],
+      [
+        201.635,
+        17.35
+      ],
+      [
+        203.035,
+        -13.235
+      ],
+      [
+        203.035,
+        17.35
+      ],
+      [
+        204.44,
+        -13.235
+      ],
+      [
+        204.44,
+        17.35
+      ],
+      [
+        205.845,
+        -13.235
+      ],
+      [
+        205.845,
+        17.35
+      ],
+      [
+        207.25,
+        -13.235
+      ],
+      [
+        207.25,
+        17.35
+      ],
+      [
+        208.655,
+        -13.235
+      ],
+      [
+        208.655,
+        17.35
+      ],
+      [
+        210.06,
+        -13.235
+      ],
+      [
+        210.06,
+        17.35
+      ],
+      [
+        211.465,
+        -13.235
+      ],
+      [
+        211.465,
+        17.35
+      ],
+      [
+        212.87,
+        -13.235
+      ],
+      [
+        212.87,
+        17.35
+      ],
+      [
+        214.275,
+        -13.235
+      ],
+      [
+        214.275,
+        17.35
+      ],
+      [
+        215.675,
+        -13.235
+      ],
+      [
+        215.675,
+        17.35
+      ],
+      [
+        217.08,
+        -13.235
+      ],
+      [
+        217.08,
+        17.35
+      ],
+      [
+        218.485,
+        -13.235
+      ],
+      [
+        218.485,
+        17.35
+      ],
+      [
+        219.89,
+        -13.235
+      ],
+      [
+        219.89,
+        17.35
+      ],
+      [
+        221.295,
+        -13.235
+      ],
+      [
+        221.295,
+        17.35
+      ],
+      [
+        222.7,
+        -13.235
+      ],
+      [
+        222.7,
+        17.35
+      ],
+      [
+        224.105,
+        -13.235
+      ],
+      [
+        224.105,
+        17.35
+      ],
+      [
+        225.51,
+        -13.235
+      ],
+      [
+        225.51,
+        17.35
+      ],
+      [
+        226.915,
+        -13.235
+      ],
+      [
+        226.915,
+        17.35
+      ],
+      [
+        228.32,
+        -13.235
+      ],
+      [
+        228.32,
+        17.35
+      ],
+      [
+        229.72,
+        -13.235
+      ],
+      [
+        229.72,
+        17.35
+      ],
+      [
+        231.125,
+        -13.235
+      ],
+      [
+        231.125,
+        17.35
+      ],
+      [
+        232.53,
+        -13.235
+      ],
+      [
+        232.53,
+        17.35
+      ],
+      [
+        233.935,
+        -13.235
+      ],
+      [
+        233.935,
+        17.35
+      ],
+      [
+        235.34,
+        -13.235
+      ],
+      [
+        235.34,
+        -11.78
+      ],
+      [
+        235.34,
+        -10.32
+      ],
+      [
+        235.34,
+        -8.865
+      ],
+      [
+        235.34,
+        -7.41
+      ],
+      [
+        235.34,
+        -5.955
+      ],
+      [
+        235.34,
+        -4.495
+      ],
+      [
+        235.34,
+        -3.04
+      ],
+      [
+        235.34,
+        -1.585
+      ],
+      [
+        235.34,
+        -0.125
+      ],
+      [
+        235.34,
+        1.33
+      ],
+      [
+        235.34,
+        2.785
+      ],
+      [
+        235.34,
+        4.24
+      ],
+      [
+        235.34,
+        5.7
+      ],
+      [
+        235.34,
+        7.155
+      ],
+      [
+        235.34,
+        8.61
+      ],
+      [
+        235.34,
+        10.07
+      ],
+      [
+        235.34,
+        11.525
+      ],
+      [
+        235.34,
+        12.98
+      ],
+      [
+        235.34,
+        14.435
+      ],
+      [
+        235.34,
+        15.895
+      ],
+      [
+        235.34,
+        17.35
+      ]
+    ],
+    "tap_size_um": [
+      0.84,
+      0.84
+    ],
+    "worst_distance_to_tie_um": 14.872,
+    "latchup_limit_um": 20.0,
+    "within_latchup_limit": true
+  },
+  "symmetry": {
+    "axis_x_um": 142.32,
+    "pairs": {
+      "tails": [
+        74.16,
+        154.08
+      ],
+      "steer_signal": [
+        111.24,
+        138.4
+      ],
+      "steer_dummy": [
+        58.48,
+        191.16
+      ],
+      "hbt_signal": [
+        130.97,
+        153.67
+      ],
+      "hbt_dummy": [
+        120.97,
+        163.67
+      ],
+      "loads": [
+        127.82,
+        156.82
+      ],
+      "coil_feeds": [
+        120.32,
+        164.32
+      ],
+      "out_trunks": [
+        43.96,
+        334.36
+      ],
+      "in_trunks": [
+        133.17,
+        151.47
+      ]
+    }
+  },
+  "power_ring": {
+    "outer_box_um": [
+      -76.16,
+      -38.655,
+      360.8,
+      191.63
+    ],
+    "widths_um": {
+      "vss": 6.0,
+      "vdd": 6.0
+    },
+    "h_metal": "TopMetal2",
+    "v_metal": "TopMetal1",
+    "corner_via": "TopVia2",
+    "corner_vias_per_corner": 4,
+    "ports": {
+      "vss": [
+        {
+          "name": "vss_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            142.32,
+            179.63
+          ],
+          "width": 6.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vss_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            142.32,
+            -26.655
+          ],
+          "width": 6.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vss_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -64.16,
+            76.49
+          ],
+          "width": 6.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vss_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            348.8,
+            76.49
+          ],
+          "width": 6.0,
+          "orientation": 0.0
+        }
+      ],
+      "vdd": [
+        {
+          "name": "vdd_top",
+          "layer": "topmetal2_drw",
+          "center": [
+            142.32,
+            188.63
+          ],
+          "width": 6.0,
+          "orientation": 90.0
+        },
+        {
+          "name": "vdd_bottom",
+          "layer": "topmetal2_drw",
+          "center": [
+            142.32,
+            -35.655
+          ],
+          "width": 6.0,
+          "orientation": 270.0
+        },
+        {
+          "name": "vdd_left",
+          "layer": "topmetal1_drw",
+          "center": [
+            -73.16,
+            76.49
+          ],
+          "width": 6.0,
+          "orientation": 180.0
+        },
+        {
+          "name": "vdd_right",
+          "layer": "topmetal1_drw",
+          "center": [
+            357.8,
+            76.49
+          ],
+          "width": 6.0,
+          "orientation": 0.0
+        }
+      ]
+    },
+    "notes": [
+      "TopMetal2 horizontal, TopMetal1 vertical, TopVia2 stitched 4 cut(s) per corner",
+      "ring width is set by the PDK minimum width, not by electromigration: 8.63 mA needs only 0.540 um of TopMetal2"
+    ]
+  },
+  "notes": [
+    "cell name is vga_dut, shared with the schematic subcircuit",
+    "seven MOS arrays in two rows: mirror and tails below, four steering devices above; single-row width would be ~422 um, two rows ~210 um",
+    "guard ring encloses each MOS row separately: the lower ring taps the source rail on the left, the upper ring reaches the power-ring vss run on TopMetal2 so no Metal2 strap crosses the mgate channel",
+    "coils rotated to face each other, so vdd is one straight TopMetal2 strap with the nlp feeds below it dropping onto the loads",
+    "wire widths from the technology LEF at the operating point: 2.88 mA per tail, 8.63 mA supply",
+    "the coil pin row sits 54.0 um above the HBTs so the pwell-block markers clear their substrate ties",
+    "outputs leave at the top edge on Metal4 and inputs at the bottom on Metal4; vicm, steerp and steern leave on Metal3 at the right edge, mgate on Metal4 at the left",
+    "ring squared about the axis at half-width 193.5 um and 10 um clearance",
+    "drawn nlp interconnect 102.6 um per side against the 0.00 fF budget in params.inc"
+  ],
+  "layers": {
+    "activ_drw": 1223,
+    "activ_mask": 4,
+    "activ_nofill": 2,
+    "cont_drw": 12030,
+    "emwind_drw": 4,
+    "extblock_drw": 6,
+    "gatpoly_drw": 182,
+    "gatpoly_nofill": 2,
+    "gatpoly_pin": 155,
+    "heatres_drw": 2,
+    "heattrans_drw": 159,
+    "ind_drw": 2,
+    "ind_pin": 4,
+    "lbe_drw": 2,
+    "metal1_drw": 2174,
+    "metal1_nofill": 2,
+    "metal1_pin": 1072,
+    "metal2_drw": 692,
+    "metal2_nofill": 2,
+    "metal2_pin": 4,
+    "metal3_drw": 43,
+    "metal3_nofill": 2,
+    "metal4_drw": 36,
+    "metal4_nofill": 2,
+    "metal5_drw": 57,
+    "metal5_nofill": 2,
+    "norcx_drw": 2,
+    "nsd_block": 4,
+    "polyres_drw": 2,
+    "psd_drw": 760,
+    "pwell_block": 2,
+    "salblock_drw": 2,
+    "substrate_drw": 750,
+    "topmetal1_drw": 43,
+    "topmetal1_nofill": 2,
+    "topmetal2_drw": 59,
+    "topmetal2_nofill": 2,
+    "topmetal2_pin": 4,
+    "topvia1_drw": 4,
+    "topvia2_drw": 38,
+    "trans_drw": 4,
+    "via1_drw": 7515,
+    "via2_drw": 109,
+    "via3_drw": 103,
+    "via4_drw": 105
+  },
+  "gds": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
+  "cdl": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
+  "parity": {
+    "subckt": "vga_dut",
+    "spice_file": "circuits/ctle56n/spice/vga_pdk.cir",
+    "cdl_file": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
+    "ok": true,
+    "ports_match": true,
+    "devices_match": true,
+    "spice_ports": [
+      "outp",
+      "outn",
+      "inp",
+      "inn",
+      "vicm",
+      "steerp",
+      "steern",
+      "vdd",
+      "vss",
+      "mgate"
+    ],
+    "cdl_ports": [
+      "outp",
+      "outn",
+      "inp",
+      "inn",
+      "vicm",
+      "steerp",
+      "steern",
+      "vdd",
+      "vss",
+      "mgate"
+    ],
+    "matched_devices": [
+      "inductor d=4e-05 s=2.1e-06 w=4e-06",
+      "inductor d=4e-05 s=2.1e-06 w=4e-06",
+      "npn13G2 nx=1",
+      "npn13G2 nx=1",
+      "npn13G2 nx=1",
+      "npn13G2 nx=1",
+      "rppd l=1.4e-06 w=5e-06",
+      "rppd l=1.4e-06 w=5e-06",
+      "sg13_lv_nmos l=1e-06 w=0.000246875",
+      "sg13_lv_nmos l=1e-06 w=0.000246875",
+      "sg13_lv_nmos l=1e-06 w=0.000246875",
+      "sg13_lv_nmos l=5e-07 w=0.0002",
+      "sg13_lv_nmos l=5e-07 w=0.0002",
+      "sg13_lv_nmos l=5e-07 w=0.0002",
+      "sg13_lv_nmos l=5e-07 w=0.0002"
+    ],
+    "only_in_spice": [],
+    "only_in_cdl": [],
+    "independent_sources_in_spice": [],
+    "model_aliases": {
+      "ind_shunt": "inductor"
+    },
+    "notes": [
+      "permitted substitution(s): ind_shunt -> inductor; geometry for these is read from ind_shunt.inc rather than from the element line, and is still compared"
+    ],
+    "error": ""
+  },
+  "em": {
+    "ok": true,
+    "source": "/home/ubuntu/.local/share/ihp-eda/IHP-Open-PDK/ihp-sg13g2/libs.ref/sg13g2_stdcell/lef/sg13g2_tech.lef",
+    "derate_required": 1.0,
+    "derate_used_for_sizing": 2.0,
+    "segments": [
+      {
+        "net": "mdiode.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mdiode.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail1.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.0001151248,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.0576,
+        "capacity_a": 0.0006,
+        "utilisation": 0.1919,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tail2.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.0001151248,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.012,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd1.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd1.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd1.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00014390600000000001,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.072,
+        "capacity_a": 0.0006,
+        "utilisation": 0.2398,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd1.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.00014390600000000001,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.015,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps1.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps1.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps1.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00014390600000000001,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.072,
+        "capacity_a": 0.0006,
+        "utilisation": 0.2398,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps1.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.00014390600000000001,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.015,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps2.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps2.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps2.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00014390600000000001,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.072,
+        "capacity_a": 0.0006,
+        "utilisation": 0.2398,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ps2.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.00014390600000000001,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.015,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd2.D_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "drain rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd2.S_rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "source rail carries the whole device current",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd2.unit_stub",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00014390600000000001,
+        "note": "one unit's share from its via column to the rail",
+        "width_um": 0.3,
+        "min_width_um": 0.072,
+        "capacity_a": 0.0006,
+        "utilisation": 0.2398,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "pd2.unit_via",
+        "layer": "Via1",
+        "kind": "CUT",
+        "current_a": 0.00014390600000000001,
+        "note": "full-length via column on one unit's terminal",
+        "cuts": 24,
+        "min_cuts": 1,
+        "capacity_a": 0.009600000000000001,
+        "utilisation": 0.015,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vss.rail",
+        "layer": "Metal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "shared source rail",
+        "width_um": 8.635,
+        "min_width_um": 4.3172,
+        "capacity_a": 0.01727,
+        "utilisation": 0.5,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tx1",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "steering drains and tail1 on an outboard Metal5 trunk",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "tx2",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "steering drains and tail2 on an outboard Metal5 trunk",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vdd.strap",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "between the coil supply feeds",
+        "width_um": 4.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.064,
+        "utilisation": 0.1349,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp1",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed continued inward, then down to the load",
+        "width_um": 4.0,
+        "min_width_um": 0.1799,
+        "capacity_a": 0.064,
+        "utilisation": 0.045,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "nlp2",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "coil feed continued inward, then down to the load",
+        "width_um": 4.0,
+        "min_width_um": 0.1799,
+        "capacity_a": 0.064,
+        "utilisation": 0.045,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "em",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "shared signal emitter strap",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ed1",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "dummy emitter to its steering source",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ed2",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "dummy emitter to its steering source",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outp",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outn",
+        "layer": "Metal5",
+        "kind": "ROUTING",
+        "current_a": 0.00287812,
+        "note": "collector run",
+        "width_um": 2.88,
+        "min_width_um": 1.4391,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.4997,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vss top/bottom run",
+        "width_um": 6.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.096,
+        "utilisation": 0.0899,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vss left/right run",
+        "width_um": 6.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.09,
+        "utilisation": 0.0959,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vss.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 0.00863436,
+        "note": "vss corner stitch",
+        "cuts": 4,
+        "min_cuts": 1,
+        "capacity_a": 0.04,
+        "utilisation": 0.2159,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.horizontal",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vdd top/bottom run",
+        "width_um": 6.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.096,
+        "utilisation": 0.0899,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.vertical",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "vdd left/right run",
+        "width_um": 6.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.09,
+        "utilisation": 0.0959,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "ring.vdd.corner",
+        "layer": "TopVia2",
+        "kind": "CUT",
+        "current_a": 0.00863436,
+        "note": "vdd corner stitch",
+        "cuts": 4,
+        "min_cuts": 1,
+        "capacity_a": 0.04,
+        "utilisation": 0.2159,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vss.riser",
+        "layer": "TopMetal2",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "source rail down to the ring, on the axis",
+        "width_um": 4.0,
+        "min_width_um": 0.5396,
+        "capacity_a": 0.064,
+        "utilisation": 0.1349,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vdd.riser",
+        "layer": "TopMetal1",
+        "kind": "ROUTING",
+        "current_a": 0.00863436,
+        "note": "coil strap up to the ring, crossing under the vss run",
+        "width_um": 4.0,
+        "min_width_um": 0.5756,
+        "capacity_a": 0.06,
+        "utilisation": 0.1439,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outp",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "outn",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inp",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "inn",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "signal trunk out of the cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "steerp",
+        "layer": "Metal3",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "steering gate out of the right cell edge",
+        "width_um": 1.44,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0028799999999999997,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "steern",
+        "layer": "Metal3",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "steering gate out of the right cell edge",
+        "width_um": 1.44,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0028799999999999997,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "vicm",
+        "layer": "Metal3",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "dummy base common mode out of the right cell edge",
+        "width_um": 1.44,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0028799999999999997,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      },
+      {
+        "net": "mgate",
+        "layer": "Metal4",
+        "kind": "ROUTING",
+        "current_a": 0.0,
+        "note": "mirror gate bias out of the left cell edge",
+        "width_um": 2.88,
+        "min_width_um": 0.0,
+        "capacity_a": 0.0057599999999999995,
+        "utilisation": 0.0,
+        "checkable": true,
+        "ok": true
+      }
+    ],
+    "failures": [],
+    "unchecked_layers": [],
+    "uncheckable_reasons": {}
+  },
+  "png": "/workspace/layout/blocks/out/vga_stage/vga_dut.png",
+  "drc": {
+    "cell": "vga_dut",
+    "gds": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
+    "clean": false,
+    "strictly_clean": false,
+    "total_violations": 98,
+    "real_violations": 82,
+    "by_rule": {
+      "Act.b": 16,
+      "LBE.a": 16,
+      "LBE.c": 10,
+      "M2.b": 56
+    },
+    "real_by_rule": {
+      "Act.b": 16,
+      "LBE.c": 10,
+      "M2.b": 56
+    },
+    "context_by_rule": {
+      "LBE.a": 16
+    },
+    "context_rule_reasons": {
+      "LBE.a": "min 100 um local-back-end width. LBE marks a chip-area module and is drawn at top level; a single coil's marker is smaller than the floor."
+    },
+    "examples": {
+      "Act.b": [
+        "edge-pair: (28.48,0;28.48,10)|(28.34,10;28.34,0)",
+        "edge-pair: (30.26,0;30.26,0.3)|(30.12,0.457;30.12,0)",
+        "edge-pair: (33.82,0;33.82,10)|(33.68,10;33.68,0)",
+        "edge-pair: (28.48,0;28.48,0.3)|(28.34,0.457;28.34,0)",
+        "edge-pair: (30.26,0;30.26,10)|(30.12,10;30.12,0)"
+      ],
+      "M2.b": [
+        "edge-pair: (27.58,0.017;27.58,0.14)|(27.41,0.263;27.41,0.14)",
+        "edge-pair: (29.36,0.017;29.36,0.14)|(29.19,0.263;29.19,0.14)",
+        "edge-pair: (29.82,-2.18;29.82,0.14)|(29.66,0.14;29.66,-2.18)",
+        "edge-pair: (31.6,-2.18;31.6,0.14)|(31.44,0.14;31.44,-2.18)",
+        "edge-pair: (31.85,9.86;31.85,9.771)|(32.04,9.86;32.04,9.949)"
+      ],
+      "LBE.a": [
+        "edge-pair: (-30.741,8.371;-54.01,31.64)|(-22.37,108.02;10.535,108.02)",
+        "edge-pair: (-22.37,0;-45.639,23.269)|(54.01,64.545;54.01,31.64)",
+        "edge-pair: (-54.01,43.475;-54.01,76.38)|(22.37,108.02;45.639,84.751)",
+        "edge-pair: (45.639,23.269;22.37,0)|(-54.01,31.64;-54.01,64.545)",
+        "edge-pair: (54.01,76.38;54.01,43.475)|(-45.639,84.751;-22.37,108.02)"
+      ],
+      "LBE.c": [
+        "edge-pair: (-22.37,-44;21.63,-44)|(-22.37,0;-54.01,31.64)",
+        "edge-pair: (-54.01,-75.64;-22.37,-44)|(21.63,0;-22.37,0)",
+        "edge-pair: (-21.63,-44;22.37,-44)|(54.01,31.64;22.37,0)",
+        "edge-pair: (-22.37,-44;22.37,-44)|(22.37,0;-22.37,0)",
+        "edge-pair: (22.37,-44;54.01,-75.64)|(22.37,0;-21.63,0)"
+      ]
+    },
+    "tables": [],
+    "report": "/workspace/layout/blocks/out/vga_stage/drc_run/vga_dut_vga_dut_main.lyrdb",
+    "log": "/workspace/layout/blocks/out/vga_stage/drc_run/drc_run.log",
+    "error": "",
+    "ok": false,
+    "allowed_chip_level_rules": [
+      "LBE.a",
+      "LBE.c"
+    ],
+    "enforced_context_rules": [
+      "LU.a",
+      "LU.b"
+    ],
+    "remaining_violations": {
+      "Act.b": 16,
+      "M2.b": 56
+    }
+  },
+  "lvs": {
+    "cell": "vga_dut",
+    "layout": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/vga_stage/vga_dut.cdl",
+    "clean": false,
+    "params_ok": true,
+    "devices_matched": 0,
+    "summary": "Netlists don't match",
+    "extracted_netlist": "/workspace/layout/blocks/out/vga_stage/lvs_run/vga_dut_extracted.cir",
+    "param_checks": [],
+    "log": "/workspace/layout/blocks/out/vga_stage/lvs_run/lvs_run.log",
+    "error": "LVS compare failed: netlists do not match; see /workspace/layout/blocks/out/vga_stage/lvs_run/lvs_run.log"
+  },
+  "pex": {
+    "cell": "vga_dut",
+    "gds": "/workspace/layout/blocks/out/vga_stage/vga_dut.gds",
+    "netlist": "/workspace/layout/blocks/out/vga_stage/pex_run/vga_dut_pex.spice",
+    "ok": true,
+    "resistors": 0,
+    "capacitors": 39,
+    "total_resistance_ohm": 0.0,
+    "resistor_elements": [],
+    "resistance_extracted": true,
+    "physical": true,
+    "negative_capacitors": [],
+    "note": "",
+    "total_capacitance_f": 1.06138e-12,
+    "per_net_capacitance_f": {
+      "vss": 8.40549e-13,
+      "em": 4.5896e-13,
+      "vicm": 3.46614e-13,
+      "vdd": 2.00453e-13,
+      "steern": 1.03661e-13,
+      "m2_15166_4232#": 6.99652e-14,
+      "m2_41702_4232#": 6.91268e-14,
+      "inp": 1.46418e-14,
+      "inn": 1.3348e-14,
+      "ed2": 1.48792e-15,
+      "ed1": 1.48435e-15,
+      "rd1_R0_0/a_0_0#": 1.22951e-15,
+      "rd2_M90_0/a_0_0#": 1.22951e-15
+    },
+    "log": "/workspace/layout/blocks/out/vga_stage/pex_run/magic_pex.log",
+    "error": "",
+    "signal_resistance_ohm": 0
+  }
+}
