@@ -2835,6 +2835,7 @@
     "unchecked_layers": [],
     "uncheckable_reasons": {}
   },
+  "png": "/workspace/layout/blocks/out/driver_stage/driver_dut.png",
   "drc": {
     "cell": "driver_dut",
     "gds": "/workspace/layout/blocks/out/driver_stage/driver_dut.gds",

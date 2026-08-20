@@ -5,7 +5,8 @@ The cell is ``vga_dut`` — the same name as the subcircuit in
 ``circuits/ctle56n/spice/vga_pdk.cir``. ``layout/common/parity.py`` checks that
 device for device on every run.
 
-Floorplan, centred on one vertical axis with mirror-image halves:
+Floorplan, centred on one vertical axis with mirror-image halves (CTLE-style single
+MOS row):
 
                  outp     outn                    Metal4, out of the top edge
     ╔═════════════╪════════╪══════════════╗   ring: TopMetal2 horizontal,
@@ -17,20 +18,31 @@ Floorplan, centred on one vertical axis with mirror-image halves:
     ║            Qd1 Q1 ── Q2 Qd2          ║   dummy outboard, signal inboard
     ║               └── em ──┘             ║   shared emitter strap, no Rs row
     ║   ┌───── guard ring (NMOS only) ──┐  ║
-    ║   │ pd1 ps1 │      │ ps2 pd2     │  ║   upper MOS row: steering
-    ║   │  tail1  │      │  tail2      │  ║   lower MOS row: mirror + tails
-    ║   │ mdiode  │      │             │  ║
+    ║   │md pd1 ps1│tail1│tail2│ps2 pd2│  ║   one MOS row, CTLE order extended
+    ║   │  mdiode  │      │      │      │  ║
 mgate ─┘                │                    Metal4, left edge
-vicm ───────────────────┘                    Metal3, right edge
+vicm ───────────────────┘                    Metal4, right edge (own y)
 steerp/steern ─────────────────────────    Metal3, right edge
     ╚═══════════════════╪══════════════════╝   vss taps the ring here
                   inp   │   inn                Metal4, out of the bottom edge
 
-Seven wide NMOS devices split across two rows so the cell stays narrow enough
-for the coils to face each other without stretching every signal run.
+MOS row order (left to right, ~422 um of active width before the guard ring):
+
+    mdiode | pd1 | ps1 | tail1 | tail2 | ps2 | pd2
+
+``mdiode``, ``tail1`` and ``tail2`` share ``mgate`` and sit outside or on the
+symmetric core; each tail sits next to the two steering devices it feeds
+(``ps1``/``pd1`` on ``tx1``, ``ps2``/``pd2`` on ``tx2``), which keeps three of
+the five two-row routing traps as local verticals inside each array's x span.
+``tail2``, ``ps2`` and ``pd2`` mirror by **device span**, not bounding box — the
+same correction documented in ``ctle_stage.py`` for the 7.9% ``inp``/``inn`` cap
+mismatch. ``ARRAY_GAP`` stays at the CTLE value of 12 um; tightening it to
+~5.97 um together with Metal4 via stacks regressed DRC and LVS and the good
+intermediate was never saved, so the two-row floorplan was abandoned.
 
 Usage:
     python layout/blocks/vga_stage.py
+    python layout/blocks/vga_stage.py --probe mos
 """
 
 from __future__ import annotations
@@ -44,6 +56,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from layout.blocks.draw import (
+    VIA_OFFSET,
     device_bbox_at,
     mirrored_pair_x,
     place,
@@ -79,7 +92,6 @@ PORT_NETS = [
 ]
 
 ROW_GAP = 8.0
-MOS_ROW_GAP = 12.0
 COIL_PIN_GAP = 44.0
 PWB_TAP_CLEARANCE = 2.0
 LOAD_DX = 12.0
@@ -89,12 +101,78 @@ OUT_TRUNK_DX = 17.0
 BASE_VIA_DX = 2.2
 PORT_METAL = "Metal4"
 CONTROL_METAL = "Metal3"
+VICM_METAL = "Metal4"
 PORT_REACH = 6.0
 IN_TRUNK_METAL = "Metal4"
 RING_CLEARANCE = 10.0
 ARRAY_GAP = 12.0
+STEER_PORT_DY = 12.0
 ROUTE_METAL = "Metal5"
 CHIP_LEVEL_ALLOWED = ("LBE.a", "LBE.c")
+
+
+def _hbt_emitter_up(layout, cell, terminal: Terminal, metal: str,
+                    outboard_sign: float) -> tuple[float, float]:
+    """Raise the emitter on an outboard stub, then drop to ``em_y`` on ``metal``."""
+    from layout.common.route import metal_of
+
+    tx, ty = terminal.center
+    bottom = metal_of(terminal.layer)
+    ex = snap(tx + outboard_sign * VIA_OFFSET)
+    ey = snap(ty)
+    stub_w = route_width(bottom) if bottom else route_width(metal)
+    rect(layout, cell, bottom,
+         min(tx, ex) - stub_w / 2, ey - stub_w / 2,
+         max(tx, ex) + stub_w / 2, ey + stub_w / 2)
+    if bottom and bottom != metal:
+        via_between(layout, cell, ex, ey, bottom, metal, columns=1, rows=1)
+    return (ex, ey)
+
+
+def _collector_trunk_net(
+    layout,
+    cell,
+    terminals: list[Terminal],
+    trunk_x: float,
+    em_y: float,
+    metal: str,
+    width: float,
+) -> tuple[float, float]:
+    """Vertical collector trunk outboard of ``em``, with joins above the emitter bus."""
+    from layout.common.route import metal_of
+
+    w = width
+    trunk_x = snap(trunk_x)
+    safe_y = snap(em_y + w + 2.0)
+    rise_w = route_width("Metal2")
+    top_y = safe_y
+    for terminal in terminals:
+        tx, ty = terminal.center
+        tx, ty = snap(tx), snap(ty)
+        bottom = metal_of(terminal.layer)
+        stub_x = snap(tx - VIA_OFFSET if trunk_x < tx else tx + VIA_OFFSET)
+        top_y = snap(max(top_y, ty))
+        if bottom:
+            bw = route_width(bottom)
+            rect(layout, cell, bottom, min(tx, stub_x), ty - bw / 2,
+                  max(tx, stub_x), ty + bw / 2)
+            if bottom != "Metal2":
+                via_between(layout, cell, stub_x, ty, bottom, "Metal2", columns=1, rows=1)
+        if ty < safe_y - 1e-6:
+            rect(layout, cell, "Metal2", stub_x - rise_w / 2, ty,
+                  stub_x + rise_w / 2, safe_y)
+        elif ty > safe_y + 1e-6:
+            rect(layout, cell, "Metal2", stub_x - rise_w / 2, safe_y,
+                  stub_x + rise_w / 2, ty)
+        ox2 = snap(stub_x + route_width("Metal2"))
+        ox3 = snap(stub_x + 2 * route_width("Metal2"))
+        via_between(layout, cell, stub_x, safe_y, "Metal2", "Metal3", columns=1, rows=1)
+        via_between(layout, cell, ox2, safe_y, "Metal3", "Metal4", columns=1, rows=1)
+        via_between(layout, cell, ox3, safe_y, "Metal4", metal, columns=1, rows=1)
+        rect(layout, cell, metal, min(ox3, trunk_x), safe_y - w / 2,
+              max(ox3, trunk_x), safe_y + w / 2)
+    rect(layout, cell, metal, trunk_x - w / 2, safe_y, trunk_x + w / 2, top_y)
+    return (safe_y, top_y)
 
 
 def _place_array(layout, cell, array, dx: float, dy: float, prefix: str) -> dict[str, Terminal]:
@@ -159,171 +237,210 @@ def build_vga_stage(params: dict[str, float] | None = None,
     instances: list[tuple[DeviceSpec, dict[str, str]]] = []
     em_segments: list[em.Segment] = []
 
-    arrays_lower = {
+    arrays = {
         "mdiode": build_mos_array("mdiode", tail_w, tail_l, current_a=i_tail),
         "tail1": build_mos_array("tail1", tail_w, tail_l, current_a=i_tail),
         "tail2": build_mos_array("tail2", tail_w, tail_l, current_a=i_tail),
-    }
-    arrays_upper = {
         "pd1": build_mos_array("pd1", steer_w, steer_l, current_a=i_tail),
         "ps1": build_mos_array("ps1", steer_w, steer_l, current_a=i_tail),
         "ps2": build_mos_array("ps2", steer_w, steer_l, current_a=i_tail),
         "pd2": build_mos_array("pd2", steer_w, steer_l, current_a=i_tail),
     }
 
-    tail_box = arrays_lower["tail1"].cell.dbbox()
-    steer_box = arrays_upper["ps1"].cell.dbbox()
+    tail_box = arrays["tail1"].cell.dbbox()
+    steer_box = arrays["ps1"].cell.dbbox()
     tail_array_w = tail_box.width()
     steer_array_w = steer_box.width()
-    rail_w = arrays_lower["tail1"].rail_width_um
-    steer_rail_w = arrays_upper["ps1"].rail_width_um
-    device_span = tail_array_w - 2 * rail_w
-    steer_span = steer_array_w - 2 * steer_rail_w
-    array_gap = snap(max(
-        ARRAY_GAP,
-        2 * max(rail_w, steer_rail_w) + min_space("Metal2"),
-        2 * max(rail_w, steer_rail_w) + rule("Act_b"),
-    ))
+    rail_w = arrays["tail1"].rail_width_um
+    steer_rail_w = arrays["ps1"].rail_width_um
+    tail_device_span = tail_array_w - 2 * rail_w
+    steer_device_span = steer_array_w - 2 * steer_rail_w
+    array_gap = ARRAY_GAP
 
-    # Lower row: tails straddle the axis, mirror diode to their left. Upper row:
-    # four steering arrays in two mirrored pairs above the tails. A single row of
-    # all seven would be ~422 um wide before anything else; two rows keep the MOS
-    # footprint near 210 um and leave room for facing coils.
+    # Symmetric core is tail1 | gap | tail2 on the axis. Left group chains outward;
+    # right group mirrors by device span, not bounding box (CTLE correction).
     axis = snap(2 * tail_array_w + 1.5 * array_gap)
-    placement_lower = {
+    placement: dict[str, float] = {
         "tail1": snap(axis - array_gap / 2.0 - tail_array_w),
     }
-    placement_lower["tail2"] = snap(2 * axis - placement_lower["tail1"] - device_span)
-    placement_lower["mdiode"] = snap(placement_lower["tail1"] - array_gap - tail_array_w)
+    placement["tail2"] = snap(2 * axis - placement["tail1"] - tail_device_span)
+    placement["ps1"] = snap(placement["tail1"] - array_gap - steer_array_w)
+    placement["pd1"] = snap(placement["ps1"] - array_gap - steer_array_w)
+    placement["mdiode"] = snap(placement["pd1"] - array_gap - tail_array_w)
+    ps1_active_left = snap(placement["ps1"] + steer_rail_w)
+    pd1_active_left = snap(placement["pd1"] + steer_rail_w)
+    placement["ps2"] = snap(2 * axis - ps1_active_left - steer_device_span - steer_rail_w)
+    placement["pd2"] = snap(2 * axis - pd1_active_left - steer_device_span - steer_rail_w)
 
-    pair_w = snap(2 * steer_array_w + array_gap)
-    tail1_active_left = snap(placement_lower["tail1"] + rail_w)
-    tail2_active_left = snap(placement_lower["tail2"] + rail_w)
-    pair_left = snap(tail1_active_left + (device_span - pair_w) / 2.0)
-    pair_right = snap(tail2_active_left + (device_span - pair_w) / 2.0)
-    placement_upper = {
-        "pd1": pair_left,
-        "ps1": snap(pair_left + steer_array_w + array_gap),
-        "ps2": pair_right,
-        "pd2": snap(pair_right + steer_array_w + array_gap),
-    }
-
-    lower_y = 0.0
-    lower_ports: dict[str, Terminal] = {}
-    for name, array in arrays_lower.items():
-        lower_ports.update(_place_array(layout, cell, array, placement_lower[name], lower_y, name))
-        em_segments += array.em_segments
-
-    lower_top = snap(tail_box.top)
-    upper_y = snap(lower_top + MOS_ROW_GAP)
-    upper_ports: dict[str, Terminal] = {}
-    for name, array in arrays_upper.items():
-        upper_ports.update(_place_array(layout, cell, array, placement_upper[name], upper_y, name))
-        em_segments += array.em_segments
-
-    nmos_left = snap(min(placement_lower["mdiode"], placement_upper["pd1"]) - 1.0)
-    nmos_right = snap(
-        max(placement_lower["tail2"] + tail_array_w,
-            placement_upper["pd2"] + steer_array_w) + 1.0
+    mos_row_w = snap(
+        placement["pd2"] + steer_array_w - placement["mdiode"]
     )
+
+    row_y = 0.0
+    nmos_ports: dict[str, Terminal] = {}
+    for name, array in arrays.items():
+        nmos_ports.update(_place_array(layout, cell, array, placement[name], row_y, name))
+        em_segments += array.em_segments
+
+    nmos_left = snap(placement["mdiode"] - 1.0)
+    nmos_right = snap(placement["pd2"] + steer_array_w + 1.0)
+    link_w = route_width("Metal2")
 
     vss_rail_w = snap(max(em.width_for_a("Metal2", i_supply), route_width("Metal2")))
-    source_rail_top = snap(lower_ports["S_tail1"].center[1] + rail_w / 2)
+    source_rail_top = snap(nmos_ports["S_tail1"].center[1] + rail_w / 2)
     vss_rail_bottom = snap(source_rail_top - vss_rail_w)
     vss_rail_y = snap(source_rail_top - vss_rail_w / 2)
-    vss_left = snap(min(placement_lower["mdiode"], placement_lower["tail1"]) - 1.0)
-    vss_right = snap(max(placement_lower["tail2"] + tail_array_w,
-                         placement_lower["tail1"] + tail_array_w) + 1.0)
-    rect(layout, cell, "Metal2", vss_left, vss_rail_bottom, vss_right, source_rail_top)
+    # Only the mirror and tail arrays tie to vss. A bar across the full row would
+    # short ps1/ps2 sources onto em and pd1/pd2 onto ed1/ed2.
+    mdiode_vss_left = snap(placement["mdiode"] - 1.0)
+    mdiode_vss_right = snap(placement["mdiode"] + tail_array_w + 1.0)
+    tail_vss_left = snap(placement["tail1"] - 1.0)
+    tail_vss_right = snap(placement["tail2"] + tail_array_w + 1.0)
+    rect(layout, cell, "Metal2", mdiode_vss_left, vss_rail_bottom,
+          mdiode_vss_right, source_rail_top)
+    rect(layout, cell, "Metal2", tail_vss_left, vss_rail_bottom,
+          tail_vss_right, source_rail_top)
+    vss_trunk_x = snap(placement["mdiode"] - array_gap / 2)
+    vss_below_y = snap(vss_rail_bottom - vss_rail_w)
+    rect(layout, cell, "Metal2", vss_trunk_x - link_w / 2, vss_below_y,
+          mdiode_vss_left + link_w / 2, vss_rail_y)
+    rect(layout, cell, "Metal2", vss_trunk_x - link_w / 2, vss_below_y,
+          vss_trunk_x + link_w / 2, vss_rail_y)
+    rect(layout, cell, "Metal2", vss_trunk_x - link_w / 2, vss_below_y,
+          tail_vss_right + 1.0, vss_below_y + link_w)
+    rect(layout, cell, "Metal2", tail_vss_right - link_w / 2, vss_below_y,
+          tail_vss_right + link_w / 2, vss_rail_y)
     em_segments.append(em.Segment("vss.rail", "Metal2", width_um=vss_rail_w,
-                                  current_a=i_supply, note="shared source rail"))
+                                  current_a=i_supply, note="mirror and tail source rails only"))
 
-    gate_y_lower = lower_ports["G_tail1"].center[1]
-    gate_y_upper = upper_ports["G_ps1"].center[1]
-    link_w = route_width("Metal2")
+    gate_y = nmos_ports["G_tail1"].center[1]
     poly = lm["gatpoly_drw"]
-    cell.shapes(layout.layer(poly[0], poly[1])).insert(
-        pya.DBox(nmos_left, snap(gate_y_lower - 0.3), nmos_right, snap(gate_y_lower + 0.3))
-    )
 
-    def _steer_poly_strap(prefix: str) -> None:
-        left = snap(placement_upper[prefix] + steer_rail_w)
-        right = snap(placement_upper[prefix] + steer_span + steer_rail_w)
+    def _mgate_poly_strap(left_x: float, right_x: float) -> None:
         cell.shapes(layout.layer(poly[0], poly[1])).insert(
-            pya.DBox(left, snap(gate_y_upper - 0.3), right, snap(gate_y_upper + 0.3))
+            pya.DBox(snap(left_x), snap(gate_y - 0.3),
+                      snap(right_x), snap(gate_y + 0.3))
         )
 
-    for prefix in ("pd1", "pd2", "ps1", "ps2"):
-        _steer_poly_strap(prefix)
+    for prefix, array_w, device_rail_w, device_span in (
+        ("mdiode", tail_array_w, rail_w, tail_device_span),
+        ("tail1", tail_array_w, rail_w, tail_device_span),
+        ("tail2", tail_array_w, rail_w, tail_device_span),
+    ):
+        left = snap(placement[prefix] + device_rail_w)
+        right = snap(placement[prefix] + device_rail_w + device_span)
+        _mgate_poly_strap(left, right)
 
-    diode_right = snap(placement_lower["mdiode"] + tail_box.right)
-    tail1_left = snap(placement_lower["tail1"] + tail_box.left)
-    channel_x = snap((diode_right + tail1_left) / 2.0)
-    gate_tap = poly_contact(layout, cell, channel_x, gate_y_lower)
-    via_between(layout, cell, channel_x, gate_y_lower, "Metal1", "Metal2", columns=1, rows=1)
+    diode_right = snap(placement["mdiode"] + tail_box.right)
+    pd1_left = snap(placement["pd1"] + steer_box.left)
+    channel_x = snap((diode_right + pd1_left) / 2.0)
+    gate_tap = poly_contact(layout, cell, channel_x, gate_y)
+    via_between(layout, cell, channel_x, gate_y, "Metal1", "Metal2", columns=1, rows=1)
 
-    diode_rail = lower_ports["D_mdiode"]
+    diode_rail = nmos_ports["D_mdiode"]
     link_x = snap(diode_right - rail_w / 2)
-    rect(layout, cell, "Metal2", link_x - link_w / 2, gate_y_lower,
+    rect(layout, cell, "Metal2", link_x - link_w / 2, gate_y,
           link_x + link_w / 2, diode_rail.center[1])
-    rect(layout, cell, "Metal2", min(link_x, channel_x), gate_y_lower - link_w / 2,
-          max(link_x, channel_x), gate_y_lower + link_w / 2)
+    rect(layout, cell, "Metal2", min(link_x, channel_x), gate_y - link_w / 2,
+          max(link_x, channel_x), gate_y + link_w / 2)
+
+    mgate_top_y = snap(tail_box.top + 6.0)
+    mgate_bus_xs: list[float] = [channel_x]
+    tail1_bus_x = snap(placement["ps1"] + steer_array_w + array_gap / 2)
+    tail2_bus_x = snap(placement["tail2"] + tail_device_span + rail_w + array_gap / 2)
+    mgate_bus_xs.extend([tail1_bus_x, tail2_bus_x])
+
+    def _mgate_rise(bus_x: float, strap_left: float, strap_right: float) -> None:
+        cell.shapes(layout.layer(poly[0], poly[1])).insert(
+            pya.DBox(snap(min(strap_left, bus_x)), snap(gate_y - 0.3),
+                      snap(max(strap_right, bus_x)), snap(gate_y + 0.3))
+        )
+        poly_contact(layout, cell, bus_x, gate_y)
+        rect(layout, cell, "Metal2", bus_x - link_w / 2, gate_y,
+              bus_x + link_w / 2, mgate_top_y)
+
+    _mgate_rise(channel_x, placement["mdiode"] + rail_w,
+                placement["mdiode"] + rail_w + tail_device_span)
+    _mgate_rise(tail1_bus_x, placement["tail1"] + rail_w,
+                placement["tail1"] + rail_w + tail_device_span)
+    _mgate_rise(tail2_bus_x, placement["tail2"] + rail_w,
+                placement["tail2"] + rail_w + tail_device_span)
+    rect(layout, cell, "Metal2", min(mgate_bus_xs) - link_w / 2, mgate_top_y - link_w / 2,
+          max(mgate_bus_xs) + link_w / 2, mgate_top_y + link_w / 2)
 
     instances += [
-        (arrays_lower["mdiode"].total_spec.with_name("mdiode"),
+        (arrays["mdiode"].total_spec.with_name("mdiode"),
          {"D": "mgate", "G": "mgate", "S": "vss", "sub": "vss"}),
-        (arrays_lower["tail1"].total_spec.with_name("tail1"),
+        (arrays["tail1"].total_spec.with_name("tail1"),
          {"D": "tx1", "G": "mgate", "S": "vss", "sub": "vss"}),
-        (arrays_lower["tail2"].total_spec.with_name("tail2"),
+        (arrays["tail2"].total_spec.with_name("tail2"),
          {"D": "tx2", "G": "mgate", "S": "vss", "sub": "vss"}),
-        (arrays_upper["ps1"].total_spec.with_name("ps1"),
+        (arrays["ps1"].total_spec.with_name("ps1"),
          {"D": "tx1", "G": "steerp", "S": "em", "sub": "vss"}),
-        (arrays_upper["ps2"].total_spec.with_name("ps2"),
+        (arrays["ps2"].total_spec.with_name("ps2"),
          {"D": "tx2", "G": "steerp", "S": "em", "sub": "vss"}),
-        (arrays_upper["pd1"].total_spec.with_name("pd1"),
+        (arrays["pd1"].total_spec.with_name("pd1"),
          {"D": "tx1", "G": "steern", "S": "ed1", "sub": "vss"}),
-        (arrays_upper["pd2"].total_spec.with_name("pd2"),
+        (arrays["pd2"].total_spec.with_name("pd2"),
          {"D": "tx2", "G": "steern", "S": "ed2", "sub": "vss"}),
     ]
 
-    nmos_box = pya.DBox(
-        nmos_left, vss_rail_bottom, nmos_right,
-        snap(max(tail_box.top, steer_box.top) + upper_y),
-    )
-    lower_nmos_box = pya.DBox(
-        nmos_left, vss_rail_bottom, nmos_right, snap(tail_box.top + lower_y),
-    )
-    upper_nmos_box = pya.DBox(nmos_left, upper_y, nmos_right, snap(steer_box.top + upper_y))
-    guard_lower = add_guard_ring(layout, cell, lower_nmos_box, RingSpec(kind="ptap1", clearance=2.0))
-    guard_upper = add_guard_ring(layout, cell, upper_nmos_box, RingSpec(kind="ptap1", clearance=2.0))
-    guard = guard_lower
-
-    lower_guard_box = guard_lower["outer_box_um"]
+    nmos_box = pya.DBox(nmos_left, vss_rail_bottom, nmos_right, snap(tail_box.top))
+    guard = add_guard_ring(layout, cell, nmos_box, RingSpec(kind="ptap1", clearance=2.0))
+    guard_box = guard["outer_box_um"]
     tap_x, tap_y = min(
-        guard_lower["tap_centres_um"],
-        key=lambda c: (abs(c[1] - lower_guard_box[1]) > 0.1, abs(c[0] - nmos_left)),
+        guard["tap_centres_um"],
+        key=lambda c: (abs(c[1] - guard_box[1]) > 0.1, abs(c[0] - nmos_left)),
     )
     via_between(layout, cell, tap_x, tap_y, "Metal1", "Metal2", columns=1, rows=1)
     rect(layout, cell, "Metal2",
           tap_x - vss_rail_w / 2, tap_y, tap_x + vss_rail_w / 2, vss_rail_y)
 
-    nmos_top = snap(max(
-        nmos_box.top,
-        guard_lower["outer_box_um"][3],
-        guard_upper["outer_box_um"][3],
-    ))
+    nmos_top = snap(max(tail_box.top, guard_box[3]))
 
     sig_w = snap(max(em.width_for_a(ROUTE_METAL, i_tail), route_width(ROUTE_METAL)))
     ctrl_w = snap(max(route_width(CONTROL_METAL), sig_w * 0.5))
+    vicm_w = snap(max(route_width(VICM_METAL), ctrl_w))
 
-    # tx1/tx2 trunks sit outboard of the steering pairs so a vertical at the tail
-    # drain x does not cross an array body (tail2 at x≈185 falls inside ps2).
-    tx1_trunk_x = snap(placement_lower["mdiode"] - array_gap / 2)
-    tx2_trunk_x = snap(placement_lower["tail2"] + tail_array_w + array_gap / 2)
+    tx1_trunk_x = snap(placement["mdiode"] - array_gap / 2)
+    tx2_trunk_x = snap(placement["pd2"] + steer_array_w + array_gap / 2)
+    drain_y = snap(nmos_ports["D_tail1"].center[1])
+    route_safe_y = snap(drain_y + sig_w + 2.0)
+    m5_rise_y = snap(tail_box.top + 2.0)
+    src_hop_metal = "Metal4"
+
+    def _source_rise(source: Terminal, gap_x: float) -> None:
+        sx, sy = source.center
+        w2 = route_width("Metal2")
+        rect(layout, cell, "Metal2", min(sx, gap_x) - w2 / 2, sy - w2 / 2,
+              max(sx, gap_x) + w2 / 2, sy + w2 / 2)
+        rect(layout, cell, "Metal2", gap_x - w2 / 2, sy, gap_x + w2 / 2, route_safe_y)
+
+    def _metal5_vertical(x: float, y0: float, y1: float) -> None:
+        rect(layout, cell, ROUTE_METAL, x - sig_w / 2, min(y0, y1),
+              x + sig_w / 2, max(y0, y1))
+
+    def _metal5_join(x0: float, x1: float, y: float) -> None:
+        rect(layout, cell, ROUTE_METAL, min(x0, x1) - sig_w / 2, y - sig_w / 2,
+              max(x0, x1) + sig_w / 2, y + sig_w / 2)
+
+    def _source_to_bus(source: Terminal, gap_x: float, bus_y: float) -> None:
+        hop_w = route_width(src_hop_metal)
+        _source_rise(source, gap_x)
+        via_between(layout, cell, gap_x, route_safe_y, "Metal2", src_hop_metal, columns=1, rows=1)
+        rect(layout, cell, src_hop_metal, gap_x - hop_w / 2, route_safe_y,
+              gap_x + hop_w / 2, m5_rise_y)
+        via_between(layout, cell, gap_x, m5_rise_y, src_hop_metal, ROUTE_METAL, columns=1, rows=2)
+        _metal5_vertical(gap_x, m5_rise_y, bus_y)
+
+    gap_ps1_em = snap(placement["pd1"] + steer_array_w + array_gap / 4)
+    gap_ps2_em = snap(placement["ps2"] + steer_array_w + array_gap / 4)
+    gap_pd1_ed = snap(placement["mdiode"] + tail_array_w + array_gap * 0.75)
+    gap_pd2_ed = snap(placement["pd2"] + steer_rail_w - array_gap / 4)
 
     trunk_net(
         layout, cell,
-        [lower_ports["D_tail1"], upper_ports["D_ps1"], upper_ports["D_pd1"]],
+        [nmos_ports["D_tail1"], nmos_ports["D_ps1"], nmos_ports["D_pd1"]],
         trunk_x=tx1_trunk_x, metal=ROUTE_METAL, width=sig_w,
     )
     em_segments.append(
@@ -332,7 +449,7 @@ def build_vga_stage(params: dict[str, float] | None = None,
     )
     trunk_net(
         layout, cell,
-        [lower_ports["D_tail2"], upper_ports["D_ps2"], upper_ports["D_pd2"]],
+        [nmos_ports["D_tail2"], nmos_ports["D_ps2"], nmos_ports["D_pd2"]],
         trunk_x=tx2_trunk_x, metal=ROUTE_METAL, width=sig_w,
     )
     em_segments.append(
@@ -341,46 +458,26 @@ def build_vga_stage(params: dict[str, float] | None = None,
     )
 
     if probe == "mos":
-        em_stub_y = snap(upper_y + steer_box.top + ROW_GAP)
-        em_left = snap(placement_upper["ps1"] + steer_rail_w)
-        em_right = snap(placement_upper["ps2"] + steer_span + steer_rail_w)
+        em_stub_y = snap(nmos_top + ROW_GAP)
+        _source_to_bus(nmos_ports["S_ps1"], gap_ps1_em, em_stub_y)
+        _source_to_bus(nmos_ports["S_ps2"], gap_ps2_em, em_stub_y)
+        _metal5_join(gap_ps1_em, gap_ps2_em, em_stub_y)
 
-        def _mos_em_source(source: Terminal, tap_x: float) -> None:
-            sx, sy = source.center
-            w2 = route_width("Metal2")
-            rect(layout, cell, "Metal2", min(sx, tap_x) - w2 / 2, sy - w2 / 2,
-                  max(sx, tap_x) + w2 / 2, sy + w2 / 2)
-            via_between(layout, cell, tap_x, sy, "Metal2", ROUTE_METAL, columns=1, rows=2)
-            rect(layout, cell, ROUTE_METAL, min(tap_x, em_left) - sig_w / 2, min(sy, em_stub_y),
-                  max(tap_x, em_left) + sig_w / 2, max(sy, em_stub_y))
+        ed_left = snap(placement["mdiode"] - array_gap)
+        ed_right = snap(placement["pd2"] + steer_array_w + array_gap)
+        _source_to_bus(nmos_ports["S_pd1"], gap_pd1_ed, em_stub_y)
+        _source_to_bus(nmos_ports["S_pd2"], gap_pd2_ed, em_stub_y)
+        _metal5_join(gap_pd1_ed, ed_left, em_stub_y)
+        _metal5_join(gap_pd2_ed, ed_right, em_stub_y)
 
-        _mos_em_source(upper_ports["S_ps1"], em_left)
-        _mos_em_source(upper_ports["S_ps2"], em_right)
-        rect(layout, cell, ROUTE_METAL, em_left - sig_w / 2, em_stub_y - sig_w / 2,
-              em_right + sig_w / 2, em_stub_y + sig_w / 2)
-
-        ed_left = snap(placement_upper["pd1"] - array_gap)
-        ed_right = snap(placement_upper["pd2"] + steer_array_w + array_gap)
-        for source, bus_x, net in (
-            (upper_ports["S_pd1"], ed_left, "ed1"),
-            (upper_ports["S_pd2"], ed_right, "ed2"),
-        ):
-            sx, sy = source.center
-            w2 = route_width("Metal2")
-            rect(layout, cell, "Metal2", min(sx, bus_x) - w2 / 2, sy - w2 / 2,
-                  max(sx, bus_x) + w2 / 2, sy + w2 / 2)
-            via_between(layout, cell, bus_x, sy, "Metal2", ROUTE_METAL, columns=1, rows=2)
-            rect(layout, cell, ROUTE_METAL, bus_x - sig_w / 2, sy - sig_w / 2,
-                  bus_x + sig_w / 2, sy + sig_w / 2)
-
-        steer_port_y = snap(gate_y_upper + MOS_ROW_GAP)
-        steern_port_y = snap(gate_y_upper - MOS_ROW_GAP)
+        steer_port_y = snap(gate_y + STEER_PORT_DY)
+        steern_port_y = snap(gate_y - STEER_PORT_DY)
         port_right = snap(nmos_right + PORT_REACH)
 
         def _probe_steer_port(net: str, devices: tuple[str, ...], port_y: float) -> None:
             xs = []
             for name in devices:
-                gx, gy = upper_ports[f"G_{name}"].center
+                gx, gy = nmos_ports[f"G_{name}"].center
                 poly_contact(layout, cell, gx, gy)
                 via_between(layout, cell, gx, gy, "Metal1", CONTROL_METAL, columns=1, rows=1)
                 rect(layout, cell, CONTROL_METAL, gx - ctrl_w / 2, min(gy, port_y),
@@ -393,8 +490,8 @@ def build_vga_stage(params: dict[str, float] | None = None,
         _probe_steer_port("steern", ("pd1", "pd2"), steern_port_y)
 
         port_left = snap(nmos_left - PORT_REACH)
-        mgate_rise_y = snap(lower_y + tail_box.height() / 2)
-        rect(layout, cell, "Metal2", channel_x - link_w / 2, gate_y_lower,
+        mgate_rise_y = snap(mgate_top_y + ROW_GAP / 2)
+        rect(layout, cell, "Metal2", channel_x - link_w / 2, gate_y,
               channel_x + link_w / 2, mgate_rise_y)
         via_between(layout, cell, channel_x, mgate_rise_y, "Metal2", PORT_METAL)
         rect(layout, cell, PORT_METAL, min(channel_x, port_left) - sig_w / 2,
@@ -402,7 +499,7 @@ def build_vga_stage(params: dict[str, float] | None = None,
               mgate_rise_y + sig_w / 2)
         mgate_port = Terminal(
             name="mgate", layer=f"{PORT_METAL.lower()}_drw",
-            center=(port_left, gate_y_lower), width=sig_w, orientation=180.0,
+            center=(port_left, gate_y), width=sig_w, orientation=180.0,
         )
         vss_port = Terminal(
             name="vss", layer="topmetal2_drw",
@@ -417,17 +514,17 @@ def build_vga_stage(params: dict[str, float] | None = None,
                                center=(port_right, steern_port_y), width=ctrl_w, orientation=0.0),
         }
         stamp_net_labels(layout, cell, [gate_tap, mgate_port], {"gate_contact": "mgate", "mgate": "mgate"})
-        stamp_net_labels(layout, cell, [lower_ports["S_tail1"]], {"S_tail1": "vss"})
+        stamp_net_labels(layout, cell, [nmos_ports["S_tail1"]], {"S_tail1": "vss"})
         return Block(
             name=CELL, layout=layout, cell=cell, ports=ports, instances=instances,
             port_nets=["mgate", "vss", "steerp", "steern"],
             guard=guard,
             symmetry={"axis_x_um": axis, "pairs": {}},
-            notes=["MOS-row bisection probe: seven arrays, tx trunks, no HBT/loads/coils"],
+            notes=[
+                "MOS-row bisection probe: seven arrays, tx trunks, no HBT/loads/coils",
+                f"row order mdiode|pd1|ps1|tail1|tail2|ps2|pd2, {mos_row_w:.1f} um bbox width",
+            ],
         )
-
-    if probe in ("mos+hbt", "mos+hbt+load"):
-        pass  # fall through until the matching early return below
 
     # --- HBT row: signal inboard, dummy outboard ----------------------------
     row_y = snap(nmos_top + ROW_GAP)
@@ -519,82 +616,73 @@ def build_vga_stage(params: dict[str, float] | None = None,
                        note="coil feed continued inward, then down to the load")
         )
 
-    # em: outboard vertical trunks joined by one continuous Metal5 strap at the
-    # emitter row. Signal HBT emitters reach those trunks horizontally so a local
-    # Metal5 column at the device x does not cross the Metal1 base stub (inp/inn).
     em_y = snap(q1_t["E"].center[1])
-    em_tap_left = snap(placement_upper["ps1"] + steer_rail_w)
-    em_tap_right = snap(placement_upper["ps2"] + steer_span + steer_rail_w)
+    em_tap_left = snap(placement["ps1"] + steer_rail_w)
+    em_tap_right = snap(placement["ps2"] + steer_device_span + steer_rail_w)
     em_left_x = snap(min(q1_t["E"].center[0], em_tap_left) - sig_w - 2.0)
     em_right_x = snap(max(q2_t["E"].center[0], em_tap_right) + sig_w + 2.0)
     rect(layout, cell, ROUTE_METAL, em_left_x - sig_w / 2, em_y - sig_w / 2,
           em_right_x + sig_w / 2, em_y + sig_w / 2)
-    for trunk_x in (em_left_x, em_right_x):
-        rect(layout, cell, ROUTE_METAL, trunk_x - sig_w / 2, em_y - sig_w / 2,
-              trunk_x + sig_w / 2, em_y + sig_w / 2)
 
-    def _route_to_trunk(terminal: Terminal, trunk_x: float, top_metal: str) -> None:
-        tx, ty = terminal.center
-        w2 = route_width("Metal2")
-        rect(layout, cell, "Metal2", min(tx, trunk_x) - w2 / 2, ty - w2 / 2,
-              max(tx, trunk_x) + w2 / 2, ty + w2 / 2)
-        via_between(layout, cell, trunk_x, ty, "Metal2", top_metal, columns=1, rows=2)
-        rect(layout, cell, top_metal, trunk_x - sig_w / 2, min(ty, em_y),
-              trunk_x + sig_w / 2, max(ty, em_y))
+    def _route_to_trunk(source: Terminal, gap_x: float, trunk_x: float) -> None:
+        _source_to_bus(source, gap_x, em_y)
+        if abs(gap_x - trunk_x) > 1e-6:
+            _metal5_join(gap_x, trunk_x, em_y)
 
-    def _emitter_to_em(emitter: Terminal, trunk_x: float) -> None:
-        ex, ey = emitter.center
-        vx, _ = via_up(layout, cell, emitter, ROUTE_METAL)
-        rect(layout, cell, ROUTE_METAL, min(vx, trunk_x) - sig_w / 2, ey - sig_w / 2,
-              max(vx, trunk_x) + sig_w / 2, ey + sig_w / 2)
-        rect(layout, cell, ROUTE_METAL, trunk_x - sig_w / 2, min(ey, em_y),
-              trunk_x + sig_w / 2, max(ey, em_y))
-
-    _emitter_to_em(q1_t["E"], em_left_x)
-    _emitter_to_em(q2_t["E"], em_right_x)
-    _route_to_trunk(upper_ports["S_ps1"], em_left_x, ROUTE_METAL)
-    _route_to_trunk(upper_ports["S_ps2"], em_right_x, ROUTE_METAL)
+    q1x, _ = _hbt_emitter_up(layout, cell, q1_t["E"], ROUTE_METAL, outboard_sign=-1.0)
+    q2x, _ = _hbt_emitter_up(layout, cell, q2_t["E"], ROUTE_METAL, outboard_sign=+1.0)
+    rect(layout, cell, ROUTE_METAL, min(q1x, em_left_x) - sig_w / 2, em_y - sig_w / 2,
+          max(q1x, em_left_x) + sig_w / 2, em_y + sig_w / 2)
+    rect(layout, cell, ROUTE_METAL, min(em_right_x, q2x) - sig_w / 2, em_y - sig_w / 2,
+          max(em_right_x, q2x) + sig_w / 2, em_y + sig_w / 2)
+    rect(layout, cell, ROUTE_METAL, q1x - sig_w / 2, min(q1_t["E"].center[1], em_y),
+          q1x + sig_w / 2, max(q1_t["E"].center[1], em_y))
+    rect(layout, cell, ROUTE_METAL, q2x - sig_w / 2, min(q2_t["E"].center[1], em_y),
+          q2x + sig_w / 2, max(q2_t["E"].center[1], em_y))
+    _route_to_trunk(nmos_ports["S_ps1"], gap_ps1_em, em_left_x)
+    _route_to_trunk(nmos_ports["S_ps2"], gap_ps2_em, em_right_x)
     em_segments.append(em.Segment("em", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
                                   note="shared signal emitter strap"))
 
-    out_trunk_left = snap(em_left_x - sig_w - 8.0)
-    out_trunk_right = snap(em_right_x + sig_w + 8.0)
+    ed_bus_left = snap(placement["mdiode"] - array_gap)
+    ed_bus_right = snap(placement["pd2"] + steer_array_w + array_gap)
 
-    def _dummy_emitter(dummy: Terminal, source: Terminal, bus_x: float) -> None:
-        dx, dy = dummy.center
-        sx, sy = source.center
+    def _dummy_emitter(dummy: Terminal, source: Terminal, gap_x: float, bus_x: float) -> None:
+        dy = dummy.center[1]
+        _source_rise(source, gap_x)
+        via_between(layout, cell, gap_x, route_safe_y, "Metal2", src_hop_metal, columns=1, rows=1)
+        rect(layout, cell, src_hop_metal, gap_x - route_width(src_hop_metal) / 2, route_safe_y,
+              gap_x + route_width(src_hop_metal) / 2, m5_rise_y)
+        via_between(layout, cell, gap_x, m5_rise_y, src_hop_metal, ROUTE_METAL, columns=1, rows=2)
+        _metal5_vertical(gap_x, m5_rise_y, dy)
+        if abs(gap_x - bus_x) > 1e-6:
+            _metal5_join(gap_x, bus_x, dy)
+        dx, _ = dummy.center
         via_up(layout, cell, dummy, ROUTE_METAL)
-        via_up(layout, cell, source, ROUTE_METAL)
         rect(layout, cell, ROUTE_METAL, min(dx, bus_x) - sig_w / 2, dy - sig_w / 2,
               max(dx, bus_x) + sig_w / 2, dy + sig_w / 2)
-        rect(layout, cell, ROUTE_METAL, min(sx, bus_x) - sig_w / 2, sy - sig_w / 2,
-              max(sx, bus_x) + sig_w / 2, sy + sig_w / 2)
-        rect(layout, cell, ROUTE_METAL, bus_x - sig_w / 2, min(dy, sy),
-              bus_x + sig_w / 2, max(dy, sy))
 
-    ed_bus_left = snap(placement_upper["pd1"] - array_gap)
-    ed_bus_right = snap(placement_upper["pd2"] + steer_array_w + array_gap)
-    _dummy_emitter(qd1_t["E"], upper_ports["S_pd1"], ed_bus_left)
+    _dummy_emitter(qd1_t["E"], nmos_ports["S_pd1"], gap_pd1_ed, ed_bus_left)
     em_segments.append(
         em.Segment("ed1", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
                    note="dummy emitter to its steering source")
     )
-    _dummy_emitter(qd2_t["E"], upper_ports["S_pd2"], ed_bus_right)
+    _dummy_emitter(qd2_t["E"], nmos_ports["S_pd2"], gap_pd2_ed, ed_bus_right)
     em_segments.append(
         em.Segment("ed2", ROUTE_METAL, width_um=sig_w, current_a=i_tail,
                    note="dummy emitter to its steering source")
     )
 
-    out_trunk_top = {
-        "outp": trunk_net(
-            layout, cell, [q1_t["C"], qd1_t["C"], rd1_t[lower.name]],
-            trunk_x=axis - out_trunk_left, metal=ROUTE_METAL, width=sig_w,
-        )[1],
-        "outn": trunk_net(
-            layout, cell, [q2_t["C"], qd2_t["C"], rd2_t[lower.name]],
-            trunk_x=axis + out_trunk_right, metal=ROUTE_METAL, width=sig_w,
-        )[1],
-    }
+    out_trunk_top: dict[str, float] = {}
+    for net, trunk_x, targets in (
+        ("outp", axis - OUT_TRUNK_DX, [q1_t["C"], qd1_t["C"], rd1_t[lower.name]]),
+        ("outn", axis + OUT_TRUNK_DX, [q2_t["C"], qd2_t["C"], rd2_t[lower.name]]),
+    ):
+        _, top = _collector_trunk_net(
+            layout, cell, targets, trunk_x=trunk_x, em_y=em_y,
+            metal=ROUTE_METAL, width=sig_w,
+        )
+        out_trunk_top[net] = top
     em_segments += [
         em.Segment(net, ROUTE_METAL, width_um=sig_w, current_a=i_tail, note="collector run")
         for net in ("outp", "outn")
@@ -609,8 +697,7 @@ def build_vga_stage(params: dict[str, float] | None = None,
         via_between(layout, cell, vx, by, "Metal1", IN_TRUNK_METAL, columns=1, rows=1)
         in_trunk_x[name] = vx
 
-    # vicm: dummy bases on a Metal3 bus that stays clear of the steering gates.
-    vicm_bus_y = snap(gate_y_upper + 2 * MOS_ROW_GAP)
+    vicm_bus_y = snap(hbt_top + ROW_GAP + STEER_PORT_DY)
     vicm_pts: list[tuple[float, float]] = []
     vicm_terminals: list[Terminal] = []
     for base in (qd1_t["B"], qd2_t["B"]):
@@ -620,14 +707,14 @@ def build_vga_stage(params: dict[str, float] | None = None,
         vx = snap(bx + sign * BASE_VIA_DX)
         stub_h = snap(base.width if base.width < 1.0 else route_width("Metal1"))
         rect(layout, cell, "Metal1", min(bx, vx), by - stub_h / 2, max(bx, vx), by + stub_h / 2)
-        via_between(layout, cell, vx, by, "Metal1", CONTROL_METAL, columns=1, rows=1)
-        rect(layout, cell, CONTROL_METAL, vx - ctrl_w / 2, min(by, vicm_bus_y),
-              vx + ctrl_w / 2, max(by, vicm_bus_y))
+        via_between(layout, cell, vx, by, "Metal1", VICM_METAL, columns=1, rows=1)
+        rect(layout, cell, VICM_METAL, vx - vicm_w / 2, min(by, vicm_bus_y),
+              vx + vicm_w / 2, max(by, vicm_bus_y))
         vicm_pts.append((vx, by))
         vicm_terminals.append(base)
-    rect(layout, cell, CONTROL_METAL,
-          min(p[0] for p in vicm_pts) - ctrl_w / 2, vicm_bus_y - ctrl_w / 2,
-          max(p[0] for p in vicm_pts) + ctrl_w / 2, vicm_bus_y + ctrl_w / 2)
+    rect(layout, cell, VICM_METAL,
+          min(p[0] for p in vicm_pts) - vicm_w / 2, vicm_bus_y - vicm_w / 2,
+          max(p[0] for p in vicm_pts) + vicm_w / 2, vicm_bus_y + vicm_w / 2)
 
     devices_box = cell.dbbox()
     if coil_bb:
@@ -646,16 +733,6 @@ def build_vga_stage(params: dict[str, float] | None = None,
     via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
     rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
           axis + strap_w / 2, vss_rail_y)
-
-    upper_guard_box = guard_upper["outer_box_um"]
-    utap_x, utap_y = min(
-        guard_upper["tap_centres_um"],
-        key=lambda c: (abs(c[1] - upper_guard_box[1]) > 0.1, -abs(c[0] - nmos_right)),
-    )
-    via_between(layout, cell, utap_x, utap_y, "Metal1", "Metal2", columns=1, rows=1)
-    via_between(layout, cell, utap_x, utap_y, "Metal2", "TopMetal2", columns=2, rows=2)
-    rect(layout, cell, "TopMetal2", min(utap_x, axis) - strap_w / 2, min(utap_y, vss_ring_y),
-          max(utap_x, axis) + strap_w / 2, max(utap_y, vss_ring_y))
 
     vdd_ring_y = ring.ports["vdd"][0].center[1]
     via_between(layout, cell, axis, vdd_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
@@ -677,8 +754,8 @@ def build_vga_stage(params: dict[str, float] | None = None,
 
     signal_ports: dict[str, Terminal] = {}
     for name, x, y_from, y_to, orientation in (
-        ("outp", axis - out_trunk_left, out_trunk_top["outp"], port_top, 90.0),
-        ("outn", axis + out_trunk_right, out_trunk_top["outn"], port_top, 90.0),
+        ("outp", axis - OUT_TRUNK_DX, out_trunk_top["outp"], port_top, 90.0),
+        ("outn", axis + OUT_TRUNK_DX, out_trunk_top["outn"], port_top, 90.0),
         ("inp", in_trunk_x["inp"], q1_t["B"].center[1], port_bottom, 270.0),
         ("inn", in_trunk_x["inn"], q2_t["B"].center[1], port_bottom, 270.0),
     ):
@@ -699,16 +776,13 @@ def build_vga_stage(params: dict[str, float] | None = None,
                        note="signal trunk out of the cell edge")
         )
 
-    # Control ports on Metal4 at distinct y levels; inp/inn stay on Metal3 so a
-    # horizontal steering bus never crosses an input trunk on the same layer.
-    steer_rise_y = snap(upper_y + steer_box.height() / 2)
-    steer_port_y = snap(gate_y_upper + MOS_ROW_GAP)
-    steern_port_y = snap(gate_y_upper - MOS_ROW_GAP)
+    steer_port_y = snap(gate_y + STEER_PORT_DY)
+    steern_port_y = snap(gate_y - STEER_PORT_DY)
 
     def _steer_gate_port(net: str, devices: tuple[str, ...], port_y: float) -> None:
         xs = []
         for name in devices:
-            gx, gy = upper_ports[f"G_{name}"].center
+            gx, gy = nmos_ports[f"G_{name}"].center
             poly_contact(layout, cell, gx, gy)
             via_between(layout, cell, gx, gy, "Metal1", CONTROL_METAL, columns=1, rows=1)
             rect(layout, cell, CONTROL_METAL, gx - ctrl_w / 2, min(gy, port_y),
@@ -725,25 +799,25 @@ def build_vga_stage(params: dict[str, float] | None = None,
     _steer_gate_port("steern", ("pd1", "pd2"), steern_port_y)
 
     vicm_mid = snap(max(p[0] for p in vicm_pts) + 2.0)
-    rect(layout, cell, CONTROL_METAL, vicm_mid - ctrl_w / 2, vicm_bus_y - ctrl_w / 2,
-          port_right + ctrl_w / 2, vicm_bus_y + ctrl_w / 2)
+    rect(layout, cell, VICM_METAL, vicm_mid - vicm_w / 2, vicm_bus_y - vicm_w / 2,
+          port_right + vicm_w / 2, vicm_bus_y + vicm_w / 2)
     em_segments.append(
-        em.Segment("vicm", CONTROL_METAL, width_um=ctrl_w, current_a=0.0,
-                   note="dummy base common mode out of the right cell edge")
+        em.Segment("vicm", VICM_METAL, width_um=vicm_w, current_a=0.0,
+                   note="dummy base common mode out of the right cell edge on Metal4")
     )
 
-    mgate_rise_y = snap(gate_y_upper + 3 * MOS_ROW_GAP)
-    via_between(layout, cell, channel_x, gate_y_lower, "Metal2", PORT_METAL)
-    rect(layout, cell, PORT_METAL, channel_x - sig_w / 2, gate_y_lower,
-          channel_x + sig_w / 2, mgate_rise_y)
+    mgate_rise_y = snap(mgate_top_y + ROW_GAP / 2)
+    rect(layout, cell, "Metal2", channel_x - link_w / 2, gate_y,
+          channel_x + link_w / 2, mgate_rise_y)
+    via_between(layout, cell, channel_x, mgate_rise_y, "Metal2", PORT_METAL)
     rect(layout, cell, PORT_METAL, min(channel_x, port_left) - sig_w / 2,
           mgate_rise_y - sig_w / 2, max(channel_x, port_left) + sig_w / 2,
           mgate_rise_y + sig_w / 2)
-    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, min(gate_y_lower, mgate_rise_y),
-          port_left + sig_w / 2, max(gate_y_lower, mgate_rise_y))
+    rect(layout, cell, PORT_METAL, port_left - sig_w / 2, min(gate_y, mgate_rise_y),
+          port_left + sig_w / 2, max(gate_y, mgate_rise_y))
     mgate_port = Terminal(
         name="mgate", layer=f"{PORT_METAL.lower()}_drw",
-        center=(port_left, gate_y_lower), width=sig_w, orientation=180.0,
+        center=(port_left, gate_y), width=sig_w, orientation=180.0,
     )
     em_segments.append(
         em.Segment("mgate", PORT_METAL, width_um=sig_w, current_a=0.0,
@@ -752,8 +826,8 @@ def build_vga_stage(params: dict[str, float] | None = None,
 
     control_ports = {
         "vicm": Terminal(
-            name="vicm", layer=f"{CONTROL_METAL.lower()}_drw",
-            center=(port_right, vicm_bus_y), width=ctrl_w, orientation=0.0,
+            name="vicm", layer=f"{VICM_METAL.lower()}_drw",
+            center=(port_right, vicm_bus_y), width=vicm_w, orientation=0.0,
         ),
         "steerp": Terminal(
             name="steerp", layer=f"{CONTROL_METAL.lower()}_drw",
@@ -779,12 +853,12 @@ def build_vga_stage(params: dict[str, float] | None = None,
         (control_ports["vicm"], "vicm"), (control_ports["steerp"], "steerp"),
         (control_ports["steern"], "steern"),
         (q1_t["E"], "em"), (q2_t["E"], "em"),
-        (upper_ports["S_ps1"], "em"), (upper_ports["S_ps2"], "em"),
+        (nmos_ports["S_ps1"], "em"), (nmos_ports["S_ps2"], "em"),
         (qd1_t["E"], "ed1"), (qd2_t["E"], "ed2"),
         (rd1_t[upper.name], "nlp1"), (rd2_t[upper.name], "nlp2"),
         (l1_t["PLUS"], "vdd"), (l2_t["PLUS"], "vdd"),
-        (gate_tap, "mgate"), (mgate_port, "mgate"), (lower_ports["S_tail1"], "vss"),
-        (lower_ports["S_tail2"], "vss"), (lower_ports["S_mdiode"], "vss"),
+        (gate_tap, "mgate"), (mgate_port, "mgate"), (nmos_ports["S_tail1"], "vss"),
+        (nmos_ports["S_tail2"], "vss"), (nmos_ports["S_mdiode"], "vss"),
         (ring.ports["vdd"][0], "vdd"), (ring.ports["vss"][0], "vss"),
     ):
         stamp_net_labels(layout, cell, [terminal], {terminal.name: net})
@@ -802,24 +876,28 @@ def build_vga_stage(params: dict[str, float] | None = None,
         symmetry={
             "axis_x_um": axis,
             "pairs": {
-                "tails": [placement_lower["tail1"], placement_lower["tail2"]],
-                "steer_signal": [placement_upper["ps1"], placement_upper["ps2"]],
-                "steer_dummy": [placement_upper["pd1"], placement_upper["pd2"]],
+                "tails": [placement["tail1"], placement["tail2"]],
+                "steer_signal": [placement["ps1"], placement["ps2"]],
+                "steer_dummy": [placement["pd1"], placement["pd2"]],
                 "hbt_signal": [sig_left, sig_right],
                 "hbt_dummy": [dum_left, dum_right],
                 "loads": [rd_left, rd_right],
                 "coil_feeds": [l1_t["PLUS"].center[0], l2_t["PLUS"].center[0]],
-                "out_trunks": [snap(axis - out_trunk_left), snap(axis + out_trunk_right)],
+                "out_trunks": [snap(axis - OUT_TRUNK_DX), snap(axis + OUT_TRUNK_DX)],
                 "in_trunks": [in_trunk_x["inp"], in_trunk_x["inn"]],
             },
         },
         notes=[
             f"cell name is {CELL}, shared with the schematic subcircuit",
-            "seven MOS arrays in two rows: mirror and tails below, four steering "
-            f"devices above; single-row width would be ~422 um, two rows ~210 um",
-            "guard ring encloses each MOS row separately: the lower ring taps the "
-            "source rail on the left, the upper ring reaches the power-ring vss "
-            "run on TopMetal2 so no Metal2 strap crosses the mgate channel",
+            "seven MOS arrays in one CTLE-style row, left to right: "
+            f"mdiode|pd1|ps1|tail1|tail2|ps2|pd2 ({mos_row_w:.1f} um bbox width, "
+            f"~{3 * tail_device_span + 4 * steer_device_span:.0f} um active span)",
+            "two-row floorplan abandoned: horizontals at one row's drain y crossed "
+            "another array's x; tightening ARRAY_GAP to ~5.97 um with Metal4 via "
+            "stacks regressed DRC (Act.b/M2.b) and LVS (merged tails) with no "
+            "saved intermediate",
+            "tail2, ps2 and pd2 mirror by device span not bounding box; vicm on "
+            f"Metal4 at y={vicm_bus_y:.1f} um, separate from steerp/steern on Metal3",
             "coils rotated to face each other, so vdd is one straight TopMetal2 "
             "strap with the nlp feeds below it dropping onto the loads",
             f"wire widths from the technology LEF at the operating point: "
@@ -827,7 +905,7 @@ def build_vga_stage(params: dict[str, float] | None = None,
             f"the coil pin row sits {coil_half_h:.1f} um above the HBTs so the "
             "pwell-block markers clear their substrate ties",
             "outputs leave at the top edge on Metal4 and inputs at the bottom on "
-            "Metal4; vicm, steerp and steern leave on Metal3 at the right edge, "
+            "Metal4; vicm on Metal4, steerp and steern on Metal3 at the right edge, "
             "mgate on Metal4 at the left",
             f"ring squared about the axis at half-width {ring_half:.1f} um and "
             f"{RING_CLEARANCE:.0f} um clearance",

@@ -1,16 +1,14 @@
-* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 09:12
+* Extracted by KLayout with SG13G2 LVS runset on : 20/08/2026 12:37
 
-.SUBCKT vga_dut mgate vss
-M$1 \$2 \$2 \$2 vss sg13_lv_nmos L=0.96u W=50u AS=17p AD=17p PS=103.4u
-+ PD=103.4u rfmode=0
-M$6 \$2 \$2 \$2 vss sg13_lv_nmos L=0.5u W=300u AS=102p AD=102p PS=620.4u
-+ PD=620.4u rfmode=0
-M$36 mgate mgate vss vss sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
+.SUBCKT vga_dut vss mgate
+M$1 mgate mgate vss vss sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
 + PS=510.5u PD=510.5u rfmode=0
-M$61 \$2 \$4 \$23 vss sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
-+ PD=413.6u rfmode=0
-M$81 \$2 \$4 \$24 vss sg13_lv_nmos L=0.5u W=200u AS=68p AD=68p PS=413.6u
-+ PD=413.6u rfmode=0
-M$101 \$2 mgate vss vss sg13_lv_nmos L=1u W=493.5u AS=167.79p AD=167.79p
-+ PS=1021u PD=1021u rfmode=0
+M$26 \$4 \$10 \$4 vss sg13_lv_nmos L=0.5u W=400u AS=136p AD=136p PS=827.2u
++ PD=827.2u rfmode=0
+M$46 \$4 \$3 \$4 vss sg13_lv_nmos L=0.5u W=400u AS=136p AD=136p PS=827.2u
++ PD=827.2u rfmode=0
+M$106 \$4 \$10 vss vss sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
++ PS=510.5u PD=510.5u rfmode=0
+M$131 \$4 \$9 vss vss sg13_lv_nmos L=1u W=246.75u AS=83.895p AD=83.895p
++ PS=510.5u PD=510.5u rfmode=0
 .ENDS vga_dut

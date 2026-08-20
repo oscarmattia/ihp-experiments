@@ -2343,6 +2343,7 @@
     "unchecked_layers": [],
     "uncheckable_reasons": {}
   },
+  "png": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.png",
   "drc": {
     "cell": "ctle_dut",
     "gds": "/workspace/layout/blocks/out/ctle_stage/ctle_dut.gds",

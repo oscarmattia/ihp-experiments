@@ -348,15 +348,11 @@ def build_driver_stage(params: dict[str, float] | None = None,
                                   current_a=i_supply, note="shared source rail"))
 
     gate_y = nmos_ports["G_tail"].center[1]
-    gate_strap_w = nmos_ports["G_tail"].width
     diode_right = snap(placement["mdiode"] + mirror_box.right)
     tail1_left = snap(placement["tail"] + tail_box.left)
     poly = lm["gatpoly_drw"]
-    # Bridge the clear channel between arrays at the ``mos_array`` strap height only.
-    poly_left = snap(diode_right)
     cell.shapes(layout.layer(poly[0], poly[1])).insert(
-        pya.DBox(poly_left, snap(gate_y - gate_strap_w / 2), nmos_right,
-                 snap(gate_y + gate_strap_w / 2))
+        pya.DBox(nmos_left, snap(gate_y - 0.3), nmos_right, snap(gate_y + 0.3))
     )
 
     channel_x = snap((diode_right + tail1_left) / 2.0)
@@ -425,7 +421,8 @@ def build_driver_stage(params: dict[str, float] | None = None,
     l1_box = l2_box = pya.DBox(0, 0, 0, 0)
     coil_top = load_top
     channel = (snap(axis - COIL_PIN_GAP / 2), snap(axis + COIL_PIN_GAP / 2))
-    strap_w = route_width("TopMetal2")
+    tm2_riser_w = route_width("TopMetal2")
+    strap_w = tm2_riser_w
     vdd_y = snap(load_top + ROW_GAP)
     interconnect_um = 0.0
     coil_half_h = 0.0
@@ -714,19 +711,20 @@ def build_driver_stage(params: dict[str, float] | None = None,
     m3_sep = min_space("Metal3")
 
     vss_ring_y = ring.ports["vss"][1].center[1]
-    via_between(layout, cell, axis, vss_rail_y, "Metal2", "TopMetal2", columns=3, rows=3)
-    rect(layout, cell, "TopMetal2", axis - strap_w / 2, vss_ring_y,
-          axis + strap_w / 2, vss_rail_y)
+    via_between(layout, cell, axis, vss_ring_y, "Metal3", "TopMetal2", columns=3, rows=3)
+    _edge_route(layout, cell, "Metal3", axis, vss_rail_y, vss_ring_y, m3_w)
+    rect(layout, cell, "Metal3", axis - m3_w / 2, min(vss_rail_y, vss_ring_y),
+          axis + m3_w / 2, max(vss_rail_y, vss_ring_y))
 
     vdd_ring_y = ring.ports["vdd"][0].center[1]
     via_between(layout, cell, axis, vdd_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
-    rect(layout, cell, "TopMetal1", axis - strap_w / 2, vdd_y, axis + strap_w / 2, vdd_ring_y)
+    rect(layout, cell, "TopMetal1", axis - tm2_riser_w / 2, vdd_y, axis + tm2_riser_w / 2, vdd_ring_y)
     via_between(layout, cell, axis, vdd_ring_y, "TopMetal1", "TopMetal2", columns=1, rows=1)
 
     em_segments += [
-        em.Segment("vss.riser", "TopMetal2", width_um=strap_w, current_a=i_supply,
-                   note="source rail down to the ring, on the axis"),
-        em.Segment("vdd.riser", "TopMetal1", width_um=strap_w, current_a=i_supply,
+        em.Segment("vss.riser", "TopMetal2", width_um=tm2_riser_w, current_a=i_supply,
+                   note="Metal3 bus from the source rail to the ring, TM2 riser on the axis"),
+        em.Segment("vdd.riser", "TopMetal1", width_um=tm2_riser_w, current_a=i_supply,
                    note="coil strap up to the ring, crossing under the vss run"),
     ]
 
@@ -748,8 +746,8 @@ def build_driver_stage(params: dict[str, float] | None = None,
             rect(layout, cell, "Metal3", min(clamp_vdd_x, axis) - m3_w / 2, vdd_y - m3_w / 2,
                   max(clamp_vdd_x, axis) + m3_w / 2, vdd_y + m3_w / 2)
         _via_chain(layout, cell, axis, vdd_y, ("Metal3", "Metal4", "Metal5", "TopMetal1", "TopMetal2"))
-        rect(layout, cell, "TopMetal2", min(axis, clamp_vdd_x) - strap_w / 2, vdd_y - strap_w / 2,
-              max(axis, clamp_vdd_x) + strap_w / 2, vdd_y + strap_w / 2)
+        rect(layout, cell, "TopMetal2", min(axis, clamp_vdd_x) - tm2_riser_w / 2, vdd_y - tm2_riser_w / 2,
+              max(axis, clamp_vdd_x) + tm2_riser_w / 2, vdd_y + tm2_riser_w / 2)
 
         clamp_vss_x, clamp_vss_y = clamp_t["VSS"].center
         vss_stub_x, vss_stub_y = via_up(layout, cell, clamp_t["VSS"], "Metal3")
@@ -757,6 +755,8 @@ def build_driver_stage(params: dict[str, float] | None = None,
         if abs(vss_stub_x - clamp_vss_x) > 1e-6:
             rect(layout, cell, "Metal3", min(vss_stub_x, clamp_vss_x) - m3_w / 2, vss_stub_y - m3_w / 2,
                   max(vss_stub_x, clamp_vss_x) + m3_w / 2, vss_stub_y + m3_w / 2)
+        rect(layout, cell, "Metal3", min(clamp_vss_x, axis) - m3_w / 2, vss_rail_y - m3_w / 2,
+              max(clamp_vss_x, axis) + m3_w / 2, vss_rail_y + m3_w / 2)
         via_between(layout, cell, clamp_vss_x, vss_rail_y, "Metal3", "Metal2", columns=2, rows=2)
         rect(layout, cell, "Metal2", clamp_vss_x - vss_rail_w / 2, vss_rail_y - vss_rail_w / 2,
               nmos_right + vss_rail_w / 2, vss_rail_y + vss_rail_w / 2)
