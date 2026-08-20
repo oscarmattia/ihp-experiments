@@ -22,30 +22,17 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from size_ctle import (  # noqa: E402
-    CtleParams,
-    DC_GAIN_TARGET_DB,
-    print_summary,
-    read_params_inc,
-    size_ctle,
-    write_params_inc,
-)
-
 from ctlelib import (  # noqa: E402
     DC_GAIN_MAX_DB,
     DC_GAIN_MIN_DB,
     PEAK_MAX_DB,
     PEAK_MIN_DB,
-    PRBS9_BITS,
-    PRBS9_POLY,
     PSRR_MAX_DB,
-    SBR_KEEP_FRAC,
     SBR_POST,
     SBR_PRE,
-    SBR_SETTLE_UI,
-    SimMetrics,
-    SbrResult,
     EyeMetrics,
+    SbrResult,
+    SimMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,
@@ -80,6 +67,14 @@ from ctlelib import (  # noqa: E402
     write_tran_csv,
 )
 from ctlelib.reports import write_ctle_report  # noqa: E402
+from size_ctle import (  # noqa: E402
+    DC_GAIN_TARGET_DB,
+    CtleParams,
+    print_summary,
+    read_params_inc,
+    size_ctle,
+    write_params_inc,
+)
 
 NYQUIST_HZ = 28e9
 CMRR_MIN_DB = 6.0

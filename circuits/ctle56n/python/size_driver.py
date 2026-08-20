@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 import os
 import sys
 from dataclasses import dataclass
@@ -22,7 +21,6 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from char.common.lut import load_lut  # noqa: E402
-
 from size_ctle import (  # noqa: E402
     MFD,
     TAIL_VDS_V,
@@ -32,16 +30,15 @@ from size_ctle import (  # noqa: E402
     size_mos_tail,
     snap_drawable_mos_w,
 )
-from size_vga import pick_em_inductor, size_vga_for_chain  # noqa: E402
 from size_term import (  # noqa: E402
     ESD_C_FF_PER_PAD,
     RSIL_L_UM,
     RSIL_W_UM,
     Z0_DIFF_OHM,
-    Z0_SE_OHM,
     pad_capacitance_f,
     verify_rsil_ngspice,
 )
+from size_vga import pick_em_inductor, size_vga_for_chain  # noqa: E402
 
 NYQUIST_HZ = 28e9
 VDD_V = 1.6

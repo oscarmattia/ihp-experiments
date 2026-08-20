@@ -22,7 +22,8 @@ import numpy as np
 _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
-from char.common.lut import matrange, parse_wrdata as _parse_wrdata, save_lut
+from char.common.lut import matrange, save_lut
+from char.common.lut import parse_wrdata as _parse_wrdata
 
 OUTVARS = [
     "ID",

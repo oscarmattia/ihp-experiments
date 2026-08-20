@@ -12,7 +12,7 @@
 - **`../MEMORY.md`** — agent memory for ngspice/IHP pitfalls (not the human install guide).
 - **`LAYOUT.md`** — physical layout flow: foundry PCells for devices, gdsfactory for routing only, DRC/LVS/PEX gates, and the PCell/gdsfactory traps. Keep it aligned with `scripts/install-ihp-layout.sh`, `scripts/verify-ihp-layout.sh` and `layout/`.
 - **`APPCSXCAD-STUB.md`** — headless `AppCSXCAD` stub at `$IHP_EDA_ROOT/tools/bin/AppCSXCAD` (openEMS built without GUI).
-- **`CI-CD-PLAN.md`** — **draft** CI/CD architecture proposal (pinned environment image on GHCR, tiered regression gates, DVC-tracked testbench results, CML PR reports). Not yet implemented; revise this doc rather than forking a second plan, and keep its "Prerequisite fixes" list in sync with what actually lands in `scripts/` and `char/`.
+- **`CI-CD-PLAN.md`** — single CI/CD plan: Phase 0 lint (ruff on GitHub Actions) **has landed**; later phases (pinned environment image on GHCR, tiered regression gates, DVC-tracked testbench results, CML PR reports) remain **draft**. Revise this doc rather than forking a second plan, and keep its "Prerequisite fixes" list in sync with what actually lands in `scripts/` and `char/`. Workflow contract: [`.github/AGENTS.md`](../.github/AGENTS.md). When workflows change, update that file in the same PR.
 - When installer **flags, paths, versions, or verification steps** change, update **`ENVIRONMENT.md` and this `AGENTS.md` in the same PR** as the script changes.
 - When EM installer or verify scripts change, also update **`scripts/AGENTS.md`** in the same PR.
 - When the layout flow changes, update **`LAYOUT.md`**, **`layout/AGENTS.md`** and **`scripts/AGENTS.md`** in the same PR.

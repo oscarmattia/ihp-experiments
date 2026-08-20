@@ -1,8 +1,14 @@
 # CI/CD plan — pinned environment image, tiered regressions, DVC + CML reporting
 
-**Status: draft.** This document is the working proposal for continuous integration in this
-repo. It is expected to be revised before implementation starts; treat the phase list at the
-end as the current backlog, not a commitment.
+**Status:** Phase 0 (ruff lint on GitHub Actions) **has landed**. The rest of this document
+remains a **draft** proposal; treat phases 1–9 as the current backlog, not a commitment.
+
+## Landed
+
+- **Phase 0 — lint gate:** root [`pyproject.toml`](../pyproject.toml) (ruff `E,F,I` with
+  `E501`/`E402`/`E741` ignored) plus [`.github/workflows/lint.yml`](../.github/workflows/lint.yml).
+  Runs on hosted `ubuntu-latest` **outside** the future GHCR image (no PDK, no ngspice). No
+  `ruff format` mandate.
 
 ## Why this shape
 
@@ -229,12 +235,15 @@ Defects found while measuring; these block a trustworthy gate and land first.
    `clone_pdk()` check out the SHA.
 7. Image slimming: shallow clone plus sparse checkout of `ihp-sg13g2` drops ~520 MB of PDK
    `.git` (`libs.tech` is 156 MB of the 554 MB tree).
-8. Root [`AGENTS.md`](../AGENTS.md) repo map lists `pdk/` as a "PDK submodule", but there is no
-   `.gitmodules` and `.gitignore` ignores `pdk`. Fix the stale line.
+8. ~~Root [`AGENTS.md`](../AGENTS.md) repo map lists `pdk/` as a "PDK submodule"~~ — **done**
+   on main (`pdk/` is documented as a gitignored symlink to `$PDK_ROOT`).
 
 ## Target layout
 
 ```
+pyproject.toml                         # ruff (landed); future pytest config
+.github/workflows/lint.yml             # Phase 0: ruff check only (landed)
+.github/AGENTS.md                      # workflow contract (landed)
 .github/workflows/{ci.yml,env-image.yml,_design.yml,_char.yml,nightly.yml,pdk-bump.yml}
 docker/ihp-eda.Dockerfile
 env/{versions.env,requirements-char.txt}
@@ -252,7 +261,10 @@ Hosted `ubuntu-latest` (4 vCPU / 16 GB) fits Tiers 0-2 and openEMS `l2n0`; Palac
 
 ## Implementation phases
 
-1. **Prerequisite fixes** — the eight items above.
+0. **Lint gate (landed)** — [`pyproject.toml`](../pyproject.toml) ruff `E,F,I` with
+   `E501`/`E402`/`E741` ignored; [`.github/workflows/lint.yml`](../.github/workflows/lint.yml);
+   excludes `**/out/**`. Runs on hosted `ubuntu-latest` outside the future GHCR image.
+1. **Prerequisite fixes** — the remaining seven items above.
 2. **Container image** — `docker/ihp-eda.Dockerfile` with shallow/sparse PDK checkout, plus
    `env-image.yml` publishing to GHCR tagged by a hash of `env/versions.env`, on pin changes
    and weekly; expose the image digest as a job output.
@@ -269,8 +281,9 @@ Hosted `ubuntu-latest` (4 vCPU / 16 GB) fits Tiers 0-2 and openEMS `l2n0`; Palac
 7. **CML reporting** — `tools/report.py` plus PR comments with the provenance footer.
 8. **Nightly and PDK bump** — EM tier with `--require-em`, full corners, and an automated
    `PDK_REF` bump PR carrying the metric diff.
-9. **AGENTS.md updates** — root repo map plus new guides for `.github/`, `docker/`, `env/`,
-   `designs/`, `tests/`, `tools/`, and `char/` notes on DVC-tracked outputs.
+9. **AGENTS.md updates** — extend [`.github/AGENTS.md`](../.github/AGENTS.md) for new
+   workflows; add guides for `docker/`, `env/`, `designs/`, `tests/`, `tools/`, and `char/`
+   notes on DVC-tracked outputs.
 
 ## Open decisions
 

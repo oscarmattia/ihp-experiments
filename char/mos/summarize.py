@@ -51,7 +51,6 @@ def summarize_device(name: str, lut: dict) -> list[dict]:
     """One row per L at VSB=0, VDS≈VDD (last point), mid-L bias summary."""
     rows = []
     lengths = np.asarray(lut["L"], dtype=float)
-    vgs = np.asarray(lut["VGS"], dtype=float)
     vds = np.asarray(lut["VDS"], dtype=float)
     vsb = np.asarray(lut["VSB"], dtype=float)
     w = float(lut["W"])

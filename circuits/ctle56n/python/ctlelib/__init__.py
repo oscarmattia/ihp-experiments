@@ -17,8 +17,8 @@ from .metrics import (
     SBR_POST,
     SBR_PRE,
     EyeMetrics,
-    SimMetrics,
     SbrResult,
+    SimMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,
@@ -37,7 +37,6 @@ from .metrics import (
 )
 from .ngs import (
     AC_WRDATA_COMPLEX_SCALE_COLS,
-    assert_unit_diff_source,
     CHAIN_DUT_BIAS,
     CHAIN_DUT_PORTS,
     CHAIN_NODESET,
@@ -56,6 +55,7 @@ from .ngs import (
     VGA_DUT_PORTS,
     VGA_NODESET,
     apply_params,
+    assert_unit_diff_source,
     exp_root,
     parse_ac_raw,
     parse_ac_vm_vp_raw,

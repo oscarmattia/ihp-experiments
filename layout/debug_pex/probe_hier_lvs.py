@@ -29,8 +29,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from layout.blocks.generators import _place, hbt_differential_pair
 from layout.blocks.draw import snap
+from layout.blocks.generators import _place, hbt_differential_pair
 from layout.common.gds import stamp_net_labels, write_gds
 from layout.common.netlist import BlockDef, chain_subckt, write_chain_cdl
 from layout.common.paths import pdk_paths

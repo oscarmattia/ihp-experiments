@@ -12,20 +12,19 @@ same environment; ``symmetry_error`` on each block reports how well that held.
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from layout.common.devices import build, kind_of
+from layout.common.devices import build
 from layout.common.gds import layer_summary, stamp_net_labels, write_gds
 from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.layers import layer_map
-from layout.common.xsection import ROUTE_WIDTHS
 from layout.common.pdk import new_layout, pya_module
 from layout.common.rules import grid, route_width
 from layout.common.spec import DeviceSpec, Terminal
 from layout.common.wrap import derive_terminals
+from layout.common.xsection import ROUTE_WIDTHS
 
 
 @dataclass

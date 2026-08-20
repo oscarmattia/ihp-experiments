@@ -292,8 +292,8 @@ def _render_matplotlib(gds_path: Path, png_path: Path, title: str, *, width: int
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.patches import Polygon as MplPolygon
     from matplotlib.collections import PatchCollection
+    from matplotlib.patches import Polygon as MplPolygon
 
     lib = gdspy.GdsLibrary(infile=str(gds_path))
     top_cells = lib.top_level()

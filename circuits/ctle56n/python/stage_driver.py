@@ -25,11 +25,13 @@ if str(_REPO) not in sys.path:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from char.common.lut import load_lut  # noqa: E402
-
 from ctlelib import (  # noqa: E402
+    DRIVER_DUT_BIAS,
+    DRIVER_DUT_PORTS,
+    DRIVER_NODESET,
+    EyeMetrics,
     SbrResult,
     SimMetrics,
-    EyeMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,
@@ -39,6 +41,7 @@ from ctlelib import (  # noqa: E402
     parse_ac_raw,
     parse_dc_log,
     parse_tran_raw,
+    pdk_models,
     plot_ac,
     plot_eye_diff,
     plot_eye_se,
@@ -46,7 +49,6 @@ from ctlelib import (  # noqa: E402
     plot_tran_diff,
     plot_tran_se,
     prepare_tb,
-    pdk_models,
     run_ngspice,
     write_ac_diff_csv,
     write_eye_csvs,
@@ -54,12 +56,13 @@ from ctlelib import (  # noqa: E402
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
-    DRIVER_DUT_BIAS,
-    DRIVER_DUT_PORTS,
-    DRIVER_NODESET,
+)
+from ctlelib.metrics import (  # noqa: E402
+    AC_PLOT_FMAX_HZ,
+    AC_PLOT_FMIN_HZ,
+    verify_eye_phase_invariance,
 )
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
-from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, verify_eye_phase_invariance  # noqa: E402
 from ctlelib.stim import (  # noqa: E402
     BIT_RATE_HZ,
     EDGE_S,
@@ -70,9 +73,9 @@ from ctlelib.stim import (  # noqa: E402
 )
 from size_ctle import RE_VBIC_SCALE, hbt_caps_at_bias, miller_cin  # noqa: E402
 from size_driver import (  # noqa: E402
-    DriverParams,
     ITAIL_TARGET_A,
     R_EFF_AC_SE_OHM,
+    DriverParams,
     _repo_paths,
     extra_params,
     print_summary,

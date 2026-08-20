@@ -42,7 +42,6 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from layout.common.devices import build
-from layout.common.gds import write_gds
 from layout.common.layers import layer_map
 from layout.common.paths import pdk_paths
 from layout.common.pdk import new_layout, pya_module

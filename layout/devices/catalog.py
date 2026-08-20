@@ -9,7 +9,6 @@ the LUTs were characterized at is covered by DRC and LVS too.
 from __future__ import annotations
 
 import math
-from pathlib import Path
 
 from layout.common.paths import repo_root
 from layout.common.sizing import metres, read_params

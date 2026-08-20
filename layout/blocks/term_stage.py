@@ -55,7 +55,7 @@ from layout.common.devices import build
 from layout.common.gds import stamp_net_labels
 from layout.common.guard import RingSpec, add_guard_ring
 from layout.common.pdk import new_layout, pya_module
-from layout.common.rules import route_width, min_space, rule
+from layout.common.rules import min_space, route_width, rule
 from layout.common.sizing import read_params
 from layout.common.spec import DeviceSpec, Terminal
 
