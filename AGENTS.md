@@ -39,7 +39,7 @@ same PR as the code.
 | --- | --- | --- |
 | `char/` | Device characterization LUTs (`mos/`, `bjt/`, `passive/`, `common/`) | `char/AGENTS.md` |
 | `circuits/` | Circuit experiments (56G RX front end: termination, CTLE, VGA, pad driver) | `circuits/AGENTS.md` |
-| `layout/` | Physical layout: PCell devices, blocks, DRC/LVS/PEX gates | `layout/AGENTS.md` |
+| `layout/` | Physical layout: PCell devices, the four RX stage cells, DRC/LVS/PEX gates | `layout/AGENTS.md` |
 | `scripts/` | IHP EDA install / verify | `scripts/AGENTS.md` |
 | `docs/` | Environment, setup, and PDK reference docs | `docs/AGENTS.md` |
 | `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |

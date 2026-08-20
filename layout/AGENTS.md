@@ -34,7 +34,7 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
 | --- | --- |
 | `common/` | PDK access, device registry, port derivation, DRC/LVS/PEX runners |
 | `devices/` | single-device catalog and its gates ([`AGENTS.md`](devices/AGENTS.md)) |
-| `blocks/` | matched device groups and the CTLE stage ([`AGENTS.md`](blocks/AGENTS.md)) |
+| `blocks/` | matched device groups and the four RX stage layouts ([`AGENTS.md`](blocks/AGENTS.md)) |
 | `spike_routing.py` | the PCell-plus-gdsfactory routing proof, also run by verify |
 | `debug_pex/` | extraction investigations: [FINDINGS.md](debug_pex/FINDINGS.md) plus runnable probes |
 | `run_all.sh` | regenerate everything and diff against committed goldens |
@@ -60,11 +60,12 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
 | `route.py` | PCell to gdsfactory bridge and electrical routing |
 | `drc.py` / `lvs.py` / `pex.py` | signoff runners, all returning JSON |
 | `postlayout.py` | ngspice comparison of schematic against extracted |
-| `sizing.py` | reads `circuits/ctle56n/spice/params.inc` |
+| `sizing.py` | reads `circuits/ctle56n/spice/*_params.inc` (default `params.inc`) |
 
 ## Conventions
 
-- **Sizes come from the sizing scripts.** `catalog.py` reads `params.inc`; never
+- **Sizes come from the sizing scripts.** `catalog.py` reads the committed
+  `params.inc`, `term_params.inc`, `vga_params.inc` and `driver_params.inc`; never
   hardcode a device dimension that the circuit already decided.
 - **Numeric limits come from `rules.py`.** A hand-written table had TopMetal1 at
   1.50 um against a 1.64 um minimum and the deck only caught it once a route
@@ -82,7 +83,9 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
 - **A cell that gets laid out contains devices only.** Ideal sources belong to
   whatever instantiates it — the testbench for a standalone stage, the chain when
   cascaded — and `vss` is a pin rather than the global node `0`, so the port list
-  matches. The CTLE is converted; the VGA, driver and termination netlists are not.
+  matches. All four stage netlists (`term_pdk.cir`, `ctle_pdk.cir`, `vga_pdk.cir`,
+  `driver_pdk.cir`) are converted; pad capacitance and bias sources live in the
+  testbench (`circuits/ctle56n/python/ctlelib/ngs.py` `{DUT_BIAS}` tokens).
 - **Two device kinds are black-boxed for simulation**, per kind, in
   `simview.BLACK_BOX_KINDS`: `inductor` (the PDK has no ngspice model) and `cmomi`
   (the extractor's finger geometry is not the calibrated compact model). Their nets
@@ -131,6 +134,15 @@ python layout/devices/run_drc.py
 python layout/devices/run_lvs.py
 python layout/devices/run_pex.py
 python layout/blocks/gen_blocks.py
-python layout/blocks/ctle_stage.py
-./layout/run_all.sh                      # all of the above against goldens
+python layout/blocks/term_stage.py       # term_dut
+python layout/blocks/ctle_stage.py       # ctle_dut
+python layout/blocks/vga_stage.py        # vga_dut (LVS still open)
+python layout/blocks/driver_stage.py     # driver_dut (22 DRC left)
+./layout/run_all.sh                      # devices + blocks + ctle stage (+ postlayout)
 ```
+
+Each `*_stage.py` is argument parsing plus one call to `stage_gates.run_stage_gates`,
+which runs parity, EM, render, DRC, LVS and PEX and writes the JSON artifacts.
+Shared drawing lives in `blocks/draw.py` (`snap`, `place`, `via_between`, `trunk_net`,
+`vertical_net`, …). `run_all.sh` gates the CTLE stage only; run the other three
+stages individually when working on them.

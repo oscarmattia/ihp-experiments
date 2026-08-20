@@ -37,8 +37,17 @@ from a PDK model file, `[est]` when still unverified.
   (`char/bjt/ihp_bjt_sweep.py`).
 - `wrdata` of real transient vectors often emits **time twice**: `time, time, v(a), v(b), …` even with
   `set wr_singlescale`. Parse a 6-column file as `[:,0], [:,2], [:,3], [:,4], [:,5]`. AC magnitude/phase
-  `wrdata` has a different layout — see `parse_ac_raw`. With a **complex scale** (`sp` analysis) it writes
-  `freq, freq, freq_imag` before the data, so 6 requested vectors land in columns 3-8 of 9.
+  `wrdata` has a different layout — see `parse_ac_raw`. With a **complex scale** it writes
+  `freq, freq, freq_imag` before the data, so 6 requested vectors land in columns 3-8 of 9. This is not
+  specific to `sp`: an `ac` sweep asked for `vr`/`vi` vectors is complex too.
+- **An off-by-one column in an AC parse passes every low-frequency check.** Reading the pairs one column
+  early rotates each phasor by 90 degrees and drops a term that is negligible while the imaginary parts
+  are near zero, so DC gain comes out exactly right and only the high-frequency half is wrong. Here it
+  moved the termination's 100 GHz insertion loss from −10.98 dB to −13.76 dB and its `f_IL_3dB` from
+  67.8 GHz to 48.6 GHz, and "DC matches the baseline exactly" was taken as confirmation `[sim]`. The
+  cheap guard is a quantity the testbench fixes by construction: with `ac 0.5 0` and `ac 0.5 180` ideal
+  sources, `|v(vp) − v(vn)|` must be **exactly 1.0 at every frequency**. It read 1.0062 at 100 GHz.
+  Assert it rather than eyeballing the sweep.
 - **There is no Touchstone n-port device in ngspice 45.2** (grep-verified). The only Touchstone-reading
   element is the XSPICE `xfer` code model, and it is a **unilateral** transfer block (`in`/`out` ports,
   `file=` plus `span`/`offset` to pick a column) — a controlled source, not a bidirectional impedance, so
@@ -209,6 +218,21 @@ artifact that happens to absorb the effect over a narrow band while misrepresent
   not two.
 - One 2 kV ESD diode pair (`diodevdd_2kv` + `diodevss_2kv`) loads a pad with **50.9 fF** at 1.4 V
   `[sim]`. That dominates a 28 GHz input and is why the 50 Ω shunt termination matters.
+- **The VGA's `Rs` was never a device.** `size_vga.RS_SIGNAL_OHM = 0.01` is a placeholder short: the
+  smallest realizable `rsil` here is tens of ohms, so no layout can build it. Removing it and merging the
+  signal pair's emitters into one node costs **+0.001 dB** of DC gain, i.e. nothing. Reintroducing fixed
+  degeneration means `size_vga.py` emitting an `rsil` geometry, not editing the netlist.
+- **The VGA's dummy emitters are not the same case and must stay separate.** `ed1` and `ed2` have no
+  element between them and each has its own steering device off its own tail. Shorting them looks like
+  the same cleanup and is a real circuit change: the dummy collectors sit on `outp`/`outn`, which carry
+  differential signal, so the emitters carry differential AC too. Measured, the merge moved DC gain
+  **+0.066 dB ideal / +0.088 dB PDK** and pushed ideal eye width from 0.515 UI to 0.785 UI against the
+  PDK's 0.675, failing the ideal-vs-PDK agreement check `[sim]`. It was initially reported as the
+  legitimate effect of removing `Rs`; the two were separated only by running the variants side by side.
+- **In the termination, the pad node and the stage output are one net.** The bond pad, the ESD diodes,
+  the 50 Ω terminator and the route on to the CTLE have no device between them, so the ~1 mΩ `Rout_ser`
+  that used to separate them was a probe artifact. `term_dut` therefore has four pins, not six, and a
+  layout `outp` separate from `inp` would be a net the schematic does not have.
 - SBR: cursor = max `|vod_ac|` in the first 3 UI after an isolated 1-bit pulse; sample taps every UI.
 
 ## Layout / physical verification
@@ -256,8 +280,21 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
     transistors in series. `m > 1` is netlist-only and changes nothing in the layout. A single finger
     is silently capped near 10 µm, above which the PCell reverts to minimum width. A wide device must
     be an array of single-finger units with drawn straps — see `layout/blocks/mos_array.py`.
-  - `ng` is clamped at 100 and finger width snaps to 5 nm, so a total that does not divide onto that
-    grid comes out narrower than asked.
+  - **`ng` is clamped at 100 and `w` resolves onto a 0.01 µm grid by flooring**, so a total that does
+    not divide onto that grid comes out narrower than asked. Measured against the PCell: `w=9.925u`
+    draws 9.920 µm of active, `w=9.875u` draws 9.870 µm. This is **not** the 5 nm database grid —
+    conflating the two is what let a driver tail be 784.075 µm in the schematic and 783.680 µm in the
+    layout. `mos_array.MOS_W_GRID` and `size_ctle.MOS_W_GRID_UM` hold the one value and
+    `circuits/ctle56n/python/check_mos_w_grid.py` pins them together, because the circuit side is not
+    allowed to import from `layout/`. The CTLE never exposed it: 243 µm is 25 × 9.72 and already on
+    the grid.
+  - **`npn13G2`'s `Nx` is an extracted geometry parameter, not netlist multiplicity.** The deck's own
+    `npn_adv.cdl` testcase writes `Nx=2 m=1` and extraction reports the same, so folding `Nx` into `m`
+    fails LVS at `Nx > 1` — and `Nx = 1`, which is everything the CTLE uses, hides it.
+  - **The `esd` PCell draws three different devices from one parameter**: `model` selects
+    `diodevdd_2kv`, `diodevss_2kv` or `nmoscl_2`. `bondpad` draws the pad stack. All four are DRC
+    clean and the ESD cells LVS clean standalone, so a violation involving them is in how they were
+    connected, not in the cell.
 - **Extraction semantics differ from the CDL.** The deck reports MOS width **per finger** and taps as
   area and perimeter rather than `w`/`l`. Compare capacitors on **area**, which is what sets `C`; the
   metal-finger cap snaps `w` and `l` onto its finger pitch and neither matches the request.
@@ -277,14 +314,50 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
   active edge merged 25 array units into one 241 µm device with gate, drain and source shorted. Keep
   `Gat_d` = 0.07 µm of clearance and strap inside the gate's overhang band.
 - **Guard-ring taps are layout-only.** Run LVS with `--disable_tap_extraction` for any cell with a
-  ring, or the deck extracts hundreds of tap devices no netlist declares.
+  ring, or the deck extracts hundreds of tap devices no netlist declares. That stays true for a
+  sub-block called hierarchically: the option is required at the top, not at the sub-block.
+- **A hierarchical CDL only matches if the layout really keeps the hierarchy.** Measured with
+  `layout/debug_pex/probe_hier_lvs.py` `[sim]`: an `X` call onto a **block** sub-cell (guard ring, several
+  devices) matches, while the same construction onto **one-device** sub-cells does not, because the
+  layout flattens them and the deck then sees devices the top cell's `X` lines do not account for. The
+  flat control — same layout, CDL expanded — matches in both cases. Two further conditions the probe
+  pins down: the top cell name must be passed explicitly, and each `.SUBCKT` name must equal the GDS
+  cell name it stands for.
 - **Route the vertical leg first.** When a device brings both terminals out at the same y — a rotated
   resistor does — a horizontal-first run leaves one via and passes over the other terminal's via pad,
   shorting the nets through an intermediate metal of the stack.
 - **Put via stacks on a stub outside the device.** A stack's landing pads are wider than a pin, so
   dropping one on a pin pushes contact and via spacing rules against the device's own geometry.
 - **Snap everything to the 5 nm grid**, including guard-ring tap positions. Distributing taps evenly
-  produced offgrid violations on activ, cont, metal1, psd and substrate at once.
+  produced offgrid violations on activ, cont, metal1, psd and substrate at once. This is the database
+  grid for drawn geometry and is a different thing from the MOS `w` grid above, which is 0.01 µm.
+- **`draw.trunk_net` is unsafe wherever its horizontal stubs share a y with something else.** It drops a
+  stub from each terminal to a vertical trunk at the terminal's own y, and that stub crosses everything
+  between them on the same metal. Two agents hit it independently on the same day: on the VGA a stub
+  leaving `tail1`'s drain passed through `tail2`'s x and the two 246.75 µm tails extracted as **one
+  493.5 µm device**; on the driver a collector stub shared the Metal5 emitter row and merged `outp` into
+  `em` `[sim]`. It is safe in the CTLE only because that stage has a single MOS row and its trunks are
+  outboard of everything they cross. With more than one row, take each array's terminal to **its own
+  outboard column first** and change layer before running horizontally.
+- **A merged pair of identical devices extracts as one device of exactly twice the width.** 493.5 µm for
+  two 246.75 µm tails, 729 µm for the CTLE's three arrays. That signature identifies the failure faster
+  than reading the netlist does.
+- **Bisect a cell, do not reason about it.** Both the driver and the termination were resolved by
+  building the cell in stages — devices alone, then the divider, then the clamp, then the ring — and
+  extracting at each step. The driver's core was clean at every step and only broke when pads, clamp and
+  ESD went in, which located nine separate merges in one pass. Reasoning about the full cell had not
+  moved either block in two rounds.
+- **The bond pad claims its footprint the way a coil does.** `Pad.fR_M1` through `Pad.fR_TM2` fire on
+  anything drawn under the 70 µm square, so a feeder has to approach along the pad's edge and stop
+  outside it — the same shape of constraint as the coil's `pwell_block` marker, and it wants the same
+  answer. The `bondpad` cell also anchors on its **centre**, so placing it by bottom-left coordinates
+  puts it 35 µm from where it was meant to go.
+- **A block with no coil takes no DRC waiver at all.** `LBE.a`/`LBE.c` are chip-area back-end markers on
+  the `inductor` cell; the termination has none and is clean with `CHIP_LEVEL_ALLOWED` empty. Do not
+  carry the CTLE's waiver into a block that has nothing to justify it.
+- **Widening a rail or narrowing a gap is not free at block level.** Recomputing the VGA's array gap
+  from the rule minimum (12 µm down to 5.97 µm) traded 72 spacing violations for 1848 contact and via
+  ones. The CTLE's 12 µm is not the rule minimum and was not meant to be.
 - **Context rules** an isolated cell cannot satisfy: `LU.a`/`LU.b` (a substrate tie within 20 µm),
   `LBE.a`/`LBE.c` (100 µm chip-area back-end markers), density and antenna. This is not an assumption
   — the same deck on the PDK's own `sg13_lv_nmos` testcase layout trips `LU.b` 35 times `[sim]`. Guard
@@ -449,6 +522,16 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **"That point is skipped" in a report is a finding, not a footnote.** A silently skipped operating point
   (VGA max gain failing to converge after a supply reduction squeezed `VCE` below its floor) hides a real
   headroom limit. Require the usable range be emitted into the metrics output instead.
+- **Give a sub-agent the failure signature, not just the failing rule.** The productive prompts on this
+  branch quoted the extracted netlist line, named the `MEMORY.md` entry that describes the same failure,
+  and asked for a bisection. The unproductive ones restated the acceptance criteria.
+- **A stage layout is not one task.** Splitting it into "write the floorplan" and "make LVS clean" worked;
+  asking for both at once produced blocks that were structurally right and electrically shorted, and one
+  agent that regressed from 72 DRC violations to 1848 while trying to fix LVS. Commit the structurally
+  right version first — that regression was recoverable only because it was.
+- **Sub-agents commit and push even when told not to.** Two did here. It was harmless because their work
+  was on the feature branch and was reviewed before the next step, but do not rely on the working tree
+  being what you left it.
 - Feature branch name comes from the current run's instructions (`cursor/<name>-<suffix>`).
 - PRs via the ManagePullRequest tool; `gh` is read-only.
 - Update every affected `AGENTS.md` (root + nested) before opening or updating a PR.

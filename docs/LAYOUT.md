@@ -168,19 +168,20 @@ it solved into `ind_shunt.inc`'s header, so `w`, `s` and `d` are read from there
 Parity also constrains the **schematic**. The deck compares MOS `W` and `L` with
 essentially no tolerance (`rule_decks/custom_devices.lvs` relaxes only inductors,
 5% on `w`/`s`/`d`, and diodes, 1% on `A`/`P`), and a wide MOS is drawn as an array
-of 5 nm-snapped single-finger units, so a width that does not land on that grid is
-not drawable: 242.988 um against a drawn 243.000 um fails. `size_ctle.py` therefore
-emits the drawable width, and parity fails if the two rules ever drift apart.
+of single-finger units whose per-finger width lands on the **0.01 µm PCell grid**
+(`mos_array.MOS_W_GRID`), not the 5 nm layout database grid — conflating the two
+silently mis-sized tails. `size_ctle.py` emits the drawable width, and parity fails
+if the two rules ever drift apart.
 
 What the deck accepts for a 25-unit 243 um array, measured: one `w=243u ng=1 m=1`,
 one `w=9.72u m=25`, and 25 explicit 9.72 um devices all match, so no
 layout-specific restructuring is needed and both netlists carry one device.
 
-Because the cell that is laid out can only contain devices, the CTLE's bias
-current source lives in the testbench and `mgate` is a pin; `vss` is a pin too,
-rather than the global node `0`, so the port list matches the layout. The VGA,
-driver and termination netlists still hold their own sources and need the same
-treatment before they can be laid out.
+Because the cell that is laid out can only contain devices, bias current sources
+and pad capacitance live in the testbench; `mgate`, `vicm`, `steerp`/`steern` and
+`vss` are pins rather than the global node `0`, so the port list matches the layout.
+All four stage netlists (`term_pdk.cir`, `ctle_pdk.cir`, `vga_pdk.cir`,
+`driver_pdk.cir`) follow that contract.
 
 ### Context rules
 
@@ -219,13 +220,14 @@ hand-format PCell unit strings.
   `rppd` defaults to solving for `l` from a target `R`, `cmim` to solving for
   `w&l` from a target `C`. Passing a geometry without setting `Calculate`
   silently yields the default device.
-- **`nmos` clamps `ng` at 100 and snaps finger width to 5 nm.** Asking for 122
-  fingers of a 242.988 um device quietly draws 100 fingers of 2.425 um, i.e.
-  242.5 um. `catalog.plan_fingers()` caps the count and puts the total on the
-  finger grid.
+- **`nmos` clamps `ng` at 100 and floors finger width to 0.01 µm.** Asking for 122
+  fingers of a 242.988 um device quietly draws 100 fingers of 2.43 um, i.e.
+  243 um. `catalog.plan_fingers()` caps the count and puts the total on
+  `MOS_W_GRID` (0.01 µm). Drawn routes still snap to the 5 nm database grid.
 - **The LVS deck reports MOS width per finger**, and reports taps as area and
-  perimeter rather than `w`/`l`. `DeviceKind.to_extracted` states what to expect
-  per device; capacitors are checked on area, which is what sets `C`.
+  perimeter rather than `w`/`l`. **`Nx` on `npn13G2` is geometry, not `m`.**
+  `DeviceKind.to_extracted` states what to expect per device; capacitors are
+  checked on area, which is what sets `C`.
 
 ## Ports
 

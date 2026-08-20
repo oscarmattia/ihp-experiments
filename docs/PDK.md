@@ -69,6 +69,7 @@ The **HBT needs no OSDI** — `npn13G2` is built-in VBIC (`.model … npn level=
 | Ports | `c b e bn` (`_5t`: `c b e bn t`); `pnpMPA`: `c b e` |
 | Params | `Nx` (emitter multiplicity), `Ny`, `le`, `we`, `dtemp`, `selft`, `sw_nqs` |
 | Geometry | `npn13G2`: `le=0.96u`, `we=0.12u`; `npn13G2l`/`v`: `le=2.50u` |
+| LVS extraction | reports **`Nx` as a geometry parameter** — do not fold it into `m`; the deck testcase `npn_adv.cdl` writes `Nx=2 m=1` |
 | Internal instance | `Qnpn13G2` → probe as `@q.<path>.qnpn13g2[ic]` |
 | VBIC soft limits | `vbe_max=1.6`, `vce_max=1.6`, `vbc_max=5.1` |
 | **Emitter resistance** | `re = 7.13*(4/Nx)` Ω → **28.5 Ω at `Nx=1`** |
@@ -189,17 +190,31 @@ the actual geometry before trusting a number.
 
 `idiodevdd_*` / `idiodevss_*` and `esd_ptap` exist only in LVS/qucs-s, **not** in ngspice.
 
+**Layout PCell `esd`** (`sg13g2_pycell_lib`): one cell, `model` parameter selects the
+device (`diodevdd_2kv`, `diodevss_2kv`, `diodevdd_4kv`, `diodevss_4kv`, `nmoscl_2`,
+`nmoscl_4`). Terminal order matches the ngspice subckts above. In this repo
+`layout/common/devices.py` registers `esd_diodevdd`, `esd_diodevss` and
+`esd_nmoscl` kinds that all instantiate this PCell; CDL uses the `D` prefix with
+only `m` as a parameter.
+
 Junction caps: `diodevdd_mod cj0=8.716e-16`, `diodevss_mod cj0=9.42e-16` (per unit area, `area=35`)
 `[model]`. Measured pad load of one `diodevdd_2kv` + one `diodevss_2kv` pair at PAD = 1.4 V,
 VDD = 1.65 V: **50.9 fF, with 1.15 pA of DC leakage** `[sim]`. That is the dominant capacitance on a
 high-speed input, and it is the reason a 50 Ω shunt termination is what makes such a pad usable at
 28 GHz.
 
-### Bond pad — placeholder only
+### Bond pad
 
-`sg13g2_bondpad.lib` is an **empty** `.subckt bondpad PAD` with `size=80u shape=0 padtype=0` and no
-electrical content `[model]`. Pad capacitance must be hand-modelled from the layer-to-substrate
-`defaultareacap` values below.
+**ngspice:** `sg13g2_bondpad.lib` is an **empty** `.subckt bondpad PAD` with
+`size=80u shape=0 padtype=0` and no electrical content `[model]`. Pad capacitance must
+be hand-modelled from the layer-to-substrate values below or from PEX of a drawn pad.
+
+**Layout PCell `bondpad`** (`bondpad_code.py`): metal stack only — no LVS device class,
+no ngspice model. Parameters include `diameter` (default 80 µm), `shape`
+(`octagon`/`square`/`circle`), `stack`, `topMetal`/`bottomMetal`, `padPin` (`PAD`).
+This repo draws **70 µm** octagonal TM1+TM2 pads on the signal nets (`catalog.esd_devices`).
+Parasitic pad C belongs to whatever instantiates the stage (testbench `{PAD_C}` in
+`ngs.py`), not to the device-only subcircuit.
 
 ### Layer-to-substrate area capacitance (Magic extract deck)
 

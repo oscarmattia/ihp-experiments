@@ -8,7 +8,8 @@
 - Read [`../MEMORY.md`](../MEMORY.md) and [`../docs/PDK.md`](../docs/PDK.md) before sizing anything —
   they hold verified device facts and prior corrections.
 - Layout for these circuits lives in [`../layout/`](../layout/AGENTS.md); it reads
-  `ctle56n/spice/params.inc`, so a resize propagates rather than invalidating the layout.
+  the committed `*_params.inc` files under `ctle56n/spice/`, so a resize propagates
+  rather than invalidating the layout.
 
 ## Purpose
 
@@ -50,14 +51,17 @@ Python scripts assume the caller has already sourced `env.sh` (`PDK_ROOT`, `ngsp
   device-only netlist and one that has not can share the same templates.
 - **A stage that is going to be laid out contains devices only.** Ideal sources belong to whatever
   instantiates it — the testbench standalone, the chain when cascaded — and `vss` is a pin rather than the
-  global node `0`, so the port list matches the layout. `ctle_pdk.cir` and `ctle_ideal.cir` are converted
-  (`outp outn inp inn vdd vss mgate`); `vga_*`, `driver_pdk` and `term_pdk` still hold their own sources
-  and need the same treatment before they can be laid out. `layout/common/parity.py` checks the CTLE's
-  devices and pins against the layout on every run.
+  global node `0`, so the port list matches the layout. All four stage netlists are converted:
+  `term_pdk.cir`, `ctle_pdk.cir`, `vga_pdk.cir` and `driver_pdk.cir` expose only devices; bias,
+  steering and pad capacitance live in the testbench (`ctlelib/ngs.py` `{DUT_BIAS}` tokens).
+  `layout/common/parity.py` checks each gated stage's devices and pins on every layout run.
 - **Emit drawable geometry.** The LVS deck compares MOS `W` and `L` with essentially no tolerance and a
-  wide MOS is drawn as an array of 5 nm-snapped single-finger units, so `size_ctle.snap_drawable_mos_w`
-  puts the sized width on that grid. A width that only exists in the schematic is a mismatch later.
-- Generated parameters: `spice/params.inc` and `spice/ind_shunt.inc` (both committed).
+  wide MOS is drawn as an array of single-finger units whose per-finger width lands on the **0.01 um**
+  PCell grid (`mos_array.MOS_W_GRID`, `size_ctle.snap_drawable_mos_w`, pinned by
+  `python/check_mos_w_grid.py`). That is not the 5 nm layout database grid — conflating the two
+  caused silent width mismatches. A width that only exists in the schematic is a mismatch later.
+- Generated parameters: `spice/params.inc`, `spice/term_params.inc`, `spice/vga_params.inc`,
+  `spice/driver_params.inc` and `spice/ind_shunt.inc` (all committed).
 - Results: `out/summary.csv`, per-pass `metrics.csv`, plots, `op.txt`; commit summaries and PNGs, not raw
   `.raw` logs.
 

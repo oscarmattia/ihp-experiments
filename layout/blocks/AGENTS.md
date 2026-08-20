@@ -1,21 +1,30 @@
 # Agent notes — `layout/blocks/`
 
-Matched device groups for the CTLE stage, and the stage itself.
+Matched device groups for the CTLE, and the four RX front-end stage layouts.
 
-**Update this file** when a block's structure, its gates, or the stage floorplan
+**Update this file** when a block's structure, a stage's gates, or a stage floorplan
 changes.
 
 ## Layout
 
 | Script | Role |
 | --- | --- |
-| `generators.py` | the five sub-blocks, each returning a `Block` |
+| `generators.py` | the five CTLE sub-blocks, each returning a `Block` |
 | `mos_array.py` | strapped single-finger MOS arrays, for any wide device |
 | `power_ring.py` | vdd/vss ring: TopMetal2 horizontal, TopMetal1 vertical |
-| `gen_blocks.py` | build all blocks and gate them on DRC, LVS and PEX |
-| `ctle_stage.py` | the full stage: symmetric placement, power grid, interconnect |
+| `draw.py` | shared placement and routing primitives (`snap`, `place`, `via_between`, `trunk_net`, …) |
+| `stage_gates.py` | `run_stage_gates(...)` — parity, EM, render, DRC, LVS, PEX and JSON summaries |
+| `gen_blocks.py` | build all CTLE sub-blocks and gate them on DRC, LVS and PEX |
+| `term_stage.py` | `term_dut` — bond pads, ESD, 50 Ω termination (in progress) |
+| `ctle_stage.py` | `ctle_dut` — full CTLE stage |
+| `vga_stage.py` | `vga_dut` — current-steering VGA (in progress) |
+| `driver_stage.py` | `driver_dut` — pad driver (in progress) |
 
-## Blocks
+## CTLE sub-blocks
+
+These are the matched groups `ctle_stage.py` composes. Other stages reuse
+`mos_array.py`, `power_ring.py` and `draw.py` directly rather than through
+`generators.py`.
 
 | Block | Contents | Status |
 | --- | --- | --- |
@@ -30,6 +39,35 @@ and a shared substrate tie. The tail pair, which trips `LU.b` as a bare device,
 comes back with zero violations of any kind once ringed. Only the coil keeps an
 allowance, for `LBE.a` alone.
 
+## Stage layouts
+
+All four cells are **device-only** subcircuits gated by `run_stage_gates` against
+the matching `circuits/ctle56n/spice/*_pdk.cir`. Floorplans are still being
+iterated — record contracts and gate status here, not placement detail that the
+next revision will move.
+
+| Cell | Schematic | Ports | Size | Devices | parity | EM | DRC | LVS | PEX |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `term_dut` | `term_pdk.cir` | `inp inn vdd vss` | 314.2 × 291.1 um | 10 | ok | ok | **clean, no waivers** | match | 28 C |
+| `ctle_dut` | `ctle_pdk.cir` | `outp outn inp inn vdd vss mgate` | (see summary) | 11 | ok | ok | clean apart from `LBE.a`/`LBE.c` | match | 95 C |
+| `vga_dut` | `vga_pdk.cir` | `outp outn inp inn vicm steerp steern vdd vss mgate` | 586.7 × 221.0 um | 15 | ok | ok | 44 left (`CntB.a`, `CntB.a1`, `Gat.b`, `M2.b`, `M2.e`, `M3.b`, `M4.b`, `M5.a`) | **does not match** | 129 C |
+| `driver_dut` | `driver_pdk.cir` | `outp outn inp inn vdd vss mgate` | 568.9 × 307.8 um | 13 | ok | ok | 22 left (`Gat.d`, `TM1.b`, `TM2.a`, `TM2.b`, `V2.b`, `V3.b`, `V4.b`) beyond the `LBE.a`/`LBE.c` coil waiver | match | 33 C |
+
+**Contracts worth keeping straight:**
+
+- **`term_dut` has four ports** because the bond pad, ESD diodes, 50 Ω shunt and
+  the route to the CTLE are one net — nothing sits between them in the schematic or
+  layout. The termination has **no coil**, so it takes **no** DRC waiver at all (the
+  CTLE's `LBE.a`/`LBE.c` allowance exists only because of its shunt coils).
+- **`vga_dut` and `driver_dut`** expose bias and steering on pins (`mgate`, `vicm`,
+  `steerp`, `steern`); whoever instantiates the cell supplies those voltages or
+  currents through the testbench `{DUT_BIAS}` tokens in `ngs.py`.
+- **Pad capacitance** is parasitic metal, not a CDL device. Layout draws a `bondpad`
+  PCell on the net; ngspice gets hand caps from the testbench.
+
+Summaries land under `layout/blocks/out/<stage>/` as `{cell}_summary.json` plus
+`parity.json`, `em.json`, and the tool run directories.
+
 ## Conventions
 
 - **Mirror, do not translate.** A mirrored pair puts the same neighbour on each
@@ -37,8 +75,11 @@ allowance, for `LBE.a` alone.
   reports 0.000 um of symmetry error.
 - **Derive placement pitch from the device box.** `mirror_pitch()` exists because
   a hardcoded 10 um pitch put two load resistors 0.04 um apart.
-- **Snap everything to the 5 nm grid.** Distributing guard-ring taps evenly
-  produced offgrid violations on five layers at once.
+- **Snap drawn geometry to the 5 nm database grid** (`rules.grid()` via
+  `draw.snap`). That is not the same as MOS finger width: the `nmos` PCell floors
+  its `w` parameter onto a **0.01 um** grid (`mos_array.MOS_W_GRID`,
+  `catalog.MOS_W_GRID`, `size_ctle.MOS_W_GRID_UM`). Wide arrays use that grid;
+  routes and boxes use 5 nm.
 - **Wide MOS devices go through `mos_array.py`.** The PCell provides no finger
   strapping; see `../devices/AGENTS.md`.
 - **LVS with `disable_tap_extraction=True` whenever a block has a guard ring.**
@@ -61,7 +102,7 @@ allowance, for `LBE.a` alone.
   into a single device of the total width, so `MosArray.total_spec` is the netlist
   form — and it is the same form the schematic uses.
 
-## CTLE stage
+## CTLE stage (`ctle_dut`)
 
 Cell name is **`ctle_dut`**, the same as the subcircuit in
 `circuits/ctle56n/spice/ctle_pdk.cir`, because it is meant to be the same cell.
