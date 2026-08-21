@@ -91,6 +91,44 @@ def pass_out(pass_name: str) -> Path:
     return _EXP / "out" / pass_name
 
 
+CL_MARKER = "* postlayout-cl-model:"
+
+
+def declared_cl_model(dut: Path) -> str | None:
+    """The load model the netlist itself asks for, if it says.
+
+    A netlist that carries its own interconnect capacitance needs the Miller term
+    only; one that carries no parasitics needs the full CL. The generator knows
+    which it built and records it, so the right answer does not depend on the
+    caller remembering. On the pad driver, ``miller`` also means drop the
+    testbench ``PAD_C`` (Magic already extracted the bond-pad metal).
+    """
+    path = Path(dut)
+    if not path.is_file():
+        return None
+    for line in path.read_text().splitlines()[:8]:
+        if line.startswith(CL_MARKER):
+            value = line[len(CL_MARKER):].strip()
+            if value in ("full", "miller"):
+                return value
+    return None
+
+
+def resolve_dut_path(dut: str | Path, spice_dir: Path, repo: Path | None = None) -> Path:
+    """Resolve a DUT path: existing file, spice-dir relative, or repo relative."""
+    path = Path(dut)
+    if path.is_file():
+        return path.resolve()
+    spice_cand = spice_dir / path
+    if spice_cand.is_file():
+        return spice_cand.resolve()
+    root = repo if repo is not None else _REPO
+    repo_cand = root / path
+    if repo_cand.is_file():
+        return repo_cand.resolve()
+    raise FileNotFoundError(f"DUT netlist not found: {dut}")
+
+
 def pdk_models() -> Path:
     pdk = os.environ.get("PDK_ROOT")
     if not pdk:

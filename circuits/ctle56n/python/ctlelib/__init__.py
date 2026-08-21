@@ -40,6 +40,7 @@ from .ngs import (
     CHAIN_DUT_BIAS,
     CHAIN_DUT_PORTS,
     CHAIN_NODESET,
+    CL_MARKER,
     CTLE_DC_PRINT_LINES,
     CTLE_DC_SAVE_LINES,
     CTLE_DUT_BIAS,
@@ -56,6 +57,7 @@ from .ngs import (
     VGA_NODESET,
     apply_params,
     assert_unit_diff_source,
+    declared_cl_model,
     exp_root,
     parse_ac_raw,
     parse_ac_vm_vp_raw,
@@ -65,6 +67,7 @@ from .ngs import (
     pass_out,
     pdk_models,
     prepare_tb,
+    resolve_dut_path,
     run_ngspice,
 )
 from .plots import (
@@ -127,6 +130,9 @@ __all__ = [
     "AC_WRDATA_COMPLEX_SCALE_COLS",
     "assert_unit_diff_source",
     "apply_params",
+    "CL_MARKER",
+    "declared_cl_model",
+    "resolve_dut_path",
     "compute_ac_peak_metrics",
     "exp_root",
     "compute_eye_metrics",

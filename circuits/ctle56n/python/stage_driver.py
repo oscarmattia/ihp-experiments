@@ -34,6 +34,7 @@ from ctlelib import (  # noqa: E402
     SimMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
+    declared_cl_model,
     extract_sbr,
     eye_metrics_rows,
     group_delay_s,
@@ -41,6 +42,7 @@ from ctlelib import (  # noqa: E402
     parse_ac_raw,
     parse_dc_log,
     parse_tran_raw,
+    pass_out,
     pdk_models,
     plot_ac,
     plot_eye_diff,
@@ -49,6 +51,7 @@ from ctlelib import (  # noqa: E402
     plot_tran_diff,
     plot_tran_se,
     prepare_tb,
+    resolve_dut_path,
     run_ngspice,
     write_ac_diff_csv,
     write_eye_csvs,
@@ -564,8 +567,8 @@ def write_driver_metrics(
         ["L_EM_case", params.l_em_case],
         ["CL_pad_fF", f"{params.cl_pad_f * 1e15:.2f}"],
         ["m_realized", f"{sim.m_realized:.4f}"],
-        ["m_bessel_target", f"{params.m_bessel_target:.3f}"],
-        ["L_bessel_target_pH", f"{params.l_bessel_target_ph:.2f}"],
+        ["m_target", f"{params.m_target:.3f}"],
+        ["L_target_pH", f"{params.l_target_ph:.2f}"],
         ["driver_Cin_Miller_fF", f"{params.driver_cin_ff:.2f}"],
         ["driver_Cin_sim_fF", f"{sim.driver_cin_sim_ff:.2f}" if sim.driver_cin_sim_ff else ""],
         ["vga_FO2_fF", f"{params.vga_fo2_ff:.2f}"],
@@ -606,9 +609,14 @@ def run(
     out_dir: Path | None = None,
     *,
     no_tran: bool = False,
+    dut: Path | None = None,
+    pass_name: str | None = None,
 ) -> tuple[DriverParams, DriverSimMetrics]:
     spice_dir = _EXP / "spice"
-    pout = out_dir or driver_out()
+    if pass_name:
+        pout = pass_out(pass_name)
+    else:
+        pout = out_dir or driver_out()
     pout.mkdir(parents=True, exist_ok=True)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -622,10 +630,22 @@ def run(
     params = size_driver()
     ep = extra_params(params)
     print_summary(params)
-    _write_work_params(work, ep)
 
     models = pdk_models()
-    dut_cir = spice_dir / "driver_pdk.cir"
+    dut_cir = (
+        resolve_dut_path(dut, spice_dir, _REPO)
+        if dut is not None
+        else spice_dir / "driver_pdk.cir"
+    )
+    cl_mode = declared_cl_model(dut_cir) or "full"
+    if cl_mode == "miller":
+        # Magic already extracted the bond-pad metal; the hand PAD_C would
+        # double-count it. ESD junction C stays in the compact models.
+        ep["PAD_C"] = "0"
+        print("  load model: miller (PAD_C = 0; extracted pad metal stays in the DUT)")
+    elif dut is not None:
+        print(f"  load model: {cl_mode} (PAD_C = {ep['PAD_C']} F per pad)")
+    _write_work_params(work, ep)
 
     # --- DC ---
     tb_dc = _prepare_driver_tb(
@@ -824,9 +844,29 @@ def main() -> None:
         action="store_true",
         help="Run input amplitude sweep (implies transient sims)",
     )
+    parser.add_argument(
+        "--dut",
+        type=Path,
+        default=None,
+        help="External DUT netlist (post-layout .cir)",
+    )
+    parser.add_argument(
+        "--pass-name",
+        default=None,
+        help="Output directory name under out/ (required with --dut)",
+    )
     args = parser.parse_args()
+    if args.dut is not None and not args.pass_name:
+        parser.error("--pass-name is required with --dut")
 
-    params, sim = run(no_tran=args.no_tran and not args.drive_sweep)
+    params, sim = run(
+        no_tran=args.no_tran and not args.drive_sweep,
+        dut=args.dut,
+        pass_name=args.pass_name,
+    )
+
+    if args.dut is not None:
+        return
 
     if args.drive_sweep or not args.no_tran:
         spice_dir = _EXP / "spice"

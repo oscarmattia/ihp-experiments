@@ -179,12 +179,67 @@ POSTLAYOUT_PASSES = (
     ("postlayout_klayout", "devices only", "full CL"),
     ("postlayout_magic", "devices + extracted C", "CL_MILLER"),
 )
+VGA_POSTLAYOUT_PASSES = (
+    ("postlayout_vga_klayout", "devices only", "full CL"),
+    ("postlayout_vga_magic", "devices + extracted C", "CL_MILLER"),
+)
+DRIVER_POSTLAYOUT_PASSES = (
+    ("postlayout_driver_klayout", "devices only", "TB PAD_C"),
+    ("postlayout_driver_magic", "devices + extracted C", "PAD_C = 0"),
+)
 
 #: Where run_postlayout.py records what it built and which gates passed.
 POSTLAYOUT_SUMMARY = Path("layout/blocks/out/postlayout/postlayout_summary.json")
+VGA_POSTLAYOUT_SUMMARY = Path("layout/blocks/out/postlayout_vga/postlayout_summary.json")
+DRIVER_POSTLAYOUT_SUMMARY = Path("layout/blocks/out/postlayout_driver/postlayout_summary.json")
 
 
-def _postlayout_section(exp: Path, pdk: SimMetrics | None) -> str:
+def _extraction_tables(repo_root: Path, summary_rel: Path) -> tuple[str, str]:
+    summary_path = repo_root / summary_rel
+    parasitics = ""
+    gates = ""
+    if not summary_path.is_file():
+        return parasitics, gates
+    import json  # noqa: PLC0415
+
+    data = json.loads(summary_path.read_text())
+    flows = data.get("flows", {})
+    rows = []
+    for key in ("klayout", "magic"):
+        flow = flows.get(key)
+        if not flow:
+            continue
+        rows.append(
+            f"| `{key}` | {flow.get('device_count', 0)} | "
+            f"{flow.get('parasitic_count', 0)} | "
+            f"{flow.get('capacitance_kept_fF', 0.0):.2f} fF | "
+            f"{flow.get('capacitance_dropped_fF', 0.0):.2f} fF |"
+        )
+    if rows:
+        parasitics = (
+            "\n| Flow | Devices | Parasitic C | Kept | Dropped |\n"
+            "| --- | --- | --- | --- | --- |\n" + "\n".join(rows) + "\n"
+        )
+    verdicts = data.get("gates", {})
+    gates = (
+        f"\nExtraction gates: LVS against the reduced CDL "
+        f"**{'match' if verdicts.get('lvs_match') else 'MISMATCH'}**, "
+        f"capacitance physical "
+        f"**{'yes' if verdicts.get('pex_physical') else 'NO'}**.\n"
+    )
+    return parasitics, gates
+
+
+def _postlayout_section(
+    exp: Path,
+    pdk: SimMetrics | None,
+    *,
+    passes_spec: tuple[tuple[str, str, str], ...] = POSTLAYOUT_PASSES,
+    summary_rel: Path = POSTLAYOUT_SUMMARY,
+    stage: str = "CTLE",
+    pin_note: str = "the same seven pins",
+    extra: str = "",
+) -> str:
     """Compare the schematic against the extracted layout, when both exist.
 
     Returns an empty string when no post-layout pass has been run, so the report
@@ -193,44 +248,14 @@ def _postlayout_section(exp: Path, pdk: SimMetrics | None) -> str:
     out_dir = exp / "out"
     passes = [
         (name, label, load, load_sim_metrics(out_dir / name / "metrics.csv", f"{name}_"))
-        for name, label, load in POSTLAYOUT_PASSES
+        for name, label, load in passes_spec
     ]
     passes = [entry for entry in passes if entry[3] is not None]
     if not passes or pdk is None:
         return ""
 
     repo_root = exp.parents[1]
-    summary_path = repo_root / POSTLAYOUT_SUMMARY
-    parasitics = ""
-    gates = ""
-    if summary_path.is_file():
-        import json  # noqa: PLC0415
-
-        data = json.loads(summary_path.read_text())
-        flows = data.get("flows", {})
-        rows = []
-        for key in ("klayout", "magic"):
-            flow = flows.get(key)
-            if not flow:
-                continue
-            rows.append(
-                f"| `{key}` | {flow.get('device_count', 0)} | "
-                f"{flow.get('parasitic_count', 0)} | "
-                f"{flow.get('capacitance_kept_fF', 0.0):.2f} fF | "
-                f"{flow.get('capacitance_dropped_fF', 0.0):.2f} fF |"
-            )
-        if rows:
-            parasitics = (
-                "\n| Flow | Devices | Parasitic C | Kept | Dropped |\n"
-                "| --- | --- | --- | --- | --- |\n" + "\n".join(rows) + "\n"
-            )
-        verdicts = data.get("gates", {})
-        gates = (
-            f"\nExtraction gates: LVS against the reduced CDL "
-            f"**{'match' if verdicts.get('lvs_match') else 'MISMATCH'}**, "
-            f"capacitance physical "
-            f"**{'yes' if verdicts.get('pex_physical') else 'NO'}**.\n"
-        )
+    parasitics, gates = _extraction_tables(repo_root, summary_rel)
 
     header = "| Metric | Schematic (PDK) | " + " | ".join(
         label for _, label, _, _ in passes
@@ -260,7 +285,7 @@ def _postlayout_section(exp: Path, pdk: SimMetrics | None) -> str:
 ## Post-layout comparison
 
 Extracted from the laid-out cell, simulated through the same testbenches as the
-schematic because the CTLE is a device-only cell with the same seven pins. Both
+schematic because the {stage} is a device-only cell with {pin_note}. Both
 flows take their devices from the LVS extraction; only the Magic flow carries
 interconnect capacitance.
 
@@ -281,7 +306,7 @@ not the calibrated model. Their nets are promoted to pins and reconnected outsid
 the extracted core.
 
 Plots and waveforms: {plots}, same file names as the schematic passes.
-"""
+{extra}"""
 
 
 def write_ctle_report(
@@ -603,6 +628,42 @@ Sized DC-coupled to CTLE output CM (**VOUT_CM ≈ {vout_cm or '1.35 V'}** from `
 """
     body += _vga_pass_section("Ideal passives", "vga_ideal_", "vga_ideal", exp)
     body += _vga_pass_section("PDK passives", "vga_pdk_", "vga_pdk", exp)
+    pdk_m = load_sim_metrics(exp / "out" / "vga_pdk" / "metrics.csv", "vga_pdk_")
+    kl_m = read_metrics_dict(exp / "out" / "postlayout_vga_klayout" / "metrics.csv")
+    mag_m = read_metrics_dict(exp / "out" / "postlayout_vga_magic" / "metrics.csv")
+    kl_eh = _metric_float(kl_m, "postlayout_vga_klayout_eye_height_mV")
+    kl_ew = _metric_float(kl_m, "postlayout_vga_klayout_eye_width_UI")
+    mag_eh = _metric_float(mag_m, "postlayout_vga_magic_eye_height_mV")
+    mag_ew = _metric_float(mag_m, "postlayout_vga_magic_eye_width_UI")
+    eye_note = ""
+    if not math.isnan(kl_eh) and not math.isnan(mag_eh):
+        eye_note = (
+            f"\n**Eyes (mid VCTRL, PRBS9)** — devices-only "
+            f"**{_fmt_mw(kl_eh)} / {kl_ew:.3f} UI**, Magic "
+            f"**{_fmt_mw(mag_eh)} / {mag_ew:.3f} UI**. Phase-invariance "
+            f"passed on both. The Magic bandwidth drop does not close the "
+            f"mid-gain eye.\n"
+        )
+    body += _postlayout_section(
+        exp,
+        pdk_m,
+        passes_spec=VGA_POSTLAYOUT_PASSES,
+        summary_rel=VGA_POSTLAYOUT_SUMMARY,
+        stage="VGA",
+        pin_note="the same ten pins (including vicm / steerp / steern / mgate)",
+        extra=f"""
+**Magic C drop (do not "fix" the layout)**
+
+`vga_dut` never labels the dummy-steer collectors `tx1`/`tx2`. Magic
+PEX therefore names those Metal2 rails `m2_7492_3498#` and
+`m2_36168_2698#` and the C-only rewrite drops them (~80 fF each to
+`vss`, plus coupling to `em`/`ed*`). `postlayout_summary.json`
+reports **kept 548 fF / dropped 388 fF**. The midband output numbers
+above are still usable (the drop is internal-node C, not `C_L`). The
+steering-node C is under-counted; do not add labels just to recover
+those capacitors.
+{eye_note}""",
+    )
     path.write_text(body)
 
 
@@ -613,6 +674,7 @@ def write_driver_report(path: Path, exp: Path) -> None:
         return
     sbr = load_sbr_from_taps(exp / "out" / "driver" / "sbr_taps.csv")
 
+    m_target_key = m.get("m_target") or m.get("m_butterworth_target") or m.get("m_bessel_target", "0.414")
     rows = [
         ["Supply", "VDD", f"{_metric_float(m, 'VDD_V'):.3f} V", ""],
         ["Input CM", "VBASE", f"{_metric_float(m, 'VBASE_V'):.3f} V", "from VGA max-gain CM"],
@@ -620,9 +682,9 @@ def write_driver_report(path: Path, exp: Path) -> None:
         ["Tail current", "I_tail", f"{_metric_float(m, 'ITAIL_A') * 1e3:.1f} mA", "single MOS tail"],
         ["On-chip back-term", "R_D", f"{_metric_float(m, 'RD_on_chip_realized_ohm'):.2f} Ω/leg", "rsil target 50 Ω"],
         ["AC R_eff (SE)", "R_eff", f"{_metric_float(m, 'R_eff_AC_half_circuit_ohm'):.1f} Ω", "parallel w/ 100 Ω load"],
-        ["Shunt inductor", "L", f"{_metric_float(m, 'L_pH'):.2f} pH", f"EM {m.get('L_EM_case', '')}"],
-        ["Pad + ESD C_L", "C_L", f"{_metric_float(m, 'CL_pad_fF'):.1f} fF/side", "pad + ESD"],
-        ["Bessel m", "m", f"{_metric_float(m, 'm_realized'):.4f}", f"target {m.get('m_bessel_target', '0.32')}"],
+        ["Shunt inductor", "L", f"{_metric_float(m, 'L_pH'):.2f} pH", f"EM {m.get('L_EM_case', '')} / ind_shunt_drv"],
+        ["Pad + ESD C_L", "C_L", f"{_metric_float(m, 'CL_pad_fF'):.1f} fF/side", "Magic pad metal 144 fF + ESD 51 fF"],
+        ["Butterworth m", "m", f"{_metric_float(m, 'm_realized'):.4f}", f"target {m_target_key}"],
         ["Driver Miller C_in", "C_in", f"{_metric_float(m, 'driver_Cin_Miller_fF'):.1f} fF", "FO2 budget"],
         ["VGA FO2 penalty", "BW", f"{_metric_float(m, 'vga_bw_penalty_pct'):.1f} %", "vs standalone VGA"],
         ["DC gain", "A_v0", _fmt_db(_metric_float(m, "dc_gain_dB")), ""],
@@ -648,11 +710,15 @@ Auto-generated by `python/generate_reports.py` — do not hand-edit numbers.
 
 CML shunt-peaked HBT differential pair driving the output bond pad through on-chip **50 Ω/leg**
 back-termination (`rsil`), with pad + ESD capacitance inside the DUT. Single LV NMOS tail,
-no emitter degeneration. EM-fitted shunt inductor (`ind_shunt`) for Bessel peaking to the pad load.
+no emitter degeneration. EM-fitted shunt inductor (`ind_shunt_drv`, case `turn1` ~215 pH) for
+Butterworth peaking (**m = 0.414**) to the Magic pad-metal load. CTLE/VGA still share
+`ind_shunt` at Bessel **m = 0.32**. Schematic `PAD_C` is Magic in-situ metal only (143.56 fF);
+ESD junction C stays in the compact models. Layout GDS coil is the same `turn1`
+(d = 120 µm). Magic post-layout zeros `PAD_C` and black-boxes the compact L.
 
 ## Targets
 
-- Drive **100 Ω differential** pad with shunt peaking **m ≈ 0.32**
+- Drive **100 Ω differential** pad with shunt peaking **m ≈ 0.414** (Butterworth; on-chip RD ≈ 50 Ω)
 - Pad eye margin vs 56G NRZ (400 mVpp target is gain-starved — see MEMORY.md)
 - {_stim_note()}
 
@@ -666,7 +732,85 @@ Plots and waveforms: `out/driver/`.
 """
     if sbr:
         body += "\n## Single-bit response\n" + _sbr_section_body("PDK", sbr, "driver")
+    body += _driver_postlayout_section(exp, m)
     path.write_text(body)
+
+
+def _driver_postlayout_section(exp: Path, schematic: dict[str, str]) -> str:
+    """Schematic vs extracted pad-driver metrics, when post-layout passes exist."""
+    out_dir = exp / "out"
+    passes = []
+    for name, label, load in DRIVER_POSTLAYOUT_PASSES:
+        d = read_metrics_dict(out_dir / name / "metrics.csv")
+        if d:
+            passes.append((name, label, load, d))
+    if not passes or not schematic:
+        return ""
+
+    parasitics, gates = _extraction_tables(exp.parents[1], DRIVER_POSTLAYOUT_SUMMARY)
+    header = "| Metric | Schematic (PDK) | " + " | ".join(
+        label for _, label, _, _ in passes
+    ) + " |"
+    divider = "| --- | --- |" + " --- |" * len(passes)
+    loads = "| _pad / output load_ | TB PAD_C | " + " | ".join(
+        load for _, _, load, _ in passes
+    ) + " |"
+
+    def cell(d: dict[str, str], key: str, fmt) -> str:
+        return fmt(_metric_float(d, key))
+
+    def line(label: str, key: str, fmt) -> str:
+        cells = " | ".join(cell(d, key, fmt) for _, _, _, d in passes)
+        return f"| {label} | {cell(schematic, key, fmt)} | {cells} |"
+
+    rows = [
+        line("DC gain", "dc_gain_dB", _fmt_db),
+        line("Gain @ 28 GHz", "ac_gain_28G_dB", _fmt_db),
+        line("Peaking @ 28 GHz", "peaking_28G_dB", _fmt_db),
+        line("Peak gain", "G_peak_dB", _fmt_db),
+        line("f_peak", "f_peak_Hz", _fmt_hz),
+        line("f_-3dB", "f_3dB_Hz", _fmt_hz),
+        line("HBT VCE", "VCE_Q1_V", _fmt_v),
+        line("Pad CM", "Vpad_CM_V", _fmt_v),
+        line("Return loss DC", "return_loss_dc_dB", _fmt_db),
+        line("Return loss @ 28 GHz", "return_loss_28GHz_dB", _fmt_db),
+        line("Pad eye height", "pad_eye_height_mV", _fmt_mw),
+        line("Pad eye width", "pad_eye_width_UI", lambda v: "—" if math.isnan(v) else f"{v:.4f} UI"),
+    ]
+    plots = ", ".join(f"`out/{name}/`" for name, _, _, _ in passes)
+    return f"""
+## Post-layout comparison
+
+Extracted from the laid-out cell, simulated through the same testbenches as the
+schematic because the pad driver is a device-only cell with the same seven pins.
+Both flows take their devices from the LVS extraction; only the Magic flow
+carries interconnect and pad-metal capacitance. The Magic netlist therefore
+drops the testbench ``PAD_C`` so the extracted pad is not counted twice.
+
+{header}
+{divider}
+{loads}
+{chr(10).join(rows)}
+{parasitics}{gates}
+The shunt coils are replaced by the EM-fitted ``ind_shunt`` compact model; ESD
+diodes and the rail clamp stay in the extracted core.
+
+The old 91 → 35 GHz drop was extra C on the pad node, not a missing ESD
+device. Both netlists instantiate the ``diodevdd_2kv`` / ``diodevss_2kv``
+pair (50.9 fF). Schematic ``PAD_C`` is now the Magic in-situ metal
+(143.56 fF); ``C_L`` ≈ 194 fF/side. Magic's 144 fF ``outp``–``vss`` is
+**80 fF from the isolated ``bondpad_70um``** plus **21 fF from the tied ESD
+column** plus ~42 fF still in the pad band. Shunt L is Butterworth
+``m = 0.414`` → EM ``turn1`` ~215 pH in ``ind_shunt_drv`` (CTLE/VGA stay
+Bessel in shared ``ind_shunt``). Layout GDS is the same ``turn1`` pair.
+Schematic is **43.7 GHz / +0.07 dB @ 28 GHz**; Magic after the taller
+cell is **42.2 GHz / −0.14 dB** (``outp``–``vss`` 152 fF vs the 144 fF
+the schematic sizes against). Was 34.9 GHz / −1.67 dB with the 63 pH
+coil. Magic keeps 842 fF cell-total, mostly ``mgate`` / ``em``, not
+``C_L``. See ``layout/debug_pex/FINDINGS.md``.
+
+Plots and waveforms: {plots}, same file names as the schematic pass.
+"""
 
 
 def _chain_setting_rows(m: dict[str, str], label: str) -> list[str]:

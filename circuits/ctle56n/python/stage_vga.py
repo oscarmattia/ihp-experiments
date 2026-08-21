@@ -12,7 +12,7 @@ import math
 import shutil
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
@@ -33,6 +33,7 @@ from ctlelib import (  # noqa: E402
     SimMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
+    declared_cl_model,
     extract_sbr,
     group_delay_s,
     interp_db_at,
@@ -51,6 +52,7 @@ from ctlelib import (  # noqa: E402
     plot_tran_diff,
     plot_tran_se,
     prepare_tb,
+    resolve_dut_path,
     run_ngspice,
     verify_eye_pair_width_agreement,
     verify_eye_phase_invariance,
@@ -232,7 +234,7 @@ def run_dc_sweep(
     """DC OP at each VCTRL; return per-setting bias metrics and combined op log."""
     models = pdk_models()
     spice_dir = _spice_dir()
-    dut_cir = spice_dir / dut_rel
+    dut_cir = resolve_dut_path(dut_rel, spice_dir, _REPO)
     pout = pass_out(pass_name)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -329,7 +331,7 @@ def run_ac_at_vctrl(
 ) -> tuple[VgaSettingMetrics, np.ndarray, np.ndarray, np.ndarray]:
     models = pdk_models()
     spice_dir = _spice_dir()
-    dut_cir = spice_dir / dut_rel
+    dut_cir = resolve_dut_path(dut_rel, spice_dir, _REPO)
     pout = pass_out(pass_name)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -418,7 +420,7 @@ def run_cm_psrr(
 ) -> tuple[float, float]:
     models = pdk_models()
     spice_dir = _spice_dir()
-    dut_cir = spice_dir / dut_rel
+    dut_cir = resolve_dut_path(dut_rel, spice_dir, _REPO)
     pout = pass_out(pass_name)
     work = pout / "work"
     ep = extra_params(params, vctrl=vctrl)
@@ -659,7 +661,7 @@ def run_tran(
 ) -> None:
     models = pdk_models()
     spice_dir = _spice_dir()
-    dut_cir = spice_dir / dut_rel
+    dut_cir = resolve_dut_path(dut_rel, spice_dir, _REPO)
     pout = pass_out(pass_name)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -695,7 +697,7 @@ def run_sbr(
 ) -> SbrResult:
     models = pdk_models()
     spice_dir = _spice_dir()
-    dut_cir = spice_dir / dut_rel
+    dut_cir = resolve_dut_path(dut_rel, spice_dir, _REPO)
     pout = pass_out(pass_name)
     work = pout / "work"
     work.mkdir(parents=True, exist_ok=True)
@@ -729,8 +731,11 @@ def run_pass(
     params: VgaParams,
     *,
     run_tran_sbr: bool = True,
+    cl_mode: str = "full",
 ) -> list[VgaSettingMetrics]:
-    """Full VGA test suite for one pass (vga_ideal or vga_pdk)."""
+    """Full VGA test suite for one pass (vga_ideal, vga_pdk, or a post-layout DUT)."""
+    if cl_mode == "miller":
+        params = replace(params, cl_f=params.cl_miller_f)
     pout = pass_out(pass_name)
     pout.mkdir(parents=True, exist_ok=True)
 
@@ -890,6 +895,9 @@ def run(
     pdk: bool = True,
     no_tran: bool = False,
     params: VgaParams | None = None,
+    dut: Path | None = None,
+    pass_name: str | None = None,
+    cl_mode: str | None = None,
 ) -> VgaParams:
     """Run VGA simulations; returns sizing used."""
     if params is None:
@@ -897,6 +905,20 @@ def run(
     print_summary(params)
 
     spice_dir = _spice_dir()
+    if dut is not None:
+        if not pass_name:
+            raise SystemExit("--pass-name is required with --dut")
+        mode = cl_mode or declared_cl_model(dut) or "full"
+        print(f"=== VGA external DUT ({pass_name}), load model={mode} ===")
+        run_pass(
+            pass_name,
+            dut,
+            params,
+            run_tran_sbr=not no_tran,
+            cl_mode=mode,
+        )
+        return params
+
     if ideal:
         print("=== VGA ideal pass ===")
         run_pass("vga_ideal", "vga_ideal.cir", params, run_tran_sbr=not no_tran)
@@ -937,6 +959,17 @@ def main() -> None:
     parser.add_argument("--no-pdk", action="store_true")
     parser.add_argument("--no-tran", action="store_true", help="Skip PRBS + SBR transient")
     parser.add_argument("--rs", type=float, default=None, help="Override RS (Ω)")
+    parser.add_argument(
+        "--dut",
+        type=Path,
+        default=None,
+        help="External DUT netlist (post-layout .cir). Skips ideal/pdk passes.",
+    )
+    parser.add_argument(
+        "--pass-name",
+        default=None,
+        help="Output directory name under out/ (required with --dut)",
+    )
     args = parser.parse_args()
 
     params = size_vga_for_chain()
@@ -947,10 +980,12 @@ def main() -> None:
             rs_ohm=args.rs,
         )
     run(
-        ideal=not args.no_ideal,
-        pdk=not args.no_pdk,
+        ideal=not args.no_ideal and args.dut is None,
+        pdk=not args.no_pdk and args.dut is None,
         no_tran=args.no_tran,
         params=params,
+        dut=args.dut,
+        pass_name=args.pass_name,
     )
 
 

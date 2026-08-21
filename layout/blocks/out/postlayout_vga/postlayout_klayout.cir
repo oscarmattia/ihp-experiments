@@ -1,0 +1,24 @@
+* postlayout-cl-model: full
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+
+* vga_dut — post-layout DUT wrapper; do not edit by hand
+.include {IND_SHUNT_INC}
+.subckt vga_dut outp outn inp inn vicm steerp steern vdd vss mgate
+X$1 outn nlp2 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQd2 outn vicm ed2 vss npn13G2 we=70n le=900n nx=1
+XQ2 outn inn em vss npn13G2 we=70n le=900n nx=1
+XQ1 outp inp em vss npn13G2 we=70n le=900n nx=1
+X$5 outp nlp1 vss rppd w=5u l=1.4u ps=0u b=0 m=1
+XQd1 outp vicm ed1 vss npn13G2 we=70n le=900n nx=1
+Xtail2 tx2 mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xps2 em steerp tx2 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xpd2 ed2 steern tx2 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xtail1 tx1 mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xps1 em steerp tx1 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=246.75u as=83.895p ad=83.895p ps=510.5u pd=510.5u rfmode=0 pre_layout=0
+Xpd1 ed1 steern tx1 vss sg13_lv_nmos l=0.5u w=200u as=68p ad=68p ps=413.6u pd=413.6u rfmode=0 pre_layout=0
+Xl1 vdd nlp1 vss ind_shunt
+Xl2 vdd nlp2 vss ind_shunt
+.ends vga_dut

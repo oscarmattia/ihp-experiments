@@ -14,9 +14,9 @@
 
 .subckt driver_dut outp outn inp inn vdd vss mgate
 * Shunt-peaked collectors: VDD -> L -> RD -> pad/collector
-Xl1 vdd nlp1 vss ind_shunt
+Xl1 vdd nlp1 vss ind_shunt_drv
 Xrd1 nlp1 outp vss rsil w={RSIL_W} l={RSIL_L} m=1
-Xl2 vdd nlp2 vss ind_shunt
+Xl2 vdd nlp2 vss ind_shunt_drv
 Xrd2 nlp2 outn vss rsil w={RSIL_W} l={RSIL_L} m=1
 
 * HBT differential pair — shared emitter (no degeneration, no steering)

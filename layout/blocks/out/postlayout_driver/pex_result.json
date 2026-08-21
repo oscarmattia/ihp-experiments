@@ -1,0 +1,30 @@
+{
+  "cell": "driver_dut",
+  "gds": "/workspace/layout/blocks/out/postlayout_driver/simview_gds/driver_dut.gds",
+  "netlist": "/workspace/layout/blocks/out/postlayout_driver/pex_run/driver_dut_pex.spice",
+  "ok": true,
+  "resistors": 0,
+  "capacitors": 25,
+  "total_resistance_ohm": 0.0,
+  "resistor_elements": [],
+  "resistance_extracted": true,
+  "physical": true,
+  "negative_capacitors": [],
+  "note": "",
+  "total_capacitance_f": 8.42981e-13,
+  "per_net_capacitance_f": {
+    "vss": 7.83615e-13,
+    "mgate": 2.81549e-13,
+    "em": 2.42297e-13,
+    "outn": 1.5746e-13,
+    "outp": 1.56662e-13,
+    "inp": 2.12738e-14,
+    "inn": 2.1223e-14,
+    "nlp1": 1.05601e-14,
+    "nlp2": 1.05578e-14,
+    "rd1_R0_0/a_0_0#": 3.8145e-16,
+    "rd2_M90_0/a_0_0#": 3.8145e-16
+  },
+  "log": "/workspace/layout/blocks/out/postlayout_driver/pex_run/magic_pex.log",
+  "error": ""
+}

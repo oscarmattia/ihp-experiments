@@ -146,7 +146,7 @@ or not at all. Each netlist declares which it needs.
 | Flow | Devices | Parasitic C | Kept | Dropped |
 | --- | --- | --- | --- | --- |
 | `klayout` | 8 | 0 | 0.00 fF | 0.00 fF |
-| `magic` | 8 | 30 | 472.77 fF | 3.02 fF |
+| `magic` | 8 | 31 | 469.42 fF | 3.02 fF |
 
 Extraction gates: LVS against the reduced CDL **match**, capacitance physical **yes**.
 

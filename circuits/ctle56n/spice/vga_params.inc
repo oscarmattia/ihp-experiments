@@ -7,6 +7,8 @@
 .param RS=0.01
 .param LLOAD=6.29e-11
 .param CL=4.34696e-14
+.param CL_MILLER=3.66696e-14
+.param CL_INTERCONNECT=6.8e-15
 .param ITAIL=0.00287812
 .param MOS_W=246.75
 .param MOS_L=1

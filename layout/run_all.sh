@@ -6,10 +6,12 @@
 #   layout/devices/out/{manifest,drc_summary,lvs_summary,pex_summary}.json
 #   layout/blocks/out/blocks_summary.json
 #   layout/blocks/out/ctle_stage/ctle_stage_summary.json
+#   layout/blocks/out/vga_stage/vga_dut_summary.json
+#   layout/blocks/out/driver_stage/driver_dut_summary.json
 #
 # Usage:
 #   ./layout/run_all.sh
-#   ./layout/run_all.sh --quick     # skip PEX and the stage
+#   ./layout/run_all.sh --quick     # skip PEX, stages, and post-layout netlists
 #   ./layout/run_all.sh --no-render
 #
 set -uo pipefail
@@ -67,11 +69,16 @@ step "blocks: build + gate" "$PY" layout/blocks/gen_blocks.py "${RENDER_ARGS[@]+
 
 if [[ "$QUICK" -eq 0 ]]; then
   step "ctle stage"       "$PY" layout/blocks/ctle_stage.py "${RENDER_ARGS[@]+"${RENDER_ARGS[@]}"}"
+  step "vga stage"        "$PY" layout/blocks/vga_stage.py "${RENDER_ARGS[@]+"${RENDER_ARGS[@]}"}"
+  step "driver stage"     "$PY" layout/blocks/driver_stage.py "${RENDER_ARGS[@]+"${RENDER_ARGS[@]}"}"
   # Builds the black-boxed simulation view, gates it on LVS against the reduced
   # CDL and on the extraction being physical, and writes both post-layout DUT
-  # netlists. Roughly 10 s, so it earns its place in the regression rather than
-  # being left to rot as an opt-in script.
-  step "post-layout netlists" "$PY" layout/blocks/run_postlayout.py
+  # netlists. CTLE is a few seconds; VGA and the pad driver take longer because
+  # Magic extracts the full cell including pads. They belong in the regression
+  # rather than rotting as opt-in scripts.
+  step "ctle post-layout netlists"   "$PY" layout/blocks/run_postlayout.py --stage ctle
+  step "vga post-layout netlists"    "$PY" layout/blocks/run_postlayout.py --stage vga
+  step "driver post-layout netlists" "$PY" layout/blocks/run_postlayout.py --stage driver
 fi
 
 printf '\n============================================================\n'

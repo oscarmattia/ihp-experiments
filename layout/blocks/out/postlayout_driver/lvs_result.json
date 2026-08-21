@@ -1,0 +1,13 @@
+{
+  "cell": "driver_dut",
+  "layout": "/workspace/layout/blocks/out/postlayout_driver/simview_gds/driver_dut.gds",
+  "netlist": "/workspace/layout/blocks/out/postlayout_driver/simview_reduced.cdl",
+  "clean": true,
+  "params_ok": true,
+  "devices_matched": 0,
+  "summary": "Congratulations! Netlists match.",
+  "extracted_netlist": "/workspace/layout/blocks/out/postlayout_driver/lvs_run/driver_dut_extracted.cir",
+  "param_checks": [],
+  "log": "/workspace/layout/blocks/out/postlayout_driver/lvs_run/lvs_run.log",
+  "error": ""
+}

@@ -312,6 +312,8 @@ def extra_params(params: VgaParams, vctrl: float | None = None) -> dict[str, str
         "RS": f"{params.rs_ohm:.6g}",
         "LLOAD": f"{params.l_h:.6g}",
         "CL": f"{params.cl_f:.6g}",
+        "CL_MILLER": f"{params.cl_miller_f:.6g}",
+        "CL_INTERCONNECT": f"{params.cl_interconnect_f:.6g}",
         "ITAIL": f"{params.itail_a:.6g}",
         "MOS_W": f"{params.mos_w_um:.6g}",
         "MOS_L": f"{params.mos_l_um:.6g}",

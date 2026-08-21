@@ -26,6 +26,7 @@ from pathlib import Path
 #: same in both views. The value is the model the LVS deck extracts.
 MODEL_ALIASES: dict[str, str] = {
     "ind_shunt": "inductor",
+    "ind_shunt_drv": "inductor",
 }
 
 #: Where to recover geometry for an aliased model whose simulation form carries
@@ -35,6 +36,7 @@ MODEL_ALIASES: dict[str, str] = {
 #: the case it solved into the include's header, so that is the thing to read.
 ALIAS_GEOMETRY_INCLUDE: dict[str, str] = {
     "ind_shunt": "ind_shunt.inc",
+    "ind_shunt_drv": "ind_shunt_drv.inc",
 }
 
 _IND_HEADER = re.compile(

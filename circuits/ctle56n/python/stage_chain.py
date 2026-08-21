@@ -240,11 +240,13 @@ def build_chain_extra(
     for key in VGA_TOKEN_KEYS:
         if key in vga_ep:
             ep[f"VGA_{key}"] = vga_ep[key]
+
+    drv_ep = driver_extra_params(driver)
     ep["IND_SHUNT_INC"] = vga_ep["IND_SHUNT_INC"]
+    ep["IND_SHUNT_DRV_INC"] = drv_ep["IND_SHUNT_INC"]
     ep["CL_TB"] = "0"
     ep["TMAX"] = "1e-8"
 
-    drv_ep = driver_extra_params(driver)
     for key in DRV_TOKEN_KEYS:
         if key in drv_ep:
             ep[f"DRV_{key}"] = drv_ep[key]
@@ -266,7 +268,7 @@ def _inject_receiver_load(text: str, rdiff: str = "100") -> str:
 
 
 def _write_work_params(work: Path, extra: dict[str, str]) -> None:
-    skip = {"IND_SHUNT_INC"}
+    skip = {"IND_SHUNT_INC", "IND_SHUNT_DRV_INC"}
     lines = ["* chain params — term TERM_*, CTLE from params.inc, VGA VGA_*"]
     for k, v in sorted(extra.items()):
         if k in skip:
@@ -280,6 +282,7 @@ def _prepare_chain_dut(work: Path, models: Path, spice_dir: Path, extra: dict[st
     text = apply_params(dut_src.read_text(), spice_dir, extra)
     text = text.replace("{PDK_MODELS}", str(models))
     text = text.replace("{IND_SHUNT_INC}", extra["IND_SHUNT_INC"])
+    text = text.replace("{IND_SHUNT_DRV_INC}", extra["IND_SHUNT_DRV_INC"])
     dut_local = work / "chain_pdk.cir"
     dut_local.write_text(text)
     return dut_local

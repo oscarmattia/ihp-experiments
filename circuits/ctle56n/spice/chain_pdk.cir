@@ -10,6 +10,7 @@
 
 .include params.inc
 .include '{IND_SHUNT_INC}'
+.include '{IND_SHUNT_DRV_INC}'
 
 .lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
 .lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
@@ -85,9 +86,9 @@ Xpd2 ed2 steern tx2 vss sg13_lv_nmos w={VGA_STEER_W_m} l={VGA_STEER_L_m} ng=1 m=
 * Pad driver (driver_pdk.cir topology, DRV_* tokens)
 * ---------------------------------------------------------------------------
 .subckt driver_dut outp outn inp inn vdd vss mgate
-Xl1 vdd nlp1 vss ind_shunt
+Xl1 vdd nlp1 vss ind_shunt_drv
 Xrd1 nlp1 outp vss rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
-Xl2 vdd nlp2 vss ind_shunt
+Xl2 vdd nlp2 vss ind_shunt_drv
 Xrd2 nlp2 outn vss rsil w={DRV_RSIL_W} l={DRV_RSIL_L} m=1
 
 XQ1 outp inp em vss npn13G2 Nx={DRV_Nx}

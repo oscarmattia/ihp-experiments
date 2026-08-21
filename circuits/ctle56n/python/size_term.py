@@ -71,7 +71,14 @@ def _repo_paths() -> dict[str, Path]:
 
 
 def pad_capacitance_f(pad_w_um: float, pad_l_um: float) -> float:
-    """Pad-to-substrate C from TM1 bottom plate only (stacked TM1+TM2 pad)."""
+    """Pad-to-substrate C from TM1 bottom plate only (stacked TM1+TM2 pad).
+
+    This is the hand area formula for the termination stage only (~27.7 fF for
+    70 µm). Magic C-only PEX of the same drawn ``bondpad_70um`` is ~80 fF
+    isolated, ~102 fF with the ESD column tied, and ~144 fF in-situ on the pad
+    driver — see ``layout/debug_pex/FINDINGS.md``. The pad driver uses the Magic
+    in-situ metal value instead; do not use this function for driver ``PAD_C``.
+    """
     area_um2 = pad_w_um * pad_l_um
     return area_um2 * CAP_M6_AF_UM2 * 1e-18
 

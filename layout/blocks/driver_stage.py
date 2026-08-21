@@ -60,6 +60,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -100,6 +101,7 @@ from layout.common.wrap import derive_terminals
 OUT_DIR = Path(__file__).resolve().parent / "out" / "driver_stage"
 PARAMS_INC = Path("circuits/ctle56n/spice/driver_params.inc")
 SCHEMATIC = Path("circuits/ctle56n/spice/driver_pdk.cir")
+IND_SHUNT_DRV_INC = Path("circuits/ctle56n/spice/ind_shunt_drv.inc")
 
 CELL = "driver_dut"
 PORT_NETS = ["outp", "outn", "inp", "inn", "vdd", "vss", "mgate"]
@@ -166,6 +168,44 @@ OUT_FEED_DX = 8.0
 #: filled Metal3-to-TopMetal2 stack, so a feed leaves on whichever of those
 #: layers suits it and simply has to reach this far past the pad edge.
 PAD_EXIT_LENGTH = rule("Pad_fR")
+
+#: Same pattern as ``layout/common/parity.py``'s ``_IND_HEADER``: the EM sizing
+#: script writes the case it solved into the include's header, so that is
+#: where the coil geometry comes from, not a hardcoded catalog entry. The
+#: driver's coil is EM-fitted independently from CTLE/VGA's (``ind_shunt.inc``,
+#: still ``turn1_d40``), which is why it is not read from ``catalog.COIL``.
+_IND_HEADER = re.compile(
+    r"nr_r=(?P<nr_r>[\d.]+)\s+D=(?P<d>[\d.]+)um\s+w=(?P<w>[\d.]+)um\s+s=(?P<s>[\d.]+)um",
+    re.I,
+)
+
+
+def _coil_spec_from_inc(path: Path) -> DeviceSpec:
+    """Coil ``DeviceSpec`` built from the EM include's own header.
+
+    ``ind_shunt_drv.inc`` (driver_params.inc's ``IND_SHUNT_INC``) is what the
+    schematic driver instantiates — EM case ``turn1``, D=120 um — and
+    ``parity.py`` compares the layout inductor's ``w``/``s``/``d`` against this
+    same header, so the layout has to be built from it too, not from a
+    hardcoded size.
+    """
+    match = _IND_HEADER.search(path.read_text())
+    if not match:
+        raise ValueError(f"no EM case header found in {path}")
+    return DeviceSpec(
+        name="inductor_turn1",
+        kind="inductor",
+        params={
+            "d": float(match.group("d")) * 1e-6,
+            "w": float(match.group("w")) * 1e-6,
+            "s": float(match.group("s")) * 1e-6,
+            "nr_r": int(float(match.group("nr_r"))),
+        },
+        note=(
+            "shunt-peaking coil at the EM-characterized geometry "
+            "(driver_params.inc / ind_shunt_drv.inc, EM case turn1)"
+        ),
+    )
 
 
 def _edge_route(layout, cell, metal: str, x: float, y0: float, y1: float, width: float) -> None:
@@ -321,7 +361,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
                        with_esd: bool = True,
                        _probe: dict[str, bool] | None = None) -> Block:
     """Place and wire one pad driver stage."""
-    from layout.devices.catalog import COIL, driver_devices, esd_devices
+    from layout.devices.catalog import driver_devices, esd_devices
 
     probe = _probe or {}
     with_clamp = probe.get("with_clamp", True)
@@ -335,12 +375,7 @@ def build_driver_stage(params: dict[str, float] | None = None,
     pya = pya_module()
     lm = layer_map()
 
-    coil = DeviceSpec(
-        name="inductor_turn1_d40",
-        kind="inductor",
-        params=dict(COIL),
-        note="shunt-peaking coil at the EM-characterized geometry (driver_params.inc)",
-    )
+    coil = _coil_spec_from_inc(IND_SHUNT_DRV_INC)
     hbt = catalog["npn13G2_driver"]
     esd_vdd_spec = catalog["esd_diodevdd_2kv"]
     esd_vss_spec = catalog["esd_diodevss_2kv"]

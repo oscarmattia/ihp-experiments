@@ -13,6 +13,8 @@ question recurs. Both write only to a scratch directory.
 source ~/.local/share/ihp-eda/env.sh
 python layout/debug_pex/probe_unit_sweep.py          # does it scale with device count?
 python layout/debug_pex/probe_extract_settings.py    # is it how we asked?
+python layout/debug_pex/probe_driver_pad_bw.py       # driver 91→35 GHz: pad model, not ESD
+python layout/debug_pex/probe_standalone_pad.py      # pad 80 fF; +ESD column 102 fF; in-situ 144
 ```
 
 ## It is not the device count
@@ -315,3 +317,84 @@ layout knows every terminal coordinate. That work is open.
   degeneration capacitor's 37 um Metal5 plate for four different nets at once,
   because the tolerance grew with the polygon. Requiring a narrow width first fixed
   it.
+
+## Driver post-layout BW is the pad model, not missing ESD
+
+`probe_driver_pad_bw.py` against the committed Magic wrapper. The schematic
+already has both pieces of the load: a 27.68 fF hand `PAD_C` (TM1 area to
+substrate only — `sg13g2_bondpad.lib` is empty) and the `diodevdd_2kv` +
+`diodevss_2kv` compact pair at **50.9 fF**. Magic zeros `PAD_C` and keeps those
+same ESD subcircuits, then adds extracted metal C.
+
+The 819 fF Magic total is the usual deck-total trap. Per-node:
+
+| Node | Extracted C | Role |
+| --- | --- | --- |
+| `mgate` | 282 fF | MOS gate strap — not `C_L` |
+| `em` | 242 fF | tail/emitter — not `C_L` |
+| `outp` / `outn` | 147 fF each | **this is the load** |
+| `inp` / `inn` | 21 fF each | input wiring |
+| `nlp*` | 7.5 fF each | coil port, already out of `C_L` |
+
+Of the 147 fF on `outp`, **143.56 fF is `outp`–`vss`**. The collector-to-pad
+feed and Miller terms are 2.56 fF (`nlp1`–`outp`) + 0.68 fF (`em`–`outp`) +
+0.05 fF (`inp`–`outp`). Wiring is not the story.
+
+Schematic AC, ESD compact models left in, only `PAD_C` swept `[sim]`:
+
+| `PAD_C` | DC | 28 GHz | f_−3dB |
+| --- | --- | --- | --- |
+| 0 (ESD only) | −0.83 dB | +0.46 dB | **127.69 GHz** |
+| 27.68 fF (hand, committed schematic) | −0.83 dB | +0.24 dB | **90.69 GHz** |
+| 143.56 fF (Magic `outp`–`vss`) | −0.83 dB | −1.59 dB | **35.60 GHz** |
+| Magic extracted DUT | −0.83 dB | −1.67 dB | **34.88 GHz** |
+
+`PAD_C=0` gets *wider*, so the schematic is not missing the ESD junctions.
+Putting the Magic pad-to-vss term on the schematic lands 0.7 GHz from the
+extracted DUT; the leftover is the 3 fF of feed coupling. Effective `C_L`
+goes 78.6 → 194.5 fF/side (2.47×) and BW falls 90.7 → 35.6 GHz (2.55×),
+which is the RC ratio, not \(1/\sqrt{C}\).
+
+The hand 27.68 fF is `70 × 70 × 5.649 aF/µm²` — TM1 plate to substrate, no
+fringe, no stack. Magic's 144 fF is **not** that pad sitting in free space.
+`probe_standalone_pad.py` extracts the same `bondpad_70um` PCell alone at
+**80.45 fF** to substrate. Tying the driver's ESD column onto that pad
+adds **21 fF** of `pad`–`vss` (101.6 fF). A TM2 `vss` ring at 6 um adds
+4 fF. The remaining ~42 fF of the in-situ 144 fF is still the rest of the
+pad band (dual-net ring, Metal5 feed, neighbour pad), not the pad stack
+and not proximity to unconnected ESD. Do not retune the cell to the hand
+number. The isolated PCell is still 3× the hand 27.7 fF.
+
+## Standalone `bondpad_70um` is 80 fF, not 144 fF
+
+Same Magic C-only flow as the driver wrapper. Catalog pad: 70 um octagon,
+`bottomMetal=3`, `topMetal=TM2`, `stack=t`.
+
+| Case | Pad-node | `pad`–`vss` |
+| --- | --- | --- |
+| `bondpad_70um` alone | 80.45 fF to sub | — |
+| same + ESD column placed, no bar | 80.45 fF | 80.45 fF (vss ≡ sub; no extra) |
+| same + ESD column tied (M2 bar + M5) | 114.32 fF | **101.56 fF** |
+| ESD column alone (two diodes + PAD bar) | 33.00 fF | 19.31 fF |
+| same pad + TM2 `vss` ring, 6 um gap | 81.67 fF | 3.98 fF |
+| TM1 70×70 square (hand geometry) | 38.15 fF | — |
+| Metal3 70×70 square | 67.55 fF | — |
+| Driver in-situ `outp`–`vss` | 146.86 fF | **143.56 fF** |
+
+Proximity does nothing: an unconnected ESD column leaves pad-node at 80.45 fF
+and adds no `pad`–`esd_pad` term. Shorting the column onto the pad (the
+driver's Metal2 PAD bar) adds the column's own metal — 19 fF of `pad`–`vss`
+on the column alone, 21 fF once it sits next to the pad. That is **extracted
+metal**, on top of the 50.9 fF ESD *junction* C the compact models already
+supply in both schematic and post-layout.
+
+144 − 102 = **42 fF** still unaccounted. That is not the pad and not the ESD
+column.
+
+**Driver schematic sizing** (2026-08): `size_driver.py` uses the in-situ
+143.56 fF Magic pad metal for `PAD_C` and Butterworth m = 0.414 shunt L
+(`turn1` ~215 pH / `ind_shunt_drv.inc`). Layout GDS is the same `turn1`
+pair (d=120 µm); the cell grew 78 µm taller and Magic `outp`–`vss` is now
+**152.23 fF**. Schematic 43.67 GHz / +0.07 dB @ 28 GHz; Magic 42.16 GHz /
+−0.14 dB. Was 34.88 GHz / −1.67 dB with the 63 pH coil. CTLE/VGA stay
+Bessel m = 0.32 in `ind_shunt.inc`.

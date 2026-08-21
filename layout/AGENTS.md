@@ -94,14 +94,16 @@ the `versions.txt` pin or the PDK's `run_drc.py` refuses to run.
   `simview.BLACK_BOX_KINDS`: `inductor` (the PDK has no ngspice model) and `cmomi`
   (the extractor's finger geometry is not the calibrated compact model). Their nets
   are promoted to pins and a wrapper reconnects the compact models, so a
-  post-layout DUT has the schematic's own seven pins and the existing testbenches
-  need no changes.
+  post-layout DUT has the schematic's own pins and the existing testbenches
+  need no changes. VGA and the pad driver have no `cmomi`; they still black-box
+  the coils. `run_postlayout.py --stage {ctle,vga,driver}` writes each wrapper
+  under `layout/blocks/out/postlayout{,_vga,_driver}/`.
 - **A simulation view is not a tape-out view and must not be gated as one.**
-  `build_ctle_stage(black_box=...)` is deliberately not exposed as a CLI flag on
-  `ctle_stage.py`, because that entry point writes the tape-out artifacts and judges
-  them against the full schematic and full CDL. Go through
-  `layout/blocks/run_postlayout.py`, which writes elsewhere and gates the reduced
-  view against the reduced CDL.
+  `build_*_stage(black_box=...)` is deliberately not exposed as a CLI flag on
+  the stage scripts, because those entry points write the tape-out artifacts and
+  judge them against the full schematic and full CDL. Go through
+  `layout/blocks/run_postlayout.py --stage …`, which writes elsewhere and gates
+  the reduced view against the reduced CDL.
 - **Magic extracts flat.** See `pex._magic_script`: hierarchical extraction produced
   negative capacitance. `PexResult.physical` is the gate for that.
 - **Keep extraction investigations, do not throw them away.** When an extraction
@@ -142,11 +144,12 @@ python layout/blocks/term_stage.py       # term_dut
 python layout/blocks/ctle_stage.py       # ctle_dut
 python layout/blocks/vga_stage.py        # vga_dut (all five gates pass)
 python layout/blocks/driver_stage.py     # driver_dut (all five gates pass)
-./layout/run_all.sh                      # devices + blocks + ctle stage (+ postlayout)
+./layout/run_all.sh                      # devices + blocks + ctle/vga/driver stages + postlayout
 ```
 
 Each `*_stage.py` is argument parsing plus one call to `stage_gates.run_stage_gates`,
 which runs parity, EM, render, DRC, LVS and PEX and writes the JSON artifacts.
 Shared drawing lives in `blocks/draw.py` (`snap`, `place`, `via_between`, `trunk_net`,
-`vertical_net`, …). `run_all.sh` gates the CTLE stage only; run the other three
-stages individually when working on them.
+`vertical_net`, …). `run_all.sh` gates the CTLE, VGA and pad-driver stages (not
+`term_dut`) and writes a post-layout DUT netlist for each. Run `term_stage.py`
+on its own.

@@ -477,6 +477,40 @@ Devices are foundry PCells; gdsfactory does composition and routing only.
 - **The extracted netlist carries parameters the models reject.** Extraction emits `A` and `P` on
   `cap_cmomi`, which declares neither, so a post-layout netlist has to be filtered against each
   model's own accepted parameter list rather than fed to ngspice raw.
+- **LVS `D$` instances are `.subckt` wrappers.** `diodevdd_2kv`, `diodevss_2kv` and `nmoscl_2` are
+  subcircuits, so a post-layout core has to rewrite the LVS `D$` prefix to `X` the same way it
+  rewrites `M$`/`Q$`/`R$`. Leave `D$` and ngspice treats them as primitive diodes `[model]`.
+  Pin order also differs: the deck writes BJT3 `C B E` (and the clamp as `VSS VDD`); the compact
+  models want `VDD PAD VSS` / `VDD VSS`. Remap before simulating or the diodes sit on the rails.
+- **Driver Magic flow must drop the testbench `PAD_C`.** The bond pad is metal, so C-only PEX already
+  has it; keeping the hand cap double-counts. The `* postlayout-cl-model: miller` marker is the
+  switch. KLayout (devices only) still needs the hand cap `[sim]`.
+- **The driver's 91 → 35 GHz BW drop is the pad model, not missing ESD and not the feed.**
+  Schematic already has ESD compact models (50.9 fF/pair). Magic keeps those ESD
+  subcircuits and extracts **143.56 fF `outp`–`vss`**. Sweeping schematic `PAD_C` to
+  that value lands at 35.60 GHz against Magic's 34.88 GHz. `PAD_C=0` *widens* the
+  schematic to 128 GHz, so ESD was never omitted. Collector-to-pad wiring is 2.56 fF
+  (`nlp`–`out`). The 819 fF Magic total is `mgate`+`em`+pads; do not quote it as
+  `C_L`. **144 fF is not the pad alone:** `probe_standalone_pad.py` extracts the same
+  `bondpad_70um` at **80.45 fF** to substrate. Tying the ESD column (9 um gap, Metal2
+  PAD bar) adds **21 fF** of `pad`–`vss` (101.6 fF). An unconnected column adds
+  nothing. A TM2 vss ring at 6 um adds 4 fF. The remaining ~42 fF is still the rest
+  of the pad band. See `layout/debug_pex/FINDINGS.md` `[sim]`. **Driver schematic
+  sizing now uses that Magic in-situ metal (143.56 fF `PAD_C`) and Butterworth
+  shunt peaking m = 0.414 → EM case `turn1` ~215 pH in `ind_shunt_drv.inc`. CTLE/VGA
+  stay Bessel m = 0.32 in shared `ind_shunt.inc`. After the retune, schematic
+  and Magic agreed at **43.67 / 43.61 GHz** before the GDS coil swap. After
+  placing `turn1` (d=120 µm) the cell is 78 µm taller; Magic `outp`–`vss` is
+  **152.23 fF** and BW is **42.16 GHz / −0.14 dB @ 28 GHz** `[sim]`. Layout
+  and schematic coils now match. Termination still uses the hand 27.7 fF
+  TM1-area formula.
+- **VGA Magic drops unlabeled `tx1`/`tx2`.** Those dummy-steer collectors are drawn but never
+  labelled, so PEX emits `m2_7492_3498#` / `m2_36168_2698#` (~80 fF each to `vss`, plus coupling
+  to `em`/`ed*`) and the C-only rewrite throws them away: kept 548 fF, dropped 388 fF. The
+  midband output numbers are still usable (internal-node C, not `C_L`); steering-node C is
+  under-counted. Do not add labels just to recover those capacitors `[sim]`.
+- **`--flow magic` used to wipe the KLayout row from `postlayout_summary.json`.** `run_stage`
+  now merges the previous `flows` dict so a one-flow rebuild keeps the other flow's numbers.
 - **Magic `extresist` segfaults on DC-shorted ports** — the correct topology for a coil (one
   continuous piece of TopMetal2) and for a tap. Fall back to capacitance-only extraction. With the
   coil black-boxed the crash goes away and the pass completes on every cell, so the coil is the

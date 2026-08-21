@@ -1,0 +1,23 @@
+* postlayout-cl-model: full
+.lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ
+.lib '{PDK_MODELS}/cornerMOSlv.lib' mos_tt
+.lib '{PDK_MODELS}/cornerRES.lib' res_typ
+.lib '{PDK_MODELS}/cornerDIO.lib' dio_tt
+
+* driver_dut — post-layout DUT wrapper; do not edit by hand
+.include {IND_SHUNT_INC}
+.subckt driver_dut outp outn inp inn vdd vss mgate
+XQ2 outn inn em vss npn13G2 we=70n le=900n nx=2
+X$2 outn nlp2 vss rsil w=0.5u l=2.35u ps=0u m=1
+XQ1 outp inp em vss npn13G2 we=70n le=900n nx=2
+X$4 outp nlp1 vss rsil w=0.5u l=2.35u ps=0u m=1
+Xesd_vdd_p vdd outp vss diodevdd_2kv m=1
+Xesd_vss_p vdd outp vss diodevss_2kv m=1
+Xesd_vdd_n vdd outn vss diodevdd_2kv m=1
+Xesd_vss_n vdd outn vss diodevss_2kv m=1
+Xclamp vdd vss nmoscl_2 m=1 pre_layout=0
+Xmdiode mgate mgate vss vss sg13_lv_nmos l=1u w=391.6u as=133.144p ad=133.144p ps=810.4u pd=810.4u rfmode=0 pre_layout=0
+Xtail em mgate vss vss sg13_lv_nmos l=1u w=782.89u as=266.1826p ad=266.1826p ps=1619.5u pd=1619.5u rfmode=0 pre_layout=0
+Xl1 vdd nlp1 vss ind_shunt_drv
+Xl2 vdd nlp2 vss ind_shunt_drv
+.ends driver_dut

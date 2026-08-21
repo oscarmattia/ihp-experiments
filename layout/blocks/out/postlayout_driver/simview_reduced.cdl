@@ -1,0 +1,14 @@
+* driver_dut — generated from DeviceSpecs; do not edit by hand
+.SUBCKT driver_dut outp outn inp inn vdd vss mgate nlp1 nlp2
+M1 mgate mgate vss vss sg13_lv_nmos w=391.6u l=1u ng=1 m=1
+M2 em mgate vss vss sg13_lv_nmos w=782.89u l=1u ng=1 m=1
+Q1 outp inp em vss npn13G2 le=0.9u we=0.07u Nx=2 m=1
+Q2 outn inn em vss npn13G2 le=0.9u we=0.07u Nx=2 m=1
+R1 outp nlp1 vss rsil m=1 l=2.35u w=0.5u
+R2 outn nlp2 vss rsil m=1 l=2.35u w=0.5u
+D1 vdd outp vss diodevdd_2kv m=1
+D2 vdd outp vss diodevss_2kv m=1
+D3 vdd outn vss diodevdd_2kv m=1
+D4 vdd outn vss diodevss_2kv m=1
+D5 vdd vss nmoscl_2 m=1
+.ENDS driver_dut

@@ -588,10 +588,10 @@ summary against the `CL_INTERCONNECT` budget in `params.inc`.
 ## Post-layout simulation
 
 The extracted layout is simulated through the *same* testbenches as the schematic,
-because the CTLE was made a device-only cell with pins
-`outp outn inp inn vdd vss mgate`: a post-layout netlist is just another `dut_cir`
-for `prepare_tb`, and `circuits/ctle56n/python/stage_postlayout.py` takes it by
-path so `circuits/` never imports from `layout/`.
+because each stage is a device-only cell (`ctle_dut`, `vga_dut`, `driver_dut`):
+a post-layout netlist is just another `dut_cir` for `prepare_tb`.
+`layout/blocks/run_postlayout.py --stage {ctle,vga,driver}` writes the wrappers;
+the circuit runners take them by path so `circuits/` never imports from `layout/`.
 
 Two device kinds cannot come from extraction and are black-boxed per kind in
 `simview.BLACK_BOX_KINDS`:
@@ -604,11 +604,11 @@ Two device kinds cannot come from extraction and are black-boxed per kind in
   is not.
 
 Removing them means the nets they touched must become pins of the extracted
-subcircuit, so `simview.promoted_nets()` derives `e1`, `e2`, `nlp1`, `nlp2` from the
-instances and a wrapper reconnects the compact models on those internal nodes while
-presenting the schematic's own seven pins.
+subcircuit, so `simview.promoted_nets()` derives `nlp1`/`nlp2` (and the CTLE's
+`e1`/`e2`) from the instances and a wrapper reconnects the compact models on those
+internal nodes while presenting the schematic's own pins.
 
-The simulation view is a build option, `build_ctle_stage(black_box=...)`, not a
+The simulation view is a build option, `build_*_stage(black_box=...)`, not a
 hand-maintained second view — which is the point of a generated layout, since the
 two cannot drift. It is gated on LVS against a *reduced* CDL derived from the same
 instance list, so every remaining device and all its connectivity is still verified.
@@ -638,6 +638,23 @@ puts the merged node's whole diffusion on one arbitrary instance and gives the o
 Restricting Magic's capacitors to nets both views share keeps 493 fF and discards
 3 fF (0.6%), all of it on resistor body nodes whose parasitics the compact model
 already accounts for.
+
+On `vga_dut` the same filter drops far more — **388 fF of 936 fF** — because
+`tx1`/`tx2` are drawn and never labelled. Magic names those Metal2 rails
+`m2_*#` and the rewrite cannot keep them. That is internal-node C on the
+dummy-steer collectors, not output `C_L`; do not add labels just to recover it.
+
+On `driver_dut` Magic keeps **842 fF** cell-total (almost all of it `mgate` /
+`em` / pad-to-`vss`) and drops 0.76 fF. The load that sets BW is **152 fF
+`outp`–`vss`** after the `turn1` (d=120 µm) coil swap (was 144 fF at the
+shorter `turn1_d40` cell), not the deck total. That pad-node C is **not the
+pad alone**: the same `bondpad_70um` PCell extracts at **80 fF** in isolation;
+tying the ESD column adds **21 fF** of `pad`–`vss`; a TM2 `vss` ring at 6 um
+adds 4 fF; the rest is the pad band plus the taller cell. The schematic's
+old 27.68 fF hand pad is TM1 area-to-sub only. The pad-driver schematic uses
+Magic in-situ metal (143.56 fF `PAD_C`) and Butterworth shunt peaking with EM
+case `turn1` / `ind_shunt_drv`; layout GDS is the same `turn1` pair. See
+[../layout/debug_pex/FINDINGS.md](../layout/debug_pex/FINDINGS.md).
 
 Two things a post-layout netlist must do before ngspice will accept it, both handled
 by `postlayout.normalise_element()`:

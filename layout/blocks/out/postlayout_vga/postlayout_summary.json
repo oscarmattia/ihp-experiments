@@ -1,0 +1,36 @@
+{
+  "cell": "vga_dut",
+  "stage": "vga",
+  "simview_gds": "layout/blocks/out/postlayout_vga/simview_gds/vga_dut.gds",
+  "simview_reduced_cdl": "layout/blocks/out/postlayout_vga/simview_reduced.cdl",
+  "flows": {
+    "klayout": {
+      "netlist": "layout/blocks/out/postlayout_vga/postlayout_klayout.cir",
+      "core_netlist": "layout/blocks/out/postlayout_vga/vga_dut_core.cir",
+      "device_count": 13,
+      "parasitic_count": 0,
+      "capacitance_kept_fF": 0.0,
+      "capacitance_dropped_fF": 0.0,
+      "gates": {
+        "lvs_match": true
+      }
+    },
+    "magic": {
+      "netlist": "layout/blocks/out/postlayout_vga/postlayout_magic.cir",
+      "core_netlist": "layout/blocks/out/postlayout_vga/vga_dut_core_magic.cir",
+      "device_count": 13,
+      "parasitic_count": 56,
+      "capacitance_kept_fF": 547.7954,
+      "capacitance_dropped_fF": 387.6394,
+      "gates": {
+        "pex_physical": true,
+        "lvs_match": true
+      }
+    }
+  },
+  "gates": {
+    "lvs_match": true,
+    "lvs_summary": "Congratulations! Netlists match.",
+    "pex_physical": true
+  }
+}

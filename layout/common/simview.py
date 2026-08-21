@@ -111,12 +111,12 @@ def write_reduced_cdl(
     return write_block_cdl(cell, ports, kept, path)
 
 
-def _inductor_line(spec: DeviceSpec, nets: dict[str, str]) -> str:
-    """``ind_shunt`` positional form matching ``ctle_pdk.cir``."""
+def _inductor_line(spec: DeviceSpec, nets: dict[str, str], subckt_name: str = "ind_shunt") -> str:
+    """Positional ``ind_shunt`` / ``ind_shunt_drv`` form matching ``*_pdk.cir``."""
     p = nets.get("PLUS", "PLUS")
     n = nets.get("MINUS", "MINUS")
     sub = nets.get("sub", "sub")
-    return f"X{spec.name} {p} {n} {sub} ind_shunt"
+    return f"X{spec.name} {p} {n} {sub} {subckt_name}"
 
 
 def _cmomi_line(spec: DeviceSpec, nets: dict[str, str], params: dict[str, float]) -> str:
@@ -137,6 +137,7 @@ def _cmomi_line(spec: DeviceSpec, nets: dict[str, str], params: dict[str, float]
 def black_box_lines(
     instances: list[tuple[DeviceSpec, dict[str, str]]],
     params: dict[str, float] | None = None,
+    inductor_subckt: str = "ind_shunt",
 ) -> list[str]:
     """SPICE lines re-instantiating black-boxed devices from schematic parameters."""
     values = params or read_params()
@@ -145,7 +146,7 @@ def black_box_lines(
         if not is_black_boxed(spec):
             continue
         if spec.kind == "inductor":
-            lines.append(_inductor_line(spec, nets))
+            lines.append(_inductor_line(spec, nets, subckt_name=inductor_subckt))
         elif spec.kind == "cmomi":
             lines.append(_cmomi_line(spec, nets, values))
         else:
@@ -163,6 +164,7 @@ def write_wrapper(
     core_ports: list[str],
     params: dict[str, float] | None = None,
     extra_includes: tuple[str | Path, ...] = (),
+    inductor_subckt: str = "ind_shunt",
 ) -> Path:
     """Write a wrapper subcircuit presenting the schematic's interface."""
     path = Path(path)
@@ -180,7 +182,7 @@ def write_wrapper(
     lines.append(f".subckt {cell} {' '.join(port_nets)}")
     core_nodes = " ".join(core_ports)
     lines.append(f"Xcore {core_nodes} {core_subckt}")
-    lines.extend(black_box_lines(instances, params=params))
+    lines.extend(black_box_lines(instances, params=params, inductor_subckt=inductor_subckt))
     lines.extend([f".ends {cell}", ""])
     path.write_text("\n".join(lines))
     return path
