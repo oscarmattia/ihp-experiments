@@ -26,7 +26,7 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from layout.common.layers import ROUTING_METALS, layer_map
+from layout.common.layers import layer_map
 from layout.common.paths import pdk_paths
 
 #: Sheet resistance in ohm/square per routing metal, from docs/PDK.md.

@@ -10,11 +10,12 @@ from .metrics import (
     SBR_KEEP_FRAC,
     SBR_POST,
     SBR_PRE,
-    SimMetrics,
     SbrResult,
+    SimMetrics,
     sbr_tap_label,
 )
 from .stim import PRBS9_BITS, PRBS9_POLY, SBR_SETTLE_UI
+
 
 def read_metrics_dict(path: Path) -> dict[str, str]:
     if not path.is_file():

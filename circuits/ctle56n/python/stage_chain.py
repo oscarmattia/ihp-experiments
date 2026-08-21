@@ -24,12 +24,10 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from ctlelib.plots import (  # noqa: E402
-    plot_chain_ac_perstg,
-    plot_chain_sbr_perstg,
-    plot_chain_tran_perstg,
-)
 from ctlelib import (  # noqa: E402
+    CHAIN_DUT_BIAS,
+    CHAIN_DUT_PORTS,
+    CHAIN_NODESET,
     PSRR_MAX_DB,
     SBR_KEEP_FRAC,
     SbrResult,
@@ -56,18 +54,32 @@ from ctlelib import (  # noqa: E402
     write_eye_csvs,
     write_sbr_taps_csv,
     write_tran_csv,
-    CHAIN_DUT_BIAS,
-    CHAIN_DUT_PORTS,
-    CHAIN_NODESET,
 )
-from ctlelib.metrics import AC_PLOT_FMAX_HZ, AC_PLOT_FMIN_HZ, EYE_SETTLE_UI, EyeMetrics  # noqa: E402
+from ctlelib.metrics import (  # noqa: E402
+    AC_PLOT_FMAX_HZ,
+    AC_PLOT_FMIN_HZ,
+    EYE_SETTLE_UI,
+    EyeMetrics,
+)
 from ctlelib.ngs import apply_params, complex_from_vm_vp  # noqa: E402
+from ctlelib.plots import (  # noqa: E402
+    plot_chain_ac_perstg,
+    plot_chain_sbr_perstg,
+    plot_chain_tran_perstg,
+)
 from ctlelib.stim import UI_S, write_prbs_stim, write_sbr_stim  # noqa: E402
 from size_ctle import CtleParams, size_ctle  # noqa: E402
-from size_term import RSRC_LEG_OHM, TermParams, Z0_DIFF_OHM, size_term, to_extra  # noqa: E402
+from size_driver import DriverParams, size_driver  # noqa: E402
+from size_driver import extra_params as driver_extra_params
+from size_term import (  # noqa: E402
+    RSRC_LEG_OHM,
+    Z0_DIFF_OHM,
+    TermParams,
+    size_term,
+    to_extra,
+)
 from size_vga import VgaParams, extra_params, size_vga_for_chain  # noqa: E402
 from stage_vga import read_vga_headroom  # noqa: E402
-from size_driver import DriverParams, extra_params as driver_extra_params, size_driver  # noqa: E402
 
 NYQUIST_HZ = 28e9
 CHAIN_DUT_NAME = "chain_dut"
@@ -228,12 +240,13 @@ def build_chain_extra(
     for key in VGA_TOKEN_KEYS:
         if key in vga_ep:
             ep[f"VGA_{key}"] = vga_ep[key]
+
+    drv_ep = driver_extra_params(driver)
     ep["IND_SHUNT_INC"] = vga_ep["IND_SHUNT_INC"]
     ep["IND_SHUNT_DRV_INC"] = drv_ep["IND_SHUNT_INC"]
     ep["CL_TB"] = "0"
     ep["TMAX"] = "1e-8"
 
-    drv_ep = driver_extra_params(driver)
     for key in DRV_TOKEN_KEYS:
         if key in drv_ep:
             ep[f"DRV_{key}"] = drv_ep[key]
@@ -701,7 +714,6 @@ def _chain_sbr_perstg_stages(tr: ChainTranData) -> dict[str, tuple[np.ndarray, n
 
 
 def _pp_mv_from_tran(time_s: np.ndarray, sig: np.ndarray) -> float:
-    from ctlelib.stim import UI_S
 
     mask = time_s >= EYE_SETTLE_UI * UI_S
     if not np.any(mask):

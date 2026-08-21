@@ -28,9 +28,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ctlelib import (  # noqa: E402
     PSRR_MAX_DB,
+    EyeMetrics,
     SbrResult,
     SimMetrics,
-    EyeMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     declared_cl_model,
@@ -52,7 +52,6 @@ from ctlelib import (  # noqa: E402
     plot_tran_diff,
     plot_tran_se,
     prepare_tb,
-    resolve_dut_path,
     run_ngspice,
     verify_eye_phase_invariance,
     write_ac_diff_csv,

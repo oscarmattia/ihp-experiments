@@ -271,7 +271,6 @@ def model_parameters(model: str) -> frozenset[str]:
         return _model_param_cache[key]
 
     found: set[str] = set()
-    needle = f".subckt {model}"
     for lib_path in _model_lib_files():
         text = lib_path.read_text(encoding="utf-8", errors="replace")
         for match in _LIB_SUBCKT_RE.finditer(text):

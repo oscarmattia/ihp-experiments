@@ -16,9 +16,7 @@ import argparse
 import json
 import os
 import shutil
-import subprocess
 import sys
-import types
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -31,7 +29,6 @@ if str(_REPO) not in sys.path:
 
 from char.common.lut import load_lut, save_lut  # noqa: E402
 from char.passive.ind_pimodel import (  # noqa: E402
-    merge_sparams_into_lut,
     pi_model_from_s2p,
     pi_model_summary,
     refresh_sparam_luts,
@@ -315,10 +312,10 @@ def _run_openems_case(
     """Run mesh preview or full FDTD; return FREQ, Ldiff, Qdiff."""
     _prepare_workflow_modules(workflow)
 
-    import modules.util_stackup_reader as stackup_reader  # type: ignore[import-untyped]
     import modules.util_gds_reader as gds_reader  # type: ignore[import-untyped]
     import modules.util_meshlines as util_meshlines  # type: ignore[import-untyped]
     import modules.util_simulation_setup as simulation_setup  # type: ignore[import-untyped]
+    import modules.util_stackup_reader as stackup_reader  # type: ignore[import-untyped]
     import modules.util_utilities as utilities  # type: ignore[import-untyped]
     from openEMS import openEMS  # type: ignore[import-untyped]
 

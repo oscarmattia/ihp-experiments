@@ -59,6 +59,8 @@ Composer 2.5 where the work is writing code to a specification.
 | `layout/` | Physical layout: PCell devices, the four RX stage cells, DRC/LVS/PEX gates | `layout/AGENTS.md` |
 | `scripts/` | IHP EDA install / verify | `scripts/AGENTS.md` |
 | `docs/` | Environment, setup, and PDK reference docs | `docs/AGENTS.md` |
+| `.github/` | GitHub Actions workflows (lint gate today) | `.github/AGENTS.md` |
+| `pyproject.toml` | Ruff lint config (and future pytest); not a published package | — |
 | `MEMORY.md` | Agent learnings (PDK/sim pitfalls; update when new issues found) | — |
 | `layout/debug_pex/` | Extraction investigations: findings plus the probes that produced them | — |
 | `pdk/` | Gitignored **symlink** to `$PDK_ROOT`, so PDK files can be read at `pdk/ihp-sg13g2/...` | — |
@@ -95,7 +97,8 @@ source ~/.local/share/ihp-eda/env.sh
 ### Pre-PR checklist
 
 1. Affected `AGENTS.md` files reviewed/updated (root + nested).
-2. Implementation landed via sub-agents when the change was non-trivial code —
+2. `uv tool run ruff check` is clean (or the GitHub **lint** job passes).
+3. Implementation landed via sub-agents when the change was non-trivial code —
    Claude Sonnet 5 thinking for `layout/`, Composer 2.5 elsewhere.
-3. Commit + push on `cursor/<name>-b7e8`.
-4. Create/update PR with ManagePullRequest; mention AGENTS.md changes if contracts moved.
+4. Commit + push on `cursor/<name>-b7e8`.
+5. Create/update PR with ManagePullRequest; mention AGENTS.md changes if contracts moved.

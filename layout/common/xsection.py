@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from functools import lru_cache, partial
 
-from layout.common.layers import ROUTING_METALS, VIA_STACK
+from layout.common.layers import ROUTING_METALS
 from layout.common.rules import route_widths
 
 #: Width to draw a route on each metal, derived from the PDK's own DRC rule

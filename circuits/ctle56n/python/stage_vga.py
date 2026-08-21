@@ -23,19 +23,14 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from size_vga import (  # noqa: E402
-    VgaParams,
-    extra_params,
-    print_summary,
-    size_vga,
-    size_vga_for_chain,
-)
-
 from ctlelib import (  # noqa: E402
     PSRR_MAX_DB,
+    VGA_DUT_BIAS,
+    VGA_DUT_PORTS,
+    VGA_NODESET,
+    EyeMetrics,
     SbrResult,
     SimMetrics,
-    EyeMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     declared_cl_model,
@@ -62,15 +57,18 @@ from ctlelib import (  # noqa: E402
     verify_eye_pair_width_agreement,
     verify_eye_phase_invariance,
     write_ac_diff_csv,
-    write_eye_csvs,
     write_pass_metrics,
     write_prbs_stim,
     write_sbr_stim,
     write_sbr_taps_csv,
     write_tran_csv,
-    VGA_DUT_BIAS,
-    VGA_DUT_PORTS,
-    VGA_NODESET,
+)
+from size_vga import (  # noqa: E402
+    VgaParams,
+    extra_params,
+    print_summary,
+    size_vga,
+    size_vga_for_chain,
 )
 
 NYQUIST_HZ = 28e9
@@ -645,7 +643,6 @@ def _alias_tran_sbr(pout: Path, src_tag: str, label: str) -> None:
     if label == "mid":
         tran_csv = pout / "tran.csv"
         if tran_csv.is_file():
-            import numpy as np
             from ctlelib import parse_tran_raw
             from ctlelib.metrics import write_eye_csvs
 
@@ -751,7 +748,7 @@ def run_pass(
         tag = f"vctrl_{vc:.2f}".replace(".", "p")
         try:
             ac_m, _, _, _ = run_ac_at_vctrl(pass_name, dut_rel, params, vc, tag)
-        except RuntimeError as exc:
+        except RuntimeError:
             print(f"    WARNING: AC failed at VCTRL={vc:.2f} V — skipping")
             continue
         ac_rows.append(ac_m)

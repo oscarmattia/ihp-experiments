@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 
 from .metrics import (
-    AC_FMAX_HZ,
     AC_PLOT_FMAX_HZ,
     AC_PLOT_FMIN_HZ,
     CMRR_MIN_DB,
@@ -15,8 +14,8 @@ from .metrics import (
     PSRR_MIN_DB,
     SBR_BASELINE_UI_HI,
     SBR_BASELINE_UI_LO,
-    SBR_PRE,
     SBR_POST,
+    SBR_PRE,
     SbrResult,
     sbr_tap_label,
 )
@@ -472,7 +471,6 @@ def plot_chain_sbr_perstg(
     """Grid of SBR waveforms at each chain tap."""
     import matplotlib.pyplot as plt
 
-    from .stim import SBR_SETTLE_UI
 
     names = [k for k in ("term", "ctle", "vga", "driver") if k in stages]
     if not names:

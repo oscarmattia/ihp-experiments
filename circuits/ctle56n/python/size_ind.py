@@ -30,8 +30,6 @@ from char.passive.ind_pimodel import (  # noqa: E402
     SP_FSTART_HZ,
     SP_FSTOP_HZ,
     SP_NFREQ,
-    SP_VERIFY_S21_MEAN_REL_EXTRAP,
-    SP_VERIFY_S21_MEAN_REL_FIT,
     SpVerifyResult,
     compare_sparams,
     load_em_sparams,

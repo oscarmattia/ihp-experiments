@@ -27,6 +27,7 @@ sys.path[:0] = [str(REPO), str(EXP / "python")]
 
 from ctlelib.metrics import compute_ac_peak_metrics, interp_db_at  # noqa: E402
 from ctlelib.ngs import parse_ac_raw  # noqa: E402
+from layout.debug_pex.probe_signal_net_caps import caps  # noqa: E402
 from size_driver import extra_params, size_driver  # noqa: E402
 from size_term import ESD_C_FF_PER_PAD, pad_capacitance_f  # noqa: E402
 from stage_driver import (  # noqa: E402
@@ -36,7 +37,6 @@ from stage_driver import (  # noqa: E402
     pdk_models,
     run_ngspice,
 )
-from layout.debug_pex.probe_signal_net_caps import caps  # noqa: E402
 
 MAGIC_CORE = REPO / "layout/blocks/out/postlayout_driver/driver_dut_core_magic.cir"
 SCHEMATIC = EXP / "spice" / "driver_pdk.cir"

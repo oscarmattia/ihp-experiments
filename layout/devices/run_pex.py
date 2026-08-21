@@ -26,14 +26,14 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from layout.common.devices import kind_of, um
+from layout.common.devices import kind_of
 from layout.common.gds import write_for_magic
 from layout.common.pex import klayout_wire_resistance, run_magic_pex, signal_resistors
 from layout.common.postlayout import (
     compare,
-    prepare_pex_include,
     measure_two_terminal_capacitance,
     measure_two_terminal_resistance,
+    prepare_pex_include,
 )
 from layout.common.spec import read_specs
 

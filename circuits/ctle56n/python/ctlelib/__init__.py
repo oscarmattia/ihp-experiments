@@ -17,8 +17,8 @@ from .metrics import (
     SBR_POST,
     SBR_PRE,
     EyeMetrics,
-    SimMetrics,
     SbrResult,
+    SimMetrics,
     compute_ac_peak_metrics,
     compute_eye_metrics,
     extract_sbr,
@@ -37,10 +37,10 @@ from .metrics import (
 )
 from .ngs import (
     AC_WRDATA_COMPLEX_SCALE_COLS,
-    assert_unit_diff_source,
     CHAIN_DUT_BIAS,
     CHAIN_DUT_PORTS,
     CHAIN_NODESET,
+    CL_MARKER,
     CTLE_DC_PRINT_LINES,
     CTLE_DC_SAVE_LINES,
     CTLE_DUT_BIAS,
@@ -56,10 +56,9 @@ from .ngs import (
     VGA_DUT_PORTS,
     VGA_NODESET,
     apply_params,
-    CL_MARKER,
+    assert_unit_diff_source,
     declared_cl_model,
     exp_root,
-    resolve_dut_path,
     parse_ac_raw,
     parse_ac_vm_vp_raw,
     parse_dc_log,
@@ -68,6 +67,7 @@ from .ngs import (
     pass_out,
     pdk_models,
     prepare_tb,
+    resolve_dut_path,
     run_ngspice,
 )
 from .plots import (

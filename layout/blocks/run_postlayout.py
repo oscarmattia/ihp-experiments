@@ -19,8 +19,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -32,19 +32,32 @@ if __package__ in (None, ""):
 
 from layout.blocks.ctle_stage import (  # noqa: E402
     CELL as CTLE_CELL,
+)
+from layout.blocks.ctle_stage import (
     PORT_NETS as CTLE_PORTS,
+)
+from layout.blocks.ctle_stage import (
     build_ctle_stage,
 )
 from layout.blocks.driver_stage import (  # noqa: E402
     CELL as DRIVER_CELL,
+)
+from layout.blocks.driver_stage import (
     PORT_NETS as DRIVER_PORTS,
+)
+from layout.blocks.driver_stage import (
     build_driver_stage,
 )
 from layout.blocks.vga_stage import (  # noqa: E402
     CELL as VGA_CELL,
+)
+from layout.blocks.vga_stage import (
     PORT_NETS as VGA_PORTS,
+)
+from layout.blocks.vga_stage import (
     build_vga_stage,
 )
+from layout.common import simview  # noqa: E402
 from layout.common.lvs import run_lvs  # noqa: E402
 from layout.common.pex import run_magic_pex  # noqa: E402
 from layout.common.postlayout import (  # noqa: E402
@@ -55,7 +68,6 @@ from layout.common.postlayout import (  # noqa: E402
     rewrite_extracted_lines,
     write_core,
 )
-from layout.common import simview  # noqa: E402
 
 _PDK_LIBS_HBT_MOS_RES = """\
 .lib '{PDK_MODELS}/cornerHBT.lib' hbt_typ

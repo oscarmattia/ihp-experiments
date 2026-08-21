@@ -1,0 +1,25 @@
+[project]
+name = "ihp-experiments"
+version = "0.0.0"
+description = "Analog IC / IHP SG13G2 experiments"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+required-version = ">=0.16"
+src = ["char", "circuits", "layout", "circuits/ctle56n/python"]
+extend-exclude = [
+    "**/out/**",
+    "pdk",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = [
+    "E501",  # spice strings and analog comments
+    "E402",  # sys.path bootstrap before local imports
+    "E741",  # l/w as length/width is domain vocabulary
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["char", "layout", "ctlelib"]

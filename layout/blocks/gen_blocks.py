@@ -20,11 +20,6 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from layout.common.drc import CONTEXT_RULES, run_drc
-from layout.common.lvs import run_lvs
-from layout.common.netlist import write_block_cdl
-from layout.common.pex import run_magic_pex, signal_resistors
-from layout.common.render import render_gds
 from layout.blocks.generators import (
     degeneration_network,
     hbt_differential_pair,
@@ -32,6 +27,11 @@ from layout.blocks.generators import (
     shunt_coil,
     tail_pair,
 )
+from layout.common.drc import CONTEXT_RULES, run_drc
+from layout.common.lvs import run_lvs
+from layout.common.netlist import write_block_cdl
+from layout.common.pex import run_magic_pex, signal_resistors
+from layout.common.render import render_gds
 from layout.common.sizing import metres, read_params
 from layout.devices.catalog import ctle_devices
 
